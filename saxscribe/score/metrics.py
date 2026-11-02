@@ -8,12 +8,26 @@
                    20% of the note's length (or 50 ms)
   note_f1_no_offset  the same without the offset rule
   beat_f1          beats within 70 ms (only when the answer key has beats)
+
+When an answer key covers only part of the recording (Reference.partial),
+only what we found inside the key's span (first onset - 0.5 s to last
+offset + 0.5 s) is scored, so playing the key leaves out is not counted as
+wrong notes.
 """
 from __future__ import annotations
 
 import numpy as np
 
 FRAME = 0.01
+SPAN_MARGIN = 0.5
+
+
+def span_of(ref_notes: list[dict]) -> tuple[float, float]:
+    return (min(n["onset"] for n in ref_notes) - SPAN_MARGIN, max(n["offset"] for n in ref_notes) + SPAN_MARGIN)
+
+
+def inside(notes: list[dict], span: tuple[float, float]) -> list[dict]:
+    return [n for n in notes if span[0] <= n["onset"] < span[1]]
 
 
 def hz(midi) -> np.ndarray:
@@ -73,10 +87,16 @@ def score_take(ref, take) -> dict:
     """Every layer's scores for one take folder against one Reference."""
     from ..layers import contour as contour_layer, notes as notes_layer
     data = notes_layer.read(take)
+    est = data["notes"]
+    beats = data.get("beats") or []
+    if getattr(ref, "partial", False) and ref.notes:
+        span = span_of(ref.notes)
+        est = inside(est, span)
+        beats = [b for b in beats if span[0] <= b < span[1]]
     out = {}
     out.update(pitch_scores(ref.notes, contour_layer.read(take.contour)))
-    out.update(note_scores(ref.notes, data["notes"]))
-    out.update(beat_scores(ref.beats, data.get("beats") or []))
+    out.update(note_scores(ref.notes, est))
+    out.update(beat_scores(ref.beats, beats))
     out["ref_notes"] = len(ref.notes)
-    out["est_notes"] = len(data["notes"])
+    out["est_notes"] = len(est)
     return {k: (round(float(v), 4) if isinstance(v, (float, np.floating)) else v) for k, v in out.items()}

@@ -179,3 +179,26 @@ def test_bach10_layout(tmp_path):
     assert [(n["onset"], n["offset"], n["pitch"]) for n in stems[0].notes] == [(0.023, 0.053, 62), (0.123, 0.143, 64)]
     mixes = refs.load_bach10(tmp_path / "Bach10", mix=True)
     assert mixes[0].audio.name == "01-AchGottundHerr.wav" and mixes[0].is_mix
+
+
+def test_partial_keys_score_only_inside_their_span():
+    from types import SimpleNamespace
+    key = [{"onset": 10.0, "offset": 10.5, "pitch": 70}, {"onset": 11.0, "offset": 11.5, "pitch": 72}]
+    found = key + [{"onset": 40.0, "offset": 40.5, "pitch": 65}]  # playing the key leaves out
+    span = metrics.span_of(key)
+    assert metrics.inside(found, span) == key
+    assert metrics.note_scores(key, metrics.inside(found, span))["note_f1"] == 1.0
+    assert metrics.note_scores(key, found)["note_f1"] < 1.0
+    assert refs.Reference("x", None, key, partial=True).partial
+
+
+def test_omnibook_keys_are_partial_and_skip_excluded(tmp_path):
+    root = tmp_path / "CharlieParkerOmnibook" / "Pub"
+    for sub in ("audio_stems", "midi_performance_aligned"):
+        (root / sub).mkdir(parents=True)
+    notes = [{"onset": 1.0, "offset": 1.5, "pitch": 70}]
+    for rid in ("lTXyc", "2RfYc"):
+        (root / "audio_stems" / f"{rid}.wav").write_bytes(b"")
+        refs.write_midi_notes(root / "midi_performance_aligned" / f"{rid}-fine-aligned.mid", notes)
+    loaded = refs.load_omnibook(tmp_path / "CharlieParkerOmnibook")
+    assert [(r.id, r.partial) for r in loaded] == [("2RfYc", True)]
