@@ -87,6 +87,14 @@ def dest_of(root: Path, ds: dict, archive: dict) -> Path:
     return folder_of(root, ds) / "_zips" / archive["file"]
 
 
+def find(root: Path, ds: dict, archive: dict) -> Path:
+    """Where a download already is: its usual place, or loose in the dataset folder
+    (some small files, such as a metadata CSV or a README, were saved beside _zips/)."""
+    usual = dest_of(root, ds, archive)
+    loose = folder_of(root, ds) / archive["file"]
+    return usual if usual.exists() or not loose.exists() else loose
+
+
 def unpacks(ds: dict) -> bool:
     return not str(ds.get("extract", "")).lower().startswith("none")
 
@@ -100,7 +108,7 @@ def status(root: Path, ds: dict, verify: bool = False) -> tuple[int, int]:
     """(archives present and good, archives listed)."""
     good = 0
     for a in ds.get("archives", []):
-        p = dest_of(root, ds, a)
+        p = find(root, ds, a)
         if p.exists() and (not verify or not a.get("md5") or unstable(a) or md5_of(p) == a["md5"]):
             good += 1
     return good, len(ds.get("archives", []))
@@ -151,7 +159,7 @@ def fetch(root: Path, ds: dict, extract: bool = True) -> list[str]:
         return [f"{name}: skipped in the manifest ({ds['skipped']})"]
     problems = []
     for a in ds.get("archives", []):
-        dest = dest_of(root, ds, a)
+        dest = find(root, ds, a)
         try:
             if dest.exists() and (not a.get("md5") or unstable(a) or md5_of(dest) == a["md5"]):
                 print(f"  ok      {name}/{a['file']}")
