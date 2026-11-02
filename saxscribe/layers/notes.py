@@ -8,9 +8,11 @@ notes.json holds:
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
-Notes come from Basic Pitch when installed. Without it, or with
---notes-tool contour, they are cut from the pitch line: a new note wherever
-the pitch settles somewhere new or the stem has a clear new attack.
+Note tools (--notes-tool):
+  basic_pitch  Spotify's Basic Pitch on the stem (the default when installed)
+  segment      the pitch line cut into notes after the CREPE Notes method (segment.py)
+  contour      a simpler cutter on the pitch line: a new note wherever the pitch
+               settles somewhere new or the stem has a clear new attack
 """
 from __future__ import annotations
 
@@ -32,7 +34,12 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
     if tool in ("auto", "basic_pitch") and frontend.basic_pitch_available():
         notes, name = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz)), "basic_pitch"
     elif tool == "basic_pitch":
-        raise SystemExit("Basic Pitch is not installed; use --notes-tool contour or install it.")
+        raise SystemExit("Basic Pitch is not installed; use --notes-tool segment or install it.")
+    elif tool == "segment":
+        from . import segment
+        y = frontend.load_mono(take.stem, sr=contour_layer.RATE)
+        level, attacks = segment.envelopes(y, contour_layer.RATE, len(line["time"]))
+        notes, name = segment.segment(line, level, attacks), "segment"
     else:
         onsets = frontend.detect_onsets(frontend.load_mono(take.stem))
         notes, name = from_contour(line, onsets), "contour"
