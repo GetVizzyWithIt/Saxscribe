@@ -68,6 +68,7 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
         row["seconds_per_minute"] = timing
         rows.append(row)
     card = {"set": set_name, "split": split, "settings": name, "items": len(rows),
+            "partial": any(getattr(r, "partial", False) for r in items),
             "made": time.strftime("%Y-%m-%d %H:%M"), "mean": means(rows), "rows": rows}
     (out_dir / "scorecard.json").write_text(json.dumps(card, indent=1) + "\n")
     md = markdown(card, set_name in MIX_SETS or any(r.is_mix for r in items))
@@ -90,7 +91,9 @@ def markdown(card: dict, is_mix: bool) -> str:
     which = 1 if is_mix else 0
     lines = [f"# Scorecard: {card['set']} ({card['split']}, {card['settings']})", "",
              f"{card['items']} recordings, {card['made']}. Targets are the v1 "
-             f"{'full-mix' if is_mix else 'solo-recording'} targets.", "",
+             f"{'full-mix' if is_mix else 'solo-recording'} targets."
+             + (" Answer keys cover part of each recording; only notes inside each key's span are scored."
+                if card.get("partial") else ""), "",
              "| Measure | Mean | Target | |", "| --- | --- | --- | --- |"]
     for col in COLUMNS:
         if col not in card["mean"]:
