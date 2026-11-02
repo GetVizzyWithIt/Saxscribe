@@ -227,7 +227,8 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     squeezed = 0
     for i in range(1, len(notes)):
         if q_on[i] <= q_on[i - 1]:
-            q_on[i] = q_on[i - 1] + MIN_STEP
+            step = Fraction(1, 3) if (q_on[i - 1] % 1).denominator == 3 else MIN_STEP
+            q_on[i] = q_on[i - 1] + step
             squeezed += 1
     placed = []
     for i in range(len(notes)):
@@ -237,6 +238,7 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
         if i + 1 < len(notes):
             end = min(end, q_on[i + 1])
         placed.append({"index": i, "start": start, "length": end - start, "pitch": notes[i]["pitch"]})
+    placed = one_grid_per_beat(placed)
 
     # Line the bars up with the first downbeat, and start at bar 1.
     first_down = round(float(to_beat([downbeats[0]])[0])) if downbeats else 0
@@ -248,6 +250,66 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     return {"key": find_key([n["pitch"] for n in notes]), "swing": s, "swing_source": source,
             "shift": shift, "tempo_bpm": tempo_bpm, "squeezed": squeezed, "grid": grid_note,
             "notes": placed}
+
+
+def is_triplet(x: Fraction) -> bool:
+    return (x % 1).denominator == 3
+
+
+def one_grid_per_beat(placed: list[dict]) -> list[dict]:
+    """Each beat is written in one grid: triplets, or sixteenths and thirty-seconds.
+
+    A beat that mixes the two (from a squeezed note, or a long note that started
+    on a triplet) cannot be written cleanly, so its triplet points move to the
+    nearest thirty-second. Order is kept and no note is dropped.
+    """
+    for _ in range(4):
+        points: dict[int, list[Fraction]] = {}
+        for p in placed:
+            for x in (p["start"], p["start"] + p["length"]):
+                if x % 1:
+                    points.setdefault(int(x // 1), []).append(x)
+        mixed = {b for b, xs in points.items()
+                 if any(is_triplet(x) for x in xs) and any(not is_triplet(x) for x in xs)}
+        if not mixed:
+            return placed
+
+        def fix(x: Fraction) -> Fraction:
+            if int(x // 1) in mixed and is_triplet(x):
+                return Fraction(round(x * 8), 8)
+            return x
+        ends = [fix(p["start"] + p["length"]) for p in placed]
+        starts = [fix(p["start"]) for p in placed]
+        for i in range(1, len(starts)):
+            if starts[i] <= starts[i - 1]:
+                starts[i] = starts[i - 1] + MIN_STEP
+        for i, p in enumerate(placed):
+            end = max(ends[i], starts[i] + MIN_STEP)
+            if i + 1 < len(placed):
+                end = min(end, starts[i + 1])
+            p["start"], p["length"] = starts[i], end - starts[i]
+    return placed
+
+
+def pieces(start: Fraction, end: Fraction) -> list[tuple[Fraction, Fraction]]:
+    """(start, length) pieces of a span, cut at beat lines so no written value
+    straddles a beat (a triplet never spills into the next beat). Whole beats
+    in a row stay one piece, so a half note is still a half note."""
+    cuts = [start]
+    b = int(start // 1) + 1
+    while b < end:
+        cuts.append(Fraction(b))
+        b += 1
+    cuts.append(end)
+    # Join whole-beat runs back up (a half note stays a half note), keep the partial edges.
+    out: list[tuple[Fraction, Fraction]] = []
+    for a, z in zip(cuts, cuts[1:]):
+        whole = a % 1 == 0 and z % 1 == 0
+        if out and whole and out[-1][0] % 1 == 0 and (out[-1][0] + out[-1][1]) == a and out[-1][1] % 1 == 0:
+            out[-1] = (out[-1][0], out[-1][1] + (z - a))
+        else:
+            out.append((a, z - a))
+    return out
 
 
 # ---------------------------------------------------------------- key and spelling
@@ -293,13 +355,29 @@ def build_score(result: dict, horn: Horn, written: bool):
     part.insert(0, m21key.Key(*result["key"].split()))
     if result.get("tempo_bpm"):
         part.insert(0, tempo.MetronomeMark(number=round(result["tempo_bpm"])))
+    # Lay out the whole timeline ourselves, notes and rests, cut at beats, so
+    # every written value is a plain note, a dotted note, or a 3:2 triplet.
+    from music21 import tie
+    t = Fraction(0)
+    spans: list[tuple[Fraction, Fraction, int | None]] = []
     for p in result["notes"]:
-        n = note.Note(spell(p["pitch"], result["key"]))
-        n.quarterLength = p["length"]
-        part.insert(p["start"], n)
-    if not part.notes:
-        part.insert(0, note.Rest(quarterLength=BEATS_PER_BAR))
-    part.makeRests(fillGaps=True, inPlace=True, timeRangeFromBarDuration=True)
+        if p["start"] > t:
+            spans.append((t, p["start"], None))
+        spans.append((p["start"], p["start"] + p["length"], p["pitch"]))
+        t = p["start"] + p["length"]
+    bar_end = Fraction(BEATS_PER_BAR * max(1, -(-t // BEATS_PER_BAR)))
+    if t < bar_end:
+        spans.append((t, bar_end, None))
+    for a, z, pitch in spans:
+        bits = pieces(a, z)
+        for k, (s, length) in enumerate(bits):
+            if pitch is None:
+                el = note.Rest(quarterLength=length)
+            else:
+                el = note.Note(spell(pitch, result["key"]), quarterLength=length)
+                if len(bits) > 1:
+                    el.tie = tie.Tie("start" if k == 0 else "stop" if k == len(bits) - 1 else "continue")
+            part.insert(s, el)
     part = part.makeNotation()
     if written:
         part = part.transpose(interval.Interval(horn.written_interval))

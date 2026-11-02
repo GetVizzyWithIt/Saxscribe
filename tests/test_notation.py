@@ -153,3 +153,47 @@ def test_notes_on_one_grid_slot_are_both_written():
     r = notation.quantize(notes, GRID, GRID[::4], 120.0, "straight")
     assert [p["pitch"] for p in r["notes"]] == [70, 72]
     assert r["notes"][1]["start"] > r["notes"][0]["start"]
+
+
+def musicxml_problems(path) -> list[str]:
+    """What MuseScore refuses: notes without a <type>, tuplets other than 3:2,
+    and tuplet brackets that do not open and close in pairs."""
+    import xml.etree.ElementTree as ET
+    problems, open_tuplets = [], 0
+    for n in ET.parse(path).getroot().iter("note"):
+        rest = n.find("rest")
+        whole_bar_rest = rest is not None and rest.get("measure") == "yes"
+        if n.find("type") is None and not whole_bar_rest:
+            problems.append("note without type")
+        tm = n.find("time-modification")
+        if tm is not None and (tm.findtext("actual-notes"), tm.findtext("normal-notes")) != ("3", "2"):
+            problems.append(f"tuplet {tm.findtext('actual-notes')}:{tm.findtext('normal-notes')}")
+        for t in n.iter("tuplet"):
+            if t.get("type") == "start":
+                open_tuplets += 1
+            elif t.get("type") == "stop":
+                open_tuplets -= 1
+            if open_tuplets < 0 or open_tuplets > 1:
+                problems.append("tuplet brackets out of step")
+    if open_tuplets:
+        problems.append("unclosed tuplet")
+    return problems
+
+
+def test_messy_timing_still_writes_clean_musicxml(tmp_path):
+    """Random human timing over a sparse beat grid (what an Omnibook stem gives)
+    must come out as plain values and 3:2 triplets only."""
+    rng = np.random.default_rng(3)
+    t, notes = 4.0, []
+    for _ in range(300):
+        d = float(rng.choice([0.09, 0.12, 0.18, 0.25, 0.37, 0.5, 0.9]))
+        notes.append({"onset": t, "offset": t + d * 0.9, "pitch": int(rng.integers(55, 80))})
+        t += d + float(rng.choice([0, 0, 0.03, 0.2]))
+    beats = [16.62, 28.42, 66.48, 67.18, 67.88, 68.24, 85.92, 89.36, 89.72, 90.06]
+    r = notation.quantize(notes, beats, beats[:1], None, "auto")
+    assert len(r["notes"]) == len(notes)
+    r["key"] = "B- major"
+    path = tmp_path / "messy.musicxml"
+    notation.build_score(r, HORNS["alto"], written=True).write("musicxml", fp=str(path))
+    assert musicxml_problems(path) == []
+    assert len([n for n in converter.parse(str(path)).recurse().notes if not n.tie or n.tie.type == "start"]) == len(notes)
