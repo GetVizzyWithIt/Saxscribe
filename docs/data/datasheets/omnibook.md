@@ -47,5 +47,5 @@ Each performance-aligned MIDI covers roughly one chorus of the solo, while the s
 
 ## Saxscribe results
 2026-11-02 default tools: pitch 73.3%, onset F1 60.4%, note F1 45.0%; Basic
-Pitch writes 1.5–3.2× too many notes (both understated, see Known issue; re-run pending). Segmenter, contour and mix runs pending.
+Pitch writes 1.5–3.2× too many notes (both understated, see Known issue). Re-graded (E6): pitch 74%, onset F1 86%, note F1 64%. Segmenter, contour and mix runs pending.
 See the [log](../../evaluation/log.md).

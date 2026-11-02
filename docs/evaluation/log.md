@@ -11,11 +11,11 @@ for the contour, Basic Pitch for notes, Beat This! for beats.
 | bach10 | 96.9% | **92.2%** ✓ | **87.5%** ✓ | 92.2% | 21 | solo | E4 |
 | choralebricks | **98.9%** ✓ | 86.7% | 77.8% | 86.5% | 22 | solo | E4 |
 | urmp | 94.4% | 81.6% | 64.4% | 80.8% | 24 | solo | E3 |
-| omnibook | 73.3% | 60.4% | 45.0%* | — | 44 | mix | E2 |
+| omnibook | 74% | **86%** ✓ | **64%** ✓ | — | — | mix | E6 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
-\* Understated: each Omnibook answer key covers about one chorus, but notes played after it were counted as wrong. PR #16 fixes the grading; E2 will be re-run.
+Omnibook now uses chorus-limited grading (PR #16, E6); the earlier 45% note F1 (E2) was understated.
 
 ✓ = meets the v1 target for that set. Speed meets the full-mix target (60 s/min)
 on every mix set and misses the solo target (15 s/min) on every solo set (21–24 s/min).
@@ -28,9 +28,15 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Running (restarted 2026-11-02 20:52) |
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Running |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
-| P5 | Omnibook re-run with chorus-limited grading | after PR #16 merges | Waiting on merge |
+| P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 (full scorecard to be copied in) |
 
 ---
+
+### E6 — 2026-11-02 — Omnibook re-graded inside each answer key's span (PR #16)
+- **Settings**: default. 45 solos (one fewer than E2; reason to confirm from the scorecard).
+- **Headline**: pitch 74%, onset F1 86% (mix target 75%: met), note F1 64% (mix target 60%: met).
+- **What it shows**: E2's 45% came mostly from grading notes after the answer key ended. With fair grading the Omnibook stems meet the full-mix note targets; pitch accuracy (74% vs 90%) is now the gap, likely bleed in the separated stems.
+- *To fill in*: commit, seconds per minute, note F1 without offsets, note-count ratio.
 
 ### E5 — 2026-11-02 — First real PDF render (finding, not a scorecard)
 - **What happened**: one Omnibook stem rendered to a clean PDF in the right alto

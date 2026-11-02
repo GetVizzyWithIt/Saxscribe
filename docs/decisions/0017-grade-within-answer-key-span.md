@@ -14,5 +14,5 @@ so every Omnibook score so far (note F1 45.0%) is understated.
 Score only the part of the recording the answer key covers.
 
 ## Consequences
-- Earlier Omnibook rows in the evaluation log are marked understated and will be re-run.
+- Re-run (log E6): note F1 45% → 64%, onset F1 60% → 86%. Pitch (74%) is now the Omnibook gap.
 - New loaders should state each key's coverage.
