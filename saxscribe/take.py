@@ -51,12 +51,24 @@ class Take:
     # Layer 4: notation
     @property
     def midi(self) -> Path:
-        return self.folder / "score.mid"
+        return self.folder / "score.mid"  # exact times, lines up with source.wav
+
+    @property
+    def musicxml(self) -> Path:
+        return self.folder / "score.musicxml"  # concert pitch
+
+    def written_musicxml(self, horn: str) -> Path:
+        return self.folder / f"score-{horn}.musicxml"  # transposed for the horn
+
+    @property
+    def notation(self) -> Path:
+        return self.folder / "notation.json"
 
     def outputs(self, layer: str) -> list[Path]:
         """The files that mean a layer is done."""
         return {"isolate": [self.source, self.stem], "contour": [self.contour],
-                "notes": [self.notes], "notation": [self.midi]}[layer]
+                "notes": [self.notes],
+                "notation": [self.midi, self.musicxml, self.notation]}[layer]
 
     def has(self, layer: str) -> bool:
         return all(p.exists() for p in self.outputs(layer))

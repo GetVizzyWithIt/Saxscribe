@@ -10,6 +10,9 @@
   A whole folder of recordings:
     python -m saxscribe transcribe ~/Music/Takes/
 
+  Swung eighths (detected by default; set it if the guess is off):
+    python -m saxscribe transcribe solo.mp3 --mix --swing 2 --redo notation
+
   Remake one layer and everything above it, keeping the ones below:
     python -m saxscribe transcribe take.wav --redo notes
 
@@ -47,9 +50,21 @@ def inputs(paths: list[str]) -> list[Path]:
     return files
 
 
+def swing_arg(text: str) -> str:
+    if text in ("auto", "straight"):
+        return text
+    try:
+        if 1.0 <= float(text) <= 4.0:
+            return text
+    except ValueError:
+        pass
+    raise argparse.ArgumentTypeError("use auto, straight, or a ratio from 1 to 4 (2 = triplet swing)")
+
+
 def check() -> int:
     rows = [("ffmpeg", shutil.which("ffmpeg") is not None, "decoding (required)")]
     for mod, use in (("librosa", "audio analysis (required)"), ("mido", "MIDI out (required)"),
+                     ("music21", "notation and MusicXML (required)"),
                      ("torch", "runs the neural models"), ("torchcrepe", "pitch contour (else pYIN)"),
                      ("basic_pitch", "note events (else cut from the contour)"),
                      ("beat_this", "beats (else librosa)"), ("demucs", "stems for full mixes")):
@@ -72,6 +87,8 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "contour"), default="auto")
+    t.add_argument("--swing", default="auto", type=swing_arg,
+                   help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
     sub.add_parser("check", help="which tools are installed")
     args = ap.parse_args(argv)
 
@@ -85,7 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     for f in files:
         try:
             transcribe(f, args.out, mix=args.mix, stem=args.stem, horn=args.horn, redo=args.redo,
-                       contour_tool=args.contour_tool, notes_tool=args.notes_tool)
+                       contour_tool=args.contour_tool, notes_tool=args.notes_tool,
+                       swing=args.swing)
         except (Exception, SystemExit) as exc:  # keep going through a batch
             if len(files) == 1:
                 raise
