@@ -1,0 +1,31 @@
+# Datasheet: Weimar Jazz Database (Jazzomat)
+
+## Motivation
+Made by the Jazzomat Research Project (Hochschule für Musik Franz Liszt
+Weimar) for computational study of jazz improvisation.
+
+## Composition
+- 456 expert transcriptions of jazz solos: 157 tenor, 80 alto, 23 soprano, 11 baritone sax, plus other instruments.
+- Per solo: notes with onsets and durations aligned to the commercial record, beats, bars, chords, phrases. SQLite (`wjazzd.db`) and MIDI.
+- **No audio.** Tier E: answer keys once paired with a copy of the record.
+
+## Collection process
+Transcribed by trained annotators with software assistance, against the original records.
+
+## Preprocessing and labelling
+No Saxscribe loader yet. Pairing needs records Austin owns, aligned to the
+database's timing (check the offset per record).
+
+## Uses
+- **Role**: full-mix answer keys (especially tenor) once paired with Austin's records; chord context for enharmonic spelling; style statistics.
+- **Do not use for**: anything requiring audio until records are sourced.
+
+## Distribution
+https://jazzomat.hfm-weimar.de/download/, open download, 44 MB. Licence:
+*to verify* (the dataset search recorded ODbL; the download page didn't state one). Folder `WeimarJazzDatabase/`.
+
+## Maintenance
+Checksums in the manifest.
+
+## Saxscribe results
+None yet.
