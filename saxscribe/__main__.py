@@ -16,6 +16,14 @@
   Remake one layer and everything above it, keeping the ones below:
     python -m saxscribe transcribe take.wav --redo notes
 
+  Score the tool on recordings with known answers (see saxscribe/score):
+    python -m saxscribe score omnibook
+    python -m saxscribe score filosax --split test
+    python -m saxscribe score pairs --data ~/Music/Etudes
+
+  Make an answer key for your take of a written etude:
+    python -m saxscribe answer-key take.wav etude.musicxml
+
   See which tools are installed:
     python -m saxscribe check
 """
@@ -90,10 +98,39 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--swing", default="auto", type=swing_arg,
                    help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
     sub.add_parser("check", help="which tools are installed")
+
+    sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
+    sc.add_argument("set", choices=("omnibook", "filosax", "pairs"))
+    sc.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
+    sc.add_argument("--split", choices=("all", "train", "test"), default="all")
+    sc.add_argument("--limit", type=int, help="only the first N recordings")
+    sc.add_argument("--runs", help="where take folders and the scorecard go (default ~/saxscribe-runs)")
+    sc.add_argument("--redo", choices=LAYERS)
+    sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
+    sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "contour"), default="auto")
+
+    ak = sub.add_parser("answer-key", help="line a written score up with your take of it")
+    ak.add_argument("audio")
+    ak.add_argument("score", help="MusicXML (or anything music21 reads)")
+    ak.add_argument("-o", "--out", help="MIDI file to write (default: next to the audio)")
+    ak.add_argument("--horn", choices=sorted(HORNS), default="alto")
+    ak.add_argument("--score-pitch", choices=("written", "concert"), default="written",
+                    help="is the score written for the horn (default) or at concert pitch")
     args = ap.parse_args(argv)
 
     if args.cmd == "check":
         return check()
+    if args.cmd == "score":
+        from .score import card
+        card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
+                 args.notes_tool, args.redo)
+        return 0
+    if args.cmd == "answer-key":
+        from .score import align
+        align.run(Path(args.audio).expanduser(), Path(args.score).expanduser(),
+                  Path(args.out).expanduser() if args.out else None, args.horn,
+                  args.score_pitch == "written")
+        return 0
     from .pipeline import transcribe
     files = inputs(args.paths)
     if args.out and len(files) != 1:

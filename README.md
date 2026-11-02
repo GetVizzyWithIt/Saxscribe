@@ -57,8 +57,44 @@ Open the `.musicxml` files in MuseScore. How the notation is made (beat grid,
 swing, sixteenths or triplets, key and spelling) is described at the top of
 `saxscribe/layers/notation.py`.
 
-Coming next: a scorecard against known answer keys (Filosax, URMP, your own
-etude takes) with mir_eval.
+## Scorecard
+
+Every model change is measured on recordings with known answers, using
+mir_eval (the standard music-transcription scores), so numbers compare with
+published ones.
+
+```bash
+python -m saxscribe score omnibook                 # Charlie Parker Aligned Omnibook
+python -m saxscribe score filosax --split test     # Filosax (needs access, and pip install mirdata)
+python -m saxscribe score pairs --data ~/Music/saxscribe-etudes   # your own takes
+python -m saxscribe score omnibook --notes-tool contour           # compare another setting
+```
+
+Each run keeps its take folders and writes `scorecard.md` and `scorecard.json`
+under `~/saxscribe-runs/<set>/<settings>/`, with the v1 targets from the
+requirements alongside. Dataset folders come from `--data`, else
+`config.local.toml` (see `config.local.example.toml`), else `~/mir_datasets/`.
+Train and test splits go by tune, never by take.
+
+| Set | What it is | Where to get it |
+| --- | --- | --- |
+| omnibook | 50 Charlie Parker solos: separated alto stems, aligned MIDI, MusicXML | [Zenodo 14628467](https://zenodo.org/records/14628467), open |
+| filosax | 48 tunes, 5 players, solo sax over backing tracks, note annotations | [Zenodo 5643843](https://zenodo.org/record/5643843), on request |
+| pairs | any folder of audio files, each with a same-named .mid | your own takes |
+
+### Answer keys for your own playing
+
+Record yourself playing something written down, then line the score up with
+the take:
+
+```bash
+python -m saxscribe answer-key take.wav etude.musicxml   # writes take.mid next to it
+```
+
+It assumes the score is written for alto in E-flat; add `--score-pitch concert`
+if it is not. It stretches the score onto the recording (dynamic time warping
+on pitch-class content), then nudges each note to the nearest attack heard.
+Put the takes and their .mid files in one folder and score it as `pairs`.
 
 ## Tests
 
