@@ -3,6 +3,13 @@
   pitch_accuracy   share of sounding answer-key frames where our pitch line is
                    within 50 cents (mir_eval "raw pitch accuracy"; the answer
                    key's frames take the note's pitch, so vibrato costs a little)
+  chroma_accuracy  the same, but an exact octave off also counts as right
+                   (mir_eval "raw chroma accuracy")
+  octave_errors    chroma_accuracy - pitch_accuracy: the share of frames that are
+                   right except for the octave. Over OCTAVE_FLAG on one take
+                   usually means part of the answer key is written in the wrong
+                   octave (seen on Omnibook BRfYc and 7RfYc), or the pitch
+                   tracker dropped an octave; a look at the stem's spectrum tells which
   onset_f1         attacks found within 50 ms, pitch ignored
   note_f1          onset within 50 ms, pitch within 50 cents, offset within
                    20% of the note's length (or 50 ms)
@@ -20,6 +27,7 @@ import numpy as np
 
 FRAME = 0.01
 SPAN_MARGIN = 0.5
+OCTAVE_FLAG = 0.05  # a take with more octave-only errors than this is flagged on the card
 
 
 def span_of(ref_notes: list[dict]) -> tuple[float, float]:
@@ -71,8 +79,9 @@ def pitch_scores(ref: list[dict], contour: dict) -> dict:
         ref_hz[(t >= n["onset"]) & (t < n["offset"])] = hz(n["pitch"])
     est_hz = np.where(contour["voiced"], np.nan_to_num(contour["f0_hz"]), 0.0)
     s = mir_eval.melody.evaluate(t, ref_hz, contour["time"], est_hz)
-    return {"pitch_accuracy": s["Raw Pitch Accuracy"], "voicing_recall": s["Voicing Recall"],
-            "voicing_false_alarm": s["Voicing False Alarm"]}
+    return {"pitch_accuracy": s["Raw Pitch Accuracy"], "chroma_accuracy": s["Raw Chroma Accuracy"],
+            "octave_errors": max(0.0, s["Raw Chroma Accuracy"] - s["Raw Pitch Accuracy"]),
+            "voicing_recall": s["Voicing Recall"], "voicing_false_alarm": s["Voicing False Alarm"]}
 
 
 def beat_scores(ref_beats: list[float] | None, est_beats: list[float]) -> dict:

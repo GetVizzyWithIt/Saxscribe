@@ -202,3 +202,22 @@ def test_omnibook_keys_are_partial_and_skip_excluded(tmp_path):
         refs.write_midi_notes(root / "midi_performance_aligned" / f"{rid}-fine-aligned.mid", notes)
     loaded = refs.load_omnibook(tmp_path / "CharlieParkerOmnibook")
     assert [(r.id, r.partial) for r in loaded] == [("2RfYc", True)]
+
+
+def test_a_key_an_octave_off_shows_as_octave_errors_and_is_flagged():
+    """Omnibook BRfYc and 7RfYc: passages of the key sit an octave above the sax."""
+    key = [{"onset": 0.5 * i, "offset": 0.5 * i + 0.45, "pitch": 60 + i % 5} for i in range(20)]
+    t = np.arange(0, 10.5, 0.01)
+    f0 = np.zeros_like(t)
+    for i, n in enumerate(key):
+        sounding = (t >= n["onset"]) & (t < n["offset"])
+        f0[sounding] = metrics.hz(n["pitch"] - (12 if i < 10 else 0))  # first half of the key an octave high
+    s = metrics.pitch_scores(key, {"time": t, "f0_hz": f0, "voiced": f0 > 0})
+    assert 0.45 < s["pitch_accuracy"] < 0.55
+    assert s["chroma_accuracy"] > 0.95
+    assert 0.4 < s["octave_errors"] < 0.55
+    from saxscribe.score import card
+    md = card.markdown({"set": "omnibook", "split": "all", "settings": "default", "items": 1, "made": "now",
+                        "partial": True, "mean": {"pitch_accuracy": s["pitch_accuracy"]},
+                        "rows": [{"id": "BRfYc", **s, "est_notes": 20, "ref_notes": 20}]}, True)
+    assert "(check)" in md and "Octave check: BRfYc" in md
