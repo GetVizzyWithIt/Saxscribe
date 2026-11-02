@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from .. import frontend
@@ -41,7 +42,9 @@ def to_pdf(musicxml: Path, pdf: Path) -> bool:
     exe = find_musescore()
     if not exe:
         return False
-    env = dict(os.environ, QT_QPA_PLATFORM=os.environ.get("QT_QPA_PLATFORM", "offscreen"))
+    env = dict(os.environ)
+    if sys.platform.startswith("linux"):  # no display on a server; the Mac app only ships its own (cocoa) platform
+        env.setdefault("QT_QPA_PLATFORM", "offscreen")
     try:
         subprocess.run([exe, "-o", str(pdf), str(musicxml)], check=True, env=env,
                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=180)
