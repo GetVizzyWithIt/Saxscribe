@@ -32,6 +32,10 @@
     python -m saxscribe fetch --list
     python -m saxscribe fetch urmp bach10
 
+  Open the app (upload, sheet music, play-along) in the browser:
+    python -m saxscribe app
+    python -m saxscribe app --library ~/Music/saxscribe-library
+
   See which tools are installed:
     python -m saxscribe check
 """
@@ -92,6 +96,30 @@ def check() -> int:
     return 0 if all(ok for name, ok, use in rows if "required" in use) else 1
 
 
+def run_app(args) -> int:
+    try:
+        import uvicorn
+        from .app.library import Library
+        from .app.server import create_app, lan_addresses
+    except ImportError as exc:
+        print(f"The app needs packages that aren't installed ({exc.name}). Run: pip install -r requirements.txt")
+        return 1
+    library = Library(Path(args.library) if args.library else None)
+    local = f"http://127.0.0.1:{args.port}/"
+    print(f"Saxscribe is running. Library: {library.root}")
+    print(f"  On this Mac:  {local}")
+    if args.host == "0.0.0.0":
+        for a in lan_addresses():
+            print(f"  On your iPad: http://{a}:{args.port}/  (same Wi-Fi)")
+    print("Press Ctrl+C to stop.")
+    if not args.no_browser:
+        import threading
+        import webbrowser
+        threading.Timer(1.0, lambda: webbrowser.open(local)).start()
+    uvicorn.run(create_app(library, args.port), host=args.host, port=args.port, log_level="warning")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="saxscribe", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -108,6 +136,13 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--swing", default="auto", type=swing_arg,
                    help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
     sub.add_parser("check", help="which tools are installed")
+
+    ap_app = sub.add_parser("app", help="the web app: upload, sheet music, play-along")
+    ap_app.add_argument("--library", help="where uploads and their takes live (default ~/saxscribe-library)")
+    ap_app.add_argument("--port", type=int, default=8765)
+    ap_app.add_argument("--host", default="0.0.0.0",
+                        help="0.0.0.0 lets an iPad on the same Wi-Fi open it; 127.0.0.1 keeps it to this Mac")
+    ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
 
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
     sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs"))
@@ -142,6 +177,8 @@ def main(argv: list[str] | None = None) -> int:
         from . import datasets
         return datasets.run(args.names, args.all, args.list, args.check, args.manifest, args.root,
                             not args.no_extract)
+    if args.cmd == "app":
+        return run_app(args)
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,

@@ -20,6 +20,13 @@ basic-pitch[onnx]>=0.4 ; sys_platform != "darwin"
 onnxruntime>=1.16           # a backend Basic Pitch can always use, even when Core ML is refused
 setuptools<81               # pkg_resources for resampy (dropped in setuptools 81)
 
+# The app (python -m saxscribe app).
+fastapi>=0.110              # the local web server behind the upload and play-along pages
+uvicorn>=0.29               # runs that server
+python-multipart>=0.0.9     # reads uploaded audio files
+verovio>=4.3                # draws the score on the play-along page, with each note's timing
+
 # Scoring and tests.
 mir_eval>=0.7               # the standard MIR scores (onset F1, note F1, pitch accuracy)
 pytest>=8
+httpx>=0.27                 # the app's tests talk to it through FastAPI's test client

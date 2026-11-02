@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saxscribe</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Saxscribe</h1>
+  <p class="quiet">Upload a recording and get the sax part back as sheet music, with a play-along that scrolls with the record.</p>
+
+  <section class="card" id="upload">
+    <h2>Transcribe a recording</h2>
+    <label class="drop" id="drop">
+      <strong id="dropText">Choose an audio file</strong>
+      <span class="quiet small">or drop one here: WAV, MP3, M4A, AIFF, FLAC</span>
+      <input type="file" id="file" accept="audio/*,.wav,.mp3,.m4a,.aif,.aiff,.flac,.ogg,.opus" hidden>
+    </label>
+    <div class="field">
+      <label>Horn</label>
+      <div class="seg" id="horn"><button type="button" data-v="alto" class="on">Alto</button><button type="button" data-v="tenor">Tenor</button></div>
+    </div>
+    <div class="field">
+      <label>On the recording</label>
+      <div class="seg" id="mix"><button type="button" data-v="false" class="on">Just the sax</button><button type="button" data-v="true">Sax with a band</button></div>
+    </div>
+    <div class="field">
+      <label for="title">Title (optional)</label>
+      <input type="text" id="title" placeholder="e.g. Pennies from Heaven, Stan Getz">
+    </div>
+    <div class="field">
+      <button class="primary" id="go" disabled>Transcribe</button>
+      <span class="quiet small" id="upMsg"></span>
+    </div>
+    <div class="bar" id="upBar" hidden><div></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Your transcriptions</h2>
+    <ul class="takes" id="takes"><li class="quiet">Loading…</li></ul>
+  </section>
+
+  <p class="quiet small" id="where"></p>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/common.js"></script>
+<script src="/static/index.js"></script>
+</body>
+</html>
