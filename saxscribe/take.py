@@ -61,6 +61,13 @@ class Take:
         return self.folder / f"score-{horn}.musicxml"  # transposed for the horn
 
     @property
+    def pdf(self) -> Path:
+        return self.folder / "score.pdf"  # concert pitch; made from score.musicxml when MuseScore is installed
+
+    def written_pdf(self, horn: str) -> Path:
+        return self.folder / f"score-{horn}.pdf"
+
+    @property
     def notation(self) -> Path:
         return self.folder / "notation.json"
 

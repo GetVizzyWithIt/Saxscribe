@@ -54,8 +54,14 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
     concert.write("musicxml", fp=str(take.musicxml))
     build_score(result, horn, written=True).write("musicxml", fp=str(take.written_musicxml(horn.name)))
     take.notation.write_text(json.dumps(result_json(result), indent=1) + "\n")
+    from . import engrave
+    pdfs = [pdf.name for xml, pdf in ((take.musicxml, take.pdf),
+                                      (take.written_musicxml(horn.name), take.written_pdf(horn.name)))
+            if engrave.to_pdf(xml, pdf)]
+    if not pdfs:
+        frontend.log("  No PDF: MuseScore is not installed (brew install --cask musescore). MusicXML is written.")
     take.record("notation", tool="music21", key=result["key"], swing=result["swing"],
-                swing_source=result["swing_source"])
+                swing_source=result["swing_source"], pdf=pdfs)
     frontend.log(f"  {len(notes)} notes in {result['key']}, swing {result['swing']:.2f} "
                  f"({result['swing_source']}); wrote {take.musicxml.name} and "
                  f"{take.written_musicxml(horn.name).name}")
