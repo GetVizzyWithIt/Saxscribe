@@ -45,7 +45,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   almost no beats, and the notation step dropped notes it couldn't place on a grid.
 - **Why it matters**: a fidelity bug (the tool must never omit notes). Scorecards
   didn't catch it because they grade Layer 3, not the notation.
-- **Fix**: PR #15 (merged), which also fixes a MuseScore crash on macOS. PR #17 (open) cleans triplet markings MuseScore rejected, so PDFs render every note.
+- **Fix**: PR #15 (merged), which also fixes a MuseScore crash on macOS. PR #17 (merged) cleans triplet markings MuseScore rejected.
+- **Re-check after both**: the same Parker solo renders to 2 pages with all 398 notes, proper beaming and triplets.
 - **Follow-up**: add a notation check to the scorecard: notes in the score ÷ notes in `notes.json` must be 1.
 
 ### E4 — 2026-11-02 — ChoraleBricks and Bach10 (PR #9)

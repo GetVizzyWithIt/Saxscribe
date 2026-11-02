@@ -71,6 +71,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Gaps | Gaps under a third of a beat before the next note are closed, so tongued eighths read as eighths |
 | Key and spelling | music21's key finder on the notes; flats for chromatic notes in flat keys and C, sharps in sharp keys |
 | Meter | 4/4 only for now |
+| Known readability issues | Over-fine rhythms (32nds, dotted figures) where swung eighths are meant; no multi-measure rests; enharmonic spelling can mix within a line. Tracked in the [roadmap](../product/roadmap.md#phase-3-notation-for-the-stand) |
 | Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12) |
 | Missing beats | With almost no tracked beats (unaccompanied sax) every note is still written (PR #15, [ADR-0016](../decisions/0016-notation-never-drops-notes.md)) |
 

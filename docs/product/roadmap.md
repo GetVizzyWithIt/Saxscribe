@@ -56,7 +56,10 @@ Goal: a score Austin would put on the stand, with few edits.
 
 - [x] PDF export via MuseScore (PR #12)
 - [x] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15)
-- [ ] Triplet markings MuseScore rejects (PR #17, open)
+- [x] Triplet markings MuseScore rejects (PR #17). PDF now complete: test Parker solo, 2 pages, all 398 notes, proper beaming and triplets
+- [ ] Readability: over-fine rhythms (32nds and dotted figures where swung eighths are meant)
+- [ ] Readability: empty bars written one by one instead of multi-measure rests
+- [ ] Readability: mixed enharmonic spelling within a line (e.g. F# and Gb in one phrase)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
