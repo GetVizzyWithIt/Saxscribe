@@ -8,6 +8,10 @@ Sets:
   omnibook-mix  the same solos, from the full records (separated by Demucs first)
   filosax   Filosax (Foster & Dixon, ISMIR 2021), through mirdata's loader.
             Solo sax over Aebersold backing tracks, five players.
+  urmp      URMP (Li et al., Rochester 2018; Dryad doi:10.5061/dryad.ng3r749, CC0):
+            the 11 sax parts from 10 classical ensemble pieces, each recorded
+            alone, with hand-checked notes
+  urmp-mix  the same sax parts, scored from the whole ensemble's mix
 
 Dataset folders come from --data, else config.local.toml, else ~/mir_datasets/<Name>.
 """
@@ -21,7 +25,7 @@ from pathlib import Path
 
 AUDIO = {".wav", ".flac", ".mp3", ".m4a", ".aif", ".aiff", ".ogg"}
 MIDI = {".mid", ".midi"}
-DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "pairs": "saxscribe-etudes"}
+DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "pairs": "saxscribe-etudes"}
 # Words in file names that say what kind of file it is, not which tune.
 NOISE = {"fine", "sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
          "audio", "mix", "other", "vocals", "solo", "pitch", "corrected", "440", "a440", "track"}
@@ -208,6 +212,63 @@ def load_filosax(folder: Path) -> list[Reference]:
     return refs
 
 
+# ---------------------------------------------------------------- URMP
+
+def hz_to_midi(hz: float) -> int:
+    import math
+    return int(round(69 + 12 * math.log2(hz / 440.0)))
+
+
+def read_urmp_notes(path: Path) -> list[dict]:
+    """URMP Notes_*.txt: one note per line, onset (s), frequency (Hz), duration (s)."""
+    notes = []
+    for line in path.read_text().splitlines():
+        cols = line.replace(",", " ").split()
+        try:
+            onset, hz, dur = (float(c) for c in cols[:3])
+        except ValueError:
+            continue  # a header line
+        if hz > 0 and dur > 0:
+            notes.append({"onset": onset, "offset": onset + dur, "pitch": hz_to_midi(hz)})
+    return sorted(notes, key=lambda n: n["onset"])
+
+
+def urmp_root(folder: Path) -> Path:
+    """The folder holding the numbered piece folders (the tar wraps them in Dataset/)."""
+    for cand in (folder, folder / "Dataset", *sorted(p for p in folder.iterdir() if p.is_dir())):
+        if cand.is_dir() and any(cand.glob("[0-9][0-9]_*")):
+            return cand
+    raise SystemExit(f"No URMP piece folders (01_Jupiter_vn_vc ...) in {folder}.")
+
+
+def load_urmp(folder: Path, mix: bool = False) -> list[Reference]:
+    """URMP sax parts. Layout per piece folder <NN>_<Piece>_<inst>_<inst>...:
+    AuSep_<n>_sax_<NN>_<Piece>.wav (that player alone), Notes_<n>_sax_... .txt
+    (the answer key) and F0s_<n>_sax_... .txt (pitch line, kept in extra),
+    plus AuMix_<NN>_<Piece>.wav, the whole ensemble.
+
+    mix=True scores the ensemble mix instead (set urmp-mix). The other parts
+    are often winds too (flute, oboe, clarinet, trumpet), which a stem
+    splitter lumps in with the sax, so expect lower scores there.
+    """
+    root = urmp_root(folder)
+    refs = []
+    for piece in sorted(p for p in root.iterdir() if p.is_dir() and re.match(r"\d\d_", p.name)):
+        for notes_file in sorted(piece.glob("Notes_*_sax_*.txt")):
+            tag = notes_file.stem.removeprefix("Notes_")           # 1_sax_06_Entertainer
+            stem = piece / f"AuSep_{tag}.wav"
+            mix_file = piece / f"AuMix_{piece.name}.wav"
+            audio = mix_file if mix else stem
+            if not audio.exists():
+                continue
+            f0 = piece / f"F0s_{tag}.txt"
+            refs.append(Reference(id=f"{piece.name}__{tag.split('_')[0]}", audio=audio,
+                                  notes=read_urmp_notes(notes_file), tune=piece.name.split("_")[1],
+                                  is_mix=mix, extra={"notes": str(notes_file),
+                                                     "f0": str(f0) if f0.exists() else None}))
+    return refs
+
+
 # ---------------------------------------------------------------- splits
 
 def split_of(ref: Reference) -> str:
@@ -222,7 +283,8 @@ def load(set_name: str, data: str | None = None, split: str = "all") -> list[Ref
     if not folder.exists():
         raise SystemExit(f"No {set_name} data at {folder}. Pass --data, or set it in config.local.toml.")
     loaders = {"pairs": load_pairs, "omnibook": load_omnibook, "filosax": load_filosax,
-               "omnibook-mix": lambda f: load_omnibook(f, mix=True)}
+               "omnibook-mix": lambda f: load_omnibook(f, mix=True),
+               "urmp": load_urmp, "urmp-mix": lambda f: load_urmp(f, mix=True)}
     refs = loaders[set_name](folder)
     if split != "all":
         refs = [r for r in refs if split_of(r) == split]
