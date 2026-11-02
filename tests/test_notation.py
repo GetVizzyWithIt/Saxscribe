@@ -113,3 +113,21 @@ def test_fixture_notation(take):
         assert rel == expected
     else:  # a missed or extra note upstream: the rest of the rhythm must still line up
         assert len(set(rel) & set(expected)) >= 0.9 * len(truth)
+
+
+def test_pdf_is_engraved_when_musescore_is_there(take, tmp_path, monkeypatch):
+    """A stand-in for MuseScore that writes a file where it is told to (-o <pdf> <musicxml>)."""
+    fake = tmp_path / "mscore"
+    fake.write_text('#!/bin/sh\nprintf "%%PDF-1.4 fake" > "$2"\n')
+    fake.chmod(0o755)
+    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", str(fake))
+    from saxscribe.layers import engrave
+    out = tmp_path / "score.pdf"
+    assert engrave.to_pdf(take.musicxml, out)
+    assert out.read_bytes().startswith(b"%PDF")
+
+
+def test_no_musescore_means_no_pdf_and_no_error(take, tmp_path, monkeypatch):
+    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", str(tmp_path / "missing"))
+    from saxscribe.layers import engrave
+    assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")

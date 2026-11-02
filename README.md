@@ -18,6 +18,9 @@ source .venv/bin/activate
 python -m saxscribe check
 ```
 
+For PDF sheet music, also install MuseScore (free): `brew install --cask musescore`.
+Without it everything else works and you get MusicXML only.
+
 ## Use
 
 ```bash
@@ -49,7 +52,7 @@ what sits above it. Pitch is stored at concert pitch.
 | 1. Isolate | `source.wav`, `stem.wav`, `accompaniment.wav`, `stems/` | The original, and the sax on its own (a copy for solo takes) |
 | 2. Contour | `contour.csv` | Pitch every 10 ms with a confidence, from CREPE |
 | 3. Notes | `notes.json` | Notes (onset, offset, pitch, cents off, articulation tags), beats, tempo |
-| 4. Notation | `score.musicxml`, `score-alto.musicxml`, `score.mid`, `notation.json` | Readable notation at concert pitch and written for the horn; MIDI at the exact played times, lined up with the audio; and each note's bar and beat |
+| 4. Notation | `score.musicxml`, `score-alto.musicxml`, `score.pdf`, `score-alto.pdf`, `score.mid`, `notation.json` | Readable notation at concert pitch and written for the horn, as MusicXML and as PDF (when MuseScore is installed); MIDI at the exact played times, lined up with the audio; and each note's bar and beat |
 
 `take.json` records which tool made each layer and when.
 

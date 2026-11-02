@@ -85,6 +85,8 @@ def check() -> int:
                      ("basic_pitch", "note events (else cut from the contour)"),
                      ("beat_this", "beats (else librosa)"), ("demucs", "stems for full mixes")):
         rows.append((mod, importlib.util.find_spec(mod) is not None, use))
+    from .layers.engrave import find_musescore
+    rows.append(("musescore", find_musescore() is not None, "PDF sheet music (else MusicXML only)"))
     for name, ok, use in rows:
         print(f"  {'ok ' if ok else '-- '} {name:<12} {use}")
     return 0 if all(ok for name, ok, use in rows if "required" in use) else 1
