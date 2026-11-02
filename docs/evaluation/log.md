@@ -32,6 +32,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, open)
+- **Set**: synthetic swing solos with known written answers (not a mir_eval scorecard; notation layer only). Per-solo averages.
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Swung eighths written in the wrong place | ~33 | ~3 |
+| Eighth-note triplets written correctly | ~4 | ~45 |
+| Dotted-sixteenth figures | baseline | about two thirds fewer |
+| Runs of empty bars | one bar at a time | one numbered multi-bar rest |
+| Enharmonic spelling | mixed within a line | consistent per part, in the horn's key |
+| Notes kept | all | all |
+
+- **What it shows**: the three readability issues found on the first real PDF are largely fixed on synthetic material. Synthetic swing is cleaner than a real player, so a check on real solos (Omnibook MusicXML is the natural reference) should follow before calling it done.
+
 ### E6 — 2026-11-02 — Omnibook re-graded inside each answer key's span (PR #16)
 - **Settings**: default. 45 solos (one fewer than E2; reason to confirm from the scorecard).
 - **Headline**: pitch 74%, onset F1 86% (mix target 75%: met), note F1 64% (mix target 60%: met).
