@@ -26,7 +26,7 @@ TARGETS = {"pitch_accuracy": (0.97, 0.90), "onset_f1": (0.90, 0.75), "note_f1": 
            "beat_f1": (0.95, 0.95), "seconds_per_minute": (15.0, 60.0)}
 COLUMNS = ("pitch_accuracy", "onset_f1", "note_f1", "note_f1_no_offset", "beat_f1", "seconds_per_minute")
 # The Omnibook's audio is already separated from the records, so it is held to the full-mix targets.
-MIX_SETS = {"omnibook", "omnibook-mix", "urmp-mix"}
+MIX_SETS = {"omnibook", "omnibook-mix", "urmp-mix", "bach10-mix"}
 
 
 def settings_name(contour_tool: str, notes_tool: str) -> str:
@@ -53,9 +53,10 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
         folder = out_dir / ref.id
         fresh = not Take(folder).has("notation") or redo is not None
         t0 = time.time()
-        take = transcribe(ref.audio, folder, mix=ref.is_mix, contour_tool=contour_tool,
-                          notes_tool=notes_tool, redo=redo)
-        row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "split": refs.split_of(ref)}
+        take = transcribe(ref.audio, folder, mix=ref.is_mix, horn=ref.extra.get("horn", "alto"),
+                          contour_tool=contour_tool, notes_tool=notes_tool, redo=redo)
+        row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "horn": ref.extra.get("horn", "alto"),
+               "split": refs.split_of(ref)}
         row.update(metrics.score_take(ref, take))
         minutes = max(n["offset"] for n in ref.notes) / 60 if ref.notes else 0
         timing = take.read_manifest().get("seconds_per_minute")

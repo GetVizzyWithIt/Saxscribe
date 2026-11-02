@@ -19,4 +19,6 @@ HORNS = {
     "alto": Horn("alto", "Eb", 9, "M6", 125.0, 1600.0),
     # Tenor sounds a major ninth below written: low Bb is concert Ab2.
     "tenor": Horn("tenor", "Bb", 14, "M9", 95.0, 1100.0),
+    # Baritone sounds an octave and a major sixth below written: low A is concert C2.
+    "baritone": Horn("baritone", "Eb", 21, "M13", 60.0, 800.0),
 }
