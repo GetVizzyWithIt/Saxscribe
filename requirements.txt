@@ -1,0 +1,24 @@
+# saxscribe dependencies. Use Python 3.11 (see README.md).
+numpy>=1.24
+scipy>=1.10                 # median filter for cutting notes from the pitch line
+librosa>=0.10               # loading audio, onsets, pYIN fallback
+soundfile>=0.12             # writing stems
+mido>=1.2                   # MIDI out
+
+# Neural models run on PyTorch. Stay below 2.9: newer torchaudio changed how
+# audio files are saved, which Demucs 4.0.1 relies on (found in the game analyzer).
+torch>=2.2,<2.9
+torchaudio>=2.2,<2.9
+torchcrepe>=0.0.22          # pitch contour (CREPE); pYIN is the fallback
+demucs>=4.0.1               # stems for full-band recordings
+beat_this @ git+https://github.com/CPJKU/beat_this.git   # beats and downbeats
+
+# Note events. On a Mac Basic Pitch runs through Core ML; elsewhere through ONNX.
+basic-pitch[coreml]>=0.4 ; sys_platform == "darwin"
+basic-pitch[onnx]>=0.4 ; sys_platform != "darwin"
+onnxruntime>=1.16           # a backend Basic Pitch can always use, even when Core ML is refused
+setuptools<81               # pkg_resources for resampy (dropped in setuptools 81)
+
+# Scoring and tests.
+mir_eval>=0.7               # the standard MIR scores (onset F1, note F1, pitch accuracy)
+pytest>=8
