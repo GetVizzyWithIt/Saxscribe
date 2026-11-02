@@ -1,0 +1,26 @@
+# Decision log (ADRs)
+
+Architecture decision records, after Michael Nygard's format: one page per
+lasting choice, with the context, the decision and its consequences. Append
+only. When a decision changes, add a new ADR and mark the old one
+"Superseded by ADR-NNNN". Copy [_template.md](_template.md) for a new one.
+
+| # | Decision | Date | Status |
+| --- | --- | --- | --- |
+| [0001](0001-separate-repo-copied-front-end.md) | Separate repo; copy the game's front end, don't share it | 2026-11-02 | Accepted |
+| [0002](0002-four-layers-on-disk.md) | Four layers, each on disk, never discarded | 2026-11-02 | Accepted |
+| [0003](0003-concert-pitch-storage.md) | Store concert pitch, transpose only for display | 2026-11-02 | Accepted |
+| [0004](0004-mir-eval-scorecard.md) | Every model change is measured with mir_eval against fixed targets | 2026-11-02 | Accepted |
+| [0005](0005-instrument-profiles-alto-first.md) | Alto first, tenor first-class, organised per instrument | 2026-11-02 | Accepted |
+| [0006](0006-own-crepe-notes-implementation.md) | Reimplement CREPE Notes from the paper instead of using the GPL package | 2026-11-02 | Accepted |
+| [0007](0007-omnibook-pairing-by-id.md) | Pair Omnibook stems with performance-aligned MIDI by ID | 2026-11-02 | Accepted |
+| [0008](0008-grade-only-against-human-checked-notes.md) | Grade only against human-checked or aligned notes | 2026-11-02 | Accepted |
+| [0009](0009-proceed-without-filosax.md) | Proceed with data on hand; Filosax and MedleyDB are later rounds | 2026-11-02 | Accepted |
+| [0010](0010-join-split-notes.md) | Join notes Basic Pitch splits, unless the audio shows a re-attack | 2026-11-02 | Accepted, scorecard pending |
+| [0011](0011-dataset-manifest-and-fetch.md) | Dataset manifest in the repo, `fetch` rebuilds the data folder | 2026-11-02 | Accepted |
+| [0012](0012-pdf-via-musescore.md) | PDF sheet music engraved by MuseScore from the MusicXML | 2026-11-02 | Accepted |
+| [0013](0013-v1-ui-scope.md) | v1 = upload audio, download PDF, optional play-along; local web app for iPad | 2026-11-02 | Accepted |
+| [0014](0014-personal-answer-keys-from-paper.md) | Austin's paper transcriptions become personal answer keys via OMR | 2026-11-02 | Accepted, not started |
+| [0015](0015-docs-standards.md) | Documentation follows model cards, datasheets, ADRs and CRISP-DM | 2026-11-02 | Accepted |
+| [0016](0016-notation-never-drops-notes.md) | Notation never drops a detected note | 2026-11-02 | Proposed (PR #15) |
+| [0017](0017-grade-within-answer-key-span.md) | Grade only inside the answer key's time span | 2026-11-02 | Proposed (PR #16) |

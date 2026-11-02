@@ -108,3 +108,8 @@ python -m pytest
 
 The tests build a 10-second synthetic alto phrase (slurs, tongued repeats,
 vibrato, rests) and check each layer on it. No audio files live in the repo.
+
+## Documentation
+
+Product requirements, architecture, model cards, datasheets, the evaluation
+log and the decision log are in [docs/](docs/README.md).
