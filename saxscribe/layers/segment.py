@@ -30,6 +30,7 @@ TRIM_LEVEL = 0.04     # note ends quieter than this are trimmed
 MIN_SECONDS = 0.03
 EDGE = 0.05           # no repeat splits this close to a note's ends
 DIP = 0.35            # a level dip this deep (share of the loud level) inside a note is a re-attack
+JOIN_GAP = 0.03       # same-pitch notes closer than this may be one note cut in two
 
 
 def tuning_offset(midi: np.ndarray) -> float:
@@ -117,6 +118,50 @@ def segment(line: dict, level: np.ndarray, attacks: np.ndarray) -> list[dict]:
                 notes.append({"onset": float(times[u]), "offset": float(times[u]) + (v - u) * step,
                               "pitch": p, "amp": float(np.clip(rel[u:v].max(), 0.0, 1.0))})
     return notes
+
+
+def join_repeats(notes: list[dict], level: np.ndarray, attacks: np.ndarray, step: float = 0.01) -> tuple[list[dict], int]:
+    """Join a note that a note tool cut in two, but only when the sound says so.
+
+    Two neighbours on the same pitch, with almost no gap between them, are
+    one note unless the stem shows the player re-articulating there: the
+    level dips (the tongue stops the reed) or there is a strong attack where
+    the sound swells again. Uses the same tests as the repeat splits in
+    segment(), so a tongued repeat stays two notes. Returns the notes and how
+    many joins were made. Nothing is dropped: a join keeps the first note's
+    onset and the second note's offset.
+    """
+    if not notes:
+        return [], 0
+    n = len(level)
+    loud = float(np.percentile(level, 95)) if n else 1.0
+    rel = level / (loud or 1.0)
+    strong = ATTACK * (np.percentile(attacks[attacks > 0], 95) if (attacks > 0).any() else 1.0)
+    w = int(round(EDGE / step))  # 50 ms each side of the join
+
+    def articulated(t: float) -> bool:
+        k = int(round(t / step))
+        if k - w < 0 or k + w > n:
+            return True  # not enough sound around it to judge: keep the split
+        around = rel[k - w:k + w]
+        dip = min(rel[k - w:k].max(), rel[k:k + w].max()) - around.min()
+        if dip >= DIP:
+            return True
+        swell = rel[k:k + 4].mean() > 1.1 * rel[k - 4:k].mean()
+        return bool(swell and attacks[max(0, k - 2):k + 3].max() >= strong)
+
+    out = [dict(notes[0])]
+    joins = 0
+    for note in notes[1:]:
+        prev = out[-1]
+        if (note["pitch"] == prev["pitch"] and note["onset"] - prev["offset"] <= JOIN_GAP
+                and not articulated(note["onset"])):
+            prev["offset"] = max(prev["offset"], note["offset"])
+            prev["amp"] = max(prev.get("amp", 0.0), note.get("amp", 0.0))
+            joins += 1
+        else:
+            out.append(dict(note))
+    return out, joins
 
 
 def envelopes(y: np.ndarray, sr: int, frames: int) -> tuple[np.ndarray, np.ndarray]:

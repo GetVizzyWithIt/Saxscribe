@@ -9,7 +9,10 @@ notes.json holds:
   key        not filled in yet (step 2)
 
 Note tools (--notes-tool):
-  basic_pitch  Spotify's Basic Pitch on the stem (the default when installed)
+  basic_pitch  Spotify's Basic Pitch on the stem (the default when installed),
+               then same-pitch neighbours joined where the stem shows no
+               re-articulation (Basic Pitch often cuts one held note in two)
+  basic_pitch_raw  Basic Pitch's notes without that join, for comparison
   segment      the pitch line cut into notes after the CREPE Notes method (segment.py)
   contour      a simpler cutter on the pitch line: a new note wherever the pitch
                settles somewhere new or the stem has a clear new attack
@@ -30,16 +33,23 @@ SAME_START = 0.03  # two notes starting closer than this are one attack
 
 def run(take: Take, horn: Horn, tool: str = "auto") -> None:
     frontend.log("Layer 3/4: note events and beats")
+    from . import segment
     line = contour_layer.read(take.contour)
-    if tool in ("auto", "basic_pitch") and frontend.basic_pitch_available():
-        notes, name = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz)), "basic_pitch"
-    elif tool == "basic_pitch":
+    extra = {}
+
+    def stem_envelopes():
+        y = frontend.load_mono(take.stem, sr=contour_layer.RATE)
+        return segment.envelopes(y, contour_layer.RATE, len(line["time"]))
+
+    if tool in ("auto", "basic_pitch", "basic_pitch_raw") and frontend.basic_pitch_available():
+        notes = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz))
+        name = "basic_pitch_raw" if tool == "basic_pitch_raw" else "basic_pitch"
+        if name == "basic_pitch":
+            notes, extra["joined"] = segment.join_repeats(notes, *stem_envelopes())
+    elif tool in ("basic_pitch", "basic_pitch_raw"):
         raise SystemExit("Basic Pitch is not installed; use --notes-tool segment or install it.")
     elif tool == "segment":
-        from . import segment
-        y = frontend.load_mono(take.stem, sr=contour_layer.RATE)
-        level, attacks = segment.envelopes(y, contour_layer.RATE, len(line["time"]))
-        notes, name = segment.segment(line, level, attacks), "segment"
+        notes, name = segment.segment(line, *stem_envelopes()), "segment"
     else:
         onsets = frontend.detect_onsets(frontend.load_mono(take.stem))
         notes, name = from_contour(line, onsets), "contour"
@@ -61,8 +71,9 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
                    "amp": round(float(n.get("amp", 0.5)), 3), "tags": n["tags"]} for n in notes],
     }
     take.notes.write_text(json.dumps(data, indent=1) + "\n")
-    take.record("notes", tool=name, beats=beat_tool)
-    frontend.log(f"  {name}: {len(notes)} notes; {beat_tool}: {len(beats)} beats")
+    take.record("notes", tool=name, beats=beat_tool, **extra)
+    joined = f" ({extra['joined']} split notes joined)" if "joined" in extra else ""
+    frontend.log(f"  {name}: {len(notes)} notes{joined}; {beat_tool}: {len(beats)} beats")
 
 
 def one_line(notes: list[dict]) -> list[dict]:
