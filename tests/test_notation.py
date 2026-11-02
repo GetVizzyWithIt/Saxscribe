@@ -131,3 +131,25 @@ def test_no_musescore_means_no_pdf_and_no_error(take, tmp_path, monkeypatch):
     monkeypatch.setenv("SAXSCRIBE_MUSESCORE", str(tmp_path / "missing"))
     from saxscribe.layers import engrave
     assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")
+
+
+def test_a_sparse_beat_grid_keeps_every_note():
+    """Beat This! on a lone horn can return a dozen beats for a minute and a half
+    (seen on an Omnibook stem). Every note must still be written."""
+    beats = [16.62, 28.42, 66.48, 67.18, 67.88, 68.24, 85.92, 89.36, 89.72, 90.06, 90.42, 90.8, 91.2]
+    notes = [{"onset": 4.0 + 0.22 * i, "offset": 4.0 + 0.22 * i + 0.18, "pitch": 60 + i % 12} for i in range(398)]
+    r = notation.quantize(notes, beats, beats[:1], 85.7, "straight")
+    assert len(r["notes"]) == len(notes)
+    assert [p["index"] for p in r["notes"]] == list(range(len(notes)))
+    starts = [p["start"] for p in r["notes"]]
+    assert all(b > a for a, b in zip(starts, starts[1:]))
+    assert all(p["length"] > 0 for p in r["notes"])
+    assert r["grid"].startswith("filled")
+    assert r["squeezed"] < 0.1 * len(notes)
+
+
+def test_notes_on_one_grid_slot_are_both_written():
+    notes = [{"onset": 2.00, "offset": 2.02, "pitch": 70}, {"onset": 2.03, "offset": 2.5, "pitch": 72}]
+    r = notation.quantize(notes, GRID, GRID[::4], 120.0, "straight")
+    assert [p["pitch"] for p in r["notes"]] == [70, 72]
+    assert r["notes"][1]["start"] > r["notes"][0]["start"]

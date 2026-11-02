@@ -10,14 +10,18 @@ Files:
 
 How a note gets its place:
   1. Seconds become beats along the beat tracker's grid, so tempo drift and
-     rubato follow the band instead of a fixed metronome.
+     rubato follow the band instead of a fixed metronome. Where the tracker
+     left gaps (common on a horn with no band), the gaps are filled at the
+     tracked beat spacing, and the grid is extended to cover every note.
   2. Swing: the off-beat eighths' average position in the beat gives the
      swing ratio (0.5 is straight, 0.67 is a hard 2:1 triplet swing). Swung
      eighths are written as plain eighths, the way a lead sheet does.
   3. Each beat snaps to sixteenths, or to triplets when they fit clearly better.
   4. Short gaps before the next note (under a third of a beat) are closed,
      so tongued eighths read as eighths, not sixteenths and rests.
-  5. Key comes from the notes (music21's key finder); spelling follows the key,
+  5. No note is ever dropped: two notes that snap to the same spot are
+     written a thirty-second apart, and the count is kept in notation.json.
+  6. Key comes from the notes (music21's key finder); spelling follows the key,
      with flats for chromatic notes in flat keys and C, sharps in sharp keys.
 """
 from __future__ import annotations
@@ -41,6 +45,8 @@ TRIPLET_PENALTY = 0.03  # beats of extra error per note before triplets win
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
 BEATS_PER_BAR = 4       # 4/4 for now
+GAP_FILL = 1.5          # a gap between tracked beats over this many beat spacings is filled
+MIN_STEP = Fraction(1, 8)  # beats: two notes on one grid slot are written this far apart
 
 
 def run(take: Take, horn: Horn, swing: str = "auto") -> None:
@@ -58,16 +64,62 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
     pdfs = [pdf.name for xml, pdf in ((take.musicxml, take.pdf),
                                       (take.written_musicxml(horn.name), take.written_pdf(horn.name)))
             if engrave.to_pdf(xml, pdf)]
-    if not pdfs:
+    if not pdfs and engrave.find_musescore() is None:
         frontend.log("  No PDF: MuseScore is not installed (brew install --cask musescore). MusicXML is written.")
+    elif len(pdfs) < 2:
+        frontend.log("  Some PDFs were not made (see the MuseScore message above). MusicXML is written.")
     take.record("notation", tool="music21", key=result["key"], swing=result["swing"],
                 swing_source=result["swing_source"], pdf=pdfs)
-    frontend.log(f"  {len(notes)} notes in {result['key']}, swing {result['swing']:.2f} "
+    if result.get("squeezed") or result.get("grid", "tracked") != "tracked":
+        frontend.log(f"  beat grid: {result.get('grid')}; {result.get('squeezed', 0)} notes moved off a shared slot")
+    frontend.log(f"  {len(result['notes'])} of {len(notes)} notes written in {result['key']}, swing {result['swing']:.2f} "
                  f"({result['swing_source']}); wrote {take.musicxml.name} and "
                  f"{take.written_musicxml(horn.name).name}")
 
 
 # ---------------------------------------------------------------- time to beats
+
+def repair_grid(beats: list[float], notes: list[dict], tempo_bpm: float | None) -> tuple[list[float], str]:
+    """A beat grid that covers every note, with the tracker's gaps filled.
+
+    The beat spacing comes from the tracker's own beats where they sit close
+    together (0.25-1.5 s apart); failing that, from tempo_bpm; failing that,
+    from the notes (a jazz line is mostly eighths, two to a beat). Tracked
+    beats are kept as they are. Returns the grid and a note on what was done.
+    """
+    b = sorted(float(x) for x in beats)
+    diffs = np.diff(b) if len(b) > 1 else np.array([])
+    close = diffs[(diffs >= 0.25) & (diffs <= 1.5)]
+    if len(close) >= 3:
+        spb, source = float(np.median(close)), "tracked"
+    elif tempo_bpm and 40 <= tempo_bpm <= 240:
+        spb, source = 60.0 / tempo_bpm, "tempo"
+    else:
+        ioi = np.diff(sorted(n["onset"] for n in notes)) if len(notes) > 2 else np.array([])
+        ioi = ioi[(ioi > 0.06) & (ioi < 1.0)]
+        spb, source = (float(np.clip(2 * np.median(ioi), 0.3, 1.2)) if len(ioi) else 0.5), "notes"
+    if not notes:
+        return b, "tracked"
+    first, last = min(n["onset"] for n in notes), max(n["offset"] for n in notes)
+    if not b:
+        b = [first]
+    filled, added = [b[0]], 0
+    for x in b[1:]:
+        gap = x - filled[-1]
+        if gap > GAP_FILL * spb:
+            k = int(round(gap / spb))
+            filled += [filled[-1] + gap * j / k for j in range(1, k)]
+            added += k - 1
+        filled.append(x)
+    while filled[0] > first - spb:
+        filled.insert(0, filled[0] - spb)
+        added += 1
+    while filled[-1] < last + spb:
+        filled.append(filled[-1] + spb)
+        added += 1
+    note = "tracked" if added <= max(2, 0.1 * len(b)) else f"filled {added} beats at {spb:.3f} s ({source})"
+    return filled, note
+
 
 def beat_map(beats: list[float], tempo_bpm: float | None):
     """A function from seconds to beats along the tracked grid, extended past both ends."""
@@ -144,6 +196,9 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
 
     start and length are in beats (Fractions) from the start of the first bar.
     """
+    beats, grid_note = repair_grid(beats, notes, tempo_bpm)
+    if len(beats) >= 2:
+        tempo_bpm = round(60.0 / float(np.median(np.diff(beats))), 2)
     to_beat = beat_map(beats, tempo_bpm)
     on = to_beat([n["onset"] for n in notes]) if notes else np.array([])
     off = to_beat([n["offset"] for n in notes]) if notes else np.array([])
@@ -167,15 +222,20 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
         _, picks = snap_beat([f for _, _, f in evs])
         for (i, kind, _), p in zip(evs, picks):
             (q_on if kind == "on" else q_off)[i] = beat + p
+    # Every note keeps a place: an onset that landed on or before the previous
+    # one moves a thirty-second later (fidelity over tidiness).
+    squeezed = 0
+    for i in range(1, len(notes)):
+        if q_on[i] <= q_on[i - 1]:
+            q_on[i] = q_on[i - 1] + MIN_STEP
+            squeezed += 1
     placed = []
     for i in range(len(notes)):
-        start, end = q_on[i], q_off[i]
+        start, end = q_on[i], max(q_off[i], q_on[i] + MIN_STEP)
+        if end - start < Fraction(1, 4):
+            end = start + Fraction(1, 4)  # the smallest value we write by default is a sixteenth
         if i + 1 < len(notes):
             end = min(end, q_on[i + 1])
-        if end <= start:  # too short for the grid: the smallest written value
-            end = start + Fraction(1, 4)
-            if i + 1 < len(notes) and end > q_on[i + 1]:
-                continue  # two attacks on one grid slot: keep the first, notes.json has both
         placed.append({"index": i, "start": start, "length": end - start, "pitch": notes[i]["pitch"]})
 
     # Line the bars up with the first downbeat, and start at bar 1.
@@ -186,7 +246,8 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     for p in placed:
         p["start"] += shift
     return {"key": find_key([n["pitch"] for n in notes]), "swing": s, "swing_source": source,
-            "shift": shift, "tempo_bpm": tempo_bpm, "notes": placed}
+            "shift": shift, "tempo_bpm": tempo_bpm, "squeezed": squeezed, "grid": grid_note,
+            "notes": placed}
 
 
 # ---------------------------------------------------------------- key and spelling
@@ -254,7 +315,8 @@ def result_json(result: dict) -> dict:
     return {
         "key": result["key"], "swing": round(result["swing"], 3), "swing_source": result["swing_source"],
         "time_signature": f"{BEATS_PER_BAR}/4", "tempo_bpm": result["tempo_bpm"],
-        "beat_shift": str(result["shift"]),
+        "beat_shift": str(result["shift"]), "grid": result.get("grid", "tracked"),
+        "squeezed": result.get("squeezed", 0),
         "notes": [{"index": p["index"], "bar": int(p["start"] // BEATS_PER_BAR) + 1,
                    "beat": str(p["start"] % BEATS_PER_BAR + 1), "length_beats": str(p["length"]),
                    "pitch": p["pitch"]} for p in result["notes"]],
