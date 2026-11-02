@@ -28,7 +28,7 @@ from pathlib import Path
 
 AUDIO = {".wav", ".flac", ".mp3", ".m4a", ".aif", ".aiff", ".ogg"}
 MIDI = {".mid", ".midi"}
-DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "choralebricks": "ChoraleBricks", "pairs": "saxscribe-etudes"}
+DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "choralebricks": "ChoraleBricks", "bach10": "Bach10", "bach10-mix": "Bach10", "pairs": "saxscribe-etudes"}
 # Words in file names that say what kind of file it is, not which tune.
 NOISE = {"fine", "sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
          "audio", "mix", "other", "vocals", "solo", "pitch", "corrected", "440", "a440", "track"}
@@ -320,6 +320,46 @@ def load_choralebricks(folder: Path) -> list[Reference]:
     return refs
 
 
+# ---------------------------------------------------------------- Bach10
+
+BACH10_SAX = 2          # row of the saxophone part (violin, clarinet, saxophone, bassoon)
+
+
+def read_bach10_notes(path: Path, part: int = BACH10_SAX) -> list[dict]:
+    """<piece>-GTNotes.mat: a cell per part, a 2-row matrix per note (frame
+    number, pitch in fractional MIDI). Frames are 10 ms apart, the first one
+    centred at 23 ms (see the .asl files). A note's pitch is its median."""
+    import numpy as np
+    from scipy.io import loadmat
+    notes = []
+    for n in loadmat(str(path))["GTNotes"][part, 0].ravel():
+        frames, midi = np.asarray(n[0], float), np.asarray(n[1], float)
+        if frames.size == 0:
+            continue
+        onset = (23 + (frames[0] - 1) * 10) / 1000
+        offset = (23 + (frames[-1] - 1) * 10 + 10) / 1000
+        notes.append({"onset": round(onset, 3), "offset": round(offset, 3), "pitch": int(round(np.median(midi)))})
+    return sorted(notes, key=lambda n: n["onset"])
+
+
+def load_bach10(folder: Path, mix: bool = False) -> list[Reference]:
+    """Bach10: <NN-Piece>/<NN-Piece>-saxphone.wav (sic) is the sax alone,
+    <NN-Piece>.wav the quartet, <NN-Piece>-GTNotes.mat the answer key. The
+    part spans Eb3 to Ab4 concert, so it is run as alto."""
+    roots = [folder, *sorted(p for p in folder.iterdir() if p.is_dir())]
+    root = next((r for r in roots if any(r.glob("*/*-GTNotes.mat"))), None)
+    if root is None:
+        raise SystemExit(f"No Bach10 piece folders (NN-Piece/NN-Piece-GTNotes.mat) in {folder}.")
+    refs = []
+    for piece in sorted(p for p in root.iterdir() if (p / f"{p.name}-GTNotes.mat").exists()):
+        audio = piece / (f"{piece.name}.wav" if mix else f"{piece.name}-saxphone.wav")
+        if not audio.exists():
+            continue
+        refs.append(Reference(id=piece.name, audio=audio, notes=read_bach10_notes(piece / f"{piece.name}-GTNotes.mat"),
+                              tune=piece.name, is_mix=mix, extra={"horn": "alto"}))
+    return refs
+
+
 # ---------------------------------------------------------------- splits
 
 def split_of(ref: Reference) -> str:
@@ -336,7 +376,8 @@ def load(set_name: str, data: str | None = None, split: str = "all") -> list[Ref
     loaders = {"pairs": load_pairs, "omnibook": load_omnibook, "filosax": load_filosax,
                "omnibook-mix": lambda f: load_omnibook(f, mix=True),
                "urmp": load_urmp, "urmp-mix": lambda f: load_urmp(f, mix=True),
-               "choralebricks": load_choralebricks}
+               "choralebricks": load_choralebricks,
+               "bach10": load_bach10, "bach10-mix": lambda f: load_bach10(f, mix=True)}
     refs = loaders[set_name](folder)
     if split != "all":
         refs = [r for r in refs if split_of(r) == split]

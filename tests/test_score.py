@@ -159,3 +159,23 @@ def test_choralebricks_layout(tmp_path):
     assert [(n["onset"], n["offset"], n["pitch"]) for n in items[0].notes] == [(0.267, 0.789, 67), (0.819, 1.678, 67)]
     assert items[1].notes[0]["pitch"] == 43  # sounding pitch, not the written one
     assert items[0].extra["f0"].endswith("01_as_f0_filled.csv") and items[1].extra["f0"] is None
+
+
+def test_bach10_layout(tmp_path):
+    from scipy.io import savemat
+    piece = tmp_path / "Bach10" / "Bach10_v1.1" / "01-AchGottundHerr"
+    piece.mkdir(parents=True)
+    for name in ("01-AchGottundHerr.wav", "01-AchGottundHerr-saxphone.wav"):
+        (piece / name).write_bytes(b"")
+    parts = np.empty((4, 1), dtype=object)
+    for i in range(4):
+        notes = np.empty((2, 1), dtype=object)
+        notes[0, 0] = np.array([[1, 2, 3], [60 + i, 60.2 + i, 59.9 + i]])   # frames 1-3
+        notes[1, 0] = np.array([[11, 12], [62 + i, 62 + i]])               # frames 11-12
+        parts[i, 0] = notes
+    savemat(str(piece / "01-AchGottundHerr-GTNotes.mat"), {"GTNotes": parts})
+    stems = refs.load_bach10(tmp_path / "Bach10")
+    assert [(r.id, r.audio.name, r.is_mix) for r in stems] == [("01-AchGottundHerr", "01-AchGottundHerr-saxphone.wav", False)]
+    assert [(n["onset"], n["offset"], n["pitch"]) for n in stems[0].notes] == [(0.023, 0.053, 62), (0.123, 0.143, 64)]
+    mixes = refs.load_bach10(tmp_path / "Bach10", mix=True)
+    assert mixes[0].audio.name == "01-AchGottundHerr.wav" and mixes[0].is_mix
