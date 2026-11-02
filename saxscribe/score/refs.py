@@ -43,6 +43,7 @@ class Reference:
     tune: str = ""
     player: str = ""
     is_mix: bool = False                   # True: the audio still has a band in it
+    partial: bool = False                  # True: the key covers only part of the audio; score inside it
     extra: dict = field(default_factory=dict)
 
 
@@ -167,6 +168,12 @@ def omnibook_root(folder: Path) -> Path:
     raise SystemExit(f"No audio_stems/ folder in {folder} or just inside it.")
 
 
+# Omnibook solos left out of the scorecard, with the reason (checked 2026-11-02).
+OMNIBOOK_EXCLUDE = {
+    "lTXyc": "aligned MIDI drifts against the audio (pitch agreement 79% in the first 20 s, 5% by 60-80 s)",
+}
+
+
 def load_omnibook(folder: Path, mix: bool = False) -> list[Reference]:
     """The Charlie Parker Aligned Omnibook, by its file IDs.
 
@@ -184,11 +191,13 @@ def load_omnibook(folder: Path, mix: bool = False) -> list[Reference]:
     refs = []
     for midi in sorted((root / "midi_performance_aligned").glob("*-fine-aligned.mid")):
         rid = midi.name.removesuffix("-fine-aligned.mid")
+        if rid in OMNIBOOK_EXCLUDE:
+            continue
         audio = (root / "audio_untuned_mixes" / f"{rid}.mp3") if mix else (root / "audio_stems" / f"{rid}.wav")
         if not audio.exists():
             continue
         refs.append(Reference(id=rid, audio=audio, notes=read_midi_notes(midi), tune=rid,
-                              player="Charlie Parker", is_mix=mix, extra={"midi": str(midi)}))
+                              player="Charlie Parker", is_mix=mix, partial=True, extra={"midi": str(midi)}))
     return refs
 
 
