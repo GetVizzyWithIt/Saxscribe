@@ -1,0 +1,16 @@
+# No audio or datasets in the repo; their paths go in a local config.
+*.wav
+*.aif
+*.aiff
+*.flac
+*.mp3
+*.m4a
+*.ogg
+*.opus
+*.saxscribe/
+config.local.*
+
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
