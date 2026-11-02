@@ -117,3 +117,26 @@ def test_omnibook_layout(tmp_path):
     assert stems[0].extra["midi"].endswith("1p64c-fine-aligned.mid")
     mixes = refs.load_omnibook(tmp_path / "CharlieParkerOmnibook", mix=True)
     assert [(r.audio.name, r.is_mix) for r in mixes] == [("1p64c.mp3", True), ("2RfYc.mp3", True)]
+
+
+def test_urmp_layout(tmp_path):
+    piece = tmp_path / "URMP" / "Dataset" / "06_Entertainer_sax_sax"
+    piece.mkdir(parents=True)
+    other = tmp_path / "URMP" / "Dataset" / "01_Jupiter_vn_vc"
+    other.mkdir()
+    (other / "Notes_1_vn_01_Jupiter.txt").write_text("0.5\t440.0\t0.5\n")
+    (piece / "AuMix_06_Entertainer_sax_sax.wav").write_bytes(b"")
+    for n in (1, 2):
+        (piece / f"AuSep_{n}_sax_06_Entertainer.wav").write_bytes(b"")
+        (piece / f"F0s_{n}_sax_06_Entertainer.txt").write_text("0.0 0\n")
+    (piece / "Notes_1_sax_06_Entertainer.txt").write_text(
+        "onset\tfreq\tdur\n0.500\t293.66\t0.250\n0.750\t311.13\t0.500\n")
+    (piece / "Notes_2_sax_06_Entertainer.txt").write_text("1.0 440.0 1.0\n")
+    stems = refs.load_urmp(tmp_path / "URMP")
+    assert [(r.id, r.audio.name, r.is_mix, r.tune) for r in stems] == [
+        ("06_Entertainer_sax_sax__1", "AuSep_1_sax_06_Entertainer.wav", False, "Entertainer"),
+        ("06_Entertainer_sax_sax__2", "AuSep_2_sax_06_Entertainer.wav", False, "Entertainer")]
+    assert [(n["onset"], n["offset"], n["pitch"]) for n in stems[0].notes] == [(0.5, 0.75, 62), (0.75, 1.25, 63)]
+    assert stems[1].notes[0]["pitch"] == 69
+    mixes = refs.load_urmp(tmp_path / "URMP", mix=True)
+    assert {r.audio.name for r in mixes} == {"AuMix_06_Entertainer_sax_sax.wav"} and all(r.is_mix for r in mixes)

@@ -26,7 +26,7 @@ TARGETS = {"pitch_accuracy": (0.97, 0.90), "onset_f1": (0.90, 0.75), "note_f1": 
            "beat_f1": (0.95, 0.95), "seconds_per_minute": (15.0, 60.0)}
 COLUMNS = ("pitch_accuracy", "onset_f1", "note_f1", "note_f1_no_offset", "beat_f1", "seconds_per_minute")
 # The Omnibook's audio is already separated from the records, so it is held to the full-mix targets.
-MIX_SETS = {"omnibook", "omnibook-mix"}
+MIX_SETS = {"omnibook", "omnibook-mix", "urmp-mix"}
 
 
 def settings_name(contour_tool: str, notes_tool: str) -> str:
