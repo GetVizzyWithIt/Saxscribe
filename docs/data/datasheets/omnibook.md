@@ -47,5 +47,5 @@ Each performance-aligned MIDI covers roughly one chorus of the solo, while the s
 
 ## Saxscribe results
 2026-11-02 default tools: pitch 73.3%, onset F1 60.4%, note F1 45.0%; Basic
-Pitch writes 1.5–3.2× too many notes (both understated, see Known issue). Re-graded (E6): pitch 74%, onset F1 86%, note F1 64%. Segmenter, contour and mix runs pending.
+Pitch writes 1.5–3.2× too many notes (both understated, see Known issue). Re-graded (E6): pitch 74%, onset F1 86%, note F1 64%. Note tools compared (E9): Basic Pitch 64.2%, segment 59.8%, contour 58.3%. Solos FRfYc, BRfYc and 7RfYc are the weakest under every tool (two at 50–57% pitch accuracy): check their stems and answer keys. Mix run pending.
 See the [log](../../evaluation/log.md).

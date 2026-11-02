@@ -11,7 +11,7 @@ for the contour, Basic Pitch for notes, Beat This! for beats.
 | bach10 | 96.9% | **92.2%** ✓ | **87.5%** ✓ | 92.2% | 21 | solo | E4 |
 | choralebricks | **98.9%** ✓ | 86.7% | 77.8% | 86.5% | 22 | solo | E4 |
 | urmp | 94.4% | 81.6% | 64.4% | 80.8% | 24 | solo | E3 |
-| omnibook | 74% | **86%** ✓ | **64%** ✓ | — | — | mix | E6 |
+| omnibook | 74% | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
@@ -24,13 +24,26 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 | ID | What | Settings | Status |
 | --- | --- | --- | --- |
-| P1 | PR #10 before/after on choralebricks, omnibook | `basic_pitch_raw` vs `basic_pitch` | URMP and Bach10 done (E8); these two still running |
-| P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Running (restarted 2026-11-02 20:52) |
+| P1 | PR #10 before/after on omnibook | `basic_pitch_raw` vs `basic_pitch_join` | URMP, Bach10, ChoraleBricks done (E8); Omnibook still running |
+| P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Done, see E9 |
+| P6 | Pitch-error breakdown on the weakest Omnibook solos (7RfYc, BRfYc, FRfYc) | default | Running on the Mac |
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Running |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
+
+### E9 — 2026-11-02 — Omnibook: three note tools, graded inside the key span
+- **Set**: `omnibook`, 45 solos, chorus-limited grading (PR #16). Contour = torchcrepe for all three.
+
+| Notes tool | Pitch | Onset F1 | Note F1 | Note F1 no offsets | Notes ours ÷ key | s/min |
+| --- | --- | --- | --- | --- | --- | --- |
+| `basic_pitch` (default) | 74% | 86% | **64.2%** | — | ≈1.0× | — |
+| `segment` | — | — | 59.8% | — | — | — |
+| `contour` | 74.3% | 82.5% | 58.3% | 72.7% | 0.99× | 83 |
+
+- **What it shows**: Basic Pitch stays the default. The same three solos (FRfYc, BRfYc, 7RfYc) are the bottom three under every tool, and two of them have pitch accuracy of only 50–57%, so their problem is upstream of note cutting (the stem or the pitch line). A pitch-error breakdown is running (P6).
+- `contour` at 83 s/min misses the 60 s/min mix speed target.
 
 ### E8 — 2026-11-02 — Split-note join (PR #10), before and after
 - **Settings**: before = `basic_pitch_raw` (no join), after = `basic_pitch` with the join, as merged in PR #10. Runs in `~/saxscribe-runs-pr10`.
@@ -45,9 +58,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | | Onset F1 | 92.2% | 88.4% |
 | | Note F1 | 87.5% | 77.1% |
 | | Notes joined | — | 55 |
+| choralebricks (38) | Pitch accuracy | 98.9% | 98.9% |
+| | Onset F1 | 86.7% | 82.8% |
+| | Note F1 | 77.8% | 72.1% |
+| | Notes ours ÷ key | 1.25× | 1.10× |
+| | Notes joined | — | 271 |
 
-- **What it shows**: the join hurts both clean sets. It merges real repeated notes (a player re-tonguing the same pitch), so it costs more than the split notes it fixes.
-- **Action**: PR #22 (open) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). ChoraleBricks and Omnibook before/after still running.
+- **What it shows**: the join hurts all three clean sets. On ChoraleBricks it brings the note count closer to the key (1.25× → 1.10×) yet scores lower, so the notes it removes are often real ones. It merges real repeated notes (a player re-tonguing the same pitch), so it costs more than the split notes it fixes.
+- **Action**: PR #22 (open) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). Omnibook before/after still running.
 - Fidelity note: wrongly joined repeats drop written notes, which is the failure the project rule forbids.
 
 ### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, open)

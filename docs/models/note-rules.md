@@ -32,9 +32,11 @@ Onset F1, note F1 with and without offsets; ratio of our note count to the answe
 | urmp | 64.4% | 46.7% |
 | choralebricks | 77.8% | 60.3% |
 
+On the Omnibook (45 solos, log E9) note F1 is 64.2% for Basic Pitch, 59.8% for the segmenter and 58.3% for the contour cutter.
+
 The segmenter wins on slow legato URMP parts (King, Fugue, Jerusalem) and loses elsewhere. It does not reproduce the published CREPE Notes advantage on Filosax; possible reasons are our thresholds, the absence of the paper's amplitude-based end trimming details, or dataset differences. Not worth more time until Filosax allows a like-for-like check.
 
-Split-note join, before → after (log E8): URMP onset F1 81.6% → 77.7%, note F1 64.4% → 62.8% (412 joins); Bach10 onset F1 92.2% → 88.4%, note F1 87.5% → 77.1% (55 joins). It merges real repeated notes, so it is off by default (PR #22). ChoraleBricks and Omnibook pending.
+Split-note join, before → after (log E8): URMP onset F1 81.6% → 77.7%, note F1 64.4% → 62.8% (412 joins); Bach10 onset F1 92.2% → 88.4%, note F1 87.5% → 77.1% (55 joins); ChoraleBricks onset F1 86.7% → 82.8%, note F1 77.8% → 72.1% (271 joins). It merges real repeated notes, so it is off by default (PR #22). Omnibook pending.
 
 ## Caveats and recommendations
 - Thresholds were set on the synthetic fixture and paper defaults, not tuned on the test sets (good: no leakage; bad: may be far from optimal). Tune only on train splits.
