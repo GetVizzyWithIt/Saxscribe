@@ -97,3 +97,23 @@ def test_answer_key_lines_a_written_etude_up_with_the_take(fixture_wav, tmp_path
     assert [n["pitch"] for n in notes] == [n["pitch"] for n in truth]
     errors = np.abs([a["onset"] - b["onset"] for a, b in zip(notes, truth)])
     assert np.mean(errors <= 0.05) >= 0.85, errors
+
+
+def test_omnibook_layout(tmp_path):
+    root = tmp_path / "CharlieParkerOmnibook" / "CharlieParkerAlignedOmnibookPublication"
+    for sub in ("audio_stems", "audio_untuned_mixes", "midi_original", "midi_performance_aligned"):
+        (root / sub).mkdir(parents=True)
+    (tmp_path / "CharlieParkerOmnibook" / "__MACOSX").mkdir()
+    notes = [{"onset": 1.0, "offset": 1.5, "pitch": 70}]
+    for rid in ("1p64c", "2RfYc", "3zn4c"):
+        (root / "audio_stems" / f"{rid}.wav").write_bytes(b"")
+        (root / "audio_untuned_mixes" / f"{rid}.mp3").write_bytes(b"")
+        refs.write_midi_notes(root / "midi_original" / f"{rid}.mid", notes)
+    for rid in ("1p64c", "2RfYc"):  # 3zn4c has no aligned MIDI
+        refs.write_midi_notes(root / "midi_performance_aligned" / f"{rid}-fine-aligned.mid", notes)
+    stems = refs.load_omnibook(tmp_path / "CharlieParkerOmnibook")
+    assert [(r.id, r.audio.name, r.is_mix) for r in stems] == [("1p64c", "1p64c.wav", False),
+                                                               ("2RfYc", "2RfYc.wav", False)]
+    assert stems[0].extra["midi"].endswith("1p64c-fine-aligned.mid")
+    mixes = refs.load_omnibook(tmp_path / "CharlieParkerOmnibook", mix=True)
+    assert [(r.audio.name, r.is_mix) for r in mixes] == [("1p64c.mp3", True), ("2RfYc.mp3", True)]

@@ -78,7 +78,8 @@ Train and test splits go by tune, never by take.
 
 | Set | What it is | Where to get it |
 | --- | --- | --- |
-| omnibook | 50 Charlie Parker solos: separated alto stems, aligned MIDI, MusicXML | [Zenodo 14628467](https://zenodo.org/records/14628467), open |
+| omnibook | 46 Charlie Parker solos: separated alto stems with performance-aligned MIDI | [Zenodo 14628467](https://zenodo.org/records/14628467), open |
+| omnibook-mix | the same solos from the full records, separated by Demucs first | same download |
 | filosax | 48 tunes, 5 players, solo sax over backing tracks, note annotations | [Zenodo 5643843](https://zenodo.org/record/5643843), on request |
 | pairs | any folder of audio files, each with a same-named .mid | your own takes |
 

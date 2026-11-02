@@ -4,8 +4,8 @@ Sets:
   pairs     any folder of audio files, each with a MIDI file of the same name
             (your aligned etude takes end up like this; see align.py)
   omnibook  the Charlie Parker Aligned Omnibook (Riley & Dixon, Zenodo
-            14628467): separated alto stems with aligned MIDI. Read as pairs,
-            with looser name matching, since its folder layout is not fixed here.
+            14628467): separated alto stems with performance-aligned MIDI
+  omnibook-mix  the same solos, from the full records (separated by Demucs first)
   filosax   Filosax (Foster & Dixon, ISMIR 2021), through mirdata's loader.
             Solo sax over Aebersold backing tracks, five players.
 
@@ -21,9 +21,9 @@ from pathlib import Path
 
 AUDIO = {".wav", ".flac", ".mp3", ".m4a", ".aif", ".aiff", ".ogg"}
 MIDI = {".mid", ".midi"}
-DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "filosax": "Filosax", "pairs": "saxscribe-etudes"}
+DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "pairs": "saxscribe-etudes"}
 # Words in file names that say what kind of file it is, not which tune.
-NOISE = {"sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
+NOISE = {"fine", "sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
          "audio", "mix", "other", "vocals", "solo", "pitch", "corrected", "440", "a440", "track"}
 
 
@@ -152,14 +152,37 @@ def load_pairs(folder: Path, is_mix: bool = False) -> list[Reference]:
     return refs
 
 
-def load_omnibook(folder: Path) -> list[Reference]:
-    """Prefers the separated sax stems: they hold the most even, comparable answer keys."""
-    refs = load_pairs(folder)
-    stems = [r for r in refs if re.search(r"sax|stem|separated", str(r.audio).lower())]
-    chosen = stems or refs
-    for r in chosen:
-        r.player = "Charlie Parker"
-    return chosen
+def omnibook_root(folder: Path) -> Path:
+    """The folder holding audio_stems/, even with the zip's wrapping folder in between."""
+    for cand in (folder, *sorted(p for p in folder.iterdir() if p.is_dir() and not p.name.startswith("__"))):
+        if (cand / "audio_stems").is_dir():
+            return cand
+    raise SystemExit(f"No audio_stems/ folder in {folder} or just inside it.")
+
+
+def load_omnibook(folder: Path, mix: bool = False) -> list[Reference]:
+    """The Charlie Parker Aligned Omnibook, by its file IDs.
+
+    Layout: audio_stems/<id>.wav (separated sax, tuned to A=440),
+    audio_untuned_mixes/<id>.mp3 (the records), and
+    midi_performance_aligned/<id>-fine-aligned.mid (the answer key, in
+    performance time). midi_original/ is the score, not the performance, so it
+    is not used. The 4 solos without aligned MIDI are skipped.
+
+    mix=True scores the full records instead of the stems (set
+    omnibook-mix). The records keep their original tuning, so a pitch tool
+    that does not allow for tuning may lose notes that sit near a quarter tone.
+    """
+    root = omnibook_root(folder)
+    refs = []
+    for midi in sorted((root / "midi_performance_aligned").glob("*-fine-aligned.mid")):
+        rid = midi.name.removesuffix("-fine-aligned.mid")
+        audio = (root / "audio_untuned_mixes" / f"{rid}.mp3") if mix else (root / "audio_stems" / f"{rid}.wav")
+        if not audio.exists():
+            continue
+        refs.append(Reference(id=rid, audio=audio, notes=read_midi_notes(midi), tune=rid,
+                              player="Charlie Parker", is_mix=mix, extra={"midi": str(midi)}))
+    return refs
 
 
 # ---------------------------------------------------------------- Filosax
@@ -198,7 +221,9 @@ def load(set_name: str, data: str | None = None, split: str = "all") -> list[Ref
     folder = data_dir(set_name, data)
     if not folder.exists():
         raise SystemExit(f"No {set_name} data at {folder}. Pass --data, or set it in config.local.toml.")
-    refs = {"pairs": load_pairs, "omnibook": load_omnibook, "filosax": load_filosax}[set_name](folder)
+    loaders = {"pairs": load_pairs, "omnibook": load_omnibook, "filosax": load_filosax,
+               "omnibook-mix": lambda f: load_omnibook(f, mix=True)}
+    refs = loaders[set_name](folder)
     if split != "all":
         refs = [r for r in refs if split_of(r) == split]
     return refs
