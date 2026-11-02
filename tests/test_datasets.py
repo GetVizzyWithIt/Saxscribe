@@ -67,3 +67,13 @@ def test_the_repo_manifest_reads_and_names_every_dataset():
         for a in ds["archives"]:
             assert a["url"] is None or a["url"].startswith("https://")
             assert ds["access"] == "manual" or a["url"]
+
+
+def test_a_file_saved_beside_zips_counts_as_here(tmp_path):
+    m = make_manifest(tmp_path)
+    root = tmp_path / "data"
+    (root / "Toy").mkdir(parents=True)
+    (root / "Toy" / "toy.zip").write_bytes((tmp_path / "src" / "toy.zip").read_bytes())
+    ds = datasets.load_manifest(m, root)["datasets"][0]
+    assert datasets.status(root, ds, verify=True) == (1, 1)
+    assert datasets.run([], check=True, manifest=str(m), root=str(root)) == 0
