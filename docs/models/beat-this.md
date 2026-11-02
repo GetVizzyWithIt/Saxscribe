@@ -39,4 +39,4 @@ No known limits.
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-02 | Copied from game analyzer | #1 |
-| 2026-11-02 | Notation no longer drops notes when beats are missing (open) | #15 |
+| 2026-11-02 | Notation no longer drops notes when beats are missing | #15 |

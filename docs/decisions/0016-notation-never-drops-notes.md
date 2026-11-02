@@ -1,7 +1,7 @@
 # ADR-0016: Notation never drops a detected note
 
 - **Date**: 2026-11-02
-- **Status**: Proposed (PR #15 open)
+- **Status**: Accepted (PR #15 merged; triplet clean-up in PR #17)
 - **Decided by**: Claude (bug fix under the fidelity rule)
 - **PR**: #15
 

@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-02, at commit `955b1da` (PR #12 merged).
+Last full review: 2026-11-02, with PRs through #16 merged.
 
 ## Map
 

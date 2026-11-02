@@ -28,7 +28,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Running (restarted 2026-11-02 20:52) |
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Running |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
-| P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 (full scorecard to be copied in) |
+| P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
 
@@ -36,7 +36,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Settings**: default. 45 solos (one fewer than E2; reason to confirm from the scorecard).
 - **Headline**: pitch 74%, onset F1 86% (mix target 75%: met), note F1 64% (mix target 60%: met).
 - **What it shows**: E2's 45% came mostly from grading notes after the answer key ended. With fair grading the Omnibook stems meet the full-mix note targets; pitch accuracy (74% vs 90%) is now the gap, likely bleed in the separated stems.
-- *To fill in*: commit, seconds per minute, note F1 without offsets, note-count ratio.
+- Our note count is now roughly equal to the answer key's.
+- *To fill in*: commit, seconds per minute, note F1 without offsets.
 
 ### E5 — 2026-11-02 — First real PDF render (finding, not a scorecard)
 - **What happened**: one Omnibook stem rendered to a clean PDF in the right alto
@@ -44,7 +45,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   almost no beats, and the notation step dropped notes it couldn't place on a grid.
 - **Why it matters**: a fidelity bug (the tool must never omit notes). Scorecards
   didn't catch it because they grade Layer 3, not the notation.
-- **Fix**: PR #15 (open), which also fixes a MuseScore crash on macOS.
+- **Fix**: PR #15 (merged), which also fixes a MuseScore crash on macOS. PR #17 (open) cleans triplet markings MuseScore rejected, so PDFs render every note.
 - **Follow-up**: add a notation check to the scorecard: notes in the score ÷ notes in `notes.json` must be 1.
 
 ### E4 — 2026-11-02 — ChoraleBricks and Bach10 (PR #9)

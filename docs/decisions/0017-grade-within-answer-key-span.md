@@ -1,7 +1,7 @@
 # ADR-0017: Grade only inside the answer key's time span
 
 - **Date**: 2026-11-02
-- **Status**: Proposed (PR #16 open)
+- **Status**: Accepted (PR #16 merged)
 - **Decided by**: Claude (bug fix)
 - **PR**: #16
 

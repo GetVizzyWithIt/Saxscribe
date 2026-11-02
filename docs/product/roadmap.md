@@ -27,7 +27,7 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 - [x] Join notes Basic Pitch cuts in two, unless the audio shows a re-attack (PR #10)
 - [ ] Before/after scorecard for PR #10 on URMP, Bach10, ChoraleBricks, Omnibook (running on the Mac)
 - [ ] Segmenter and contour-cutter runs on the Omnibook (running on the Mac)
-- [ ] Omnibook grading limited to the answer key's span (PR #16, open), then re-run the baseline
+- [x] Omnibook grading limited to the answer key's span (PR #16); re-run: note F1 64%, onset F1 86%
 - [ ] Note ends: note F1 drops ~9 points when offsets count
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
 - [ ] Austin's first etude takes → 20-take frozen test set
@@ -55,7 +55,8 @@ Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 Goal: a score Austin would put on the stand, with few edits.
 
 - [x] PDF export via MuseScore (PR #12)
-- [ ] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15, open)
+- [x] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15)
+- [ ] Triplet markings MuseScore rejects (PR #17, open)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
@@ -68,7 +69,7 @@ Goal: a score Austin would put on the stand, with few edits.
 
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
-1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`, open).
+1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`).
 2. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
 3. Developer compare view against an answer key.
 4. Editor; edits saved as diffs (training data).

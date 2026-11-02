@@ -72,7 +72,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Key and spelling | music21's key finder on the notes; flats for chromatic notes in flat keys and C, sharps in sharp keys |
 | Meter | 4/4 only for now |
 | Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12) |
-| Missing beats | Known bug: with almost no tracked beats (unaccompanied sax) notes were dropped; PR #15 (open) keeps every note |
+| Missing beats | With almost no tracked beats (unaccompanied sax) every note is still written (PR #15, [ADR-0016](../decisions/0016-notation-never-drops-notes.md)) |
 
 Outputs: `score.mid` (exact times, lines up with the audio), `score.musicxml`
 (concert), `score-<horn>.musicxml` (written for the horn), `notation.json`
@@ -145,7 +145,7 @@ beat detection takes a file.
 | | Now | v1 |
 | --- | --- | --- |
 | Where it runs | Austin's M3 Pro MacBook, CLI | Same Mac, as a local web server |
-| How it's used | Terminal | `python -m saxscribe app` (PR #14, open): iPad Safari over home Wi-Fi |
+| How it's used | Terminal | `python -m saxscribe app` (PR #14): iPad Safari over home Wi-Fi |
 | Install | `setup_mac.sh`: Homebrew Python 3.11 + ffmpeg, private venv in `~/Library/Application Support/saxscribe/python`, symlinked as `.venv` | Same, plus the app server |
 | Optional | MuseScore (`brew install --cask musescore`) for PDF | Required for the PDF download |
 | Training | None yet | Colab or a rented GPU; weights brought back to the Mac |

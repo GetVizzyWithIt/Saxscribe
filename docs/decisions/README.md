@@ -22,5 +22,5 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0013](0013-v1-ui-scope.md) | v1 = upload audio, download PDF, optional play-along; local web app for iPad | 2026-11-02 | Accepted |
 | [0014](0014-personal-answer-keys-from-paper.md) | Austin's paper transcriptions become personal answer keys via OMR | 2026-11-02 | Accepted, not started |
 | [0015](0015-docs-standards.md) | Documentation follows model cards, datasheets, ADRs and CRISP-DM | 2026-11-02 | Accepted |
-| [0016](0016-notation-never-drops-notes.md) | Notation never drops a detected note | 2026-11-02 | Proposed (PR #15) |
-| [0017](0017-grade-within-answer-key-span.md) | Grade only inside the answer key's time span | 2026-11-02 | Proposed (PR #16) |
+| [0016](0016-notation-never-drops-notes.md) | Notation never drops a detected note | 2026-11-02 | Accepted |
+| [0017](0017-grade-within-answer-key-span.md) | Grade only inside the answer key's time span | 2026-11-02 | Accepted |

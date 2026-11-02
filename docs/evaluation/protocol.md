@@ -40,6 +40,10 @@ Notes on the definitions:
 - F1 is the balance of precision (how many of ours are right) and recall (how
   many of theirs we found).
 - Means are per-recording averages, not pooled over all notes.
+- When an answer key covers only part of a recording (`Reference.partial`, e.g.
+  Omnibook keys cover about one chorus), only notes and beats we found inside
+  the key's span (first onset − 0.5 s to last offset + 0.5 s) are scored
+  (PR #16, [ADR-0017](../decisions/0017-grade-within-answer-key-span.md)).
 
 ## Targets
 

@@ -70,14 +70,14 @@ Status key: **Done** = merged and tested; **Partial** = works but incomplete;
 | F3a | Articulation tags: slur, tongued, scoop, fall, bend, vibrato depth/rate, growl | Planned (field exists, empty) | `notes.json` `tags` |
 | F3b | Beats, downbeats, tempo | Done | Beat This!, librosa fallback |
 | F3c | Key | Partial: found at notation step by music21, not stored in notes.json | `layers/notation.py` |
-| F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Bug: drops notes when the beat grid is missing, fix in PR #15 | `layers/notation.py` |
+| F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid | `layers/notation.py` |
 | F4a | Export MusicXML and MIDI, audio kept aligned | Done | `score.musicxml`, `score.mid` |
 | F4b | Export PDF sheet music (v1 UI) | Done when MuseScore is installed | `layers/engrave.py` |
 | F5 | Transposition: store concert pitch, display Eb or Bb | Done (alto, tenor, baritone) | `horns.py` |
 | F6 | Batch mode (folder in, transcriptions out) | Done | `transcribe <folder>` |
 | F7 | Editor: fix pitch, split/merge, nudge onsets, change articulation, re-quantize; every edit saved as a diff | Planned (UI thread) | design doc |
-| F8 | Loop practice: select bars, slow down with pitch kept, scrolling notation | Partial: v1 play-along with highlighting, tap-to-seek, 50% slow-down with pitch kept, stem toggle (PR #14, open); bar loops not yet | `python -m saxscribe app` |
-| F13 | v1 web app: upload (alto/tenor, solo/band), download PDF/MusicXML/MIDI at alto, tenor or concert | Built (PR #14, open) | `python -m saxscribe app` |
+| F8 | Loop practice: select bars, slow down with pitch kept, scrolling notation | Partial: v1 play-along with highlighting, tap-to-seek, 50% slow-down with pitch kept, stem toggle (PR #14); bar loops not yet | `python -m saxscribe app` |
+| F13 | v1 web app: upload (alto/tenor, solo/band), download PDF/MusicXML/MIDI at alto, tenor or concert | Done (PR #14) | `python -m saxscribe app` |
 | F9 | Performance report: per-note timing and intonation, per-take summary | Planned (Phase D in UI plan) | |
 | F10 | Scorecard: score any layer on answer-key sets with mir_eval | Done | `score/` |
 | F11 | Answer keys from a written score and a take (DTW alignment) | Done | `score/align.py` |
