@@ -16,13 +16,20 @@ How a note gets its place:
   2. Swing: the off-beat eighths' average position in the beat gives the
      swing ratio (0.5 is straight, 0.67 is a hard 2:1 triplet swing). Swung
      eighths are written as plain eighths, the way a lead sheet does.
-  3. Each beat snaps to sixteenths, or to triplets when they fit clearly better.
+  3. Each beat snaps to the plainest grid that fits: eighths first, then
+     eighth-note triplets or sixteenths when they fit clearly better. A grid
+     that would put two notes on one spot loses. In swing, triplets are read
+     from the swung timing and sixteenths cost more, so a swung line reads as
+     eighths and triplets, not dotted sixteenths and thirty-seconds.
   4. Short gaps before the next note (under a third of a beat) are closed,
      so tongued eighths read as eighths, not sixteenths and rests.
   5. No note is ever dropped: two notes that snap to the same spot are
      written a thirty-second apart, and the count is kept in notation.json.
-  6. Key comes from the notes (music21's key finder); spelling follows the key,
-     with flats for chromatic notes in flat keys and C, sharps in sharp keys.
+  6. Key comes from the notes (music21's key finder). Each part is spelled in
+     its own key (the written part in the horn's key, never more than six
+     sharps or flats), flats for chromatic notes in flat keys and C, sharps
+     in sharp keys, so a pitch is spelled the same way all through a part.
+  7. Two or more empty bars in a row are written as one multi-bar rest.
 """
 from __future__ import annotations
 
@@ -39,9 +46,15 @@ from . import notes as notes_layer
 TICKS = 960   # MIDI ticks per beat
 BPM = 120.0   # fixed MIDI tempo, so a tick is an exact slice of a second (1/1920 s)
 
+EIGHTH = (Fraction(0), Fraction(1, 2), Fraction(1))
 STRAIGHT = (Fraction(0), Fraction(1, 4), Fraction(1, 2), Fraction(3, 4), Fraction(1))
 TRIPLET = (Fraction(0), Fraction(1, 3), Fraction(2, 3), Fraction(1))
-TRIPLET_PENALTY = 0.03  # beats of extra error per note before triplets win
+# Beats of extra error per event a grid must save before it wins over eighths.
+# Straight playing: sixteenths before triplets. Swing: triplets before sixteenths.
+PENALTY = {False: {EIGHTH: 0.0, STRAIGHT: 0.02, TRIPLET: 0.05},
+           True: {EIGHTH: 0.0, TRIPLET: 0.02, STRAIGHT: 0.08}}
+COLLIDE = 0.25          # beats of cost when a grid puts two onsets on one spot
+OFFSET_WEIGHT = 0.5     # note ends matter less than starts when choosing a grid
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
 BEATS_PER_BAR = 4       # 4/4 for now
@@ -177,17 +190,38 @@ def swing_setting(swing: str, positions: np.ndarray) -> tuple[float, str]:
 
 # ---------------------------------------------------------------- quantizing
 
-def snap_beat(fracs: list[float]) -> tuple[tuple[Fraction, ...], list[Fraction]]:
-    """Snaps positions inside one beat to sixteenths, or triplets if clearly better."""
-    def fit(grid):
+def step_of(grid: tuple[Fraction, ...]) -> Fraction:
+    return grid[1]
+
+
+def snap_beat(events: list[tuple[str, float, float]], swung: bool = False
+              ) -> tuple[tuple[Fraction, ...], list[Fraction]]:
+    """Snaps the events inside one beat to one grid: eighths, sixteenths or triplets.
+
+    events are (kind, straight position, as-played position) with kind "on" or
+    "off". Eighths and sixteenths are fitted to the straightened position,
+    triplets to the position as played (so swing does not bend a triplet).
+    The cheapest grid wins: its error, plus a small cost per event for a busier
+    grid, plus a large cost for each pair of onsets it would put on one spot.
+    In swing, a beat is only a triplet when a note starts on its middle third:
+    notes on the first and last thirds are just swung eighths.
+    """
+    best = None
+    for grid, penalty in PENALTY[swung].items():
         g = np.array([float(x) for x in grid])
-        picks = [grid[int(np.argmin(np.abs(g - f)))] for f in fracs]
-        return picks, sum(abs(float(p) - f) for p, f in zip(picks, fracs))
-    s_picks, s_err = fit(STRAIGHT)
-    t_picks, t_err = fit(TRIPLET)
-    if t_err + TRIPLET_PENALTY * len(fracs) < s_err:
-        return TRIPLET, t_picks
-    return STRAIGHT, s_picks
+        picks, cost = [], 0.0
+        for kind, straight, played in events:
+            f = played if grid is TRIPLET else straight
+            pick = grid[int(np.argmin(np.abs(g - f)))]
+            picks.append(pick)
+            cost += abs(float(pick) - f) * (1.0 if kind == "on" else OFFSET_WEIGHT) + penalty
+        ons = [p for (kind, _, _), p in zip(events, picks) if kind == "on"]
+        if swung and grid is TRIPLET and Fraction(1, 3) not in ons:
+            continue
+        cost += COLLIDE * (len(ons) - len(set(ons)))
+        if best is None or cost < best[0] - 1e-9:
+            best = (cost, grid, picks)
+    return best[1], best[2]
 
 
 def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
@@ -203,38 +237,48 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     on = to_beat([n["onset"] for n in notes]) if notes else np.array([])
     off = to_beat([n["offset"] for n in notes]) if notes else np.array([])
     s, source = swing_setting(swing, on)
-    if s != 0.5:
-        on = np.array([unswing(p, s) for p in on])
-        off = np.array([unswing(p, s) for p in off])
-    # Close short gaps so tongued notes keep their written length.
     off = off.copy()
+    # Close short gaps so tongued notes keep their written length.
     for i in range(len(notes) - 1):
         if on[i + 1] - off[i] < CLOSE_GAP:
             off[i] = on[i + 1]
+    on_played, off_played = on.copy(), off.copy()
+    if s != 0.5:
+        on = np.array([unswing(p, s) for p in on])
+        off = np.array([unswing(p, s) for p in off])
 
     # Snap every onset and offset beat by beat, so each beat picks one grid.
-    events: dict[int, list[tuple[int, str, float]]] = {}
-    for i, (a, b) in enumerate(zip(on, off)):
-        for kind, pos in (("on", a), ("off", b)):
-            events.setdefault(int(np.floor(pos)), []).append((i, kind, float(pos - np.floor(pos))))
+    events: dict[int, list[tuple[int, str, float, float]]] = {}
+    for i in range(len(notes)):
+        for kind, pos, played in (("on", on[i], on_played[i]), ("off", off[i], off_played[i])):
+            beat = int(np.floor(pos))
+            events.setdefault(beat, []).append((i, kind, float(pos - beat), float(played - beat)))
     q_on, q_off = [Fraction(0)] * len(notes), [Fraction(0)] * len(notes)
+    step: dict[int, Fraction] = {}  # each beat's grid step: 1/2, 1/3 or 1/4
     for beat, evs in events.items():
-        _, picks = snap_beat([f for _, _, f in evs])
-        for (i, kind, _), p in zip(evs, picks):
+        grid, picks = snap_beat([(k, f, pf) for _, k, f, pf in evs], swung=s != 0.5)
+        step[beat] = step_of(grid)
+        for (i, kind, _, _), p in zip(evs, picks):
             (q_on if kind == "on" else q_off)[i] = beat + p
     # Every note keeps a place: an onset that landed on or before the previous
     # one moves a thirty-second later (fidelity over tidiness).
     squeezed = 0
     for i in range(1, len(notes)):
         if q_on[i] <= q_on[i - 1]:
-            step = Fraction(1, 3) if (q_on[i - 1] % 1).denominator == 3 else MIN_STEP
-            q_on[i] = q_on[i - 1] + step
+            move = Fraction(1, 3) if is_triplet(q_on[i - 1]) else MIN_STEP
+            q_on[i] = q_on[i - 1] + move
             squeezed += 1
     placed = []
     for i in range(len(notes)):
         start, end = q_on[i], max(q_off[i], q_on[i] + MIN_STEP)
-        if end - start < Fraction(1, 4):
-            end = start + Fraction(1, 4)  # the smallest value we write by default is a sixteenth
+        # The shortest value written by default is one step of the beat's grid
+        # (an eighth, a triplet eighth or a sixteenth), so a short note is not
+        # written as a sixteenth and a rest.
+        least = step.get(int(start // 1), Fraction(1, 4))
+        if (start % 1) % least:
+            least = Fraction(1, 4) if not is_triplet(start) else Fraction(1, 3)
+        if end - start < least:
+            end = start + least
         if i + 1 < len(notes):
             end = min(end, q_on[i + 1])
         placed.append({"index": i, "start": start, "length": end - start, "pitch": notes[i]["pitch"]})
@@ -261,7 +305,7 @@ def one_grid_per_beat(placed: list[dict]) -> list[dict]:
 
     A beat that mixes the two (from a squeezed note, or a long note that started
     on a triplet) cannot be written cleanly, so its triplet points move to the
-    nearest thirty-second. Order is kept and no note is dropped.
+    nearest sixteenth. Order is kept and no note is dropped.
     """
     for _ in range(4):
         points: dict[int, list[Fraction]] = {}
@@ -276,7 +320,7 @@ def one_grid_per_beat(placed: list[dict]) -> list[dict]:
 
         def fix(x: Fraction) -> Fraction:
             if int(x // 1) in mixed and is_triplet(x):
-                return Fraction(round(x * 8), 8)
+                return Fraction(round(x * 4), 4)
             return x
         ends = [fix(p["start"] + p["length"]) for p in placed]
         starts = [fix(p["start"]) for p in placed]
@@ -324,6 +368,19 @@ def find_key(pitches: list[int]) -> str:
     return f"{k.tonic.name} {k.mode}"
 
 
+def display_key(key_name: str, horn: Horn | None = None) -> str:
+    """The key a part is written in: the concert key, or the horn's written key.
+
+    Never more than six sharps or flats: G# major becomes A- major."""
+    from music21 import interval, key as m21key
+    k = m21key.Key(*key_name.split())
+    if horn is not None:
+        k = k.transpose(interval.Interval(horn.written_interval))
+    if abs(k.sharps) > 6:
+        k = m21key.Key(k.tonic.getEnharmonic().name, k.mode)
+    return f"{k.tonic.name} {k.mode}"
+
+
 def spell(midi: int, key_name: str):
     """A music21 Pitch for a MIDI number, spelled to suit the key."""
     from music21 import key as m21key, pitch
@@ -348,16 +405,19 @@ def spell(midi: int, key_name: str):
 # ---------------------------------------------------------------- score
 
 def build_score(result: dict, horn: Horn, written: bool):
-    from music21 import interval, key as m21key, meter, metadata, note, stream, tempo
+    from music21 import key as m21key, meter, metadata, note, spanner, stream, tempo, tie
     part = stream.Part()
-    part.partName = f"{horn.name.capitalize()} Sax"
+    part.partName = f"{horn.name.capitalize()} Sax" + (f" in {horn.key}" if written else "")
+    # Each part is spelled in its own key, so the written part never inherits
+    # odd spellings from transposing the concert one.
+    key_name = display_key(result["key"], horn if written else None)
+    shift = horn.written_shift if written else 0
     part.insert(0, meter.TimeSignature(f"{BEATS_PER_BAR}/4"))
-    part.insert(0, m21key.Key(*result["key"].split()))
+    part.insert(0, m21key.Key(*key_name.split()))
     if result.get("tempo_bpm"):
         part.insert(0, tempo.MetronomeMark(number=round(result["tempo_bpm"])))
     # Lay out the whole timeline ourselves, notes and rests, cut at beats, so
     # every written value is a plain note, a dotted note, or a 3:2 triplet.
-    from music21 import tie
     t = Fraction(0)
     spans: list[tuple[Fraction, Fraction, int | None]] = []
     for p in result["notes"]:
@@ -374,19 +434,33 @@ def build_score(result: dict, horn: Horn, written: bool):
             if pitch is None:
                 el = note.Rest(quarterLength=length)
             else:
-                el = note.Note(spell(pitch, result["key"]), quarterLength=length)
+                el = note.Note(spell(pitch + shift, key_name), quarterLength=length)
                 if len(bits) > 1:
                     el.tie = tie.Tie("start" if k == 0 else "stop" if k == len(bits) - 1 else "continue")
             part.insert(s, el)
     part = part.makeNotation()
-    if written:
-        part = part.transpose(interval.Interval(horn.written_interval))
-        part.partName = f"{horn.name.capitalize()} Sax in {horn.key}"
+    for run in empty_bar_runs(part):
+        rests = [m.notesAndRests.first() for m in run]
+        part.insert(0, spanner.MultiMeasureRest(rests, useSymbols=False))
     score = stream.Score()
     score.metadata = metadata.Metadata(title="Transcription", composer="saxscribe")
     score.insert(0, part)
     return score
 
+
+def empty_bar_runs(part, least: int = 2) -> list[list]:
+    """Runs of at least `least` bars in a row that hold only rests."""
+    runs, now = [], []
+    for m in part.getElementsByClass("Measure"):
+        if not m.notes:
+            now.append(m)
+            continue
+        if len(now) >= least:
+            runs.append(now)
+        now = []
+    if len(now) >= least:
+        runs.append(now)
+    return runs
 
 
 def result_json(result: dict) -> dict:
