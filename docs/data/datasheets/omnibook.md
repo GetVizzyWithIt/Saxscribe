@@ -45,6 +45,16 @@ reads; to be corrected.
 ## Known issue
 Each performance-aligned MIDI covers roughly one chorus of the solo, while the stem runs longer. Until PR #16, notes after the key ended counted as wrong, understating every Omnibook score. Grade only inside the key's time span.
 
+## Known data-quality issue: octave errors in some answer keys
+On the two weakest solos (7RfYc, BRfYc), long passages of the aligned MIDI are
+written an octave above what Parker plays (checked by ear against the
+recording). Our pitch line is right there and the key is wrong, so these
+solos understate pitch accuracy and note F1. On solos without this problem the
+pitch line is right on about 87% of frames and matched notes have the correct
+pitch about 95% of the time. PR #23 (open) makes the scorecard flag octave
+disagreements with the key, so they can be separated from real errors.
+Treat this dataset as tier B: good timing, pitch to be checked per solo.
+
 ## Saxscribe results
 2026-11-02 default tools: pitch 73.3%, onset F1 60.4%, note F1 45.0%; Basic
 Pitch writes 1.5–3.2× too many notes (both understated, see Known issue). Re-graded (E6): pitch 74%, onset F1 86%, note F1 64%. Note tools compared (E9): Basic Pitch 64.2%, segment 59.8%, contour 58.3%. Solos FRfYc, BRfYc and 7RfYc are the weakest under every tool (two at 50–57% pitch accuracy): check their stems and answer keys. Mix run pending.
