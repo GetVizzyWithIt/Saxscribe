@@ -21,6 +21,7 @@
     python -m saxscribe score omnibook-mix      (the same solos from the full records)
     python -m saxscribe score filosax --split test
     python -m saxscribe score urmp             (classical sax parts, each recorded alone)
+    python -m saxscribe score choralebricks    (alto and baritone sax chorale parts)
     python -m saxscribe score pairs --data ~/Music/Etudes
 
   Make an answer key for your take of a written etude:
@@ -102,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("check", help="which tools are installed")
 
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
-    sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "pairs"))
+    sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "pairs"))
     sc.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
     sc.add_argument("--split", choices=("all", "train", "test"), default="all")
     sc.add_argument("--limit", type=int, help="only the first N recordings")

@@ -140,3 +140,22 @@ def test_urmp_layout(tmp_path):
     assert stems[1].notes[0]["pitch"] == 69
     mixes = refs.load_urmp(tmp_path / "URMP", mix=True)
     assert {r.audio.name for r in mixes} == {"AuMix_06_Entertainer_sax_sax.wav"} and all(r.is_mix for r in mixes)
+
+
+def test_choralebricks_layout(tmp_path):
+    song = tmp_path / "ChoraleBricks" / "01_AudioAndAnnotations" / "Bach_IchStehAnDeinerKrippe"
+    (song / "tracks").mkdir(parents=True)
+    (song / "annotations").mkdir()
+    header = "start_sec;end_sec;dur_sec;pitch;pitch_name;pitch_written;pitch_written_name;pitch_dev_cents;midi_velocity\n"
+    for tag, rows in (("01_as", "0.267;0.789;0.522;67;G4;67;G4;25;100\n0.819;1.678;0.859;67;G4;67;G4;22;100\n"),
+                      ("04_bs", "1.0;2.0;1.0;43;G2;55;G3;0;100\n"),
+                      ("01_tp", "0.5;1.0;0.5;72;C5;72;C5;0;100\n")):
+        (song / "tracks" / f"{tag}.wav").write_bytes(b"")
+        (song / "annotations" / f"{tag}_notes.csv").write_text(header + rows)
+    (song / "annotations" / "01_as_f0_filled.csv").write_text("t;f0\n0.0;0.0\n")
+    items = refs.load_choralebricks(tmp_path / "ChoraleBricks")
+    assert [(r.id, r.extra["horn"]) for r in items] == [("Bach_IchStehAnDeinerKrippe__01_as", "alto"),
+                                                        ("Bach_IchStehAnDeinerKrippe__04_bs", "baritone")]
+    assert [(n["onset"], n["offset"], n["pitch"]) for n in items[0].notes] == [(0.267, 0.789, 67), (0.819, 1.678, 67)]
+    assert items[1].notes[0]["pitch"] == 43  # sounding pitch, not the written one
+    assert items[0].extra["f0"].endswith("01_as_f0_filled.csv") and items[1].extra["f0"] is None

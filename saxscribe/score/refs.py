@@ -12,6 +12,9 @@ Sets:
             the 11 sax parts from 10 classical ensemble pieces, each recorded
             alone, with hand-checked notes
   urmp-mix  the same sax parts, scored from the whole ensemble's mix
+  choralebricks  ChoraleBricks (Balke et al., AudioLabs Erlangen; Zenodo 20849469,
+            CC BY): 20 alto and 18 baritone sax parts of 10 chorales, each
+            recorded alone, with hand-checked notes
 
 Dataset folders come from --data, else config.local.toml, else ~/mir_datasets/<Name>.
 """
@@ -25,7 +28,7 @@ from pathlib import Path
 
 AUDIO = {".wav", ".flac", ".mp3", ".m4a", ".aif", ".aiff", ".ogg"}
 MIDI = {".mid", ".midi"}
-DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "pairs": "saxscribe-etudes"}
+DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "choralebricks": "ChoraleBricks", "pairs": "saxscribe-etudes"}
 # Words in file names that say what kind of file it is, not which tune.
 NOISE = {"fine", "sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
          "audio", "mix", "other", "vocals", "solo", "pitch", "corrected", "440", "a440", "track"}
@@ -269,6 +272,54 @@ def load_urmp(folder: Path, mix: bool = False) -> list[Reference]:
     return refs
 
 
+# ---------------------------------------------------------------- ChoraleBricks
+
+SAX_CODES = {"as": "alto", "bs": "baritone", "ts": "tenor", "ss": "soprano"}
+
+
+def read_choralebricks_notes(path: Path) -> list[dict]:
+    """annotations/NN_inst_notes.csv: start_sec;end_sec;...;pitch;... with pitch the
+    sounding (concert) MIDI note. pitch_written is the score's note, never used."""
+    import csv
+    with open(path, newline="") as f:
+        rows = list(csv.DictReader(f, delimiter=";"))
+    notes = [{"onset": float(r["start_sec"]), "offset": float(r["end_sec"]), "pitch": int(round(float(r["pitch"])))}
+             for r in rows if r.get("pitch") not in (None, "")]
+    return sorted((n for n in notes if n["offset"] > n["onset"]), key=lambda n: n["onset"])
+
+
+def choralebricks_root(folder: Path) -> Path:
+    for cand in (folder, folder / "01_AudioAndAnnotations", *sorted(p for p in folder.iterdir() if p.is_dir())):
+        if cand.is_dir() and any(cand.glob("*/annotations")):
+            return cand
+    raise SystemExit(f"No ChoraleBricks chorale folders (<Composer>_<Title>/annotations) in {folder}.")
+
+
+def load_choralebricks(folder: Path) -> list[Reference]:
+    """Sax parts of ChoraleBricks. Layout per chorale <Composer>_<Title>/:
+    tracks/NN_inst.wav (real recording of one part; NN = 01 soprano .. 04 bass voice)
+    and annotations/NN_inst_notes.csv (the answer key). Only sax codes are used
+    (as alto, bs baritone; ts and ss if a later version adds them). The raw
+    recordings in tracks/ are used, not tracks_normalized/.
+    """
+    root = choralebricks_root(folder)
+    refs = []
+    for song in sorted(p for p in root.iterdir() if (p / "annotations").is_dir()):
+        for notes_file in sorted((song / "annotations").glob("*_notes.csv")):
+            tag = notes_file.name.removesuffix("_notes.csv")      # 01_as
+            code = tag.split("_", 1)[-1]
+            if code not in SAX_CODES:
+                continue
+            audio = song / "tracks" / f"{tag}.wav"
+            if not audio.exists():
+                continue
+            f0 = song / "annotations" / f"{tag}_f0_filled.csv"
+            refs.append(Reference(id=f"{song.name}__{tag}", audio=audio, notes=read_choralebricks_notes(notes_file),
+                                  tune=song.name, extra={"horn": SAX_CODES[code], "notes": str(notes_file),
+                                                         "f0": str(f0) if f0.exists() else None}))
+    return refs
+
+
 # ---------------------------------------------------------------- splits
 
 def split_of(ref: Reference) -> str:
@@ -284,7 +335,8 @@ def load(set_name: str, data: str | None = None, split: str = "all") -> list[Ref
         raise SystemExit(f"No {set_name} data at {folder}. Pass --data, or set it in config.local.toml.")
     loaders = {"pairs": load_pairs, "omnibook": load_omnibook, "filosax": load_filosax,
                "omnibook-mix": lambda f: load_omnibook(f, mix=True),
-               "urmp": load_urmp, "urmp-mix": lambda f: load_urmp(f, mix=True)}
+               "urmp": load_urmp, "urmp-mix": lambda f: load_urmp(f, mix=True),
+               "choralebricks": load_choralebricks}
     refs = loaders[set_name](folder)
     if split != "all":
         refs = [r for r in refs if split_of(r) == split]
