@@ -42,6 +42,28 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
 | `--swing 2` | Swing ratio for the notation (`auto` detects it, `straight` turns it off) |
 
+## The app
+
+```bash
+python -m saxscribe app
+```
+
+This opens a page in the browser where you upload a recording (alto or
+tenor, solo or with a band) and get back:
+
+- **Sheet music**: PDF, MusicXML and MIDI, written for alto, tenor or concert.
+  The PDF needs MuseScore, and everything else works without it.
+- **A play-along**: the score scrolls with the recording, the note being
+  played lights up, and tapping a note jumps there. You can play at 50 to
+  100% speed with the pitch kept. For a band recording you can switch to the
+  sax alone or the band alone. A− and A+ make the notes smaller or bigger.
+
+It runs on the Mac. To use it on an iPad on the same Wi-Fi, open the address
+it prints ("On your iPad: http://…:8765/"). Uploads and their take folders
+live in `~/saxscribe-library/` (change it with `--library`). Each take folder
+is the same as one made by `transcribe`. Use `--host 127.0.0.1` to keep the
+app to this Mac only.
+
 ## What's in a take's folder
 
 Four layers, each its own file, so you can fix one by hand and re-run only

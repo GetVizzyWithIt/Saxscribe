@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Play along · Saxscribe</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="row">
+    <a class="button" href="/">‹ Library</a>
+    <div class="name" id="name">…</div>
+    <div class="seg" id="view"></div>
+    <div class="seg" id="audioSel" hidden>
+      <button type="button" data-v="source" class="on">Record</button><button type="button" data-v="stem">Sax only</button><button type="button" data-v="accompaniment">Band only</button>
+    </div>
+    <details class="menu" id="dl">
+      <summary class="button">Download</summary>
+      <div class="list">
+        <button id="pdf">PDF sheet music</button>
+        <button id="xml">MusicXML (for MuseScore)</button>
+        <button id="midi">MIDI (played timing)</button>
+      </div>
+    </details>
+  </div>
+</header>
+<main id="score"><div class="loading">Loading the score…</div></main>
+<footer class="transport">
+  <div class="row">
+    <button class="primary play" id="play" aria-label="Play">▶</button>
+    <span class="time" id="time">0:00 / 0:00</span>
+    <input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="Position">
+    <select id="speed" aria-label="Speed">
+      <option value="0.5">50%</option><option value="0.6">60%</option><option value="0.7">70%</option>
+      <option value="0.75">75%</option><option value="0.8">80%</option><option value="0.9">90%</option>
+      <option value="1" selected>100%</option>
+    </select>
+    <div class="seg zoom"><button type="button" id="smaller" aria-label="Smaller notes">A−</button><button type="button" id="bigger" aria-label="Bigger notes">A+</button></div>
+    <button id="follow" class="on" aria-pressed="true">Follow</button>
+  </div>
+</footer>
+<audio id="audio" preload="auto"></audio>
+<div class="toast" id="toast"></div>
+<script src="/static/common.js"></script>
+<script src="/static/play.js"></script>
+</body>
+</html>
