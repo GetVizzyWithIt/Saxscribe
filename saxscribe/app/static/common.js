@@ -12,7 +12,7 @@ function segment(el, onChange) {
     el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
     if (onChange) onChange(b.dataset.v);
   });
-  return () => el.querySelector('button.on').dataset.v;
+  return () => { const on = el.querySelector('button.on'); return on ? on.dataset.v : null; };
 }
 // Downloads go through fetch first so a missing PDF shows a message instead of an error page.
 async function download(url) {
