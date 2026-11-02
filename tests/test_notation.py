@@ -97,11 +97,19 @@ def test_fixture_notation(take):
     for path in (take.musicxml, take.written_musicxml("alto")):
         score = converter.parse(str(path))
         assert len(score.recurse().notes) == len(data["notes"])
-    # Relative rhythm matches the phrase, wherever the bar lines fell.
-    starts = [F(n["bar"] - 1) * 4 + F(n["beat"]) - 1 for n in data["notes"]]
+    # Rhythm: quantize the detected notes on the phrase's true beat grid, so this
+    # checks the notation step itself. How well a beat tracker follows a solo
+    # horn with no band is a separate question (Beat This! and librosa place
+    # this phrase's last bars differently), measured by beat F1 in the scorecard.
+    from saxscribe.layers import notes as notes_layer
+    est = notes_layer.read(take)["notes"]
+    grid = [i * fixture.BEAT for i in range(40)]
+    placed = notation.quantize(est, grid, grid[::4], fixture.BPM, "auto")["notes"]
+    starts = [p["start"] for p in placed]
     truth = [F(b).limit_denominator(8) for b, _, _, _ in fixture.PHRASE]
+    rel = [s - starts[0] for s in starts]
+    expected = [t - truth[0] for t in truth]
     if len(starts) == len(truth):
-        assert [s - starts[0] for s in starts] == [t - truth[0] for t in truth]
-    else:  # a missed or extra note: most of the rhythm must still line up
-        rel = {s - starts[0] for s in starts}
-        assert len(rel & {t - truth[0] for t in truth}) >= 0.8 * len(truth)
+        assert rel == expected
+    else:  # a missed or extra note upstream: the rest of the rhythm must still line up
+        assert len(set(rel) & set(expected)) >= 0.9 * len(truth)
