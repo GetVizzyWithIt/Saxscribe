@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--horn", choices=sorted(HORNS), default="alto")
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
-    t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "contour"), default="auto")
+    t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "segment", "contour"), default="auto")
     t.add_argument("--swing", default="auto", type=swing_arg,
                    help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
     sub.add_parser("check", help="which tools are installed")
@@ -108,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--runs", help="where take folders and the scorecard go (default ~/saxscribe-runs)")
     sc.add_argument("--redo", choices=LAYERS)
     sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
-    sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "contour"), default="auto")
+    sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "segment", "contour"), default="auto")
 
     ak = sub.add_parser("answer-key", help="line a written score up with your take of it")
     ak.add_argument("audio")
