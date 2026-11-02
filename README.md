@@ -37,6 +37,7 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
+| `--swing 2` | Swing ratio for the notation (`auto` detects it, `straight` turns it off) |
 
 ## What's in a take's folder
 
@@ -48,12 +49,16 @@ what sits above it. Pitch is stored at concert pitch.
 | 1. Isolate | `source.wav`, `stem.wav`, `accompaniment.wav`, `stems/` | The original, and the sax on its own (a copy for solo takes) |
 | 2. Contour | `contour.csv` | Pitch every 10 ms with a confidence, from CREPE |
 | 3. Notes | `notes.json` | Notes (onset, offset, pitch, cents off, articulation tags), beats, tempo |
-| 4. Notation | `score.mid` | The notes as MIDI at their exact times |
+| 4. Notation | `score.musicxml`, `score-alto.musicxml`, `score.mid`, `notation.json` | Readable notation at concert pitch and written for the horn; MIDI at the exact played times, lined up with the audio; and each note's bar and beat |
 
 `take.json` records which tool made each layer and when.
 
-Coming next: MusicXML with quantized rhythm, swing, key and spelling (music21),
-and a scorecard against a known answer key with mir_eval.
+Open the `.musicxml` files in MuseScore. How the notation is made (beat grid,
+swing, sixteenths or triplets, key and spelling) is described at the top of
+`saxscribe/layers/notation.py`.
+
+Coming next: a scorecard against known answer keys (Filosax, URMP, your own
+etude takes) with mir_eval.
 
 ## Tests
 

@@ -4,6 +4,7 @@ scipy>=1.10                 # median filter for cutting notes from the pitch lin
 librosa>=0.10               # loading audio, onsets, pYIN fallback
 soundfile>=0.12             # writing stems
 mido>=1.2                   # MIDI out
+music21>=9.1                # notation: key finding, spelling, MusicXML
 
 # Neural models run on PyTorch. Stay below 2.9: newer torchaudio changed how
 # audio files are saved, which Demucs 4.0.1 relies on (found in the game analyzer).
