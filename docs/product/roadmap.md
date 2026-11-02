@@ -24,8 +24,8 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 
 - [x] CREPE Notes style segmenter as a candidate notes tool (PR #6). Lost to
       Basic Pitch on URMP and ChoraleBricks.
-- [x] Join notes Basic Pitch cuts in two, unless the audio shows a re-attack (PR #10)
-- [ ] Before/after scorecard for PR #10 on URMP, Bach10, ChoraleBricks, Omnibook (running on the Mac)
+- [x] Join notes Basic Pitch cuts in two (PR #10). Scored before/after: hurts URMP and Bach10 by merging real repeats; off by default in PR #22 (open). ChoraleBricks and Omnibook runs pending
+- [ ] Split notes, second attempt: a better re-attack detector or a trained onset head
 - [ ] Segmenter and contour-cutter runs on the Omnibook (running on the Mac)
 - [x] Omnibook grading limited to the answer key's span (PR #16); re-run: note F1 64%, onset F1 86%
 - [ ] Note ends: note F1 drops ~9 points when offsets count

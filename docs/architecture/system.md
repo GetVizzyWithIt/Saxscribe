@@ -55,7 +55,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | --- | --- |
 | Default tool | Basic Pitch on `stem.wav` (onset threshold 0.5, frame threshold 0.3, minimum note 50 ms, horn's range, melodia trick on) ([model card](../models/basic-pitch.md)) |
 | One line | Sax plays one note at a time: notes starting within 30 ms of each other keep the louder one; a note still sounding when the next starts is cut there |
-| Split-note join | Same-pitch neighbours less than 30 ms apart are joined unless the stem shows a re-attack (level dip or a strong new attack). Since PR #10. `basic_pitch_raw` skips this ([model card](../models/note-rules.md)) |
+| Split-note join | Optional (`--notes-tool basic_pitch_join`): same-pitch neighbours under 30 ms apart joined unless the stem shows a re-attack. Off by default since PR #22, because it merged real repeats ([model card](../models/note-rules.md)) |
 | Other tools | `segment`: our CREPE Notes style cutter on the contour. `contour`: a simpler cutter on the contour plus librosa onsets |
 | Per note | `cents`: median distance of the pitch line from the note, after the take's overall tuning |
 | Beats | Beat This! `final0` checkpoint on the full `source.wav` (so the band's groove counts), librosa beat tracker as fallback ([model card](../models/beat-this.md)) |

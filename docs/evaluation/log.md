@@ -24,13 +24,31 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 | ID | What | Settings | Status |
 | --- | --- | --- | --- |
-| P1 | PR #10 before/after on urmp, bach10, choralebricks, omnibook | `basic_pitch_raw` vs `basic_pitch`, runs in `~/saxscribe-runs-pr10` | Running on the Mac |
+| P1 | PR #10 before/after on choralebricks, omnibook | `basic_pitch_raw` vs `basic_pitch` | URMP and Bach10 done (E8); these two still running |
 | P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Running (restarted 2026-11-02 20:52) |
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Running |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
+
+### E8 — 2026-11-02 — Split-note join (PR #10), before and after
+- **Settings**: before = `basic_pitch_raw` (no join), after = `basic_pitch` with the join, as merged in PR #10. Runs in `~/saxscribe-runs-pr10`.
+
+| Set | Measure | Before | After |
+| --- | --- | --- | --- |
+| urmp (11) | Pitch accuracy | 94.4% | 94.4% |
+| | Onset F1 | 81.6% | 77.7% |
+| | Note F1 | 64.4% | 62.8% |
+| | Notes joined | — | 412 |
+| bach10 (10) | Pitch accuracy | 96.8% | 96.9% |
+| | Onset F1 | 92.2% | 88.4% |
+| | Note F1 | 87.5% | 77.1% |
+| | Notes joined | — | 55 |
+
+- **What it shows**: the join hurts both clean sets. It merges real repeated notes (a player re-tonguing the same pitch), so it costs more than the split notes it fixes.
+- **Action**: PR #22 (open) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). ChoraleBricks and Omnibook before/after still running.
+- Fidelity note: wrongly joined repeats drop written notes, which is the failure the project rule forbids.
 
 ### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, open)
 - **Set**: synthetic swing solos with known written answers (not a mir_eval scorecard; notation layer only). Per-solo averages.
