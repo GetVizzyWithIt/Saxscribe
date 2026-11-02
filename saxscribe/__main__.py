@@ -28,6 +28,10 @@
   Make an answer key for your take of a written etude:
     python -m saxscribe answer-key take.wav etude.musicxml
 
+  Download the datasets in the manifest (see saxscribe/datasets.py):
+    python -m saxscribe fetch --list
+    python -m saxscribe fetch urmp bach10
+
   See which tools are installed:
     python -m saxscribe check
 """
@@ -120,10 +124,22 @@ def main(argv: list[str] | None = None) -> int:
     ak.add_argument("--horn", choices=sorted(HORNS), default="alto")
     ak.add_argument("--score-pitch", choices=("written", "concert"), default="written",
                     help="is the score written for the horn (default) or at concert pitch")
+    fe = sub.add_parser("fetch", help="download, check and unpack datasets from the manifest")
+    fe.add_argument("names", nargs="*", help="dataset folders or names (none: list them)")
+    fe.add_argument("--all", action="store_true", help="every dataset that can be downloaded directly")
+    fe.add_argument("--list", action="store_true", help="what the manifest holds, and what is here")
+    fe.add_argument("--check", action="store_true", help="only check files already here against their md5")
+    fe.add_argument("--no-extract", action="store_true", help="download only")
+    fe.add_argument("--manifest", help="manifest file (default: datasets/manifest.json, then <root>/MANIFEST.json)")
+    fe.add_argument("--root", help="where datasets live (default: config.local.toml [data] root, else ~/mir_datasets)")
     args = ap.parse_args(argv)
 
     if args.cmd == "check":
         return check()
+    if args.cmd == "fetch":
+        from . import datasets
+        return datasets.run(args.names, args.all, args.list, args.check, args.manifest, args.root,
+                            not args.no_extract)
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,

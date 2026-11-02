@@ -1,0 +1,1756 @@
+{
+  "generated": "2026-11-02",
+  "root": "~/mir_datasets",
+  "layout": "each dataset in <folder>/; downloaded archives in <folder>/_zips/; extracted data beside _zips",
+  "access_values": {
+    "open": "direct download",
+    "manual": "needs Austin's login, form or access approval"
+  },
+  "datasets": [
+    {
+      "name": "JazzSAMBA",
+      "folder": "JazzSAMBA",
+      "page": "https://zenodo.org/records/22943963",
+      "archives": [
+        {
+          "file": "JazzSAMBA-async-derived.zip",
+          "url": "https://zenodo.org/api/records/22943963/files/JazzSAMBA-async-derived.zip/content",
+          "size": 1151210,
+          "md5": "1bf48c3826090c6ea06bcc7397799ab0",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "JazzSAMBA-async.zip",
+          "url": "https://zenodo.org/api/records/22943963/files/JazzSAMBA-async.zip/content",
+          "size": 10762324672,
+          "md5": "1f437b3f0fec27e106f5a7fa0c64d4fb",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "JazzSAMBA-sync.zip",
+          "url": "https://zenodo.org/api/records/22943963/files/JazzSAMBA-sync.zip/content",
+          "size": 6027545598,
+          "md5": "8221aad4e7afccf13b10a54bd0ee590f",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "JazzSAMBA-catalog.zip",
+          "url": "https://zenodo.org/api/records/22943963/files/JazzSAMBA-catalog.zip/content",
+          "size": 13811,
+          "md5": "94acdb0fd6cc31b3a967d4d6867badb2",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "JazzSAMBA-sync-derived.zip",
+          "url": "https://zenodo.org/api/records/22943963/files/JazzSAMBA-sync-derived.zip/content",
+          "size": 5019785490,
+          "md5": "9f64f35446fe9a58d0303a662dd08e4d",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "permissive MIT-style licence in the dataset's LICENSE file (keep the copyright notice; derived files are estimates, provided as-is); Zenodo lists none",
+      "access": "open",
+      "extract": "unzip every zip into the dataset root; the zips share one tree (async/, sync/ beside songs.csv)",
+      "sax": "Alto/tenor sax stems for 50 async + 26 sync songs (2 takes each, plus async extras); MIDI for sax is machine transcription only (*.transcribed.derived.mid); ground-truth MIDI only for piano/drums; sync has debleeded stems"
+    },
+    {
+      "name": "TinySOL",
+      "folder": "TinySOL",
+      "page": "https://zenodo.org/records/3685367 (record 3632192 redirects here)",
+      "archives": [
+        {
+          "file": "TinySOL_metadata.csv",
+          "url": "https://zenodo.org/api/records/3685367/files/TinySOL_metadata.csv/content",
+          "size": 317576,
+          "md5": "a86c9bb115f69e61f2f25872e397fc4a",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "TinySOL.tar.gz",
+          "url": "https://zenodo.org/api/records/3685367/files/TinySOL.tar.gz/content",
+          "size": 1026917185,
+          "md5": "36030a7fe389da86c3419e5ee48e3b7f",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "tar -xzf TinySOL.tar.gz in the dataset root; metadata CSV sits beside it",
+      "sax": "Winds/Sax_Alto/ordinario: 99 single notes, 33 pitches C#3-A5 x pp/mf/ff; pitch in filename and metadata CSV"
+    },
+    {
+      "name": "URMP",
+      "folder": "URMP",
+      "page": "https://datadryad.org/dataset/doi:10.5061/dryad.ng3r749",
+      "archives": [
+        {
+          "file": "Dataset.tar.gz",
+          "url": "https://datadryad.org/api/v2/files/99348/download",
+          "size": 12097672571,
+          "md5": "8452b1a734fad6f3c10bd19940bc09b4",
+          "checksum_source": "matches Dryad md5"
+        },
+        {
+          "file": "README_for_Dataset.tar.pdf",
+          "url": "https://datadryad.org/api/v2/files/99349/download",
+          "size": 168924,
+          "md5": "6b29bc5744a7b013f79f3baf57b4913a",
+          "checksum_source": "dryad",
+          "note": "on disk this came as doi_10_5061_dryad_ng3r749__v20190320.zip containing the PDF"
+        }
+      ],
+      "license": "CC0-1.0",
+      "access": "open",
+      "extract": "tar -xzf Dataset.tar.gz -> Dataset/ (44 pieces + Supplementary_Files)",
+      "sax": "10 pieces with sax, 11 sax tracks: AuSep_*_sax_*.wav stems with human-checked F0s_*.txt (time, Hz) and Notes_*.txt (onset s, Hz, duration s); plus mixes, MIDI/PDF scores, video"
+    },
+    {
+      "name": "Charlie Parker Aligned Omnibook",
+      "folder": "CharlieParkerOmnibook",
+      "page": "https://zenodo.org/records/14628467",
+      "archives": [
+        {
+          "file": "CharlieParkerAlignedOmnibookPublication.zip",
+          "url": "https://zenodo.org/api/records/14628467/files/CharlieParkerAlignedOmnibookPublication.zip/content",
+          "size": 1353932245,
+          "md5": "ee6461c6e4d3801a371fb6d5d5109011",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "unzip into the dataset root -> CharlieParkerAlignedOmnibookPublication/ (also writes a __MACOSX/ folder)",
+      "sax": "Charlie Parker alto solos: score-audio pairs with aligned MIDI and downbeats (no isolated stems)"
+    },
+    {
+      "name": "FiloBass",
+      "folder": "FiloBass",
+      "page": "https://zenodo.org/records/10069709",
+      "archives": [
+        {
+          "file": "FiloBass_v1.0.0.zip",
+          "url": "https://zenodo.org/api/records/10069709/files/FiloBass_v1.0.0.zip/content",
+          "size": 434088235,
+          "md5": "ea1f52ffd492bf3654d720529f15bd9b",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "unzip into the dataset root -> 'FiloBass ISMIR Publication/' (the folder on disk was moved from an earlier extraction in ~/Music/Datasets; identical to the zip's file list)",
+      "sax": "No sax: jazz bass stems with aligned MIDI/MusicXML. Useful for the band context only"
+    },
+    {
+      "name": "ChoraleBricks",
+      "folder": "ChoraleBricks",
+      "page": "https://zenodo.org/records/20849469",
+      "archives": [
+        {
+          "file": "01_AudioAndAnnotations.zip",
+          "url": "https://zenodo.org/api/records/20849469/files/01_AudioAndAnnotations.zip/content",
+          "size": 1157617569,
+          "md5": "297f56cd78be1b3277a437c7206cfb7c",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "CHANGELOG.md",
+          "url": "https://zenodo.org/api/records/20849469/files/CHANGELOG.md/content",
+          "size": 3319,
+          "md5": "6de157afc36e793fd9be6025f2cb4c0e",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "skipped": [
+        "02_ConductingVideos.zip (conducting videos, not downloaded)"
+      ],
+      "extract": "unzip 01_AudioAndAnnotations.zip into the dataset root -> 01_AudioAndAnnotations/<song_id>/",
+      "sax": "Real recordings: 20 alto sax (*_as.wav) + 18 baritone sax (*_bs.wav) tracks across 10 chorales; per track human-checked notes CSV (start/end s, sounding MIDI pitch, cents) and F0 CSV (s, Hz), plus score alignments and MIDI/MusicXML/MEI"
+    },
+    {
+      "name": "Weimar Jazz Database",
+      "folder": "WeimarJazzDatabase",
+      "page": "https://jazzomat.hfm-weimar.de/download/",
+      "archives": [
+        {
+          "file": "wjazzd.db",
+          "url": "https://jazzomat.hfm-weimar.de/download/downloads/wjazzd.db",
+          "size": 42512384,
+          "md5": "89f02b08ce00e3f46ffd466c8f3e0e5d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "RELEASE2.0_mid_unquant.zip",
+          "url": "https://jazzomat.hfm-weimar.de/download/downloads/RELEASE2.0_mid_unquant.zip",
+          "size": 1345859,
+          "md5": "f7aa662e0b45b935ada120b13fa36a5d",
+          "checksum_source": "computed locally"
+        }
+      ],
+      "license": "not stated on the download page; check jazzomat.hfm-weimar.de before redistribution",
+      "access": "open",
+      "extract": "wjazzd.db is used as-is (SQLite, kept in the root, not in _zips); unzip the MIDI zip -> midi_unquant/",
+      "sax": "456 hand-transcribed solos (157 tenor, 80 alto, 23 soprano, 11 baritone sax), with notes, beats, chords; no audio (recordings must be sourced separately)"
+    },
+    {
+      "name": "GoodSounds",
+      "folder": "GoodSounds",
+      "page": "https://zenodo.org/records/820937",
+      "archives": [
+        {
+          "file": "good-sounds.zip",
+          "url": "https://zenodo.org/api/records/820937/files/good-sounds.zip/content",
+          "size": 13906331564,
+          "md5": "2137bbb2d32c1d60aa51e1301225f541",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "unzip into the dataset root -> good-sounds/ (database.sqlite + sound_files/)",
+      "sax": "3,360 sax recordings (alto/tenor/soprano/baritone, one player) of single notes and scales in 9 sax_*/saxo_* folders; pitch, technique and goodness ratings in database.sqlite"
+    },
+    {
+      "name": "Medley-solos-DB",
+      "folder": "Medley-solos-DB",
+      "page": "https://zenodo.org/records/3464194",
+      "archives": [
+        {
+          "file": "Medley-solos-DB_metadata.csv",
+          "url": "https://zenodo.org/api/records/3464194/files/Medley-solos-DB_metadata.csv/content",
+          "size": 1276168,
+          "md5": "fda6a589c56785f2195c9227809c521a",
+          "checksum_source": "zenodo"
+        },
+        {
+          "file": "Medley-solos-DB.tar.gz",
+          "url": "https://zenodo.org/api/records/3464194/files/Medley-solos-DB.tar.gz/content",
+          "size": 7921366863,
+          "md5": "f5facf398793ef5c1f80c013afdf3e5f",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "tar -xzf Medley-solos-DB.tar.gz in the dataset root (flat WAVs); metadata CSV stays in _zips",
+      "sax": "477 three-second tenor sax clips (instrument_id 5); instrument label only, no notes"
+    },
+    {
+      "name": "OrchideaSOL (metadata)",
+      "folder": "OrchideaSOL",
+      "page": "https://zenodo.org/records/3686252",
+      "archives": [
+        {
+          "file": "OrchideaSOL_metadata.csv",
+          "url": "https://zenodo.org/api/records/3686252/files/OrchideaSOL_metadata.csv/content",
+          "size": 1931685,
+          "md5": "c0233a7a8f5f964f5c26e0626a28ffda",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "none; the CSV stays in _zips",
+      "sax": "Metadata only: 377 alto sax rows (pitch, MIDI, dynamics, technique). Audio is a separate manual entry"
+    },
+    {
+      "name": "MedleyDB-Pitch pyin notes",
+      "folder": "MedleyDB-Pitch",
+      "page": "https://zenodo.org/records/4728793",
+      "archives": [
+        {
+          "file": "medleydb-pitch-pyin-notes.zip",
+          "url": "https://zenodo.org/api/records/4728793/files/medleydb-pitch-pyin-notes.zip/content",
+          "size": 209496,
+          "md5": "464af0c8db7b6e70d87f833eb551a8fb",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "cc-by-4.0",
+      "access": "open",
+      "extract": "unzip into the dataset root -> medleydb-pitch-pyin-notes/",
+      "sax": "103 machine-made (pYIN) note CSVs for the MedleyDB-Pitch stems; not ground truth; audio is a separate manual entry"
+    },
+    {
+      "name": "SaxTimbre",
+      "folder": "SaxTimbre",
+      "page": "https://doi.org/10.7910/DVN/WSFBIJ",
+      "archives": [
+        {
+          "file": "SaxTimbre_dataverse.zip",
+          "url": "https://dataverse.harvard.edu/api/access/dataset/:persistentId/?persistentId=doi:10.7910/DVN/WSFBIJ",
+          "size": 123773396,
+          "md5": "cb63465eb838138100c0d8198b0fb81d",
+          "checksum_source": "computed locally; Dataverse builds this zip on request, so its md5 may change between downloads; check per-file sizes instead"
+        }
+      ],
+      "license": "CC0-1.0",
+      "access": "open",
+      "extract": "unzip into the dataset root -> one folder per technique",
+      "sax": "191 tenor sax WAVs in technique folders (Bisbigliando, Flutter, Growling, Long Vibrato, Long NON Vibrato, Multiphonics, Quarter-Tones, Slap, Subtones); folder name is the only label"
+    },
+    {
+      "name": "University of Iowa MIS (sax)",
+      "folder": "IowaMIS",
+      "page": "https://theremin.music.uiowa.edu/MIS.html",
+      "archives": [
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.A3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.A3.stereo.aif",
+          "size": 980686,
+          "md5": "afb3658fd66722f4e7b8c91642073921",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.A4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.A4.stereo.aif",
+          "size": 891592,
+          "md5": "c5593a9da344d84a76c83dd6d3f3c73c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.A5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.A5.stereo.aif",
+          "size": 917044,
+          "md5": "ad97183e0416d2a9524fd556a8e6acf1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Ab3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Ab3.stereo.aif",
+          "size": 972202,
+          "md5": "68ea535e666db7c4654d866fa42117f3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Ab4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Ab4.stereo.aif",
+          "size": 967960,
+          "md5": "0c363c749efe05fb0a4ccc8313eddc4c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Ab5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Ab5.stereo.aif",
+          "size": 904318,
+          "md5": "ffce86dcc40bf33dbbe87561ee41e269",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.B3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.B3.stereo.aif",
+          "size": 1010380,
+          "md5": "79d7504b864f6713731dd2eddfc857d8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.B4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.B4.stereo.aif",
+          "size": 967954,
+          "md5": "e4dab21c1928079d46400f6544906f76",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.B5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.B5.stereo.aif",
+          "size": 925534,
+          "md5": "9fe15c758ef502978c61d3ad829bf9be",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Bb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Bb3.stereo.aif",
+          "size": 976444,
+          "md5": "edc4f9ddf0d7b9e4f9b6f5618294ba28",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Bb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Bb4.stereo.aif",
+          "size": 853414,
+          "md5": "8c11610924f33bfddc63e2ad296c93fd",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Bb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Bb5.stereo.aif",
+          "size": 921292,
+          "md5": "2c54785cd25d661376c2cec40921c059",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.C4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.C4.stereo.aif",
+          "size": 972202,
+          "md5": "bcbc9e918dd94e6ad142a38e6d498c8c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.C5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.C5.stereo.aif",
+          "size": 849166,
+          "md5": "dd37a9f430b0db994017f3a0703100cc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.C6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.C6.stereo.aif",
+          "size": 887350,
+          "md5": "81f7a9ef4b955d76205f63fe3eda0be9",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.D4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.D4.stereo.aif",
+          "size": 827956,
+          "md5": "69904dc3152bbe79150802d9fb085de7",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.D5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.D5.stereo.aif",
+          "size": 823714,
+          "md5": "edf96a39750a91451a23cc3e870a3528",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.D6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.D6.stereo.aif",
+          "size": 887344,
+          "md5": "6ed694070308512c9c8ee0efc41145b8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Db4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Db4.stereo.aif",
+          "size": 989170,
+          "md5": "787a282ea443c69fffa9f1094ac29fa4",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Db5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Db5.stereo.aif",
+          "size": 874624,
+          "md5": "cc30089ef4d2dee88d544986a5b5191d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.E4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.E4.stereo.aif",
+          "size": 950992,
+          "md5": "475fb0eab58abb4d7aa5ed01e104d843",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.E5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.E5.stereo.aif",
+          "size": 959476,
+          "md5": "7bc799d66383e9184edd60245b0cf0f6",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.E6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.E6.stereo.aif",
+          "size": 938260,
+          "md5": "143538553d5f1eb4f2ed37fae1fa2b94",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Eb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Eb4.stereo.aif",
+          "size": 946750,
+          "md5": "ef6fb2c042dbedfb078e0524401ee957",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Eb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Eb5.stereo.aif",
+          "size": 887350,
+          "md5": "f51e667dd2e28484463bcf81e72b7a5e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Eb6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Eb6.stereo.aif",
+          "size": 857650,
+          "md5": "32336f6a0f4d09cfc0146ffa5f8a52f3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.F4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.F4.stereo.aif",
+          "size": 917050,
+          "md5": "9e6c98745877abbb10d4b0be722d94c7",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.F5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.F5.stereo.aif",
+          "size": 908566,
+          "md5": "88643c407bb15e975fed1522cef80be6",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.G4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.G4.stereo.aif",
+          "size": 934018,
+          "md5": "80b70f3e465916cf3e3e036292ac59b6",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.G5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.G5.stereo.aif",
+          "size": 883108,
+          "md5": "1e5778af53b76496e214d89752706dcc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Gb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Gb4.stereo.aif",
+          "size": 955234,
+          "md5": "6d62c54b9214ca5957859de1cb1b9e57",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.Gb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.Gb5.stereo.aif",
+          "size": 946744,
+          "md5": "f04f123941274d7f9d69cb035f4f7363",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.nonvib.ff.stereo.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.nonvib.ff.stereo.zip",
+          "size": 15153615,
+          "md5": "c0a36b50174c0bacace63cc512a94c25",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.A3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.A3.stereo.aif",
+          "size": 929776,
+          "md5": "1cd327fb040b6b4262e0594fbbf8ea9a",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.A4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.A4.stereo.aif",
+          "size": 927658,
+          "md5": "596f40daf86b7b8114f31db391292a32",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.A5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.A5.stereo.aif",
+          "size": 923410,
+          "md5": "5b5a76c731c204133219b61f9f479690",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Ab3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Ab3.stereo.aif",
+          "size": 948868,
+          "md5": "003e18bc06fcbc78807ca1230228bfdb",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Ab4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Ab4.stereo.aif",
+          "size": 1084630,
+          "md5": "0adcd6a9132d7bb343a17ba86df3073e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Ab5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Ab5.stereo.aif",
+          "size": 885232,
+          "md5": "4dd8726442c4b5d166768a5347c42777",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.B3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.B3.stereo.aif",
+          "size": 904318,
+          "md5": "b55a44b66f2ebd425728f993ba428d03",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.B4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.B4.stereo.aif",
+          "size": 857656,
+          "md5": "b5f90a5cedbff3d6fb930c0b479c0f21",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.B5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.B5.stereo.aif",
+          "size": 889474,
+          "md5": "1d61abfdd0828ecf54f84449a32b5e0d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Bb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Bb3.stereo.aif",
+          "size": 889474,
+          "md5": "d3867ce75f49d657de788a7d712c0ed1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Bb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Bb4.stereo.aif",
+          "size": 921286,
+          "md5": "e20cbad5de776121ed643875e462a4c2",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Bb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Bb5.stereo.aif",
+          "size": 876748,
+          "md5": "a2df6114844c61fc42718667d8d38fb7",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.C4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.C4.stereo.aif",
+          "size": 755830,
+          "md5": "dab080a5494b14f20483906e3fe15a2d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.C5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.C5.stereo.aif",
+          "size": 785530,
+          "md5": "2dcd4cdaaf8413f71673311d98a1b53e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.C6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.C6.stereo.aif",
+          "size": 874618,
+          "md5": "c2f29496d18cc688bb7af34cc8a56789",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.D4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.D4.stereo.aif",
+          "size": 885226,
+          "md5": "05ea0d8b4ae75ff487739a87df8f10d1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.D5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.D5.stereo.aif",
+          "size": 821590,
+          "md5": "2ecc5da37bd1bf7ba0b59c0beacbfafa",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.D6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.D6.stereo.aif",
+          "size": 902194,
+          "md5": "6ef9d1ab8d7eeff438d530829502680b",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Db4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Db4.stereo.aif",
+          "size": 929776,
+          "md5": "6a0d9c38c9faa4eb18d9934321893936",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Db5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Db5.stereo.aif",
+          "size": 832192,
+          "md5": "581338512f59bf4591d46a9b58a61f84",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.E4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.E4.stereo.aif",
+          "size": 883108,
+          "md5": "3e9a0299f7a7dc78e8e965741a1486e8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.E5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.E5.stereo.aif",
+          "size": 936142,
+          "md5": "b875dd45b0b8532c8d724c3511772327",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.E6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.E6.stereo.aif",
+          "size": 927652,
+          "md5": "b7d214abdf581809a81188db9e99df68",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Eb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Eb4.stereo.aif",
+          "size": 987052,
+          "md5": "028bd12e33239c867e9faf9a41b32879",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Eb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Eb5.stereo.aif",
+          "size": 891592,
+          "md5": "e0d0d53952e69d7ef20ecbfb231342c8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Eb6.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Eb6.stereo.aif",
+          "size": 715522,
+          "md5": "e51865041eb4d83d830f296cddf8a671",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.F4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.F4.stereo.aif",
+          "size": 891592,
+          "md5": "14ae528c9395dcb8c39ce502befb3446",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.F5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.F5.stereo.aif",
+          "size": 942502,
+          "md5": "2291c29a6f78559a0ff7b6b0e78d75ee",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.G4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.G4.stereo.aif",
+          "size": 914926,
+          "md5": "b10e4a3230a0c2d9b2c00c338c8c8cf5",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.G5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.G5.stereo.aif",
+          "size": 864010,
+          "md5": "7c11c1c9a0d0c92c529d5dd8f79e907c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Gb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Gb4.stereo.aif",
+          "size": 853408,
+          "md5": "539f37e7b2740ae5d615e1f0554a71e3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.Gb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.Gb5.stereo.aif",
+          "size": 891592,
+          "md5": "b3053cec627268e91df4705cc83b5ad3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Bb Soprano Saxophone/SopSax.vib.ff.stereo.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Bb%20Soprano%20Saxophone/SopSax.vib.ff.stereo.zip",
+          "size": 14891367,
+          "md5": "aec122a03bfeabe458119566b823eb79",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.A3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.A3.stereo.aif",
+          "size": 696436,
+          "md5": "9c93d537aee32b272a733d315e6dd3a8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.A4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.A4.stereo.aif",
+          "size": 857650,
+          "md5": "96dd707dd67d9f1c3da80e44218b8233",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Ab3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Ab3.stereo.aif",
+          "size": 738856,
+          "md5": "70cdae8b8d9e021cabe96b7c1c544e2f",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Ab4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Ab4.stereo.aif",
+          "size": 785524,
+          "md5": "026538ed7d2354f27e094c773d55a50c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Ab5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Ab5.stereo.aif",
+          "size": 753712,
+          "md5": "02909b704025ffeceb81d6f97b905e26",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.B3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.B3.stereo.aif",
+          "size": 770680,
+          "md5": "b8fa4adf78f13da025de879155944209",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.B4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.B4.stereo.aif",
+          "size": 917050,
+          "md5": "b21161250d335d2ef46822d62a03dc70",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Bb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Bb3.stereo.aif",
+          "size": 760072,
+          "md5": "21944b362b013e54edc9eb6246d36057",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Bb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Bb4.stereo.aif",
+          "size": 874624,
+          "md5": "20919ebe8b51274eff6cf307bd07b6f8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.C4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.C4.stereo.aif",
+          "size": 734614,
+          "md5": "273c555a64472ba4aa5403997fb6a294",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.C5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.C5.stereo.aif",
+          "size": 936136,
+          "md5": "102009235c290b7be6a58a92bd1d591d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.D3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.D3.stereo.aif",
+          "size": 957352,
+          "md5": "755b9ee2283a0a5bb0de3537b7a22be4",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.D4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.D4.stereo.aif",
+          "size": 794014,
+          "md5": "2654362b1e06d8c757f94ff3a315c4df",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.D5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.D5.stereo.aif",
+          "size": 815224,
+          "md5": "4292b55305153fa480153d7f18e40c49",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Db3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Db3.stereo.aif",
+          "size": 770680,
+          "md5": "a7e5fe7e432c77d7ca467ceab96fedaf",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Db4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Db4.stereo.aif",
+          "size": 736738,
+          "md5": "01922d598994a8b5d063f5f896a386c3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Db5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Db5.stereo.aif",
+          "size": 887350,
+          "md5": "b11c5fac006ad312454ef4d9f1f919c5",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.E3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.E3.stereo.aif",
+          "size": 895840,
+          "md5": "9f89d4d6b7e0fc21ee41022abf014a50",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.E4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.E4.stereo.aif",
+          "size": 762190,
+          "md5": "ee656c1711a5d9530896514e3657a44d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.E5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.E5.stereo.aif",
+          "size": 885226,
+          "md5": "8148fd87d1bcc957205721334cc28c05",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Eb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Eb3.stereo.aif",
+          "size": 847048,
+          "md5": "2279d80594688f37222ed6f48d053022",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Eb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Eb4.stereo.aif",
+          "size": 760072,
+          "md5": "22e58cf383713ee1b37f21b0ccabd6f0",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Eb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Eb5.stereo.aif",
+          "size": 844924,
+          "md5": "ad3b47e7171a9b053c5fe7053a136303",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.F3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.F3.stereo.aif",
+          "size": 800374,
+          "md5": "566648d26fe818733a93cf72ceb79f88",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.F4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.F4.stereo.aif",
+          "size": 808864,
+          "md5": "68b874fe82afb1ed2e6737fabcc5ecae",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.F5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.F5.stereo.aif",
+          "size": 942502,
+          "md5": "ad54d8f26b199420b298f748ae74e349",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.G3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.G3.stereo.aif",
+          "size": 772798,
+          "md5": "433c73285eba419999e096fe95d2f954",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.G4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.G4.stereo.aif",
+          "size": 857650,
+          "md5": "a25f6a55569f27a4dff5a0ebfa340f67",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.G5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.G5.stereo.aif",
+          "size": 792952,
+          "md5": "e1e25e6af646980882fd445de087ff5c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Gb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Gb3.stereo.aif",
+          "size": 768556,
+          "md5": "215d97d320e3d4c25455132beb20eaa8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Gb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Gb4.stereo.aif",
+          "size": 751588,
+          "md5": "009b08c4043d674b3cb63ccb20a674cc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.Gb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.Gb5.stereo.aif",
+          "size": 931894,
+          "md5": "d83e452ddab91cf3b23db915ddf2d641",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.NoVib.ff.stereo.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.NoVib.ff.stereo.zip",
+          "size": 13203510,
+          "md5": "7a7405cfc1cfc1e5ac0fc2ff95e0c89c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.A3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.A3.stereo.aif",
+          "size": 789772,
+          "md5": "19fdfa30bcf145aca53fba525430df3f",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.A4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.A4.stereo.aif",
+          "size": 1112206,
+          "md5": "d0ee700ff1256ae6c5b515df374580ee",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Ab3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Ab3.stereo.aif",
+          "size": 912802,
+          "md5": "0bb499833bcdbe55b4d71b0ec024a9e2",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Ab4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Ab4.stereo.aif",
+          "size": 1086754,
+          "md5": "0c1750fbc5efea69101305d82d0a6279",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Ab5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Ab5.stereo.aif",
+          "size": 1167364,
+          "md5": "f4afafc64f19286508790eb2d95f2c71",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.B3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.B3.stereo.aif",
+          "size": 883102,
+          "md5": "b937b78e029212c36fc98689e2393d26",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.B4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.B4.stereo.aif",
+          "size": 1057054,
+          "md5": "f848eb9a0df34b08191cf1a806eeadf3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Bb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Bb3.stereo.aif",
+          "size": 1001902,
+          "md5": "33676dd85ee1ef078df90bf59ecd7812",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Bb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Bb4.stereo.aif",
+          "size": 1158874,
+          "md5": "10100516436fc7de4eb8c4b960344280",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.C4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.C4.stereo.aif",
+          "size": 993412,
+          "md5": "6f64eb2ff8270041fea202408fced847",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.C5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.C5.stereo.aif",
+          "size": 1150390,
+          "md5": "92d224e0eb2228fe95ec96f2739da15c",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.D3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.D3.stereo.aif",
+          "size": 1074022,
+          "md5": "3eac9fea538cbf1b2ddf83f9aeb168ed",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.D4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.D4.stereo.aif",
+          "size": 1065538,
+          "md5": "0c82f79c8fca996fade4886c5f762a03",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.D5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.D5.stereo.aif",
+          "size": 980686,
+          "md5": "ecf6c5212a78fbfbfb7cc95332f53b31",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Db3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Db3.stereo.aif",
+          "size": 1137664,
+          "md5": "854ac74cf7827b8a0e34c64b7a68a847",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Db4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Db4.stereo.aif",
+          "size": 908560,
+          "md5": "bea7acf5b0cc91af32e1359b0b0f3519",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Db5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Db5.stereo.aif",
+          "size": 1023112,
+          "md5": "cd8ee08b737075ae0bbae7184cbdb54e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.E3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.E3.stereo.aif",
+          "size": 1040086,
+          "md5": "1abc9a77f32ded63a7df2b0326a3bf86",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.E4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.E4.stereo.aif",
+          "size": 972202,
+          "md5": "b3005b301d702133d707e3d48ba6ba2e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.E5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.E5.stereo.aif",
+          "size": 1048570,
+          "md5": "e884364efbd569bcd9b4afafc45c70b5",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Eb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Eb3.stereo.aif",
+          "size": 1048570,
+          "md5": "bde40ef7c3866d04223b05e4b0b3fea6",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Eb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Eb4.stereo.aif",
+          "size": 963712,
+          "md5": "5c83b54828b8961f9e2dd51ebecd6daf",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Eb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Eb5.stereo.aif",
+          "size": 1103722,
+          "md5": "751176568be2a0fccf260c262325d542",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.F3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.F3.stereo.aif",
+          "size": 1192816,
+          "md5": "5facea1fecbdae31791d04d3cce9adaa",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.F4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.F4.stereo.aif",
+          "size": 997660,
+          "md5": "8eb96ac2fd2d801d28a4423a2916068a",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.F5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.F5.stereo.aif",
+          "size": 967954,
+          "md5": "9f487b7f178e1d32304816a4f55836bd",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.G3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.G3.stereo.aif",
+          "size": 993418,
+          "md5": "028c751986c6b2c4c2674e646447d081",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.G4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.G4.stereo.aif",
+          "size": 972202,
+          "md5": "466d3e040fb8ed1f944baa8e4e25fcaa",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.G5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.G5.stereo.aif",
+          "size": 1065538,
+          "md5": "cb1c738366556be41786e7f441de7396",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Gb3.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Gb3.stereo.aif",
+          "size": 1120690,
+          "md5": "7ba7d62f0641cedcc3dce4ce45e4abbc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Gb4.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Gb4.stereo.aif",
+          "size": 921292,
+          "md5": "afce07e828db516f4702c1bc7c037571",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.Gb5.stereo.aif",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.Gb5.stereo.aif",
+          "size": 1069780,
+          "md5": "2a8be333e0ce985d75109c87134940be",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS Pitches - 2014/Woodwinds/Eb Alto Saxophone/AltoSax.vib.ff.stereo.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS%20Pitches%20-%202014/Woodwinds/Eb%20Alto%20Saxophone/AltoSax.vib.ff.stereo.zip",
+          "size": 16271265,
+          "md5": "8788080241c3f48cc2c96a5a13e913c0",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.C4B4.aiff",
+          "size": 5561894,
+          "md5": "42c1d3bb75f90d5543cf8c1f9560236d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.C5Ab5.aiff",
+          "size": 4349472,
+          "md5": "a1a8a814e4f66fafa622cd6b8b51734e",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.Db3B3.aiff",
+          "size": 4930084,
+          "md5": "ef3de01d04da2ab0f3c3e9653b57afa1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.ff.zip",
+          "size": 8722472,
+          "md5": "1fc9642561faeb4b9fe43e43d0ff1b59",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.C4B4.aiff",
+          "size": 5410854,
+          "md5": "79faa2c41842aa240adc266a3621053b",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.C5Ab5.aiff",
+          "size": 4043296,
+          "md5": "7045b263d7ebecef9fe0b86b970bde65",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.Db3B3.aiff",
+          "size": 5079588,
+          "md5": "e57270494a008ec80562d02412aa99c0",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.mf.zip",
+          "size": 8073913,
+          "md5": "ff87953d9bb7503a9dad8de8a1fd207d",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.C4B4.aiff",
+          "size": 6256798,
+          "md5": "7a59ffe9928b7b1193250d919b75f7a3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.C5Ab5.aiff",
+          "size": 4462168,
+          "md5": "537889762b24249001627e6650c02ae8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.Db3B3.aiff",
+          "size": 6002192,
+          "md5": "d97a99dc8d36ffa7b42a7f18929b6240",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.pp.zip",
+          "size": 8336731,
+          "md5": "3f61f796a2b992a108f80d716781c023",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.NoVib.zip",
+          "size": 25133072,
+          "md5": "8be09fa756ad17df8f02a61a662528c3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.C4B4.aiff",
+          "size": 6174246,
+          "md5": "d019fa980cad0ea6b20beb22d532ccd0",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.C5Ab5.aiff",
+          "size": 4798496,
+          "md5": "6eb11d48e90ad593ee07baed9f55c4dc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.Db3B3.aiff",
+          "size": 5662500,
+          "md5": "fb0f69d5c3a6d11f71b39c9e67b80f02",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.ff.zip",
+          "size": 10345920,
+          "md5": "d9568129589293318e121dfa2699352f",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.C4B4.aiff",
+          "size": 5893414,
+          "md5": "e1e6abe858b69a4be66c49036406acc5",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.C5Ab5.aiff",
+          "size": 4416032,
+          "md5": "70c15310feb10b53e0f9445c94f0cea9",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.Db3B3.aiff",
+          "size": 5498916,
+          "md5": "1a8d3a4aff8a10dd262eb7de20322fd3",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.mf.zip",
+          "size": 9357420,
+          "md5": "577d5764f67d91a5f0847685f7609cb7",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.C4B4.aiff",
+          "size": 6086950,
+          "md5": "664b23571646cbbf6591743d792b7211",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.C5Ab5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.C5Ab5.aiff",
+          "size": 4812576,
+          "md5": "280d12b8d246c47ee16893d16a1b63b8",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.Db3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.Db3B3.aiff",
+          "size": 4671770,
+          "md5": "739d70ec221ed60a851a5985d3fbd2ad",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.pp.zip",
+          "size": 8612043,
+          "md5": "b8940ae1bdaca79781970778e2822050",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/altosaxophone/AltoSax.Vib.zip",
+          "size": 28315339,
+          "md5": "885973a0b58158e31de55bcd23046f18",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.Ab3B3.aiff",
+          "size": 1605224,
+          "md5": "ef3644d644dafd26b5415b0b1d729035",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C4B4.aiff",
+          "size": 4488660,
+          "md5": "bdb9e86e3ed0fda6272731c8d753f874",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C5B5.aiff",
+          "size": 4309798,
+          "md5": "97ef1c6bc5e97ef02f470431e4c92336",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.C6Eb6.aiff",
+          "size": 1492502,
+          "md5": "60f35bbcb0bb7ff817e322fb5f5d12fd",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.ff.zip",
+          "size": 8964318,
+          "md5": "d22e13403397f22fa54cbd15908c49c9",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.Ab3B3.aiff",
+          "size": 1534998,
+          "md5": "74fb48de267020ef81a76d4f025ea0c2",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C4B4.aiff",
+          "size": 4137432,
+          "md5": "3033a548c15a58ae9537982e686af842",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C5B5.aiff",
+          "size": 4210164,
+          "md5": "6c64f81fc39f451d3e9217942d09cbc9",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.C6Eb6.aiff",
+          "size": 1407126,
+          "md5": "fddfb071efdff499bd4257dc1def4dd2",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.mf.zip",
+          "size": 8409887,
+          "md5": "4980fe63579ee0a3b9e796e5219df872",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.Ab3B3.aiff",
+          "size": 1285304,
+          "md5": "8c6af143cc62cecc87906d1496757205",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C4B4.aiff",
+          "size": 3317640,
+          "md5": "78d9981533d1db32e348bcd41a08de06",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C5B5.aiff",
+          "size": 3880966,
+          "md5": "83612b97a2315cefbcb829ac47c77a9f",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.C6Eb6.aiff",
+          "size": 1420850,
+          "md5": "16e24febf45f638df58f2773cae9f2d9",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.pp.zip",
+          "size": 6602265,
+          "md5": "95c726954945ecc8d4ccfb1ec6e07b77",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.NoVib.zip",
+          "size": 23976426,
+          "md5": "f7c2c538c77eb5fea55c06ea2752daa4",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.Ab3B3.aiff",
+          "size": 1573142,
+          "md5": "7907f5a01dabe17155a7710ab9081ea6",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C4B4.aiff",
+          "size": 4415014,
+          "md5": "6a3a4b29e11dd7988ddf56e0843b1ee1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C5B5.aiff",
+          "size": 4318758,
+          "md5": "90c60f45a1fa25d56ded84cb3b39aaf4",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.C6Eb6.aiff",
+          "size": 1465622,
+          "md5": "d241931af5ebf3483ce3c0b8aca85a31",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.ff.zip",
+          "size": 8999486,
+          "md5": "792ca091e616b059a623a31823f693c5",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.Ab3B3.aiff",
+          "size": 1492816,
+          "md5": "5881065cf5d23d82f3fa6a9753cb1478",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C4B4.aiff",
+          "size": 4614118,
+          "md5": "af96f91a79fb67edb063b9e250816eae",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C5B5.aiff",
+          "size": 4251596,
+          "md5": "ee06f09a6c417112376827e7c8156e92",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.C6Eb6.aiff",
+          "size": 1426550,
+          "md5": "a9d78482d568300bc16ba8769c3fefdb",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.mf.zip",
+          "size": 8798143,
+          "md5": "f8c33e4ab1ae007ebe77583db14eac76",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.Ab3B3.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.Ab3B3.aiff",
+          "size": 1354462,
+          "md5": "785c5afecc132cb56def071a2017f914",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C4B4.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C4B4.aiff",
+          "size": 3676874,
+          "md5": "6d399c3cb5c48bab6775beaa7d254db1",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C5B5.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C5B5.aiff",
+          "size": 4149454,
+          "md5": "babfb14efa4fdae5d6b60f18f2ae8a59",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C6Eb6.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.C6Eb6.aiff",
+          "size": 1418242,
+          "md5": "e70825eedc9d0e286128a3762faee5dc",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.pp.zip",
+          "size": 7158747,
+          "md5": "b495dd5292ddf933dc794c9de5a44004",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.zip",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.Vib.zip",
+          "size": 24956332,
+          "md5": "ab46e659ea98c44c026075e521f76fdb",
+          "checksum_source": "computed locally"
+        },
+        {
+          "file": "sound files/MIS/Woodwinds/sopranosaxophone/SopSax.ambient.silence.aiff",
+          "url": "https://theremin.music.uiowa.edu/sound%20files/MIS/Woodwinds/sopranosaxophone/SopSax.ambient.silence.aiff",
+          "size": 197900,
+          "md5": "bf5c8b7fbaabd5125e6f39451c1d26aa",
+          "checksum_source": "computed locally"
+        }
+      ],
+      "license": "freely usable without restrictions, per the MIS site",
+      "access": "open",
+      "extract": "none needed; each file is saved at its relative path under the dataset root. The 20 .zip files are Iowa's own bundles of the same AIFFs (duplicates), kept packed",
+      "sax": "82 alto + 88 soprano sax AIFFs (plus 1 ambient-silence file and 20 duplicate zip bundles = 191 files). 2014 set: one note per file, ff, vib/nonvib, pitch in filename. Older set: one chromatic run per file (e.g. C4B4) at pp/mf/ff, vib/novib; notes must be segmented"
+    },
+    {
+      "name": "Philharmonia (woodwind)",
+      "folder": "Philharmonia",
+      "page": "https://philharmonia.co.uk/resources/sound-samples/",
+      "archives": [
+        {
+          "file": "Woodwind.zip",
+          "url": "https://philharmonia-assets.s3-eu-west-1.amazonaws.com/uploads/2020/02/12112005/Woodwind.zip",
+          "size": 273360818,
+          "md5": "1d67fbc4311306ec9fc8ff0836ba4c0e",
+          "checksum_source": "computed locally"
+        }
+      ],
+      "license": "Philharmonia sound-sample terms (free to use; check the page before redistributing)",
+      "access": "open",
+      "extract": "unzip Woodwind.zip into the dataset root, then unzip Woodwind/saxophone/saxophone.zip in place (other instrument zips left packed)",
+      "sax": "733 sax MP3s in Woodwind/saxophone; pitch, length, dynamic and technique in the filename"
+    },
+    {
+      "name": "Vibrato Dataset",
+      "folder": "VibratoDataset",
+      "page": "https://zenodo.org/records/1016050",
+      "archives": [
+        {
+          "file": "Vibrato Dataset.zip",
+          "url": "https://zenodo.org/api/records/1016050/files/Vibrato%20Dataset.zip/content",
+          "size": 243617618,
+          "md5": "9df3bb9a3253ad68fc3cdd5283ad7b8a",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "apgl-v3",
+      "access": "open",
+      "extract": "unzip into the dataset root -> 'Vibrato Dataset/' (also writes __MACOSX/)",
+      "sax": "53 alto sax WAVs in Good-sounds-Altosax/; vibrato presence and parameters in vibrato_dataset_GT.csv"
+    },
+    {
+      "name": "Register Control in Saxophone Playing",
+      "folder": "SaxRegisterControl",
+      "page": "https://zenodo.org/records/22141453",
+      "archives": [
+        {
+          "file": "register_control_saxophone-v1.0.1.zip",
+          "url": "https://zenodo.org/api/records/22141453/files/meguia/register_control_saxophone-v1.0.1.zip/content",
+          "size": 461389395,
+          "md5": "4ee96569c4f5f3af0562efd90ab23818",
+          "checksum_source": "zenodo"
+        }
+      ],
+      "license": "mit-license",
+      "access": "open",
+      "extract": "unzip into the dataset root -> meguia-register_control_saxophone-<hash>/; the Zenodo file key contains a slash, so it's saved flat",
+      "sax": "280 sax audio files with mouth-pressure and lip-force sensor data and reviewed overtone labels (CSV); register and altissimo work"
+    },
+    {
+      "name": "Bach10",
+      "folder": "Bach10",
+      "page": "https://labsites.rochester.edu/air/resource.html",
+      "archives": [
+        {
+          "file": "Bach10.zip",
+          "url": null,
+          "size": 131610814,
+          "md5": "b24c16738c4439220d343e072f2b03ce",
+          "checksum_source": "computed locally (Austin's download, 2026-11-02)"
+        }
+      ],
+      "license": "see Bach10 Dataset_v1.0.pdf inside the dataset (not checked)",
+      "access": "manual",
+      "access_note": "download link is a Google Form; Austin downloaded it 2026-11-02",
+      "extract": "unzip into the dataset root -> Bach10_v1.1/NN-Name/",
+      "sax": "10 Bach chorales; real tenor saxophone part (NN-Name-saxphone.wav, sic) with ground-truth F0 (NN-Name-GTF0s.mat) and notes (NN-Name-GTNotes.mat) for all 4 parts, plus mix, MIDI and score alignment (.txt/.asl)"
+    },
+    {
+      "name": "OrchideaSOL (audio)",
+      "folder": "OrchideaSOL",
+      "page": "https://forum.ircam.fr/",
+      "archives": [
+        {
+          "file": "_OrchideaSOL2020_release.zip",
+          "url": null,
+          "size": 8371284936,
+          "md5": "697ca9f9d6f0bcaceb8b3d2e3e0206ac",
+          "checksum_source": "computed locally (Austin's download from the Ircam Forum, 2026-11-02); per-file md5s in OrchideaSOL2020.md5.txt all verified"
+        }
+      ],
+      "license": "Ircam Forum licence for audio (https://forum.ircam.fr/legal/contrat-de-licence-forum-ircam/); no licence file in the zip",
+      "access": "manual",
+      "access_note": "needs a free Ircam Forum account; Austin downloaded it 2026-11-02",
+      "extract": "zip is over 4 GB: extract with `ditto -x -k` (macOS unzip misreads it). Gives _OrchideaSOL2020_release/OrchideaSOL2020/<family>/<instrument>/<technique>/*.wav; metadata CSV paths are relative to OrchideaSOL2020/",
+      "sax": "377 alto sax WAVs in Winds/Sax_Alto across 14 techniques (ordinario 99, ordinario_high_register 42, slap_pitched 46, double_tonguing 33, flatterzunge 33, sforzato 31, bisbigliando 29, aeolian 26, discolored_fingering 12, key_click 12, harmonic_fingering 9, slap_unpitched 3, blow_without_reed 1, kiss 1); pitch, MIDI, dynamics and technique per file in the metadata CSV"
+    },
+    {
+      "name": "Filosax",
+      "folder": "Filosax",
+      "page": "https://zenodo.org/records/6335779",
+      "archives": [],
+      "license": "see page",
+      "access": "manual",
+      "access_note": "Zenodo access request (copyrighted material)",
+      "extract": "TBD once obtained",
+      "sax": "Jazz sax stems from several players with note-level JSON annotations; full and lite versions"
+    },
+    {
+      "name": "MedleyDB-Pitch",
+      "folder": "MedleyDB-Pitch",
+      "page": "https://zenodo.org/records/2620624",
+      "archives": [],
+      "license": "see page",
+      "access": "manual",
+      "access_note": "Zenodo access request (requested by Austin on 2026-11-02)",
+      "extract": "TBD once obtained",
+      "sax": "Pitch-tracking subset with human-checked F0 per stem, including sax"
+    }
+  ]
+}
