@@ -54,3 +54,35 @@ def test_tongued_repeat_splits_at_the_level_dip():
     level[28:32] = [0.6, 0.3, 0.3, 0.6]
     found = segment.segment(line_from([70.0] * 60), level, np.zeros(60))
     assert [n["pitch"] for n in found] == [70, 70]
+
+
+def held(onset, offset, pitch=70):
+    return {"onset": onset, "offset": offset, "pitch": pitch, "amp": 0.8}
+
+
+def test_a_held_note_cut_in_two_is_joined():
+    cut = [held(0.10, 0.50), held(0.51, 0.90), held(0.92, 1.20, 72)]
+    found, joins = segment.join_repeats(cut, np.ones(150), np.zeros(150))
+    assert joins == 1
+    assert [(n["onset"], n["offset"], n["pitch"]) for n in found] == [(0.10, 0.90, 70), (0.92, 1.20, 72)]
+
+
+def test_a_tongued_repeat_stays_two_notes():
+    level = np.ones(150)
+    level[49:53] = [0.6, 0.3, 0.3, 0.6]  # the tongue stops the reed
+    found, joins = segment.join_repeats([held(0.10, 0.50), held(0.51, 0.90)], level, np.zeros(150))
+    assert joins == 0 and len(found) == 2
+
+
+def test_a_strong_new_attack_stays_two_notes():
+    level = np.ones(150)
+    level[51:60] = 1.5  # the sound swells again...
+    attacks = np.zeros(150)
+    attacks[51] = 5.0  # ...with a hard attack, as loud as the take's strongest
+    found, joins = segment.join_repeats([held(0.10, 0.50), held(0.51, 0.90)], level, attacks)
+    assert joins == 0 and len(found) == 2
+
+
+def test_notes_far_apart_are_never_joined():
+    found, joins = segment.join_repeats([held(0.10, 0.50), held(0.60, 0.90)], np.ones(150), np.zeros(150))
+    assert joins == 0 and len(found) == 2
