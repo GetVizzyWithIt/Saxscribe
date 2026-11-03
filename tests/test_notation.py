@@ -197,3 +197,70 @@ def test_messy_timing_still_writes_clean_musicxml(tmp_path):
     notation.build_score(r, HORNS["alto"], written=True).write("musicxml", fp=str(path))
     assert musicxml_problems(path) == []
     assert len([n for n in converter.parse(str(path)).recurse().notes if not n.tie or n.tie.type == "start"]) == len(notes)
+
+
+# ---------------------------------------------------------------- readability
+
+def swung_line(seed, beats=24, ratio=0.62, jitter=0.025, triplet_beats=()):
+    """Swung eighths with human timing (25 ms wobble), plus some real triplet beats."""
+    rng = np.random.default_rng(seed)
+    onsets, truth = [], []
+    for b in range(4, 4 + beats):
+        for frac in ((0, 1 / 3, 2 / 3) if b in triplet_beats else (0, ratio)):
+            onsets.append((b + frac) * SPB + rng.normal(0, jitter))
+            truth.append(F(b - 4) + (F(frac).limit_denominator(3) if b in triplet_beats else F(frac > 0, 2)))
+    notes = [{"onset": a, "offset": a + (z - a) * 0.85, "pitch": 70}
+             for a, z in zip(onsets, onsets[1:] + [onsets[-1] + 0.3])]
+    return notes, truth
+
+
+def test_a_swung_line_reads_as_eighths_not_dotted_figures():
+    notes, truth = swung_line(5)
+    r = notation.quantize(notes, GRID, GRID[::4], 120.0, "auto")
+    assert r["swing_source"] == "detected"
+    starts = [p["start"] for p in r["notes"]]
+    assert sum(s == t for s, t in zip(starts, truth)) >= 0.95 * len(truth)
+    assert all(s.denominator in (1, 2) for s in starts)
+
+
+def test_triplets_inside_a_swing_line_are_kept():
+    notes, truth = swung_line(6, triplet_beats=(9, 15, 21))
+    r = notation.quantize(notes, GRID, GRID[::4], 120.0, "auto")
+    starts = [p["start"] for p in r["notes"]]
+    trips = [s for s in starts if s.denominator == 3]
+    assert len(trips) == 6  # two inner notes in each of three triplet beats
+    assert sum(s == t for s, t in zip(starts, truth)) >= 0.9 * len(truth)
+
+
+def test_a_short_note_in_swing_is_an_eighth_not_a_sixteenth_and_rest():
+    notes, _ = swung_line(7)
+    notes[4]["offset"] = notes[4]["onset"] + 0.06  # a short, clipped note
+    r = notation.quantize(notes, GRID, GRID[::4], 120.0, "auto")
+    assert all(p["length"] >= F(1, 2) or p["start"].denominator == 3 for p in r["notes"][:-1])
+
+
+def test_empty_bars_become_one_multibar_rest(tmp_path):
+    r = {"key": "B- major", "tempo_bpm": 120,
+         "notes": [{"start": F(0), "length": F(4), "pitch": 70}, {"start": F(20), "length": F(4), "pitch": 72}]}
+    path = tmp_path / "rests.musicxml"
+    notation.build_score(r, HORNS["alto"], written=True).write("musicxml", fp=str(path))
+    text = path.read_text()
+    assert '<multiple-rest use-symbols="no">4</multiple-rest>' in text
+    assert musicxml_problems(path) == []
+
+
+def test_written_part_is_spelled_in_its_own_key():
+    # Concert B major on alto is G# major written (8 sharps): write it as A-flat major.
+    assert notation.display_key("B major", HORNS["alto"]) == "A- major"
+    assert notation.display_key("B- major", HORNS["tenor"]) == "C major"
+    chromatic = [{"start": F(i, 2), "length": F(1, 2), "pitch": 58 + i} for i in range(24)]
+    for horn in ("alto", "tenor"):
+        for key in ("B- major", "F major", "D minor", "E- major"):
+            score = notation.build_score({"key": key, "tempo_bpm": 120, "notes": chromatic},
+                                         HORNS[horn], written=True)
+            names = {}
+            for n in score.recurse().notes:
+                names.setdefault(n.pitch.pitchClass, set()).add(n.pitch.name)
+            assert all(len(v) == 1 for v in names.values()), (horn, key, names)
+            assert [n.pitch.midi for n in score.recurse().notes] == [58 + i + HORNS[horn].written_shift
+                                                                     for i in range(24)]
