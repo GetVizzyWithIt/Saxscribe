@@ -26,6 +26,9 @@ from ..horns import HORNS
 SR = 22050
 HOP = 512
 SNAP = 0.08
+STEADY_SNAP = 0.04      # metronome keys: attacks this close to the beat grid are taken
+STEADY_SLOPES = np.linspace(0.97, 1.03, 13)   # how far the player's tempo may sit off the marking
+STEADY_GOOD = 0.6       # share of key notes that must land on a heard attack for the fit to stand
 
 
 def score_notes(path: Path, horn: str, written: bool) -> list[dict]:
@@ -128,3 +131,57 @@ def run(audio: Path, score: Path, out: Path | None, horn: str, written: bool) ->
     write_midi_notes(dst, notes)
     frontend.log(f"Answer key: {len(notes)} notes lined up with {audio.name}; wrote {dst}")
     return dst
+
+
+def attacks(y: np.ndarray, sr: int = frontend.SR, look: float = 0.05) -> np.ndarray:
+    """Onset times where the sound gets louder. The onset detector also fires
+    on releases (the sound stopping is a change too); a metronome fit that
+    locks onto releases puts every key note one note-length late."""
+    times = np.array([o["t"] for o in frontend.detect_onsets(y)])
+    w = int(look * sr)
+    keep = []
+    for t in times:
+        i = int(t * sr)
+        before = float(np.sqrt(np.mean(y[max(0, i - w):i] ** 2))) if i > 0 else 0.0
+        after = float(np.sqrt(np.mean(y[i:i + w] ** 2))) if i < len(y) else 0.0
+        if after >= 0.7 * before:   # tongued legato notes dip a little; releases fall away
+            keep.append(t)
+    return np.array(keep)
+
+
+def align_steady(audio: Path, notes: list[dict], tempo: float) -> tuple[list[dict], float]:
+    """Score notes lined up with a take played to a metronome: (key notes, fit).
+
+    GRFIA-RealSax takes are played at the marked tempo, so each note sits at
+    t0 + beat x 60 / tempo, give or take a few percent. Chroma DTW can't line
+    up a one-pitch drill (nothing changes to lock onto) and drifted 150-270 ms
+    there. This finds the start and the exact tempo (within 3% of the
+    marking) that put the most score notes on heard attacks, then takes each
+    attack within 40 ms. fit is the share of notes that landed on one; the
+    caller falls back to DTW when it is low."""
+    onsets = attacks(frontend.load_mono(audio))
+    first = min(n["start"] for n in notes)
+    q = np.array([(n["start"] - first) * 60.0 / tempo for n in notes])
+    if len(onsets) == 0:
+        return [], 0.0
+    best = (-1, np.inf, 0.0, 1.0)
+    for slope in STEADY_SLOPES:
+        for j in range(min(len(onsets), 12)):
+            for k in range(min(len(q), 3)):
+                t0 = onsets[j] - q[k] * slope
+                pred = t0 + q * slope
+                d = np.abs(onsets[None, :] - pred[:, None]).min(axis=1)
+                hits = int((d <= STEADY_SNAP).sum())
+                err = float(np.mean(np.minimum(d, 0.2)))
+                if hits > best[0] or (hits == best[0] and err < best[1]):
+                    best = (hits, err, t0, slope)
+    hits, _, t0, slope = best
+    out = []
+    for n, qi in zip(notes, q):
+        t = t0 + qi * slope
+        k = int(np.argmin(np.abs(onsets - t)))
+        if abs(onsets[k] - t) <= STEADY_SNAP:
+            t = float(onsets[k])
+        length = (n["end"] - n["start"]) * 60.0 / tempo * slope
+        out.append({"onset": t, "offset": t + length, "pitch": n["pitch"], "beat": float(n["start"])})
+    return tidy(out), hits / len(notes)
