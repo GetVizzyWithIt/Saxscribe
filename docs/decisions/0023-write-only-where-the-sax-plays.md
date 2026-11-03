@@ -28,5 +28,5 @@ into `notes.json`.
 
 ## Consequences
 - Blues for Mary Jane: the score should shrink to Getz's two stretches (0–192 s, 368–464 s) ([log E16](../evaluation/log.md)).
-- Risk: a quiet or breathy sax passage judged "not sax" would vanish from the score and from grading. Guard: the scorecard should report how many answer-key notes fall inside cut stretches, so a cut that hides real sax shows up as a number, not silence. The `omnibook-mix` before/after is the check.
+- Risk: a quiet or breathy sax passage judged "not sax" would vanish from the score and from grading. Guard (added to PR #35): the cut stretches are recorded in `take.json` (notes layer, `sax_cuts`), and the scorecard counts answer-key notes inside them, per take ("N in cut stretches") and in a "Sax-span check" total line, so a cut that hides real sax shows up as a number, not silence. The `omnibook-mix` before/after is the check.
 - ADR-0016's rule now reads: the score writes every note in `notes.json` except those tagged `not_sax`.
