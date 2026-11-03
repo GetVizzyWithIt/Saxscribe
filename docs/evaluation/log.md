@@ -96,7 +96,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - By feel (exact): two-beat 74.4%, Latin 59.4%, swing 58.7%, funk 55.5%, **ballad 15.7%**.
   - By tempo (exact): up 73.3%, medium up 58.7%, medium 47.9%, medium slow 46.1%, **slow 18.5%**.
   - 12 Parker solos excluded as Omnibook overlap; no solo failed; every note written (ADR-0016 holds).
-- **Finding 1, the measure undercounts swing**: Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. A follow-up PR adds `position_read`, which accepts that case in swung solos, as the headline measure.
+- **Finding 1, the measure undercounts swing**: Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (open) adds `position_read`, which accepts that case in swung solos, as the headline measure.
 - **Finding 2, ballads and slow tunes are a real gap** (15–19%): Weimar uses 6- and 8-way beat divisions; we round those and often push the last note of a run onto the next beat.
 - Not a model change: it measures the current notation layer.
 

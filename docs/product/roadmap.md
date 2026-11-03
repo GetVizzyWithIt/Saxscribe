@@ -67,7 +67,7 @@ Goal: a score Austin would put on the stand, with few edits.
 - [ ] Rhythm quantisation on real records: Blues for Mary Jane check shows extra triplets, sixteenths and ties, pickups early or late (log E18). Current focus
 - [x] Rhythm scorecard on Weimar (PR #53): baseline exact position 58.7%, right beat 89.3% (log E24)
 - [ ] Ballads and slow tunes: 15–19% exact; finer beat divisions (6, 8) and runs pushed onto the next beat (log E24)
-- [ ] `position_read` measure so correct swing notation isn't counted wrong
+- [ ] `position_read` measure so correct swing notation isn't counted wrong (PR #55, open)
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
 - [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
 - [x] Syncopations as one note instead of tied eighths (PR #32; ties 46 → 41, log E14)
