@@ -414,7 +414,7 @@ def load_grfia(folder: Path, horn: str) -> list[Reference]:
     import soundfile as sf
 
     from . import kern
-    from .align import align_notes
+    from .align import align_notes, tidy
     root = grfia_root(folder)
     index = grfia_index(root, horn)
     cache = grfia_key_cache(horn)
@@ -450,7 +450,7 @@ def load_grfia(folder: Path, horn: str) -> list[Reference]:
             skipped += 1
             continue
         tags = [t.lower() for t in GRFIA_TAGS if row.get(t, "").upper() == "YES"]
-        refs.append(Reference(name, audio, key["notes"], tune=name, player=row.get("PERFORMER", ""),
+        refs.append(Reference(name, audio, tidy(key["notes"]), tune=name, player=row.get("PERFORMER", ""),
                               extra={"horn": horn, "tags": tags, "type": row.get("TYPE", ""),
                                      "meter": key.get("meter"), "tempo": key.get("tempo")}))
     if skipped:
