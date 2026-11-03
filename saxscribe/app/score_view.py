@@ -27,15 +27,19 @@ VIEWS = ("concert", *HORNS)
 SIZES = (2100, 1700, 1400, 1150)  # page widths for the size buttons: narrower page, bigger notes
 
 
-def musicxml(take: Take, view: str) -> Path:
+def musicxml(take: Take, view: str, song: dict | None = None) -> Path:
     """The MusicXML for a view. A horn's written part is made from the concert
-    score the first time it is asked for (e.g. tenor for a take made as alto)."""
+    score the first time it is asked for (e.g. tenor for a take made as alto).
+    song = {"title", "artist"} goes into the header (see meta.py)."""
+    from .meta import stamp_file
+    if song:
+        stamp_file(take.musicxml, song.get("title", ""), song.get("artist", ""))
     if view == "concert":
         return take.musicxml
     if view not in HORNS:
         raise KeyError(view)
     path = take.written_musicxml(view)
-    if not path.exists() or path.stat().st_mtime < take.musicxml.stat().st_mtime:
+    if not path.exists() or path.stat().st_mtime < take.notation.stat().st_mtime:
         from music21 import converter, interval
         horn = HORNS[view]
         score = converter.parse(str(take.musicxml))
@@ -43,6 +47,8 @@ def musicxml(take: Take, view: str) -> Path:
         for part in written.parts:
             part.partName = f"{horn.name.capitalize()} Sax in {horn.key}"
         written.write("musicxml", fp=str(path))
+    if song:
+        stamp_file(path, song.get("title", ""), song.get("artist", ""))
     return path
 
 
@@ -50,10 +56,11 @@ def pdf_path(take: Take, view: str) -> Path:
     return take.pdf if view == "concert" else take.written_pdf(view)
 
 
-def pdf(take: Take, view: str) -> Path | None:
-    """The PDF for a view, made with MuseScore if it isn't there yet. None when it can't be made."""
+def pdf(take: Take, view: str, song: dict | None = None) -> Path | None:
+    """The PDF for a view, made with MuseScore if it isn't there yet (or is older than
+    its MusicXML). None when it can't be made."""
     out = pdf_path(take, view)
-    xml = musicxml(take, view)
+    xml = musicxml(take, view, song)
     if out.exists() and out.stat().st_mtime >= xml.stat().st_mtime:
         return out
     from ..layers import engrave  # the pipeline's PDF step (MuseScore)
@@ -70,31 +77,34 @@ def toolkit():
     return tk
 
 
-def pages(take: Take, view: str, title: str) -> list[str]:
-    """The score as US Letter pages (SVG), titled, for printing or saving as PDF
-    when MuseScore's PDF isn't there."""
-    import re
-    from xml.sax.saxutils import escape
+def pages(take: Take, view: str, song: dict | None = None) -> list[str]:
+    """The score as US Letter pages (SVG), with its title, artist and credit, for
+    printing or saving as PDF when MuseScore's PDF isn't there."""
     tk = toolkit()
     tk.setOptions({"pageWidth": 2159, "pageHeight": 2794, "scale": 45, "footer": "none",
                    "pageMarginLeft": 120, "pageMarginRight": 120, "pageMarginTop": 100,
                    "pageMarginBottom": 100, "spacingSystem": 10, "svgViewBox": True})
-    xml = musicxml(take, view).read_text(encoding="utf-8")
-    xml = re.sub(r"<work-title>.*?</work-title>", f"<work-title>{escape(title)}</work-title>", xml, count=1)
-    xml = re.sub(r"<movement-title>.*?</movement-title>", f"<movement-title>{escape(title)}</movement-title>", xml, count=1)
-    if not tk.loadData(xml):
+    if not tk.loadFile(str(musicxml(take, view, song))):
         raise ValueError(f"Verovio could not read the {view} score")
-    return [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
+    out = [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
+    if out and song and song.get("title"):
+        # Verovio draws header lines at one text size; make the title stand out.
+        import re
+        from xml.sax.saxutils import escape
+        out[0] = re.sub(r'<tspan font-size="(\d+)px">' + re.escape(escape(song["title"])) + "</tspan>",
+                        lambda m: f'<tspan font-size="{int(m.group(1)) * 3 // 2}px" font-weight="bold">'
+                                  f'{escape(song["title"])}</tspan>', out[0], count=1)
+    return out
 
 
-def render(take: Take, view: str, size: int = 1) -> dict:
+def render(take: Take, view: str, size: int = 1, song: dict | None = None) -> dict:
     tk = toolkit()
     tk.setOptions({
         "pageWidth": SIZES[max(0, min(len(SIZES) - 1, size))], "pageHeight": 60000, "adjustPageHeight": True, "scale": 40,
         "svgViewBox": True, "header": "none", "footer": "none", "breaks": "auto",
         "pageMarginTop": 40, "pageMarginBottom": 40, "spacingSystem": 12,
     })
-    if not tk.loadFile(str(musicxml(take, view))):
+    if not tk.loadFile(str(musicxml(take, view, song))):
         raise ValueError(f"Verovio could not read the {view} score")
     svg = "".join(tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1))
     timemap = tk.renderToTimemap({"includeMeasures": True, "includeRests": True})

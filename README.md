@@ -54,6 +54,9 @@ tenor, solo or with a band) and get back:
 - **Sheet music**: PDF, MusicXML and MIDI, written for alto, tenor or concert.
   The PDF comes from MuseScore when it's installed. Without it, the PDF
   button opens the score as letter pages to print or save as PDF from the browser.
+  Every PDF carries the song's title, "As played by" the artist, and
+  "Transcribed with Saxscribe". Title and artist come from the file's tags
+  unless you type them at upload.
 - **A play-along**: the score scrolls with the recording, the note being
   played lights up, and tapping a note jumps there. You can play at 50 to
   100% speed with the pitch kept. For a band recording you can switch to the

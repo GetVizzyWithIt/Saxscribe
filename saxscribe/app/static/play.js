@@ -31,7 +31,7 @@ function lastAtOrBefore(list, q) {
 // ---- loading
 async function loadJob() {
   job = await (await fetch(`/api/takes/${takeId}`)).json();
-  $('#name').textContent = job.title;
+  $('#name').textContent = job.artist ? `${job.title} · ${job.artist}` : job.title;
   document.title = `${job.title} · Saxscribe`;
   const views = [job.horn, ...['alto', 'tenor', 'concert'].filter(v => v !== job.horn)];
   $('#view').innerHTML = views.map((v, i) => `<button type="button" data-v="${v}" class="${i ? '' : 'on'}">${HORN_NAMES[v] || v}</button>`).join('');
