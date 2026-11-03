@@ -373,7 +373,7 @@ def load_bach10(folder: Path, mix: bool = False) -> list[Reference]:
 # ---------------------------------------------------------------- GRFIA-RealSax
 
 GRFIA_KERN_TO_CONCERT = -12   # the kern files sit an octave above concert for both horns (checked on real takes)
-GRFIA_METHODS = ("steady", "dtw")  # keys made by an older aligner (no method) are made again
+GRFIA_KEY_VERSION = 2  # keys made by an older aligner are made again (1: steady fit by attacks only)
 GRFIA_RATIO = (0.8, 1.6)      # take length / score length at its tempo; outside this, skip the take
 GRFIA_TAGS = ("ALTISSIMO", "BEND", "BREATH", "FALL", "FALSE FINGERING", "GLISSANDO", "GROWL", "TRILL", "VIBRATO")
 
@@ -409,16 +409,17 @@ def load_grfia(folder: Path, horn: str) -> list[Reference]:
     lining the score up with the take's audio, once, and cached as JSON under
     ~/saxscribe-runs/keys/grfia-<horn>/. The takes are played to a metronome,
     so the first try is align.align_steady (beats at the marked tempo, give or
-    take 3%, snapped to heard attacks); when too few notes land on an attack
-    it falls back to align.align_notes (chroma DTW). Keys cached by an older
-    aligner are made again. Takes much longer or shorter than
+    take 3%, snapped to heard attacks, the steps of a scale told apart by
+    pitch). The chroma DTW key (align.align_notes) is made too, and wins when
+    too few notes land on an attack or its pitches match the take clearly
+    better. Keys cached by an older aligner are made again. Takes much longer or shorter than
     their score at its tempo (count-ins, repeats) are skipped."""
     import json
 
     import soundfile as sf
 
     from . import kern
-    from .align import STEADY_GOOD, align_notes, align_steady, tidy
+    from .align import DTW_BETTER, STEADY_GOOD, align_notes, align_steady, pitch_agreement, pitch_profile, tidy
     root = grfia_root(folder)
     index = grfia_index(root, horn)
     cache = grfia_key_cache(horn)
@@ -433,7 +434,7 @@ def load_grfia(folder: Path, horn: str) -> list[Reference]:
         row = index.get(name, {})
         cached = cache / f"{name}.json"
         key = json.loads(cached.read_text()) if cached.exists() else {}
-        if key and ("skip" in key or key.get("method") in GRFIA_METHODS):
+        if key and ("skip" in key or key.get("version") == GRFIA_KEY_VERSION):
             pass  # made by this version of the aligner
         else:
             parsed = kern.read(score)
@@ -448,13 +449,19 @@ def load_grfia(folder: Path, horn: str) -> list[Reference]:
             else:
                 notes = [{"start": float(n["start"]), "end": float(n["end"]),
                           "pitch": n["pitch"] + GRFIA_KERN_TO_CONCERT} for n in parsed["notes"]]
-                steady, fit = align_steady(audio, notes, tempo)
-                if fit >= STEADY_GOOD:
+                chroma = pitch_profile(audio)
+                steady, fit = align_steady(audio, notes, tempo, chroma)
+                warped = align_notes(audio, notes)
+                agree_steady = pitch_agreement(chroma, steady)
+                agree_dtw = pitch_agreement(chroma, warped)
+                if fit >= STEADY_GOOD and agree_steady + DTW_BETTER >= agree_dtw:
                     key_notes, method = steady, "steady"
                 else:
-                    key_notes, method = align_notes(audio, notes), "dtw"
+                    key_notes, method = warped, "dtw"
                 key = {"notes": key_notes, "meter": parsed["meter"], "tempo": tempo,
-                       "score": score.name, "method": method, "steady_fit": round(fit, 3)}
+                       "score": score.name, "method": method, "version": GRFIA_KEY_VERSION,
+                       "steady_fit": round(fit, 3), "pitch_agree": {"steady": round(agree_steady, 3),
+                                                                     "dtw": round(agree_dtw, 3)}}
             cached.write_text(json.dumps(key))
         if "skip" in key:
             skipped += 1
