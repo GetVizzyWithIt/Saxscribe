@@ -82,13 +82,7 @@ def lead_score(path: Path) -> float:
     y = frontend.load_mono(path, sr=LEAD_RATE)
     if len(y) < LEAD_FRAME:
         return 0.0
-    frames = np.lib.stride_tricks.sliding_window_view(y, LEAD_FRAME)[::LEAD_HOP] * np.hanning(LEAD_FRAME)
-    spec = np.abs(np.fft.rfft(frames, n=2 * LEAD_FRAME, axis=1)) ** 2
-    ac = np.fft.irfft(spec, axis=1)[:, :LEAD_FRAME]
-    energy = ac[:, 0]
-    lo, hi = int(LEAD_RATE / LEAD_HZ[1]), int(LEAD_RATE / LEAD_HZ[0])
-    peak = ac[:, lo:hi].max(axis=1) / np.maximum(energy, 1e-12)
-    clarity = np.clip((peak - 0.5) / 0.5, 0, 1) ** 2
+    energy, clarity = frame_clarity(y)
     return float(np.sum(energy * clarity))
 
 
@@ -124,3 +118,94 @@ def write_accompaniment(dst: Path, paths: list[Path]) -> None:
             total = total[:n] + y[:n]
     if total is not None:
         sf.write(str(dst), np.clip(total, -1.0, 1.0), rate)
+
+
+# ---------------------------------------------------------------- where the sax plays
+
+SPAN_WINDOW = 2.0      # seconds per window
+SPAN_HOP = 1.0         # seconds between windows
+SPAN_SHARE_DB = -6.0   # the sax stem must hold this much of the mix (dB) ...
+SPAN_CLARITY = 0.4     # ... and sound this clear, as a share of the take's typical sax clarity
+SPAN_SMOOTH = 13       # windows (about 12 s) in the median that steadies the call
+SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
+SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last note is lost
+
+
+def sax_spans(stem: Path, mix: Path) -> tuple[list[list[float]], list[list[float]]]:
+    """Where the horn plays in a band record: (spans with sax, spans cut).
+
+    A full record has stretches where the sax lays out: piano and bass solos,
+    drum breaks. Demucs still leaves something in the sax stem there (piano
+    bleeds into "other"), so the note finder writes notes nobody played. Per
+    2 s window two things are measured: how much of the mix the sax stem
+    holds (a piano solo sits 10-50 dB down in it; the sax 0-3 dB) and how
+    clearly it holds one pitch (a drum break is near 0; on an old noisy
+    record the sax is only 0.3-0.5, so this is judged against the take's own
+    sax windows). A window is sax when both pass; a 12 s running median
+    steadies the call. Only stretches of 8 s or more are cut, and each cut
+    gives back 2 s at both ends, so a cut never takes the edge of a phrase.
+    """
+    y = frontend.load_mono(stem, sr=LEAD_RATE)
+    m = frontend.load_mono(mix, sr=LEAD_RATE)
+    n = min(len(y), len(m))
+    win, hop = int(SPAN_WINDOW * LEAD_RATE), int(SPAN_HOP * LEAD_RATE)
+    if n < win:
+        return [[0.0, n / LEAD_RATE]], []
+    energy, clarity = frame_clarity(y[:n])
+    frame_t = np.arange(len(energy)) * LEAD_HOP / LEAD_RATE
+    share, clear = [], []
+    for i in range(0, n - win + 1, hop):
+        a, b = i / LEAD_RATE, (i + win) / LEAD_RATE
+        share.append(10 * np.log10((np.mean(y[i:i + win] ** 2) + 1e-10) / (np.mean(m[i:i + win] ** 2) + 1e-10)))
+        k = (frame_t >= a) & (frame_t < b)
+        clear.append(float(np.sum(energy[k] * clarity[k]) / max(np.sum(energy[k]), 1e-12)))
+    share, clear = np.array(share), np.array(clear)
+    held = share > SPAN_SHARE_DB
+    typical = float(np.median(clear[held])) if held.any() else 0.0
+    sax = held & (clear > SPAN_CLARITY * typical)
+    from scipy.signal import medfilt
+    sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
+    end = n / LEAD_RATE
+    cuts = []
+    for a, b in runs(~sax):
+        t0 = a * SPAN_HOP + SPAN_GUARD
+        t1 = min((b - 1) * SPAN_HOP + SPAN_WINDOW, end) - SPAN_GUARD
+        if b == len(sax):
+            t1 = end  # nothing after it to protect
+        if a == 0:
+            t0 = 0.0
+        if t1 - t0 >= SPAN_MIN_GAP:
+            cuts.append([round(t0, 2), round(t1, 2)])
+    keep, t = [], 0.0
+    for a, b in cuts:
+        if a > t:
+            keep.append([round(t, 2), a])
+        t = b
+    if t < end:
+        keep.append([round(t, 2), round(end, 2)])
+    return keep, cuts
+
+
+def runs(mask: np.ndarray) -> list[tuple[int, int]]:
+    """[start, end) of each run of True."""
+    out, start = [], None
+    for i, v in enumerate(mask):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            out.append((start, i))
+            start = None
+    if start is not None:
+        out.append((start, len(mask)))
+    return out
+
+
+def frame_clarity(y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Per 128 ms frame: energy, and how clearly one pitch in the horn range sounds (0-1)."""
+    frames = np.lib.stride_tricks.sliding_window_view(y, LEAD_FRAME)[::LEAD_HOP] * np.hanning(LEAD_FRAME)
+    spec = np.abs(np.fft.rfft(frames, n=2 * LEAD_FRAME, axis=1)) ** 2
+    ac = np.fft.irfft(spec, axis=1)[:, :LEAD_FRAME]
+    energy = ac[:, 0]
+    lo, hi = int(LEAD_RATE / LEAD_HZ[1]), int(LEAD_RATE / LEAD_HZ[0])
+    peak = ac[:, lo:hi].max(axis=1) / np.maximum(energy, 1e-12)
+    return energy, np.clip((peak - 0.5) / 0.5, 0, 1) ** 2

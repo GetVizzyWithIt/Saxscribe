@@ -139,3 +139,16 @@ def test_cli_runs_end_to_end(fixture_wav, tmp_path):
                             capture_output=True, text=True, env=env)
     assert result.returncode == 0, result.stderr
     assert (out / "score.mid").exists()
+
+
+def test_notes_tagged_not_sax_stay_in_notes_json_but_leave_the_score(fixture_wav, tmp_path):
+    t = transcribe(fixture_wav, tmp_path, contour_tool="pyin", notes_tool="contour")
+    data = json.loads(t.notes.read_text())
+    data["notes"][0]["tags"] = ["not_sax"]
+    t.notes.write_text(json.dumps(data))
+    transcribe(fixture_wav, tmp_path, redo="notation")
+    written = json.loads(t.notation.read_text())["notes"]
+    indices = [n["index"] for n in written]
+    assert 0 not in indices and len(json.loads(t.notes.read_text())["notes"]) == len(data["notes"])
+    assert all(data["notes"][i].get("tags") != ["not_sax"] for i in indices)
+    assert max(indices) == len(data["notes"]) - 1   # indices still point into notes.json

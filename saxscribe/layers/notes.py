@@ -4,7 +4,10 @@ notes.json holds:
   notes      [{onset, offset, pitch, cents, amp, tags}] in seconds and concert
              MIDI numbers. cents is how far the pitch line sat from that note
              (median over the note, +30 = 30 cents sharp). tags is for
-             articulations (slur, scoop, fall, ...) and is empty until Phase 1.
+             articulations (slur, scoop, fall, ...). On a band record, notes
+             found where the sax lays out (piano or bass solo, drum break; see
+             isolate.sax_spans) are tagged "not_sax": kept here, left off the
+             score and the scorecard.
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
@@ -29,6 +32,7 @@ from ..horns import Horn
 from ..take import Take
 from . import contour as contour_layer
 
+NOT_SAX = "not_sax"  # tag for notes found where the sax is not playing
 SAME_START = 0.03  # two notes starting closer than this are one attack
 
 
@@ -58,6 +62,17 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
     for n in notes:
         n["cents"] = cents_off(line, n)
         n["tags"] = []
+    if take.read_manifest().get("mix") and take.source.exists():
+        from .isolate import sax_spans
+        extra["sax_spans"], cuts = sax_spans(take.stem, take.source)
+        extra["sax_cuts"] = cuts
+        for n in notes:
+            if any(a <= n["onset"] < b for a, b in cuts):
+                n["tags"].append(NOT_SAX)
+        dropped = sum(NOT_SAX in n["tags"] for n in notes)
+        if cuts:
+            frontend.log(f"  The sax lays out at {', '.join(f'{a:.0f}-{b:.0f} s' for a, b in cuts)}: "
+                         f"{dropped} notes there are kept in notes.json, tagged {NOT_SAX!r}, and left off the score")
     beats, downbeats, beat_tool = frontend.detect_beats(take.source)
     data = {
         "layout_version": LAYOUT_VERSION,
@@ -161,3 +176,9 @@ def tempo(beats: list[float]) -> float | None:
 
 def read(take: Take) -> dict:
     return json.loads(take.notes.read_text())
+
+
+def played(notes: list[dict]) -> tuple[list[int], list[dict]]:
+    """The notes the sax played (not tagged not_sax), with their places in notes.json."""
+    keep = [i for i, n in enumerate(notes) if NOT_SAX not in (n.get("tags") or [])]
+    return keep, [notes[i] for i in keep]

@@ -96,7 +96,7 @@ def score_take(ref, take) -> dict:
     """Every layer's scores for one take folder against one Reference."""
     from ..layers import contour as contour_layer, notes as notes_layer
     data = notes_layer.read(take)
-    est = data["notes"]
+    est = notes_layer.played(data["notes"])[1]
     beats = data.get("beats") or []
     if getattr(ref, "partial", False) and ref.notes:
         span = span_of(ref.notes)
@@ -107,5 +107,10 @@ def score_take(ref, take) -> dict:
     out.update(note_scores(ref.notes, est))
     out.update(beat_scores(ref.beats, beats))
     out["ref_notes"] = len(ref.notes)
+    # Answer-key notes inside stretches cut as "no sax": a wrong cut hides sax
+    # notes from the score as well as the sheet music, so it is counted here.
+    cuts = take.read_manifest().get("layers", {}).get("notes", {}).get("sax_cuts") or []
+    if cuts:
+        out["key_notes_cut"] = sum(any(a <= n["onset"] < b for a, b in cuts) for n in ref.notes)
     out["est_notes"] = len(est)
     return {k: (round(float(v), 4) if isinstance(v, (float, np.floating)) else v) for k, v in out.items()}

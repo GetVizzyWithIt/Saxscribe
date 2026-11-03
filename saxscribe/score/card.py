@@ -109,7 +109,12 @@ def markdown(card: dict, is_mix: bool) -> str:
             flagged.append(r["id"])
         lines.append(f"| {r['id']} | {fmt('p', r.get('pitch_accuracy'))} | "
                      f"{fmt('x', octave)}{' (check)' if flag else ''} | {fmt('o', r.get('onset_f1'))} | "
-                     f"{fmt('n', r.get('note_f1'))} | {r.get('est_notes')} / {r.get('ref_notes')} |")
+                     f"{fmt('n', r.get('note_f1'))} | {r.get('est_notes')} / {r.get('ref_notes')}"
+                     f"{' (' + str(r['key_notes_cut']) + ' in cut stretches)' if r.get('key_notes_cut') else ''} |")
+    hidden = sum(r.get("key_notes_cut") or 0 for r in card["rows"])
+    if any("key_notes_cut" in r for r in card["rows"]):
+        lines += ["", f"Sax-span check: {hidden} answer-key notes fall where the sax was judged to lay out "
+                  "(left off the score and the sheet music). Above zero means a cut hid real sax notes."]
     if flagged:
         lines += ["", f"Octave check: {', '.join(flagged)} have over {metrics.OCTAVE_FLAG:.0%} of frames right "
                   "except for the octave. Either the answer key is in the wrong octave there or the pitch "
