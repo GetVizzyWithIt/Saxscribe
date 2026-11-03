@@ -221,3 +221,13 @@ def test_a_key_an_octave_off_shows_as_octave_errors_and_is_flagged():
                         "partial": True, "mean": {"pitch_accuracy": s["pitch_accuracy"]},
                         "rows": [{"id": "BRfYc", **s, "est_notes": 20, "ref_notes": 20}]}, True)
     assert "(check)" in md and "Octave check: BRfYc" in md
+
+
+def test_scorecard_counts_answer_key_notes_hidden_by_a_sax_span_cut():
+    from saxscribe.score import card
+    md = card.markdown({"set": "omnibook-mix", "split": "all", "settings": "default", "items": 2, "made": "now",
+                        "mean": {}, "rows": [{"id": "7XTyc", "est_notes": 400, "ref_notes": 407, "key_notes_cut": 3},
+                                             {"id": "BRfYc", "est_notes": 300, "ref_notes": 310, "key_notes_cut": 0}]},
+                       True)
+    assert "400 / 407 (3 in cut stretches)" in md
+    assert "Sax-span check: 3 answer-key notes" in md

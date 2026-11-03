@@ -65,6 +65,7 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
     if take.read_manifest().get("mix") and take.source.exists():
         from .isolate import sax_spans
         extra["sax_spans"], cuts = sax_spans(take.stem, take.source)
+        extra["sax_cuts"] = cuts
         for n in notes:
             if any(a <= n["onset"] < b for a, b in cuts):
                 n["tags"].append(NOT_SAX)
