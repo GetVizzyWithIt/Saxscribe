@@ -60,7 +60,7 @@ tenor, solo or with a band) and get back:
 
 It runs on the Mac. To use it on an iPad on the same Wi-Fi, open the address
 it prints ("On your iPad: http://…:8765/"). Uploads and their take folders
-live in `~/saxscribe-library/` (change it with `--library`). Each take folder
+live in `~/saxscribe-library/` (change it with `--library`). While a take runs, the page shows its progress lines; Stop ends it, Run again restarts it and Remove deletes it. Each take folder
 is the same as one made by `transcribe`. Use `--host 127.0.0.1` to keep the
 app to this Mac only.
 

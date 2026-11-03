@@ -74,3 +74,5 @@ input[type=text] { min-height: var(--tap); flex: 1; min-width: 200px; padding: 0
   box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
 .menu .list button { border: 0; justify-content: flex-start; }
 .zoom button { min-width: 48px; font-weight: 600; }
+.log { font: 12px/1.5 ui-monospace, "SF Mono", Menlo, monospace; color: var(--quiet); margin-top: 8px;
+  background: var(--bg); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; }

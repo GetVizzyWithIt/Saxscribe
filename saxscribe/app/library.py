@@ -6,18 +6,24 @@ On disk, one folder per upload:
     <original file name>   the upload, untouched
     take/                  the take folder the pipeline writes (four layers)
     job.json               title, horn, solo or band, and where the job is
+    log.txt                what the pipeline printed while it ran (shown on the page)
 
-Jobs run one at a time on a background thread, because each one already
-uses the whole machine (Demucs, CREPE, Basic Pitch).
+Jobs run one at a time, because each one already uses the whole machine
+(Demucs, CREPE, Basic Pitch). Each runs as its own `python -m saxscribe
+transcribe` process, so Stop can end it at once and everything it prints
+(including Demucs' progress) lands in log.txt for the page.
 """
 from __future__ import annotations
 
 import json
+import os
 import queue
 import re
+import shutil
+import subprocess
+import sys
 import threading
 import time
-import traceback
 from pathlib import Path
 
 from .. import LAYERS
@@ -40,6 +46,17 @@ def slug(text: str) -> str:
     return s[:40] or "take"
 
 
+def last_lines(path: Path, n: int = 3) -> list[str]:
+    """The last n lines of a log, reading progress bars (\\r) as new lines."""
+    if not path.exists():
+        return []
+    with open(path, "rb") as f:
+        f.seek(max(0, path.stat().st_size - 8000))
+        text = f.read().decode("utf-8", "replace")
+    lines = [ln.strip() for ln in re.split(r"[\r\n]+", text) if ln.strip()]
+    return lines[-n:]
+
+
 class Library:
     def __init__(self, root: Path | None = None, inline: bool = False):
         """inline=True runs each job inside add() instead of on the worker (for tests)."""
@@ -49,10 +66,13 @@ class Library:
         self.jobs: queue.Queue[str] = queue.Queue()
         self.lock = threading.Lock()
         self.worker: threading.Thread | None = None
-        # Anything left mid-run by a restart goes back in the queue.
-        for item in self.list():
-            if item["state"] in ("queued", "running"):
-                self._set(item["id"], state="queued")
+        self.proc: subprocess.Popen | None = None
+        self.current: str | None = None
+        # Waiting jobs carry on after a restart; one cut off mid-run waits for Run again.
+        for item in reversed(self.list()):
+            if item["state"] == "running":
+                self._set(item["id"], state="stopped", error="The app was closed while this ran.")
+            elif item["state"] == "queued":
                 self._enqueue(item["id"])
 
     # ---------------------------------------------------------------- reading
@@ -78,6 +98,8 @@ class Library:
         if data["state"] == "running":
             nxt = next((layer for layer in LAYERS if layer not in done), "notation")
             data["stage"] = STAGES[nxt]
+        if data["state"] in ("running", "failed", "stopped"):
+            data["log"] = last_lines(f / "log.txt")
         if data["state"] == "done":
             data["files"] = sorted(p.name for p in take.folder.iterdir() if p.is_file())
         return data
@@ -137,15 +159,62 @@ class Library:
         while True:
             self.run(self.jobs.get())
 
-    def run(self, take_id: str) -> None:
-        from ..pipeline import transcribe
+    def command(self, take_id: str) -> list[str]:
         f = self.root / take_id
         job = json.loads((f / "job.json").read_text())
-        self._set(take_id, state="running", started=time.strftime("%Y-%m-%dT%H:%M:%S"))
-        try:
-            transcribe(f / job["filename"], f / "take", mix=job["mix"], horn=job["horn"])
-        except (Exception, SystemExit) as exc:
-            self._set(take_id, state="failed", error=str(exc) or type(exc).__name__,
-                      trace=traceback.format_exc()[-4000:])
+        cmd = [sys.executable, "-m", "saxscribe", "transcribe", str(f / job["filename"]),
+               "-o", str(f / "take"), "--horn", job["horn"]]
+        return cmd + (["--mix"] if job["mix"] else [])
+
+    def run(self, take_id: str) -> None:
+        f = self.root / take_id
+        if json.loads((f / "job.json").read_text())["state"] != "queued":
+            return  # stopped or removed while it waited
+        self._set(take_id, state="running", started=time.strftime("%Y-%m-%dT%H:%M:%S"),
+                  error=None)
+        env = dict(os.environ, PYTHONUNBUFFERED="1")
+        root = Path(__file__).resolve().parents[2]  # so -m saxscribe finds this copy
+        with open(f / "log.txt", "ab") as log:
+            with self.lock:
+                self.current = take_id
+                self.proc = subprocess.Popen(self.command(take_id), cwd=root, env=env,
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            while chunk := os.read(self.proc.stdout.fileno(), 4096):
+                log.write(chunk)
+                log.flush()
+                sys.__stdout__.write(chunk.decode("utf-8", "replace"))
+                sys.__stdout__.flush()
+            code = self.proc.wait()
+        with self.lock:
+            self.proc, self.current = None, None
+        if not (f / "job.json").exists():
+            return  # removed while running
+        state = json.loads((f / "job.json").read_text())["state"]
+        if state == "stopped":
             return
-        self._set(take_id, state="done", finished=time.strftime("%Y-%m-%dT%H:%M:%S"))
+        if code == 0:
+            self._set(take_id, state="done", finished=time.strftime("%Y-%m-%dT%H:%M:%S"))
+        else:
+            tail = last_lines(f / "log.txt", 1)
+            self._set(take_id, state="failed", error=tail[0] if tail else f"exit code {code}")
+
+    # ---------------------------------------------------------------- stop, retry, remove
+
+    def stop(self, take_id: str) -> None:
+        self.folder(take_id)
+        self._set(take_id, state="stopped", error="Stopped.")
+        with self.lock:
+            if self.current == take_id and self.proc is not None:
+                self.proc.terminate()
+
+    def retry(self, take_id: str) -> None:
+        self.folder(take_id)
+        self._set(take_id, state="queued", error=None)
+        self._enqueue(take_id)
+
+    def remove(self, take_id: str) -> None:
+        f = self.folder(take_id)
+        with self.lock:
+            if self.current == take_id and self.proc is not None:
+                self.proc.terminate()
+        shutil.rmtree(f, ignore_errors=True)

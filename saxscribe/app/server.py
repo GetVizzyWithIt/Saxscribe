@@ -9,6 +9,9 @@ API (JSON unless noted):
   GET  /api/takes                 every take, newest first
   POST /api/takes                 upload (form: file, horn, mix, title)
   GET  /api/takes/<id>            one take's status
+  POST /api/takes/<id>/stop       stop a running or waiting take
+  POST /api/takes/<id>/retry      run it again
+  DELETE /api/takes/<id>          remove the take and its files
   GET  /api/takes/<id>/score      ?view=alto|tenor|concert&size=0..3: SVG, timemap, sync
   GET  /api/takes/<id>/audio/<which>   source, stem or accompaniment (WAV, seekable)
   GET  /api/takes/<id>/file/<kind>     pdf, musicxml or midi, as a download (?view=)
@@ -101,6 +104,26 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
     @app.get("/api/takes/{take_id}")
     def take_status(take_id: str):
         return take_or_404(take_id)[0]
+
+    @app.post("/api/takes/{take_id}/stop")
+    def stop(take_id: str):
+        take_or_404(take_id)
+        library.stop(take_id)
+        return library.job(take_id)
+
+    @app.post("/api/takes/{take_id}/retry")
+    def retry(take_id: str):
+        job, _ = take_or_404(take_id)
+        if job["state"] == "running":
+            raise HTTPException(409, "It is already running")
+        library.retry(take_id)
+        return library.job(take_id)
+
+    @app.delete("/api/takes/{take_id}")
+    def remove(take_id: str):
+        take_or_404(take_id)
+        library.remove(take_id)
+        return {"removed": take_id}
 
     @app.get("/api/takes/{take_id}/score")
     def score(take_id: str, view: str | None = None, size: int = 1):

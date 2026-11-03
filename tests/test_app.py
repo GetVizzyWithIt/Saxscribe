@@ -100,3 +100,44 @@ def test_pages(client):
     assert "Transcribe a recording" in client.get("/").text
     assert "play.js" in client.get(f"/take/{client.take_id}").text
     assert client.get("/take/20990101-000000-nope").status_code == 404
+
+
+def test_job_keeps_a_log_for_the_page(client):
+    from saxscribe.app.library import last_lines
+    log = client.library.folder(client.take_id) / "log.txt"
+    assert "Layer 4/4" in log.read_text()
+    assert last_lines(log, 1) and last_lines(log, 1)[0].startswith("[saxscribe]")
+
+
+def test_stop_and_remove(tmp_path, fixture_wav):
+    """Stop ends a running transcription at once; Remove deletes the take."""
+    import time as clock
+    library = Library(tmp_path / "lib")
+    c = TestClient(create_app(library))
+    take_id = c.post("/api/takes", files={"file": ("phrase.wav", fixture_wav.read_bytes(), "audio/wav")},
+                     data={"horn": "tenor", "mix": "false"}).json()["id"]
+    for _ in range(100):  # wait for the worker to start it
+        if c.get(f"/api/takes/{take_id}").json()["state"] != "queued":
+            break
+        clock.sleep(0.05)
+    assert c.post(f"/api/takes/{take_id}/stop").json()["state"] == "stopped"
+    for _ in range(100):
+        if library.proc is None:
+            break
+        clock.sleep(0.05)
+    assert library.proc is None
+    assert c.get(f"/api/takes/{take_id}").json()["state"] == "stopped"
+    assert c.delete(f"/api/takes/{take_id}").status_code == 200
+    assert c.get(f"/api/takes/{take_id}").status_code == 404
+    assert c.get("/api/takes").json() == []
+
+
+def test_a_take_cut_off_by_a_restart_waits_for_run_again(tmp_path, fixture_wav):
+    import json
+    library = Library(tmp_path / "lib", inline=True)
+    take_id = library.add("phrase.wav", fixture_wav.read_bytes())
+    library._set(take_id, state="running")  # as if the app was closed mid-run
+    reopened = Library(tmp_path / "lib", inline=True)
+    assert reopened.job(take_id)["state"] == "stopped"
+    reopened.retry(take_id)
+    assert json.loads((reopened.folder(take_id) / "job.json").read_text())["state"] == "done"
