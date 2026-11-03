@@ -183,14 +183,16 @@ def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
     }
     for name, mod in fakes.items():
         monkeypatch.setitem(sys.modules, name, mod)
-    monkeypatch.setattr(frontend, "load_mono", lambda path: None)
+    monkeypatch.setattr(frontend, "load_mono", lambda path, sr=None: None)
+    monkeypatch.setattr(frontend, "level_db", lambda y: np.zeros(1000))
     monkeypatch.setattr(frontend, "detect_onsets", lambda y: [])
     info = {}
     notes = frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, info=info)
     assert len(runs) == 1 and len(notes) == 10
     frames = lambda ms: int(round(ms / 1000 * 22050 / 256))
     assert reads == [(frames(50), True), (frames(120), False)]
-    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0}   # slow line: no restore
+    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0,
+                    "restored_after_dip": 0}   # slow line, no dips: nothing comes back
     reads.clear()
     frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, by_spacing=False)
     assert reads == [(frames(50), True)]
@@ -208,3 +210,14 @@ def test_short_notes_come_back_when_the_recording_confirms_them():
     ]
     back = frontend.restore_short(short, kept, attacks=[1.0, 1.21, 1.3, 1.52])
     assert [n["onset"] for n in back] == [1.22]
+
+
+def test_a_retongued_note_after_a_dip_comes_back_even_on_the_same_pitch():
+    from saxscribe import frontend
+    db = np.full(300, -20.0)
+    db[95:100] = -40.0                        # the player stops the reed just before 1.00 s
+    kept = [{"onset": 0.5, "offset": 0.95, "pitch": 60}, {"onset": 2.0, "offset": 2.5, "pitch": 62}]
+    short = kept + [{"onset": 1.00, "offset": 1.08, "pitch": 60},     # same pitch, after the dip: back
+                    {"onset": 1.50, "offset": 1.58, "pitch": 61}]     # no dip before it: stays out
+    back = frontend.restore_dipped(short, kept, db)
+    assert [n["onset"] for n in back] == [1.00]
