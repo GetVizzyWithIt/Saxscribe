@@ -39,11 +39,12 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test
 split and on 20 of Austin's recordings.
 
-## Phase 2: the sax out of a full band — next
+## Phase 2: the sax out of a full band — started
 
 Goal: full-mix targets. Currently 4–17% note F1 on ensemble mixes, because
 Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 
+- [ ] Pick the stem the sax actually lands in, sum when split (PR #24, open): worst Parker record 24% → ~58% note F1
 - [ ] Measure Demucs alternatives (BS-RoFormer, UVR community models) on
       urmp-mix, bach10-mix, omnibook-mix and JazzSAMBA stem-vs-mix pairs
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes

@@ -37,6 +37,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Solo take | `stem.wav` is a copy of `source.wav` |
 | Full mix (`--mix`) | Demucs `htdemucs_6s` separates drums, bass, vocals, guitar, piano, other. The chosen stem (`--stem`, default `other`) becomes `stem.wav`; the rest are summed into `accompaniment.wav`; all six stay in `stems/` to audition |
 | Device | MPS, falling back to CPU if Demucs fails on the GPU |
+| Stem choice | PR #24 (open): the stem with the clearest single melody line, or a sum of stems when the sax is split (e.g. "guitar" + "other"); `--stem` overrides ([ADR-0020](../decisions/0020-pick-sax-stem-automatically.md)) |
 | Known gap | No separator has a sax stem; "other" also carries other horns, strings and keys ([model card](../models/demucs.md)) |
 
 ### Layer 2: pitch contour (`saxscribe/layers/contour.py`)

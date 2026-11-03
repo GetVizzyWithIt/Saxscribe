@@ -35,6 +35,11 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E11 — 2026-11-03 — Picking the sax stem from Demucs (PR #24, open)
+- **Finding**: Demucs has no sax stem. On some Parker records the sax lands in "guitar", or is split between "guitar" and "other", but the pipeline always read "other".
+- **Change**: pick the stem that carries the clearest single melody line, and sum stems when the sax is split between them ([ADR-0020](../decisions/0020-pick-sax-stem-automatically.md)).
+- **Result**: the worst Parker band record goes from 24% to about 58% note F1. *To fill in*: the full `omnibook-mix` before/after table.
+
 ### E10 — 2026-11-02 — Why Omnibook pitch accuracy is 74%: answer-key octave errors
 - **Finding**: on the two worst solos (7RfYc, BRfYc) long passages of the answer key are an octave above what was played, checked against the recording. Our pitch line is right; the key is wrong.
 - **On healthy solos**: pitch line right on ~87% of frames; matched notes have the correct pitch ~95% of the time.
