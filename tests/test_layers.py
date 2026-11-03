@@ -190,7 +190,7 @@ def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
     assert len(runs) == 1 and len(notes) == 10
     frames = lambda ms: int(round(ms / 1000 * 22050 / 256))
     assert reads == [(frames(50), True), (frames(120), False)]
-    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0}
+    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0}   # slow line: no restore
     reads.clear()
     frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, by_spacing=False)
     assert reads == [(frames(50), True)]

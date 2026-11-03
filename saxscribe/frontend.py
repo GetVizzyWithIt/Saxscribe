@@ -187,8 +187,9 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
     Ghost and split notes are short next to the line around them, so a slow
     melody sheds them while fast bebop keeps its short notes. Measured on
     2026-11-03 (note F1): GRFIA alto +9.0, tenor +10.5, Blues for Mary Jane
-    +2.0, Omnibook -0.2. A short note the second read drops comes back when
-    the recording confirms it (restore_short), so fast real notes are kept.
+    +2.0, Omnibook -0.2. On fast lines (notes under 200 ms apart) a short
+    note the second read drops comes back when the recording confirms it
+    (restore_short), so fast real notes are kept.
     by_spacing=False is the old fixed 50 ms read.
     info, when given, gets the gap and the shortest note used.
     """
@@ -229,8 +230,10 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
         return notes
     shortest = float(np.clip(BP_SPACING_SHARE * gap * 1000, *BP_SHORTEST))
     kept = read(shortest, False)
-    attacks = [o for o in detect_onsets(load_mono(wav)) if o["s"] >= RESTORE_STRENGTH]
-    back = restore_short(notes, kept, [o["t"] for o in attacks])
+    back = []
+    if gap < RESTORE_FAST:
+        attacks = [o for o in detect_onsets(load_mono(wav)) if o["s"] >= RESTORE_STRENGTH]
+        back = restore_short(notes, kept, [o["t"] for o in attacks])
     if info is not None:
         info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1), restored=len(back))
     return sorted(kept + back, key=lambda n: (n["onset"], n["pitch"]))
@@ -239,6 +242,9 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
 RESTORE_NEAR = 0.04       # s: a short note the long read already has (a note starting this close)
 RESTORE_ATTACK = 0.03     # s: an attack this close confirms a short note
 RESTORE_STRENGTH = 0.3    # onset strength (0-1) that counts as an attack
+RESTORE_FAST = 0.2        # s: only lines whose notes start closer than this (fast playing) get notes back.
+                          # Omnibook (151 ms): 137 of 490 lost real notes back, F1 -0.23 -> -0.01; on
+                          # slow GRFIA takes (~350 ms) restored notes were nearly all extras (tenor 1 of 33).
 
 
 def restore_short(short_read: list[dict], kept: list[dict], attacks: list[float]) -> list[dict]:
