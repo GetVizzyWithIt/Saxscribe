@@ -66,7 +66,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 
 | Step | Rule |
 | --- | --- |
-| Time to beats | Seconds become beat positions along the tracked beat grid, so tempo drift follows the band. When the tracker finds too few beats (lone sax), the beat comes from the note onsets instead (PR #29, open, [ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)) |
+| Time to beats | Seconds become beat positions along the tracked beat grid, so tempo drift follows the band. When the tracker finds too few beats (lone sax), the beat comes from the note onsets instead (PR #29, [ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)) |
 | Swing | Off-beat eighths' average position gives the swing ratio (needs ≥6 off-beat notes); `--swing` overrides. Swung eighths are written as plain eighths |
 | Grid | Each beat snaps to sixteenths, or to triplets when they fit clearly better (a 0.03-beat penalty per note favours sixteenths) |
 | Gaps | Gaps under a third of a beat before the next note are closed, so tongued eighths read as eighths |
