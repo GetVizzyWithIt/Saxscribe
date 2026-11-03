@@ -36,6 +36,22 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E13 — 2026-11-03 — Beat taken from the notes on lone sax (PR #29, open)
+- **Finding**: on the Parker test solo (Omnibook 7XTyc, sax stem alone) Beat This! found only 13 beats in 90 s. Filling the gaps gave a beat every 0.370 s (162 BPM); Parker's swung eighth pairs repeat every 0.23 s (about 261 BPM). On a grid 1.6× too slow, eighths come out as triplets and 32nds. This is the main cause of the busy notation in E12.
+- **Change**: when the tracker finds too few beats (and there are at least 16 notes), take the beat from the note onsets: autocorrelation over 80–300 BPM, then step beat by beat, leaning toward nearby notes and moving the grid onto the beat if it sits on the off-beats. Band recordings with a dense tracked grid keep the tracker's beats. notation.json records where the grid came from ([ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)).
+- **Scorecard**: notes, onset and pitch unchanged (notation only). Readability on 7XTyc, every note kept, MuseScore problems 0 both times:
+
+| Measure | main | PR #29 |
+| --- | --- | --- |
+| Tempo | 162 BPM (wrong) | 264 BPM |
+| Plain eighths | 88 | 231 |
+| Triplet eighths | 162 | 146 (mostly full groups Parker plays) |
+| 32nd notes | 80 | 1 |
+| Dotted sixteenths | 20 | 1 |
+| Notes squeezed off a shared spot | 85 | 1 |
+
+- **Next**: score rhythm against the Omnibook's printed rhythm to see how many of the remaining triplets are right.
+
 ### E12 — 2026-11-03 — Readable notation on a real recording
 - **Finding**: on real output (Parker solos, Austin's "Blues for Mary Jane") PR #21 gives multi-bar rests and far fewer ties, but still too many 32nds and triplets. Tuning is next.
 - One bar of "Blues for Mary Jane" still produced a 6:5 tuplet MuseScore refused. PR #26 (merged) moves any point that is on neither the sixteenth nor the triplet grid onto sixteenths, and adds a setting to turn PDFs off (`[tools] musescore = "off"`).
