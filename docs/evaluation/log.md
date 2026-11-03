@@ -71,6 +71,29 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E28 — 2026-11-03 — Rhythm scorecard on the new swing-aware measure (after PR #55)
+- **What**: the E24 Weimar rhythm run repeated on main `78063ad` with `position_read` as the headline: a swung off-beat written as a swung eighth now counts as read right ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)). Nothing in the transcriber changed; this is the yardstick. Cards: `~/saxscribe-runs/rhythm/wjd-rhythm-all-20261103-123353.json` and `wjd-rhythm-sax-all-20261103-123430.json`.
+- **Result**: position read **63.1%** on all 444 solos, **57.6%** on the 259 sax solos (exact position was 58.7% and 53.6%). Every other measure is the same as E24: exact 58.7 / 53.6, slot 58.9 / 53.9, beat 89.3 / 87.0, busy 0.94× / 0.96×.
+
+| Feel | All: position read (solos) | Saxes: position read (solos) |
+| --- | --- | --- |
+| Swing | 63.4% (350) | 58.9% (203) |
+| Two-beat | 81.1% (32) | 68.1% (5) |
+| Latin | 61.7% (26) | 62.6% (23) |
+| Funk | 56.9% (20) | 56.5% (15) |
+| **Ballad** | **16.9% (10)** | **16.9% (10)** |
+
+| Tempo | All: position read (solos) | Saxes: position read (solos) |
+| --- | --- | --- |
+| Up | 78.3% (197) | 76.2% (103) |
+| Medium up | 65.0% (92) | 61.1% (48) |
+| Medium | 51.7% (85) | 48.5% (52) |
+| Medium slow | 47.4% (31) | 43.6% (23) |
+| **Slow** | **19.5% (39)** | **18.3% (33)** |
+
+- **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
+- Not a model change; not in the change table.
+
 ### E27 — 2026-11-03 — Re-tongued repeats restored (PR #57, merged)
 - **Finding**: most URMP notes lost under #52 (E26) were re-tongued repeats: the same pitch attacked again after the reed stops, which the tempo-based minimum removed as too short.
 - **Change**: a removed short note comes back when the loudness dips by at least 10 dB in the 60 ms before its attack.
@@ -121,7 +144,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - By feel (exact): two-beat 74.4%, Latin 59.4%, swing 58.7%, funk 55.5%, **ballad 15.7%**.
   - By tempo (exact): up 73.3%, medium up 58.7%, medium 47.9%, medium slow 46.1%, **slow 18.5%**.
   - 12 Parker solos excluded as Omnibook overlap; no solo failed; every note written (ADR-0016 holds).
-- **Finding 1, the measure undercounts swing** (fixed in the scorecard by PR #55, merged; baseline on the new measure to follow): Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (merged) adds `position_read`, which accepts that case in swung solos, as the headline measure.
+- **Finding 1, the measure undercounts swing** (fixed in the scorecard by PR #55, merged; new baseline in E28): Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (merged) adds `position_read`, which accepts that case in swung solos, as the headline measure.
 - **Finding 2, ballads and slow tunes are a real gap** (15–19%): Weimar uses 6- and 8-way beat divisions; we round those and often push the last note of a run onto the next beat.
 - Not a model change: it measures the current notation layer.
 

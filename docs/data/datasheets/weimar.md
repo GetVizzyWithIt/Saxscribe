@@ -28,5 +28,5 @@ https://jazzomat.hfm-weimar.de/download/, open download, 44 MB. Licence:
 Checksums in the manifest.
 
 ## Saxscribe results
-- Rhythm scorecard baseline (444 solos): exact position 58.7%, right beat 89.3%, notes kept 100%; ballads 15.7%, slow tunes 18.5% ([log E24](../../evaluation/log.md)). Weimar writes swung off-beats at their played position, so exact position undercounts correct swing notation.
+- Rhythm scorecard baseline (444 solos): exact position 58.7%, right beat 89.3%, notes kept 100%; ballads 15.7%, slow tunes 18.5% ([log E24](../../evaluation/log.md)). Weimar writes swung off-beats at their played position, so exact position undercounts correct swing notation. On the swing-aware measure (`position_read`, PR #55): 63.1% overall, 57.6% saxes; ballads 16.9%, slow tunes 19.5% ([log E28](../../evaluation/log.md)).
 - Key-finding test set: 429 solos with annotated keys, home note right 49% → 60% with the blues-aware finder ([log E15](../../evaluation/log.md)). Labels are the tune's key, so 100% isn't reachable.
