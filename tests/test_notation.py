@@ -322,6 +322,28 @@ def test_a_steady_tracked_grid_is_kept():
     assert r["grid"] == "tracked"
 
 
+def blues_in_c():
+    """A 12-bar blues line in C: C7 riffs with the flat third and seventh, F7 for the IV."""
+    i_riff = [60, 63, 64, 67, 70, 69, 67, 60]      # C Eb E G Bb A G C
+    iv_riff = [65, 69, 72, 75, 74, 72, 69, 65]     # F A C Eb D C A F
+    v_riff = [67, 71, 74, 77, 74, 71, 67, 62]      # G B D F D B G D
+    bars = [i_riff, iv_riff, i_riff, i_riff, iv_riff, iv_riff, i_riff, i_riff,
+            v_riff, iv_riff, i_riff, i_riff]
+    pitches = [p for bar in bars for p in bar] + [60]
+    lengths = [0.25] * (len(pitches) - 1) + [2.0]
+    return pitches, lengths
+
+
+def test_key_finder_hears_the_blues_home_note():
+    pitches, lengths = blues_in_c()
+    assert notation.find_key(pitches, lengths) == "C major"
+
+
+def test_key_finder_keeps_minor_keys():
+    d_minor = [62, 65, 69, 74, 72, 70, 69, 67, 65, 64, 62, 61, 62, 65, 69, 62]
+    assert notation.find_key(d_minor) == "D minor"
+
+
 def test_syncopations_are_written_as_one_note_not_tied_eighths(tmp_path):
     """Eighth-quarter-eighth, the way a chart writes it; ties only across the middle of the bar."""
     P = notation.pieces
