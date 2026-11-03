@@ -122,7 +122,7 @@ not as rewrites ([ADR-0005](../decisions/0005-instrument-profiles-alto-first.md)
 `python -m saxscribe score <set>` runs the same pipeline over a set of
 recordings with known notes, keeps every take folder under
 `~/saxscribe-runs/<set>/<settings>/`, and writes `scorecard.md` and
-`scorecard.json`. Loaders live in `score/refs.py`; metrics in
+`scorecard.json`, and appends one line per run to `~/saxscribe-runs/results.jsonl` (PR #38; `--note` labels a run). The app's Results page (`/results`) plots that history together with `docs/evaluation/results.jsonl` and `changes.json` ([ADR-0025](../decisions/0025-scorecard-history-files.md)). Loaders live in `score/refs.py`; metrics in
 `score/metrics.py`; the etude aligner in `score/align.py`. Details in
 [evaluation/protocol.md](../evaluation/protocol.md).
 
