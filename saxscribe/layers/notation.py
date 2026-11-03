@@ -27,8 +27,11 @@ How a note gets its place:
      written a thirty-second apart, and the count is kept in notation.json.
   6. Key comes from the notes (music21's key finder). Each part is spelled in
      its own key (the written part in the horn's key, never more than six
-     sharps or flats), flats for chromatic notes in flat keys and C, sharps
-     in sharp keys, so a pitch is spelled the same way all through a part.
+     sharps or flats). A note outside the key is spelled the way the line
+     moves: sharp going up, flat coming down (F F# G, G Gb F), as
+     transcribers write chromatic runs. A note that goes nowhere new (the
+     last, or a repeat) keeps the way it came; with neither, the key decides
+     (flats in flat keys and C, sharps in sharp keys).
   7. Two or more empty bars in a row are written as one multi-bar rest.
 """
 from __future__ import annotations
@@ -531,8 +534,13 @@ def display_key(key_name: str, horn: Horn | None = None) -> str:
     return f"{k.tonic.name} {k.mode}"
 
 
-def spell(midi: int, key_name: str):
-    """A music21 Pitch for a MIDI number, spelled to suit the key."""
+def spell(midi: int, key_name: str, rising: bool | None = None):
+    """A music21 Pitch for a MIDI number, spelled to suit the key.
+
+    A note outside the key is spelled the way it moves, as players and
+    transcribers write it: sharp on the way up (F F# G), flat on the way down
+    (G Gb F). rising=None (a repeated or last note) falls back to the key:
+    flats in flat keys and C, sharps in sharp keys."""
     from music21 import key as m21key, pitch
     k = m21key.Key(*key_name.split())
     pc = midi % 12
@@ -542,9 +550,10 @@ def spell(midi: int, key_name: str):
             break
     else:
         p = pitch.Pitch(midi)
-        if k.sharps <= 0 and p.accidental is not None and p.accidental.name == "sharp":
+        want_sharp = rising if rising is not None else k.sharps > 0
+        if not want_sharp and p.accidental is not None and p.accidental.name == "sharp":
             p = p.getEnharmonic()
-        elif k.sharps > 0 and p.accidental is not None and p.accidental.name == "flat":
+        elif want_sharp and p.accidental is not None and p.accidental.name == "flat":
             p = p.getEnharmonic()
     p.octave = 4
     p.octave += (midi - p.midi) // 12  # B#, Cb and friends sit across an octave line
@@ -578,13 +587,27 @@ def build_score(result: dict, horn: Horn, written: bool):
     bar_end = Fraction(BEATS_PER_BAR * max(1, -(-t // BEATS_PER_BAR)))
     if t < bar_end:
         spans.append((t, bar_end, None))
-    for a, z, pitch in spans:
+    pitched = [x[2] for x in spans if x[2] is not None]
+    way = {}  # each pitched span's direction, for spelling: where it goes, else where it came from
+    j = 0
+    for i, (_, _, pitch) in enumerate(spans):
+        if pitch is not None:
+            after = pitched[j + 1] if j + 1 < len(pitched) else None
+            before = pitched[j - 1] if j > 0 else None
+            if after is not None and after != pitch:
+                way[i] = after > pitch
+            elif before is not None and before != pitch:
+                way[i] = pitch > before
+            else:
+                way[i] = None
+            j += 1
+    for i, (a, z, pitch) in enumerate(spans):
         bits = pieces(a, z)
         for k, (s, length) in enumerate(bits):
             if pitch is None:
                 el = note.Rest(quarterLength=length)
             else:
-                el = note.Note(spell(pitch + shift, key_name), quarterLength=length)
+                el = note.Note(spell(pitch + shift, key_name, way[i]), quarterLength=length)
                 if len(bits) > 1:
                     el.tie = tie.Tie("start" if k == 0 else "stop" if k == len(bits) - 1 else "continue")
             part.insert(s, el)
