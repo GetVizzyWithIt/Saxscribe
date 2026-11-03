@@ -10,6 +10,11 @@ out is compared with the written places. No audio, no pitch tracker: only
 the rhythm writing is tested.
 
 Measures (per solo, then averaged over solos):
+  position_read   like position_exact, but in a swung solo a swung eighth we
+                  write on the "and" (1/2) matches the key's off-beat written
+                  where it fell (WJD writes swing literally: the last triplet
+                  2/3 or the last sixteenth 3/4). A player reads both the same.
+                  The headline measure.
   position_exact  share of notes written on exactly the key's beat and slot
   slot_right      share on the right slot inside the beat (a beat slip still counts)
   beat_right      share in the right beat (any slot)
@@ -43,8 +48,9 @@ from ..layers import notation
 
 SAXES = ("as", "ts", "ss", "bs")
 OMNIBOOK_OVERLAP = {52, 53, 55, 58, 59, 60, 61, 63, 64, 66, 67, 68}   # WJD melids also in the Omnibook
+SWUNG_OFFBEATS = (Fraction(2, 3), Fraction(3, 4))   # where a swung "and" falls, as WJD writes it
 GROUPS = ("rhythmfeel", "style", "tempoclass", "instrument")
-MEASURES = ("position_exact", "slot_right", "beat_right", "triplet_ratio", "sixteenth_ratio",
+MEASURES = ("position_read", "position_exact", "slot_right", "beat_right", "triplet_ratio", "sixteenth_ratio",
             "busy_ratio", "notes_kept")
 
 
@@ -130,6 +136,13 @@ def score_solo(solo: dict, swing: str = "auto") -> dict:
     keys = [n["place"] for n in notes]
     got = [ours.get(i) for i in range(len(notes))]
     pairs = [(g, k) for g, k in zip(got, keys) if g is not None]
+    swung = result["swing"] != 0.5
+
+    def reads_same(g: Fraction, k: Fraction) -> bool:
+        if g == k:
+            return True
+        return (swung and g // 1 == k // 1 and g % 1 == Fraction(1, 2)
+                and k % 1 in SWUNG_OFFBEATS)
     kinds_ours = [kind(g) for g, _ in pairs]
     kinds_key = [kind(k) for k in keys]
     count = lambda ks, name: sum(k == name for k in ks)
@@ -137,6 +150,7 @@ def score_solo(solo: dict, swing: str = "auto") -> dict:
     six_o, six_k = count(kinds_ours, "sixteenth"), count(kinds_key, "sixteenth")
     n = len(notes)
     return {
+        "position_read": sum(reads_same(g, k) for g, k in pairs) / n,
         "position_exact": sum(g == k for g, k in pairs) / n,
         "slot_right": sum((g % 1) == (k % 1) for g, k in pairs) / n,
         "beat_right": sum((g // 1) == (k // 1) for g, k in pairs) / n,
@@ -177,9 +191,9 @@ def table(c: dict) -> str:
         v = c["mean"].get(m, 0.0)
         lines.append(f"{m:<17} {pct(v) if 'ratio' not in m else f'{v:6.2f}x'}")
     for g in GROUPS:
-        lines += ["", f"by {g}:", f"{'':<14}{'n':>4} {'exact':>7} {'slot':>7} {'busy':>7}"]
+        lines += ["", f"by {g}:", f"{'':<14}{'n':>4} {'read':>7} {'exact':>7} {'slot':>7} {'busy':>7}"]
         for v, m in c["by"][g].items():
-            lines.append(f"{v[:14]:<14}{m['n']:>4} {pct(m['position_exact'])} {pct(m['slot_right'])} "
+            lines.append(f"{v[:14]:<14}{m['n']:>4} {pct(m['position_read'])} {pct(m['position_exact'])} {pct(m['slot_right'])} "
                          f"{m['busy_ratio']:6.2f}x")
     return "\n".join(lines)
 

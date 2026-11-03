@@ -75,3 +75,17 @@ def test_rhythm_command_writes_a_card(tmp_path, capsys):
     assert main(["rhythm", "--data", str(db), "--runs", str(tmp_path / "runs")]) == 0
     assert "Rhythm scorecard" in capsys.readouterr().out
     assert list((tmp_path / "runs" / "rhythm").glob("wjd-rhythm-all-*.json"))
+
+
+def test_a_swung_eighth_reads_the_same_as_the_key_off_beat_written_where_it_fell(tmp_path):
+    """WJD writes a swung "and" where it fell (2/3 or 3/4 of the beat); we write
+    the swung eighth (1/2). In a swung solo that counts as read right."""
+    db = tmp_path / "wjazzd.db"
+
+    def swung(i):
+        return [(0.0, 3, 1), (2 / 3, 3, 3)]
+    make_db(db, [(1, "A", "ts", 0.5, swung)])
+    r = rhythm.score_solo(rhythm.load(db)[0])
+    assert r["swing"] > 0.5
+    assert r["position_read"] >= 0.95
+    assert r["position_exact"] <= 0.6
