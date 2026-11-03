@@ -157,6 +157,15 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "segment", "contour"), default="auto")
 
+    rh = sub.add_parser("rhythm", help="score how the notation layer writes rhythm, on the Weimar Jazz Database (no audio)")
+    rh.add_argument("--data", help="wjazzd.db or its folder (default: config.local.toml [data] wjd, then ~/mir_datasets/WeimarJazzDatabase)")
+    rh.add_argument("--split", choices=("all", "train", "test"), default="all", help="by performer")
+    rh.add_argument("--saxes", action="store_true", help="alto, tenor, soprano and baritone solos only")
+    rh.add_argument("--limit", type=int, help="only the first N solos")
+    rh.add_argument("--runs", help="where the card goes (default ~/saxscribe-runs/rhythm)")
+    rh.add_argument("--note", help="a few words saved with the run")
+    rh.add_argument("--swing", default="auto", type=swing_arg)
+
     ak = sub.add_parser("answer-key", help="line a written score up with your take of it")
     ak.add_argument("audio")
     ak.add_argument("score", help="MusicXML (or anything music21 reads)")
@@ -186,6 +195,10 @@ def main(argv: list[str] | None = None) -> int:
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
                  args.notes_tool, args.redo, args.note)
+        return 0
+    if args.cmd == "rhythm":
+        from .score import rhythm
+        rhythm.run(args.data, args.split, args.saxes, args.limit, args.runs, args.note, args.swing)
         return 0
     if args.cmd == "answer-key":
         from .score import align
