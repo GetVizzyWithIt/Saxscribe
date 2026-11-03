@@ -15,7 +15,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-03 | — | First run on GRFIA-RealSax (preliminary) | all | 10 alto takes | Pitch correct | — | 80%, no octave errors | — | [E17](#e17--2026-11-03--grfia-realsax-first-10-alto-takes-preliminary) |
-| 2026-11-03 | #35 (draft) | Write only where the sax plays | notation | Blues for Mary Jane | Bars written | ~419 | pending (Getz plays ~148) | pending | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-draft) |
+| 2026-11-03 | #35 | Write only where the sax plays | isolate + notation | omnibook-mix (7XTyc); Blues for Mary Jane | Note F1 on 7XTyc; answer-key notes lost to cuts | 56%; — | 62%; 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
 | 2026-11-03 | #34 | Blues-aware key finder | notation | Weimar, 429 solos | Home key right | 49.3% (blues 46.7%) | 60.0% (blues 69.6%) | yes | [E15](#e15--2026-11-03--key-finder-that-hears-the-blues-pr-34-merged) |
 | 2026-11-03 | #32 | Syncopations as one note | notation | Parker 7XTyc | Ties | 46 | 41 | yes | [E14](#e14--2026-11-03--syncopations-as-one-note-instead-of-tied-eighths-pr-32-merged) |
 | 2026-11-03 | #29 | Beat from the notes on lone sax | notation | Parker 7XTyc | 32nd notes / plain eighths | 80 / 88 | 1 / 231 | yes | [E13](#e13--2026-11-03--beat-taken-from-the-notes-on-lone-sax-pr-29-merged) |
@@ -65,12 +65,17 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Result**: pitch 80% correct, **no octave errors**. Exact measure (frame pitch accuracy or matched-note pitch) *to verify* with the build thread's scorecard.
 - **Status**: preliminary. The full run over about 1,000 takes is in progress; this entry will be replaced by its scorecard.
 
-### E16 — 2026-11-03 — Write only where the sax plays (PR #35, draft)
+### E16 — 2026-11-03 — Write only where the sax plays (PR #35, merged)
 - **Finding**: on band records the score covered the whole track. Blues for Mary Jane came to about 419 bars against about 148 for Getz's solo: the piano solo bleeds into the sax stem and the bass solo adds junk. On Parker's 7XTyc, Basic Pitch wrote 8 to 17 notes per 4 s through a drum break.
 - **Change**: `isolate.sax_spans` marks where the horn plays. Each 2 s window is checked for the stem's share of the mix (sax 0 to 3 dB below the mix; piano solo 10 to 50 dB down) and for how clearly it holds one pitch (drum break near 0), judged against the take's own sax windows. Only stretches of 8 s or more are cut, with 2 s given back at each end. Notes in a cut stay in `notes.json` tagged `not_sax` and leave the score, the MIDI and the scorecard. Solo takes are never cut ([ADR-0023](../decisions/0023-write-only-where-the-sax-plays.md)).
 - **Probe on the Mac** (4 s windows): Blues for Mary Jane, Getz 0–192 s (intro plus 12 choruses, matching Austin's published transcription), piano solo 196–320 s, bass solo 324–364 s, Getz again 368–464 s. 7XTyc: clarity 0.31–0.46 while Parker plays, 0.00–0.16 in the 32–60 s drum break.
 - **Guard**: cut stretches are saved in `take.json` (`sax_cuts`); the scorecard reports answer-key notes inside them per take and in a "Sax-span check" total. Any non-zero count is a cut that hid real sax.
-- **Scorecard**: pending, `omnibook-mix` before/after and Blues for Mary Jane, on the Mac.
+- **Results on the Mac** (2026-11-03, after Austin merged through #40; 111 tests pass):
+  - **Parker band records** (`omnibook-mix`): 0 answer-key notes inside cut stretches (sax-span check). On 7XTyc the 32–60 s drum break is removed and note F1 rises from 56% to 62%. Mean over the 10 records: *to fill in* from the scorecard.
+  - **Blues for Mary Jane** (app upload): the piano solo (195–294 s) and the bass solo (305–368 s) are cut, about 500 notes that were not Getz. Key C concert (D on the tenor part), which matches Austin's transcription; PDF header correct.
+  - **Known wrong cut**: one 8 s stretch on an older take, where separation had moved the sax into the guitar stem. Being fixed in the build thread.
+- **Other gaps seen in the same check** (not this PR): the Desktop copy of outputs isn't built yet, and the MusicXML title still reads "Transcription".
+- `results.jsonl` line: *to copy* from the Mac's `~/saxscribe-runs/results.jsonl`.
 
 ### E15 — 2026-11-03 — Key finder that hears the blues (PR #34, merged)
 - **Finding**: Blues for Mary Jane (concert C) was written in F major. The blues flat third and flat seventh, plus the IV chord, pull music21's key finder to the subdominant.

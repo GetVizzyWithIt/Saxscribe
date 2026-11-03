@@ -29,6 +29,6 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0020](0020-pick-sax-stem-automatically.md) | Pick the sax stem automatically, sum stems when split | 2026-11-03 | Accepted |
 | [0021](0021-beat-from-notes-when-tracker-sparse.md) | Take the beat from the notes when the tracker finds too few beats | 2026-11-03 | Accepted |
 | [0022](0022-blues-aware-key-finding.md) | Blues-aware key finding | 2026-11-03 | Accepted |
-| [0023](0023-write-only-where-the-sax-plays.md) | On band records, write only where the sax plays (amends 0016) | 2026-11-03 | Proposed (PR #35) |
+| [0023](0023-write-only-where-the-sax-plays.md) | On band records, write only where the sax plays (amends 0016) | 2026-11-03 | Accepted |
 | [0024](0024-no-pdfs-in-test-and-scorecard-runs.md) | PDFs only for app runs, never in tests or scorecards | 2026-11-03 | Accepted |
 | [0025](0025-scorecard-history-files.md) | Scorecard history kept as data files beside the log; app Results page | 2026-11-03 | Accepted |
