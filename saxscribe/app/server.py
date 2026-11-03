@@ -3,6 +3,8 @@
 Pages:
   /                  the library: upload a recording, see every take
   /take/<id>         the play-along for one take
+  /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
+  /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
 
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
@@ -22,7 +24,7 @@ import socket
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import score_view
@@ -78,6 +80,27 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
     def play(take_id: str):
         take_or_404(take_id)
         return FileResponse(STATIC / "play.html")
+
+    @app.get("/take/{take_id}/pdf", include_in_schema=False)
+    def pdf_or_print(take_id: str, view: str | None = None):
+        job, take = done_or_409(take_id)
+        view = view_or_400(job, view)
+        path = score_view.pdf(take, view)
+        if path is None:
+            return RedirectResponse(f"/take/{take_id}/print?view={view}", status_code=303)
+        return FileResponse(path, media_type="application/pdf",
+                            filename=f"{job['title']} ({view}).pdf")
+
+    @app.get("/take/{take_id}/print", include_in_schema=False)
+    def print_page(take_id: str):
+        done_or_409(take_id)
+        return FileResponse(STATIC / "print.html")
+
+    @app.get("/api/takes/{take_id}/pages")
+    def pages(take_id: str, view: str | None = None):
+        job, take = done_or_409(take_id)
+        view = view_or_400(job, view)
+        return {"view": view, "title": job["title"], "pages": score_view.pages(take, view, job["title"])}
 
     @app.get("/api/info")
     def info():

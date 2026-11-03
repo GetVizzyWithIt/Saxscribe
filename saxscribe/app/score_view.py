@@ -60,11 +60,35 @@ def pdf(take: Take, view: str) -> Path | None:
     return out if engrave.to_pdf(xml, out) and out.exists() else None
 
 
-def render(take: Take, view: str, size: int = 1) -> dict:
+def toolkit():
+    """A Verovio toolkit pointed at its fonts. Verovio looks for them per thread, and
+    the web server renders on worker threads, so the path is set by hand (and not
+    loaded at start, which prints font errors on those threads)."""
     import verovio
-    tk = verovio.toolkit()
-    # Verovio finds its fonts per thread, and the web server renders on worker threads.
+    tk = verovio.toolkit(False)
     tk.setResourcePath(str(Path(verovio.__file__).parent / "data"))
+    return tk
+
+
+def pages(take: Take, view: str, title: str) -> list[str]:
+    """The score as US Letter pages (SVG), titled, for printing or saving as PDF
+    when MuseScore's PDF isn't there."""
+    import re
+    from xml.sax.saxutils import escape
+    tk = toolkit()
+    tk.setOptions({"pageWidth": 2159, "pageHeight": 2794, "scale": 45, "footer": "none",
+                   "pageMarginLeft": 120, "pageMarginRight": 120, "pageMarginTop": 100,
+                   "pageMarginBottom": 100, "spacingSystem": 10, "svgViewBox": True})
+    xml = musicxml(take, view).read_text(encoding="utf-8")
+    xml = re.sub(r"<work-title>.*?</work-title>", f"<work-title>{escape(title)}</work-title>", xml, count=1)
+    xml = re.sub(r"<movement-title>.*?</movement-title>", f"<movement-title>{escape(title)}</movement-title>", xml, count=1)
+    if not tk.loadData(xml):
+        raise ValueError(f"Verovio could not read the {view} score")
+    return [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
+
+
+def render(take: Take, view: str, size: int = 1) -> dict:
+    tk = toolkit()
     tk.setOptions({
         "pageWidth": SIZES[max(0, min(len(SIZES) - 1, size))], "pageHeight": 60000, "adjustPageHeight": True, "scale": 40,
         "svgViewBox": True, "header": "none", "footer": "none", "breaks": "auto",

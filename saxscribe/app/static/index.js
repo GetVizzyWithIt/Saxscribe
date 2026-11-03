@@ -63,7 +63,7 @@ function status(t) {
 function actions(t) {
   const remove = `<button data-act="remove" data-id="${t.id}" data-title="${esc(t.title)}">Remove</button>`;
   if (t.state === 'done') return `<a class="button primary" href="/take/${t.id}">Play along</a>
-        <button data-dl="/api/takes/${t.id}/file/pdf">PDF</button>
+        <a class="button" href="/take/${t.id}/pdf">PDF</a>
         <button data-dl="/api/takes/${t.id}/file/musicxml">MusicXML</button>${remove}`;
   if (t.state === 'running' || t.state === 'queued') return `<button data-act="stop" data-id="${t.id}">Stop</button>`;
   return `<button class="primary" data-act="retry" data-id="${t.id}">Run again</button>${remove}`;

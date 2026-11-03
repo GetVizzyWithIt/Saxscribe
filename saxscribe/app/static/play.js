@@ -143,7 +143,7 @@ $('#smaller').addEventListener('click', () => resize(-1));
 $('#bigger').addEventListener('click', () => resize(1));
 document.addEventListener('click', e => { if (!e.target.closest('#dl')) $('#dl').open = false; });
 $('#dl').addEventListener('click', e => { if (e.target.closest('.list button')) $('#dl').open = false; });
-$('#pdf').addEventListener('click', () => download(`/api/takes/${takeId}/file/pdf?view=${view}`));
+$('#pdf').addEventListener('click', () => { location.href = `/take/${takeId}/pdf?view=${view}`; });
 $('#xml').addEventListener('click', () => download(`/api/takes/${takeId}/file/musicxml?view=${view}`));
 $('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/midi`));
 
