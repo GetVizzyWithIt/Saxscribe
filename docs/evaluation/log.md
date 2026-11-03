@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-03 | #52 (open) | Shortest note follows the take's tempo, fast-passage safeguard | notes | grfia-alto / grfia-tenor / omnibook | Note F1 | 67.4 / 56.8 / 64.2% | 76.3 / 67.4 / 64.2% | yes | [E23](#e23--2026-11-03--basic-pitch-shortest-note-set-from-the-takes-tempo-with-a-fast-passage-safeguard-pr-52) |
+| 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
 | 2026-11-03 | #43 | No sax-span cut where Demucs moved the horn into another melodic stem | isolate | older take | Wrong cuts | 1 (8 s) | 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
 | 2026-11-03 | — | First full run on GRFIA-RealSax (provisional; baseline, not a change) | all | grfia-alto / grfia-tenor, ~950 takes | Note F1 / pitch | — | 58 / 84% alto, 54 / 85% tenor | — | [E20](#e20--2026-11-03--grfia-realsax-full-scorecards-alto-and-tenor-provisional) |
@@ -35,18 +35,20 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Set | Pitch | Onset F1 | Note F1 | Note F1 no offset | s/min | Targets | Run |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| bach10 | 96.9% | **92.2%** ✓ | **87.5%** ✓ | 92.2% | 21 | solo | E4 |
-| choralebricks | **98.9%** ✓ | 86.7% | 77.8% | 86.5% | 22 | solo | E4 |
-| urmp | 94.4% | 81.6% | 64.4% | 80.8% | 24 | solo | E3 |
+| bach10 | 96.9% | **92.2%** ✓ | **97.3%** ✓¶ | 92.2% | 21 | solo | E4, E26 |
+| choralebricks | **98.9%** ✓ | 86.7% | **91.8%** ✓¶ | 86.5% | 22 | solo | E4, E26 |
+| urmp | 94.4% | 81.6% | 69.0%¶ | 80.8% | 24 | solo | E3, E26 |
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
-| omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
-| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 66.5%‡ | 78.5% | — | solo | E22 |
+| omnibook-mix (10) | — | — | 57.8%¶ | — | 64 | mix | E11, E26 |
+| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 75.8%‡¶ | 78.5% | — | solo | E22 |
 | grfia-tenor | 87.2% | 75.1% | 57.8%‡ | 73.8% | — | solo | E22 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 54% | 70% | — | mix | E19 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
+
+¶ Note F1 after PR #52 (E26); other columns from the earlier run. Provisional: URMP onset recall fell 89% → 75% with #52, a fidelity regression being fixed.
 
 ‡ GRFIA with the final answer keys (PRs #46 and #47, E22).
 
@@ -68,6 +70,21 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E26 — 2026-11-03 — Full scorecards for the adaptive shortest note (PR #52, merged)
+- **Settings**: default after #52 (shortest note from the take's note spacing, fast-passage safeguard, melodia off), merged main, Mac. Runs labelled "PR #52 Basic Pitch shortest note by note spacing". Note F1 with offsets:
+
+| Set | Before | After |
+| --- | --- | --- |
+| bach10 | 87.5% | **97.3%** |
+| choralebricks | 77.8% | **91.8%** |
+| grfia-alto | 66.5% | **75.8%** |
+| urmp | 64.4% | 69.0% |
+| omnibook-mix (10 Parker band records) | 56.4% | 57.8% |
+| omnibook | 64.2% | 64.2% |
+
+- **Fidelity regression**: URMP onset recall fell from 89% to 75%. Real short notes are now missed: the note F1 gain hides notes the tool no longer writes, which breaks the never-drop-notes rule ([ADR-0016](../decisions/0016-notation-never-drops-notes.md), [ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)). The build thread is fixing this next; until then, treat the gains as provisional.
+- Full tables (pitch, onset F1, no-offset note F1, tenor) to follow from the build thread.
+
 ### E25 — 2026-11-03 — Separator comparison on band records (no code change)
 - **Question**: does a newer separator get the sax out of a band better than Demucs `htdemucs_6s`?
 - **Sets**: `omnibook-mix` (10 Parker band records) and Blues for Mary Jane (Austin's answer key). Default settings otherwise. Note F1:
@@ -80,11 +97,26 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | BS-RoFormer | 52.7% | 39.8% | 3–4× slower |
 
 - **What it shows**: both alternatives are slower and worse here; they leave piano and guitar in the stem the sax lands in. Averaging two shifts helps a little at 50% more time.
+- Banquet was dropped from the comparison: non-commercial licence.
 - **Decision**: keep `htdemucs_6s` ([ADR-0027](../decisions/0027-keep-htdemucs-6s.md)); two shifts may become an optional quality setting later.
 
-### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database (PR #53, open)
+### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database: baseline (PR #53, merged)
 - **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).
-- **Baseline**: pending, after merge.
+- **Baseline** (2026-11-03, main `c588240`, Mac; cards in `~/saxscribe-runs/rhythm/`):
+
+| Group | Solos | Exact position | Right slot | Right beat | Triplets × | Sixteenths × | Busy × | Notes kept |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| All | 444 | 58.7% | 58.9% | 89.3% | 1.29 | 0.71 | 0.94 | 100% |
+| Saxes | 259 | 53.6% | 53.9% | 87.0% | 1.24 | 0.77 | 0.96 | 100% |
+| Train | 392 | 58.5% | | | | | | |
+| Test | 52 | 60.3% | | | | | | |
+
+  - By feel (exact): two-beat 74.4%, Latin 59.4%, swing 58.7%, funk 55.5%, **ballad 15.7%**.
+  - By tempo (exact): up 73.3%, medium up 58.7%, medium 47.9%, medium slow 46.1%, **slow 18.5%**.
+  - 12 Parker solos excluded as Omnibook overlap; no solo failed; every note written (ADR-0016 holds).
+- **Finding 1, the measure undercounts swing**: Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (open) adds `position_read`, which accepts that case in swung solos, as the headline measure.
+- **Finding 2, ballads and slow tunes are a real gap** (15–19%): Weimar uses 6- and 8-way beat divisions; we round those and often push the last note of a run onto the next beat.
+- Not a model change: it measures the current notation layer.
 
 ### E23 — 2026-11-03 — Basic Pitch shortest note set from the take's tempo, with a fast-passage safeguard (PR #52)
 - **Change**: the shortest note Basic Pitch keeps is 0.4 × the take's median gap between note starts, clamped to 50–128 ms (was a fixed 50 ms), with the melodia trick off. **Safeguard**: a short note the stricter minimum would remove comes back on fast passages (onsets under 200 ms apart) when it has its own attack and a pitch different from both neighbours. The old behaviour stays as `--notes-tool basic_pitch_fixed` ([ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)).
