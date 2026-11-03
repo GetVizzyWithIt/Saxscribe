@@ -448,7 +448,31 @@ def pieces(start: Fraction, end: Fraction) -> list[tuple[Fraction, Fraction]]:
             out[-1] = (out[-1][0], out[-1][1] + (z - a))
         else:
             out.append((a, z - a))
-    return out
+    return syncopate(out)
+
+
+def syncopate(bits: list[tuple[Fraction, Fraction]]) -> list[tuple[Fraction, Fraction]]:
+    """Joins the first two pieces of a tied note into one value where a chart
+    would: an off-beat eighth tied into the next beat becomes a syncopated
+    quarter or dotted quarter (eighth-quarter-eighth), and a quarter tied to
+    an eighth on the beat becomes a dotted quarter. Only inside one half of
+    the bar, so the middle of the bar stays visible."""
+    if len(bits) < 2:
+        return bits
+    (s, first), (b, second) = bits[0], bits[1]
+    total = first + second
+    if b % 1 or second not in (Fraction(1, 2), Fraction(1)):
+        return bits
+    offbeat = s % 1 == Fraction(1, 2) and first == Fraction(1, 2) and total in (Fraction(1), Fraction(3, 2))
+    onbeat = s % 1 == 0 and first == 1 and second == Fraction(1, 2)
+    if not (offbeat or onbeat):
+        return bits
+    half = BEATS_PER_BAR // 2
+    end = s + total
+    inner = range(int(s // 1) + 1, int(-(-end // 1)))  # beat lines strictly inside
+    if any(x % half == 0 for x in inner):
+        return bits
+    return [(s, total)] + bits[2:]
 
 
 # ---------------------------------------------------------------- key and spelling
