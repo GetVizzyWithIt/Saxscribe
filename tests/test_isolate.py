@@ -92,3 +92,47 @@ def test_loud_comping_does_not_beat_a_quieter_horn(tmp_path):
                                      "drums": noise()})
     isolate.run(take, src, mix=True, stem=None)
     assert take.read_manifest()["layers"]["isolate"]["stem"] == "other"
+
+
+def long_horn(seconds, rate, seed=0):
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(rate * seconds)) / rate
+    midi = np.repeat(rng.integers(56, 80, size=int(seconds * 4) + 1), rate // 4)[: len(t)]
+    phase = 2 * np.pi * np.cumsum(fixture.hz(midi)) / rate
+    return 0.3 * sum(np.sin(k * phase) / k for k in range(1, 7))
+
+
+def long_chords(seconds, rate):
+    t = np.arange(int(rate * seconds)) / rate
+    out = np.zeros_like(t)
+    for i, start in enumerate(np.arange(0, seconds, 0.5)):
+        span = (t >= start) & (t < start + 0.45)
+        for m in ([48, 55, 64, 70], [50, 57, 65, 72], [53, 60, 69])[i % 3]:
+            out[span] += np.sin(2 * np.pi * fixture.hz(m) * t[span]) * np.exp(-3 * (t[span] - start))
+    return 0.3 * out / 3
+
+
+def test_a_piano_solo_in_the_middle_is_cut_and_the_horn_kept(tmp_path):
+    rate, seconds = 16000, 60
+    t = np.arange(rate * seconds) / rate
+    horn = long_horn(seconds, rate) * ((t < 20) | (t >= 40))
+    piano = long_chords(seconds, rate) * (1 + 3 * ((t >= 20) & (t < 40)))
+    stem = horn + 0.02 * piano          # Demucs leaves a little piano in the sax stem
+    sf.write(str(tmp_path / "stem.wav"), stem, rate)
+    sf.write(str(tmp_path / "mix.wav"), np.clip(horn + piano, -1, 1), rate)
+    keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert len(cuts) == 1
+    a, b = cuts[0]
+    assert 20 <= a <= 25 and 35 <= b <= 40          # inside the piano solo, never into the horn
+    assert keep[0][0] == 0 and keep[-1][1] >= 59
+
+
+def test_a_short_rest_is_not_cut(tmp_path):
+    rate, seconds = 16000, 40
+    t = np.arange(rate * seconds) / rate
+    horn = long_horn(seconds, rate) * ((t < 18) | (t >= 23))   # 5 s rest
+    piano = long_chords(seconds, rate)
+    sf.write(str(tmp_path / "stem.wav"), horn + 0.02 * piano, rate)
+    sf.write(str(tmp_path / "mix.wav"), np.clip(horn + piano, -1, 1), rate)
+    keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert cuts == []
