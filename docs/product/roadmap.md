@@ -34,7 +34,8 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
 - [ ] Austin's first etude takes → 20-take frozen test set
 - [ ] Trained note/onset head (on Filosax when granted, Austin's takes, Omnibook train split)
-- [ ] Tenor check (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
+- [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 67% vs alto 71% (log E20); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
+- [ ] Trill tag, so a trilled passage reads as one written trill while every alternation stays in notes.json (GRFIA trill takes 24%, log E20)
 
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test
 split and on 20 of Austin's recordings.
@@ -63,17 +64,21 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
 - [x] MuseScore accepts every file: off-grid points after triplets moved to sixteenths (PR #26)
 - [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
+- [ ] Rhythm quantisation on real records: Blues for Mary Jane check shows extra triplets, sixteenths and ties, pickups early or late (log E18). Current focus
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
 - [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
 - [x] Syncopations as one note instead of tied eighths (PR #32; ties 46 → 41, log E14)
 - [x] Key for blues tunes (PR #34; Weimar 49% → 60%, blues 47% → 70%, log E15)
 - [x] Band records: write only where the sax plays (PR #35; 0 answer-key notes lost, 7XTyc 56% → 62%, log E16). One wrong 8 s cut on an older take is being fixed
-- [ ] MusicXML title from the song metadata (still "Transcription"); copy outputs to a Desktop folder
+- [x] Copy finished sheet music to `~/Desktop/Saxscribe` with title and artist (PR #42)
+- [ ] Remove short ghost notes without losing real ones (55 extra notes on Blues for Mary Jane, log E19)
+- [ ] MusicXML title from the song metadata (was "Transcription"; fix to confirm)
+- [ ] Chromatic runs: sharps going up, flats going down (PR #44, open)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
 - [ ] Phrase marks, meters other than 4/4, pickups
-- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align). First: Blues for Mary Jane (Getz, 4 pages, concert C), being digitised
+- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align). First: Blues for Mary Jane (Getz, 4 pages, concert C); intro and choruses 1–2 hand-entered and scored (note F1 70%, log E19); rest waits on OMR
 
 **Gate:** edits per 100 notes ≤5 solo, ≤15 full mix.
 
