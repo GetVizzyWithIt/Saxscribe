@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03, with PRs through #54 merged.
+Last full review: 2026-11-03, with PRs through #57 merged.
 
 **To run the tool**, see [Quick start](../README.md#quick-start-copy-and-paste) in the repo README.
 

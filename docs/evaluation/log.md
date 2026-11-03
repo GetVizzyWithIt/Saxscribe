@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp | Onset-recall loss vs before #52 | 15 points | 8 points | yes | [E27](#e27--2026-11-03--re-tongued-repeats-restored-pr-57-merged) |
 | 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
 | 2026-11-03 | #43 | No sax-span cut where Demucs moved the horn into another melodic stem | isolate | older take | Wrong cuts | 1 (8 s) | 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
@@ -70,6 +71,12 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E27 — 2026-11-03 — Re-tongued repeats restored (PR #57, merged)
+- **Finding**: most URMP notes lost under #52 (E26) were re-tongued repeats: the same pitch attacked again after the reed stops, which the tempo-based minimum removed as too short.
+- **Change**: a removed short note comes back when the loudness dips by at least 10 dB in the 60 ms before its attack.
+- **Result**: URMP onset-recall loss from #52 shrinks from 15 to 8 points; about 80% of the restored notes are real; the gains on other sets mostly hold. Full tables to follow.
+- **Still open**: an 8-point onset-recall loss on URMP; the build thread keeps working on it. ADR-0026 stays conditional.
+
 ### E26 — 2026-11-03 — Full scorecards for the adaptive shortest note (PR #52, merged)
 - **Settings**: default after #52 (shortest note from the take's note spacing, fast-passage safeguard, melodia off), merged main, Mac. Runs labelled "PR #52 Basic Pitch shortest note by note spacing". Note F1 with offsets:
 
@@ -114,7 +121,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - By feel (exact): two-beat 74.4%, Latin 59.4%, swing 58.7%, funk 55.5%, **ballad 15.7%**.
   - By tempo (exact): up 73.3%, medium up 58.7%, medium 47.9%, medium slow 46.1%, **slow 18.5%**.
   - 12 Parker solos excluded as Omnibook overlap; no solo failed; every note written (ADR-0016 holds).
-- **Finding 1, the measure undercounts swing**: Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (open) adds `position_read`, which accepts that case in swung solos, as the headline measure.
+- **Finding 1, the measure undercounts swing** (fixed in the scorecard by PR #55, merged; baseline on the new measure to follow): Weimar writes swung off-beats where they fell (2/3 or 3/4 of the beat); we write them as swung eighths (1/2, by design, [ADR-0018](../decisions/0018-swing-aware-notation.md)). "Exact position" counts correct swing notation as wrong. PR #55 (merged) adds `position_read`, which accepts that case in swung solos, as the headline measure.
 - **Finding 2, ballads and slow tunes are a real gap** (15–19%): Weimar uses 6- and 8-way beat divisions; we round those and often push the last note of a run onto the next beat.
 - Not a model change: it measures the current notation layer.
 
