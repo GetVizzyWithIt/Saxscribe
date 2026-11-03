@@ -40,14 +40,14 @@ onset and note F1 untouched, so they are measured on the written score.
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
-| grfia-alto (~950 takes with tenor; keys being re-aligned) | 84% | 71% recall | 65%‡ | 71%§ | — | solo | E20, E21 |
-| grfia-tenor (keys being re-aligned) | 85% | 68% recall | 53%‡ | 67%§ | — | solo | E20, E21 |
+| grfia-alto (~950 takes with tenor) | 90% | 71% recall§ | 66.5%‡ | 71%§ | — | solo | E22 |
+| grfia-tenor | 87% | 68% recall§ | 58%‡ | 67%§ | — | solo | E22 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 54% | 70% | — | mix | E19 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
 
-‡ GRFIA note F1 with answer keys re-aligned by PR #46 (E21); PR #47 will change the keys again. § No-offset figure from E20, before #46.
+‡ GRFIA with the final answer keys (PRs #46 and #47, E22). § From E20, with the earlier keys.
 
 Omnibook now uses chorus-limited grading (PR #16, E6); the earlier 45% note F1 (E2) was understated.
 
@@ -67,7 +67,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
-### E21 — 2026-11-03 — GRFIA-RealSax answer keys re-aligned (PR #46 merged, PR #47 open): an answer-key change, not a model change
+### E22 — 2026-11-03 — GRFIA-RealSax rescored with the final answer keys (after PR #47): current numbers
+- **Set**: `grfia-alto`, `grfia-tenor`, same takes and default settings as E20; only the answer keys changed (PR #46 beat alignment, PR #47 per-take choice by pitch agreement). Not a model change.
+
+| Measure | Alto | Tenor |
+| --- | --- | --- |
+| Note F1 (with offsets) | **66.5%** (E20: 58.1%) | **58%** (E20: 53.8%) |
+| Pitch accuracy | 90% (E20: 84%) | 87% (E20: 85%) |
+| Trill takes, note F1 | ~27% | ~27% |
+
+- **Alignment**: 27 of the 28 scale takes that slid after #46 are fixed. One tenor exercise appears to be paired with the wrong score (a dataset issue, *to check*).
+- **What it shows**: with sound answer keys, real solo sax scores 66.5% (alto) and 58% (tenor) note F1, against the 80% solo target. The gap to alto on tenor is now 8 points, so tenor needs its own look. Trills stay low by labelling convention (E20).
+- These are the current GRFIA numbers; E20 and E21 are kept as history.
+
+### E21 — 2026-11-03 — GRFIA-RealSax answer keys re-aligned (PRs #46 and #47 merged): an answer-key change, not a model change
 - **Why it is separate**: these PRs change how the GRFIA scores are lined up with the takes, which changes the answer keys. The transcription is unchanged. They are grading fixes like PR #16, so they are not drawn as model-change markers on the Results page and are not in `changes.json`.
 - **PR #46**: metronome takes are aligned on the beat instead of by chroma DTW.
 
@@ -79,8 +92,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Tenor, one-pitch drills | 35% | 79% |
 
 - **New slip**: 14 alto and 14 tenor scale takes now slide by one step, which is why tenor dips.
-- **PR #47 (open)**: per take, picks the alignment whose pitches match the audio and keeps the older key where it scores better. Expected about 70% alto and 62% tenor; to be logged when run.
-- **Reading the numbers**: until #47 runs, compare GRFIA figures only within the same answer-key version.
+- **PR #47 (merged)**: per take, picks the alignment whose pitches match the audio and keeps the older key where it scores better. Result in E22: alto 66.5%, tenor 58%.
+- **Reading the numbers**: compare GRFIA figures only within the same answer-key version; E22 is the current one.
 
 ### E20 — 2026-11-03 — GRFIA-RealSax full scorecards, alto and tenor (provisional)
 - **Set**: `grfia-alto`, `grfia-tenor`, about 950 real takes, scores aligned to the audio by the etude aligner (tier B). Default settings, on the Mac. Supersedes the 10-take preliminary (E17).
