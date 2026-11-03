@@ -91,6 +91,14 @@ class Library:
     def job(self, take_id: str) -> dict:
         f = self.folder(take_id)
         data = json.loads((f / "job.json").read_text())
+        if "artist" not in data:  # older takes: fill title and artist from the file's tags once
+            from .meta import tags
+            found = tags(f / data["filename"])
+            fields = {"artist": found.get("artist", "")}
+            if found.get("title") and data["title"] == Path(data["filename"]).stem:
+                fields["title"] = found["title"]
+            self._set(take_id, **fields)
+            data.update(fields)
         take = Take(f / "take")
         done = [layer for layer in LAYERS if take.has(layer)]
         data["id"] = take_id
@@ -117,7 +125,7 @@ class Library:
     # ---------------------------------------------------------------- adding
 
     def add(self, filename: str, data: bytes, *, horn: str = "alto", mix: bool = False,
-            title: str | None = None) -> str:
+            title: str | None = None, artist: str | None = None) -> str:
         name = Path(filename).name
         if Path(name).suffix.lower() not in AUDIO:
             raise ValueError(f"{name} is not an audio file this tool reads "
@@ -132,8 +140,11 @@ class Library:
         f.mkdir(parents=True)
         safe = re.sub(r"[^A-Za-z0-9 ._()-]+", "_", name)
         (f / safe).write_bytes(data)
+        from .meta import tags
+        found = tags(f / safe)
         (f / "job.json").write_text(json.dumps({
-            "title": title or stem, "filename": safe, "horn": horn, "mix": mix,
+            "title": title or found.get("title") or stem, "artist": artist or found.get("artist", ""),
+            "filename": safe, "horn": horn, "mix": mix,
             "state": "queued", "added": time.strftime("%Y-%m-%dT%H:%M:%S"),
         }, indent=1) + "\n")
         self._enqueue(take_id)
@@ -144,7 +155,9 @@ class Library:
             path = self.root / take_id / "job.json"
             data = json.loads(path.read_text())
             data.update(fields)
-            path.write_text(json.dumps(data, indent=1) + "\n")
+            tmp = path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(data, indent=1) + "\n")
+            tmp.replace(path)  # never half-written while the page reads it
 
     def _enqueue(self, take_id: str) -> None:
         if self.inline:

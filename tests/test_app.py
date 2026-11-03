@@ -141,3 +141,53 @@ def test_a_take_cut_off_by_a_restart_waits_for_run_again(tmp_path, fixture_wav):
     assert reopened.job(take_id)["state"] == "stopped"
     reopened.retry(take_id)
     assert json.loads((reopened.folder(take_id) / "job.json").read_text())["state"] == "done"
+
+
+def test_pdf_falls_back_to_a_print_page(client):
+    """Without MuseScore's PDF, the PDF link opens a printable page of the same score."""
+    from saxscribe.app import score_view
+    take = client.library.take(client.take_id)
+    r = client.get(f"/take/{client.take_id}/pdf", params={"view": "tenor"}, follow_redirects=False)
+    if score_view.pdf(take, "tenor") is None:
+        assert r.status_code == 303 and r.headers["location"].endswith("/print?view=tenor")
+    else:
+        assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
+    assert "window.print" in client.get(f"/take/{client.take_id}/print").text
+    data = client.get(f"/api/takes/{client.take_id}/pages", params={"view": "tenor"}).json()
+    assert data["pages"] and "Fixture phrase" in data["pages"][0]
+    assert sum(p.count('class="note"') for p in data["pages"]) >= 10
+
+
+def test_sheet_music_carries_title_artist_and_credit(tmp_path, fixture_wav):
+    """Title and artist come from the file's tags; the header says who played it and who transcribed it."""
+    import shutil
+    import subprocess
+    if not shutil.which("ffmpeg"):
+        pytest.skip("needs ffmpeg")
+    tagged = tmp_path / "tagged.wav"
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(fixture_wav), "-metadata",
+                    "title=Blues for Testing", "-metadata", "artist=Test Player", str(tagged)], check=True)
+    library = Library(tmp_path / "lib", inline=True)
+    c = TestClient(create_app(library))
+    job = c.post("/api/takes", files={"file": ("tagged.wav", tagged.read_bytes(), "audio/wav")},
+                 data={"horn": "alto", "mix": "false"}).json()
+    assert (job["title"], job["artist"]) == ("Blues for Testing", "Test Player")
+    for view in ("alto", "tenor", "concert"):
+        xml = c.get(f"/api/takes/{job['id']}/file/musicxml", params={"view": view})
+        from urllib.parse import unquote
+        assert "Blues for Testing - Test Player" in unquote(xml.headers["content-disposition"])
+        text = xml.text
+        assert "<work-title>Blues for Testing</work-title>" in text
+        assert "As played by Test Player" in text and "Transcribed with Saxscribe" in text
+    page = c.get(f"/api/takes/{job['id']}/pages").json()["pages"][0]
+    assert "Blues for Testing" in page and "Test Player" in page and "Saxscribe" in page
+
+
+def test_stamp_keeps_every_note():
+    from saxscribe.app.meta import stamp
+    xml = ('<score-partwise><work><work-title>Transcription</work-title></work>'
+           '<identification><creator type="composer">saxscribe</creator></identification>'
+           '<part-list/><part><note/><note/></part></score-partwise>')
+    out = stamp(xml, "A & B", "Someone")
+    assert out.count("<note/>") == 2 and "A &amp; B" in out and "saxscribe</creator>" not in out
+    assert stamp(out, "A & B", "Someone") == out  # stamping twice changes nothing

@@ -3,11 +3,13 @@
 Pages:
   /                  the library: upload a recording, see every take
   /take/<id>         the play-along for one take
+  /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
+  /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
 
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
   GET  /api/takes                 every take, newest first
-  POST /api/takes                 upload (form: file, horn, mix, title)
+  POST /api/takes                 upload (form: file, horn, mix, title, artist)
   GET  /api/takes/<id>            one take's status
   POST /api/takes/<id>/stop       stop a running or waiting take
   POST /api/takes/<id>/retry      run it again
@@ -18,11 +20,12 @@ API (JSON unless noted):
 """
 from __future__ import annotations
 
+import re
 import socket
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import score_view
@@ -46,6 +49,12 @@ def lan_addresses() -> list[str]:
     except OSError:
         pass
     return sorted(a for a in found if not a.startswith("127."))
+
+
+def file_name(job: dict, view: str) -> str:
+    """e.g. "Blues for Mary Jane - Stan Getz (alto)", safe for a download name."""
+    name = job["title"] + (f" - {job['artist']}" if job.get("artist") else "") + f" ({view})"
+    return re.sub(r'[\\/:*?"<>|]+', "", name).strip() or "score"
 
 
 def create_app(library: Library, port: int = 8765) -> FastAPI:
@@ -79,6 +88,26 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
         take_or_404(take_id)
         return FileResponse(STATIC / "play.html")
 
+    @app.get("/take/{take_id}/pdf", include_in_schema=False)
+    def pdf_or_print(take_id: str, view: str | None = None):
+        job, take = done_or_409(take_id)
+        view = view_or_400(job, view)
+        path = score_view.pdf(take, view, job)
+        if path is None:
+            return RedirectResponse(f"/take/{take_id}/print?view={view}", status_code=303)
+        return FileResponse(path, media_type="application/pdf", filename=f"{file_name(job, view)}.pdf")
+
+    @app.get("/take/{take_id}/print", include_in_schema=False)
+    def print_page(take_id: str):
+        done_or_409(take_id)
+        return FileResponse(STATIC / "print.html")
+
+    @app.get("/api/takes/{take_id}/pages")
+    def pages(take_id: str, view: str | None = None):
+        job, take = done_or_409(take_id)
+        view = view_or_400(job, view)
+        return {"view": view, "title": file_name(job, view), "pages": score_view.pages(take, view, job)}
+
     @app.get("/api/info")
     def info():
         return {"library": str(library.root),
@@ -90,13 +119,13 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
 
     @app.post("/api/takes")
     async def upload(file: UploadFile = File(...), horn: str = Form("alto"),
-                     mix: bool = Form(False), title: str = Form("")):
+                     mix: bool = Form(False), title: str = Form(""), artist: str = Form("")):
         data = await file.read()
         if not data:
             raise HTTPException(400, "The file is empty")
         try:
             take_id = library.add(file.filename or "take.wav", data, horn=horn, mix=mix,
-                                  title=title.strip() or None)
+                                  title=title.strip() or None, artist=artist.strip() or None)
         except ValueError as exc:
             raise HTTPException(400, str(exc))
         return library.job(take_id)
@@ -128,7 +157,7 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
     @app.get("/api/takes/{take_id}/score")
     def score(take_id: str, view: str | None = None, size: int = 1):
         job, take = done_or_409(take_id)
-        return score_view.render(take, view_or_400(job, view), size)
+        return score_view.render(take, view_or_400(job, view), size, job)
 
     @app.get("/api/takes/{take_id}/audio/{which}")
     def audio(take_id: str, which: str):
@@ -143,15 +172,15 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
     def download(take_id: str, kind: str, view: str | None = None):
         job, take = done_or_409(take_id)
         view = view_or_400(job, view)
-        name = f"{job['title']} ({view})"
+        name = file_name(job, view)
         if kind == "pdf":
-            path = score_view.pdf(take, view)
+            path = score_view.pdf(take, view, job)
             if path is None:
                 raise HTTPException(404, "The PDF needs MuseScore on this Mac. Install it from "
                                          "musescore.org, then try again. MusicXML works now.")
             return FileResponse(path, media_type="application/pdf", filename=f"{name}.pdf")
         if kind == "musicxml":
-            return FileResponse(score_view.musicxml(take, view),
+            return FileResponse(score_view.musicxml(take, view, job),
                                 media_type="application/vnd.recordare.musicxml+xml",
                                 filename=f"{name}.musicxml")
         if kind == "midi":

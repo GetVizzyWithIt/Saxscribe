@@ -31,7 +31,7 @@ function lastAtOrBefore(list, q) {
 // ---- loading
 async function loadJob() {
   job = await (await fetch(`/api/takes/${takeId}`)).json();
-  $('#name').textContent = job.title;
+  $('#name').textContent = job.artist ? `${job.title} · ${job.artist}` : job.title;
   document.title = `${job.title} · Saxscribe`;
   const views = [job.horn, ...['alto', 'tenor', 'concert'].filter(v => v !== job.horn)];
   $('#view').innerHTML = views.map((v, i) => `<button type="button" data-v="${v}" class="${i ? '' : 'on'}">${HORN_NAMES[v] || v}</button>`).join('');
@@ -143,7 +143,7 @@ $('#smaller').addEventListener('click', () => resize(-1));
 $('#bigger').addEventListener('click', () => resize(1));
 document.addEventListener('click', e => { if (!e.target.closest('#dl')) $('#dl').open = false; });
 $('#dl').addEventListener('click', e => { if (e.target.closest('.list button')) $('#dl').open = false; });
-$('#pdf').addEventListener('click', () => download(`/api/takes/${takeId}/file/pdf?view=${view}`));
+$('#pdf').addEventListener('click', () => { location.href = `/take/${takeId}/pdf?view=${view}`; });
 $('#xml').addEventListener('click', () => download(`/api/takes/${takeId}/file/musicxml?view=${view}`));
 $('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/midi`));
 

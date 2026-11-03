@@ -7,7 +7,7 @@ function choose(f) {
   chosen = f || null;
   $('#dropText').textContent = chosen ? chosen.name : 'Choose an audio file';
   ready();
-  $('#title').placeholder = chosen ? chosen.name.replace(/\.[^.]+$/, '') : 'e.g. Pennies from Heaven, Stan Getz';
+
 }
 $('#file').addEventListener('change', e => choose(e.target.files[0]));
 const drop = $('#drop');
@@ -22,6 +22,7 @@ $('#go').addEventListener('click', () => {
   form.append('horn', horn());
   form.append('mix', mix());
   form.append('title', $('#title').value);
+  form.append('artist', $('#artist').value);
   const xhr = new XMLHttpRequest();
   const bar = $('#upBar'); bar.hidden = false;
   $('#go').disabled = true; $('#upMsg').textContent = 'Uploading…';
@@ -30,7 +31,7 @@ $('#go').addEventListener('click', () => {
     bar.hidden = true; bar.firstElementChild.style.width = '0';
     if (xhr.status === 200) {
       $('#upMsg').textContent = 'Uploaded. Transcribing below.';
-      $('#title').value = ''; $('#file').value = '';
+      $('#title').value = ''; $('#artist').value = ''; $('#file').value = '';
       $('#mix').querySelectorAll('button').forEach(b => b.classList.remove('on')); $('#mixHint').hidden = false;
       choose(null);
       refresh();
@@ -63,7 +64,7 @@ function status(t) {
 function actions(t) {
   const remove = `<button data-act="remove" data-id="${t.id}" data-title="${esc(t.title)}">Remove</button>`;
   if (t.state === 'done') return `<a class="button primary" href="/take/${t.id}">Play along</a>
-        <button data-dl="/api/takes/${t.id}/file/pdf">PDF</button>
+        <a class="button" href="/take/${t.id}/pdf">PDF</a>
         <button data-dl="/api/takes/${t.id}/file/musicxml">MusicXML</button>${remove}`;
   if (t.state === 'running' || t.state === 'queued') return `<button data-act="stop" data-id="${t.id}">Stop</button>`;
   return `<button class="primary" data-act="retry" data-id="${t.id}">Run again</button>${remove}`;
@@ -79,7 +80,7 @@ async function refresh() {
   ul.innerHTML = list.map(t => `
     <li>
       <div class="info">
-        <div class="title">${esc(t.title)}</div>
+        <div class="title">${esc(t.title)}${t.artist ? ` <span class="quiet">· ${esc(t.artist)}</span>` : ''}</div>
         <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
         ${status(t)}
       </div>
