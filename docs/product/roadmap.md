@@ -63,8 +63,8 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
 - [x] MuseScore accepts every file: off-grid points after triplets moved to sixteenths (PR #26)
 - [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
-- [ ] Rhythm accuracy against the Omnibook's printed rhythm
-- [ ] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; UI thread)
+- [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
+- [ ] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30 open puts it back at the top)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)

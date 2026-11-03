@@ -73,7 +73,7 @@ Status key: **Done** = merged and tested; **Partial** = works but incomplete;
 | F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid. Readability pass merged (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part; checked on synthetic solos so far | `layers/notation.py` |
 | F4a | Export MusicXML and MIDI, audio kept aligned | Done | `score.musicxml`, `score.mid` |
 | F4b | Export PDF sheet music (v1 UI) | Done when MuseScore is installed; can be turned off (PR #26); printable-page fallback in the app (PR #27) | `layers/engrave.py` |
-| F4c | PDF carries artist, title and a "Transcribed with Saxscribe" line | Requested by Austin 2026-11-03; in progress (UI thread) | |
+| F4c | PDF carries artist, title and a "Transcribed with Saxscribe" line | Requested by Austin 2026-11-03; PR #30 (open) | |
 | F5 | Transposition: store concert pitch, display Eb or Bb | Done (alto, tenor, baritone) | `horns.py` |
 | F6 | Batch mode (folder in, transcriptions out) | Done | `transcribe <folder>` |
 | F7 | Editor: fix pitch, split/merge, nudge onsets, change articulation, re-quantize; every edit saved as a diff | Planned (UI thread) | design doc |

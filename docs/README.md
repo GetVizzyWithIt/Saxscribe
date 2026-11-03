@@ -46,6 +46,9 @@ evaluation, deployment).
 
 ## Open documentation items
 
+- GRFIA audio-to-score: confirm the paper, licence terms, score format,
+  alto/tenor split and the manifest entry once the download lands.
+
 - Bach10 licence: read `Dataset_v1.0.pdf` inside the download and record it.
 - Weimar Jazz Database licence: the dataset search noted ODbL; the manifest
   says "not stated on the download page". Confirm on jazzomat.hfm-weimar.de.
