@@ -12,6 +12,8 @@ outputs. Format follows Mitchell et al., "Model Cards for Model Reporting"
 | [Note rules: one-line, split-note join, segmenter, contour cutter](note-rules.md) | 3 notes | Our own rules, no training | Join off by default since PR #22; others optional |
 | [Beat This!](beat-this.md) | 3 beats | Pretrained, used as is | Default |
 
+What the upstream authors document (training data, limits, licences, versions, alternatives), checked against our cards: [upstream model review](upstream-review.md), 2026-11-03.
+
 Before/after numbers for every model and pipeline change, in one table: [evaluation log, change by change](../evaluation/log.md#change-by-change-what-each-model-or-pipeline-change-did).
 
 No model has been trained or fine-tuned for Saxscribe yet. The first trained
