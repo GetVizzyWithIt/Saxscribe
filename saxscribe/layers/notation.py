@@ -59,6 +59,8 @@ CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
 BEATS_PER_BAR = 4       # 4/4 for now
 GAP_FILL = 1.5          # a gap between tracked beats over this many beat spacings is filled
+NOTES_FOR_TEMPO = 16      # notes needed before the notes may set the beat
+PERIOD_STRENGTH = 0.25    # how clearly the notes must repeat once a beat (autocorrelation)
 MIN_STEP = Fraction(1, 8)  # beats: two notes on one grid slot are written this far apart
 
 
@@ -95,7 +97,88 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
 # ---------------------------------------------------------------- time to beats
 
 def repair_grid(beats: list[float], notes: list[dict], tempo_bpm: float | None) -> tuple[list[float], str]:
-    """A beat grid that covers every note, with the tracker's gaps filled.
+    """A beat grid that covers every note.
+
+    Normally the tracker's beats with its gaps filled (fill_grid). When the
+    tracker found too few beats to trust (more of the grid would be filled in
+    than tracked, common on a lone horn), and the notes themselves repeat
+    clearly once a beat, the grid is built from the notes instead
+    (beats_from_notes). Omnibook 7XTyc: Beat This! gave 13 beats in 90 s,
+    about 1.5 beats apart, so the line was written at 162 BPM; the notes
+    say 261 BPM, and swung eighths then read as eighths.
+    """
+    filled, note, added, b = fill_grid(beats, notes, tempo_bpm)
+    if added > len(b) and len(notes) >= NOTES_FOR_TEMPO:
+        spb, strength = onset_period([n["onset"] for n in notes])
+        if spb and strength >= PERIOD_STRENGTH:
+            grid = beats_from_notes([n["onset"] for n in notes], [n["offset"] for n in notes], spb)
+            return grid, (f"from the notes: a beat every {spb:.3f} s ({60 / spb:.0f} BPM); "
+                          f"the beat tracker found only {len(b)} beats")
+    return filled, note
+
+
+def onset_period(onsets: list[float]) -> tuple[float | None, float]:
+    """The beat length the notes repeat at, and how clearly (0-1).
+
+    Autocorrelation of the onsets (each a 15 ms bump) over 0.2-0.75 s, that
+    is 80-300 BPM. The shortest lag within 85% of the best wins, so a line of
+    straight eighths gives the beat and not the half-bar."""
+    on = np.asarray(sorted(onsets), dtype=float)
+    if len(on) < 2:
+        return None, 0.0
+    rate = 200
+    n = int((on[-1] - on[0]) * rate) + 64
+    x = np.zeros(n)
+    np.add.at(x, ((on - on[0]) * rate).astype(int) + 16, 1.0)
+    x = np.convolve(x, np.exp(-0.5 * (np.arange(-9, 10) / 3.0) ** 2), "same")
+    spec = np.fft.rfft(x, 2 * n)
+    ac = np.fft.irfft(spec * np.conj(spec))[:n]
+    if ac[0] <= 0:
+        return None, 0.0
+    ac = ac / ac[0]
+    lo, hi = int(0.2 * rate), min(int(0.75 * rate), n - 1)
+    if hi <= lo:
+        return None, 0.0
+    window = ac[lo:hi]
+    best = float(window.max())
+    first = int(np.argmax(window >= 0.85 * best))
+    # refine around the chosen peak
+    i = lo + first
+    while i + 1 < hi and ac[i + 1] > ac[i]:
+        i += 1
+    return i / rate, best
+
+
+def beats_from_notes(onsets: list[float], offsets: list[float], spb: float) -> list[float]:
+    """Beats that follow the notes: start at the first note, step one beat at a
+    time, and lean halfway toward a note that starts close to where the beat
+    was expected, so the grid follows the player's drift without jumping. The
+    beat length adapts slowly and stays within 10% of spb. If the off-beats
+    land before the middle of the beat, the grid sat on the off-beats, and it
+    is moved over to the beat."""
+    on = np.asarray(sorted(onsets), dtype=float)
+    end = max(offsets) if offsets else on[-1]
+    grid, period = [float(on[0])], spb
+    while grid[-1] < end + spb:
+        expect = grid[-1] + period
+        near = on[np.abs(on - expect) < 0.2 * period]
+        nxt = expect + 0.5 * (float(near[np.argmin(np.abs(near - expect))]) - expect) if len(near) else expect
+        period = float(np.clip(0.9 * period + 0.1 * (nxt - grid[-1]), 0.9 * spb, 1.1 * spb))
+        grid.append(nxt)
+    g = np.asarray(grid)
+    pos = np.interp(on, g, np.arange(len(g)))
+    frac = pos - np.floor(pos)
+    mid = frac[(frac > 0.25) & (frac < 0.75)]
+    if len(mid) >= SWING_MIN_NOTES and np.median(mid) < 0.5:
+        shift = float(np.median(mid))  # the real beat sits this far into each grid step
+        g = np.interp(np.arange(len(g)) + shift, np.arange(len(g)), g, right=np.nan)
+        g = g[~np.isnan(g)]
+        g = np.concatenate([[g[0] - spb], g, g[-1] + spb * np.arange(1, 3)])
+    return [float(x) for x in g]
+
+
+def fill_grid(beats: list[float], notes: list[dict], tempo_bpm: float | None):
+    """The tracker's beats with its gaps filled: (grid, note, beats added, tracked beats).
 
     The beat spacing comes from the tracker's own beats where they sit close
     together (0.25-1.5 s apart); failing that, from tempo_bpm; failing that,
@@ -114,7 +197,7 @@ def repair_grid(beats: list[float], notes: list[dict], tempo_bpm: float | None) 
         ioi = ioi[(ioi > 0.06) & (ioi < 1.0)]
         spb, source = (float(np.clip(2 * np.median(ioi), 0.3, 1.2)) if len(ioi) else 0.5), "notes"
     if not notes:
-        return b, "tracked"
+        return b, "tracked", 0, b
     first, last = min(n["onset"] for n in notes), max(n["offset"] for n in notes)
     if not b:
         b = [first]
@@ -133,7 +216,7 @@ def repair_grid(beats: list[float], notes: list[dict], tempo_bpm: float | None) 
         filled.append(filled[-1] + spb)
         added += 1
     note = "tracked" if added <= max(2, 0.1 * len(b)) else f"filled {added} beats at {spb:.3f} s ({source})"
-    return filled, note
+    return filled, note, added, b
 
 
 def beat_map(beats: list[float], tempo_bpm: float | None):

@@ -144,7 +144,7 @@ def test_a_sparse_beat_grid_keeps_every_note():
     starts = [p["start"] for p in r["notes"]]
     assert all(b > a for a, b in zip(starts, starts[1:]))
     assert all(p["length"] > 0 for p in r["notes"])
-    assert r["grid"].startswith("filled")
+    assert r["grid"].startswith(("filled", "from the notes"))
     assert r["squeezed"] < 0.1 * len(notes)
 
 
@@ -295,3 +295,28 @@ def test_pdfs_can_be_turned_off(take, tmp_path, monkeypatch):
     assert engrave.turned_off() and engrave.find_musescore() is None
     assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")
     assert not (tmp_path / "score.pdf").exists()
+
+
+def test_a_lone_horn_with_a_wrong_sparse_tracker_gets_its_beat_from_the_notes():
+    """Omnibook 7XTyc: Beat This! gave 13 beats about 1.5 beats apart, so a
+    261 BPM line was written at 162 BPM, full of triplets and 32nds."""
+    spb = 0.23
+    notes, truth = [], []
+    rng = np.random.default_rng(4)
+    for b in range(8, 8 + 160):
+        for frac in (0, 0.62):
+            t = b * spb + frac * spb + rng.normal(0, 0.008)
+            notes.append({"onset": t, "offset": t + 0.09, "pitch": 60 + b % 12})
+    wrong = [notes[0]["onset"] + 0.36 * k * 9 for k in range(12)]  # sparse and at the wrong spacing
+    r = notation.quantize(notes, wrong, wrong[:1], 109.0, "auto")
+    assert r["grid"].startswith("from the notes")
+    assert abs(r["tempo_bpm"] - 60 / spb) < 8
+    starts = [p["start"] for p in r["notes"]]
+    assert sum(s.denominator in (1, 2) for s in starts) >= 0.95 * len(starts)
+    assert r["squeezed"] == 0
+
+
+def test_a_steady_tracked_grid_is_kept():
+    notes = at([(4 + i * 0.5, 0.5) for i in range(32)], swing_pos=0.62)
+    r = notation.quantize(notes, GRID, GRID[::4], 120.0, "auto")
+    assert r["grid"] == "tracked"
