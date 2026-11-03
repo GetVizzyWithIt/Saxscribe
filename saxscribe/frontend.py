@@ -161,29 +161,111 @@ def basic_pitch_available() -> bool:
     return importlib.util.find_spec("basic_pitch") is not None
 
 
-def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float) -> list[dict]:
+BP_SHORTEST = (50.0, 127.7)   # ms: range for Basic Pitch's shortest note
+BP_SPACING_SHARE = 0.4        # shortest note = this share of the take's typical gap between notes
+
+
+def note_spacing(onsets: list[float]) -> float:
+    """The take's typical gap between note starts in seconds (median; starts
+    closer than 10 ms count as one), or 0 when there are too few notes."""
+    starts = np.unique(np.round(np.asarray(sorted(onsets)), 2))
+    gaps = np.diff(starts)
+    return float(np.median(gaps)) if len(gaps) >= 4 else 0.0
+
+
+def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool = True,
+                      info: dict | None = None) -> list[dict]:
     """Basic Pitch note events: [{onset, offset, pitch (MIDI), amp}].
 
     Basic Pitch is built for any instrument and may return overlapping notes;
     the notes layer makes them one line for a single horn.
+
+    by_spacing (the default): the network runs once and its output is read
+    twice. The first read (shortest note 50 ms, Basic Pitch's melodia step on)
+    measures how far apart this take's notes usually start; the second keeps
+    notes of at least 0.4 of that gap (50-128 ms) with the melodia step off.
+    Ghost and split notes are short next to the line around them, so a slow
+    melody sheds them while fast bebop keeps its short notes. Measured on
+    2026-11-03 (note F1): GRFIA alto +9.0, tenor +10.5, Blues for Mary Jane
+    +2.0, Omnibook -0.2. On fast lines (notes under 200 ms apart) a short
+    note the second read drops comes back when the recording confirms it
+    (restore_short), so fast real notes are kept.
+    by_spacing=False is the old fixed 50 ms read.
+    info, when given, gets the gap and the shortest note used.
     """
     logging.getLogger().setLevel(logging.ERROR)  # Basic Pitch warns about optional backends
-    from basic_pitch.inference import predict
+    from basic_pitch import ICASSP_2022_MODEL_PATH
+    from basic_pitch.constants import AUDIO_SAMPLE_RATE, FFT_HOP
+    from basic_pitch.inference import run_inference
+    from basic_pitch.note_creation import model_output_to_notes
 
-    def run():
+    def infer():
         # Basic Pitch's Core ML backend prints debug lines for every chunk; hide them.
         with contextlib.redirect_stdout(io.StringIO()):
-            return predict(str(wav), onset_threshold=0.5, frame_threshold=0.3,
-                           minimum_note_length=50, minimum_frequency=min_hz,
-                           maximum_frequency=max_hz, melodia_trick=True)
+            return run_inference(str(wav), ICASSP_2022_MODEL_PATH)
     try:
-        _, _, events = run()
+        output = infer()
     except Exception as exc:
         # Seen on Macs: the very first call fails while the model loads,
         # and the next one works. Try once more before giving up.
         log(f"Basic Pitch failed once ({exc}); trying again...")
-        _, _, events = run()
-    notes = [{"onset": float(s), "offset": float(e), "pitch": int(p), "amp": float(a)}
-             for s, e, p, a, *_ in events]
-    notes.sort(key=lambda n: (n["onset"], n["pitch"]))
-    return notes
+        output = infer()
+
+    def read(shortest_ms: float, melodia: bool) -> list[dict]:
+        frames = int(np.round(shortest_ms / 1000 * (AUDIO_SAMPLE_RATE / FFT_HOP)))
+        with contextlib.redirect_stdout(io.StringIO()):
+            _, events = model_output_to_notes(output, onset_thresh=0.5, frame_thresh=0.3,
+                                              min_note_len=frames, min_freq=min_hz, max_freq=max_hz,
+                                              melodia_trick=melodia)
+        notes = [{"onset": float(s), "offset": float(e), "pitch": int(p), "amp": float(a)}
+                 for s, e, p, a, *_ in events]
+        notes.sort(key=lambda n: (n["onset"], n["pitch"]))
+        return notes
+
+    notes = read(BP_SHORTEST[0], True)
+    if not by_spacing:
+        return notes
+    gap = note_spacing([n["onset"] for n in notes])
+    if not gap:
+        return notes
+    shortest = float(np.clip(BP_SPACING_SHARE * gap * 1000, *BP_SHORTEST))
+    kept = read(shortest, False)
+    back = []
+    if gap < RESTORE_FAST:
+        attacks = [o for o in detect_onsets(load_mono(wav)) if o["s"] >= RESTORE_STRENGTH]
+        back = restore_short(notes, kept, [o["t"] for o in attacks])
+    if info is not None:
+        info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1), restored=len(back))
+    return sorted(kept + back, key=lambda n: (n["onset"], n["pitch"]))
+
+
+RESTORE_NEAR = 0.04       # s: a short note the long read already has (a note starting this close)
+RESTORE_ATTACK = 0.03     # s: an attack this close confirms a short note
+RESTORE_STRENGTH = 0.3    # onset strength (0-1) that counts as an attack
+RESTORE_FAST = 0.2        # s: only lines whose notes start closer than this (fast playing) get notes back.
+                          # Omnibook (151 ms): 137 of 490 lost real notes back, F1 -0.23 -> -0.01; on
+                          # slow GRFIA takes (~350 ms) restored notes were nearly all extras (tenor 1 of 33).
+
+
+def restore_short(short_read: list[dict], kept: list[dict], attacks: list[float]) -> list[dict]:
+    """Short notes the second read dropped that the recording confirms: a clear
+    attack at their start and a pitch different from the notes on both sides
+    (a split note or a ghost repeats its neighbour's pitch; a fast bebop note
+    moves). Returned to be added back, so a real fast note is never lost to
+    the longer shortest-note setting."""
+    starts = np.array(sorted(n["onset"] for n in kept)) if kept else np.array([])
+    hits = np.array(sorted(attacks)) if attacks else np.array([])
+    line = sorted(kept, key=lambda n: n["onset"])
+    on = [n["onset"] for n in line]
+    back = []
+    for n in short_read:
+        if len(starts) and np.min(np.abs(starts - n["onset"])) <= RESTORE_NEAR:
+            continue
+        if not len(hits) or np.min(np.abs(hits - n["onset"])) > RESTORE_ATTACK:
+            continue
+        i = int(np.searchsorted(on, n["onset"]))
+        sides = [line[j]["pitch"] for j in (i - 1, i) if 0 <= j < len(line)]
+        if any(p == n["pitch"] for p in sides):
+            continue
+        back.append(dict(n))
+    return back

@@ -152,3 +152,59 @@ def test_notes_tagged_not_sax_stay_in_notes_json_but_leave_the_score(fixture_wav
     assert 0 not in indices and len(json.loads(t.notes.read_text())["notes"]) == len(data["notes"])
     assert all(data["notes"][i].get("tags") != ["not_sax"] for i in indices)
     assert max(indices) == len(data["notes"]) - 1   # indices still point into notes.json
+
+
+def test_note_spacing_is_the_median_gap_between_starts():
+    from saxscribe import frontend
+    assert frontend.note_spacing([0, 0.25, 0.5, 0.75, 1.0, 1.005, 1.5]) == 0.25
+    assert frontend.note_spacing([0, 1.0]) == 0.0      # too few notes to say
+
+
+def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
+    """The network runs once; its output is read at 50 ms, then again with the
+    shortest note at 0.4 of the take's note spacing, melodia off."""
+    import sys
+    import types
+
+    from saxscribe import frontend
+    reads = []
+    runs = []
+    starts = [i * 0.3 for i in range(10)]          # notes 300 ms apart -> shortest 120 ms
+
+    def fake_notes(output, onset_thresh, frame_thresh, min_note_len, min_freq, max_freq, melodia_trick):
+        reads.append((min_note_len, melodia_trick))
+        return None, [(s, s + 0.25, 65, 0.8, None) for s in starts]
+
+    fakes = {
+        "basic_pitch": types.SimpleNamespace(ICASSP_2022_MODEL_PATH="model"),
+        "basic_pitch.constants": types.SimpleNamespace(AUDIO_SAMPLE_RATE=22050, FFT_HOP=256),
+        "basic_pitch.inference": types.SimpleNamespace(run_inference=lambda *a: runs.append(a) or {}),
+        "basic_pitch.note_creation": types.SimpleNamespace(model_output_to_notes=fake_notes),
+    }
+    for name, mod in fakes.items():
+        monkeypatch.setitem(sys.modules, name, mod)
+    monkeypatch.setattr(frontend, "load_mono", lambda path: None)
+    monkeypatch.setattr(frontend, "detect_onsets", lambda y: [])
+    info = {}
+    notes = frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, info=info)
+    assert len(runs) == 1 and len(notes) == 10
+    frames = lambda ms: int(round(ms / 1000 * 22050 / 256))
+    assert reads == [(frames(50), True), (frames(120), False)]
+    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0}   # slow line: no restore
+    reads.clear()
+    frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, by_spacing=False)
+    assert reads == [(frames(50), True)]
+
+
+def test_short_notes_come_back_when_the_recording_confirms_them():
+    """A fast real note (own attack, a new pitch) dropped by the longer
+    shortest-note read is put back; a split note or a ghost is not."""
+    from saxscribe import frontend
+    kept = [{"onset": 1.0, "offset": 1.2, "pitch": 60}, {"onset": 1.3, "offset": 1.5, "pitch": 64}]
+    short = kept + [
+        {"onset": 1.22, "offset": 1.27, "pitch": 62},   # passing note, own attack: back
+        {"onset": 1.51, "offset": 1.55, "pitch": 64},   # same pitch as its neighbour: a split, stays out
+        {"onset": 2.00, "offset": 2.05, "pitch": 67},   # no attack there: a ghost, stays out
+    ]
+    back = frontend.restore_short(short, kept, attacks=[1.0, 1.21, 1.3, 1.52])
+    assert [n["onset"] for n in back] == [1.22]
