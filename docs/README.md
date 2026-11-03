@@ -8,6 +8,8 @@ can be checked against the code and the scorecards.
 
 Last full review: 2026-11-03, with PRs through #43 merged (#44 open).
 
+**To run the tool**, see [Quick start](../README.md#quick-start-copy-and-paste) in the repo README.
+
 ## Map
 
 The folders follow the phases of CRISP-DM, the standard data-science project

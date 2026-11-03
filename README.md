@@ -10,6 +10,46 @@ analyzer and is kept as a private copy, because the two tools want opposite
 things: the game reduces a part into something playable, this tool stays
 faithful to it.
 
+## Quick start (copy and paste)
+
+**After merging PRs: update and start the app.** In the Terminal window where
+the app is running, press Ctrl-C to stop it, then:
+
+```bash
+cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.txt && python -m saxscribe app
+```
+
+**Start the app with no update:**
+
+```bash
+cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
+```
+
+On the Mac it opens a browser tab at http://localhost:8765. On the iPad
+(same Wi-Fi), open the address it prints: "On your iPad: http://…:8765/".
+Results page: the same address with `/results`. Finished sheet music is also
+copied to `~/Desktop/Saxscribe`.
+
+**Transcribe from the Terminal** (after `source .venv/bin/activate`):
+
+```bash
+python -m saxscribe transcribe ~/Music/take.wav                      # solo alto take
+python -m saxscribe transcribe ~/Music/take.wav --horn tenor         # solo tenor (alto, tenor or baritone)
+python -m saxscribe transcribe ~/Music/record.mp3 --mix --horn tenor # sax inside a full band
+```
+
+**Run a scorecard** (results also appear on the Results page):
+
+```bash
+python -m saxscribe score grfia-alto --note "what changed"
+```
+
+Sets: `omnibook`, `omnibook-mix`, `urmp`, `urmp-mix`, `bach10`, `bach10-mix`,
+`choralebricks`, `grfia-alto`, `grfia-tenor`, `filosax`, `pairs`. Add
+`--limit 10` for a quick run.
+
+**Run the tests:** `python -m pytest`
+
 ## Setup (Mac)
 
 ```bash
@@ -35,8 +75,8 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | Option | What it does |
 | --- | --- |
 | `--mix` | Separate stems with Demucs first. All six stems stay in `stems/` to listen to |
-| `--stem piano` | Use another stem if the sax landed somewhere else (default `other`) |
-| `--horn tenor` | Pitch range for tenor (default alto) |
+| `--stem other` | Force a stem (or a sum such as `other+guitar`); the default, `auto`, picks the stem holding the sax |
+| `--horn tenor` | Tenor or baritone instead of alto (default): pitch range and written key |
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
