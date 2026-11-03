@@ -64,7 +64,11 @@ def test_perfect_notes_score_perfectly():
     assert s["onset_f1"] == 1.0 and s["note_f1"] == 1.0
 
 
-def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path):
+def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path, monkeypatch):
+    from saxscribe.layers import engrave
+    asked = []
+    monkeypatch.setattr(engrave, "find_musescore", lambda: None if engrave.turned_off() else asked.append(1))
+    monkeypatch.delenv("SAXSCRIBE_MUSESCORE", raising=False)
     data = tmp_path / "data"
     data.mkdir()
     sf.write(str(data / "phrase.wav"), sf.read(str(fixture_wav))[0], fixture.RATE)
@@ -77,6 +81,8 @@ def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path):
     out = tmp_path / "runs" / "pairs" / "contour-pyin-notes-contour"
     assert (out / "scorecard.md").read_text().startswith("# Scorecard: pairs")
     assert json.loads((out / "scorecard.json").read_text())["rows"][0]["id"] == "phrase"
+    assert asked == []                     # no PDFs (no MuseScore) during a scorecard
+    assert "SAXSCRIBE_MUSESCORE" not in __import__("os").environ   # and the setting is put back
 
 
 def written_score(path):
