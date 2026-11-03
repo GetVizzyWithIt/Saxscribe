@@ -31,4 +31,5 @@ Private. Audio stays on the Mac. Commercial records are Austin's own copies
 and are never uploaded or shared. Not in the repo.
 
 ## Status
-None recorded yet (2026-11-02). Scans to be sent in the UI thread.
+- 2026-11-02: none recorded yet. Scans to be sent in the UI thread.
+- 2026-11-03: first personal answer key under way: Austin's printed transcription of Stan Getz, "Blues for Mary Jane" (4 pages, concert C), being digitised. The record is Austin's own copy, on the Mac only. The transcription confirms Getz plays 0–192 s (intro plus 12 choruses), which PR #35's sax-span probe matched.

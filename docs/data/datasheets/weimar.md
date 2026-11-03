@@ -17,7 +17,7 @@ No Saxscribe loader yet. Pairing needs records Austin owns, aligned to the
 database's timing (check the offset per record).
 
 ## Uses
-- **Role**: full-mix answer keys (especially tenor) once paired with Austin's records; chord context for enharmonic spelling; style statistics.
+- **Role**: key-finding test set (no audio needed; PR #34); full-mix answer keys (especially tenor) once paired with Austin's records; chord context for enharmonic spelling; style statistics.
 - **Do not use for**: anything requiring audio until records are sourced.
 
 ## Distribution
@@ -28,4 +28,4 @@ https://jazzomat.hfm-weimar.de/download/, open download, 44 MB. Licence:
 Checksums in the manifest.
 
 ## Saxscribe results
-None yet.
+- Key-finding test set: 429 solos with annotated keys, home note right 49% → 60% with the blues-aware finder ([log E15](../../evaluation/log.md)). Labels are the tune's key, so 100% isn't reachable.

@@ -41,4 +41,4 @@ No known limits.
 | --- | --- | --- |
 | 2026-11-02 | Copied from game analyzer | #1 |
 | 2026-11-02 | Notation no longer drops notes when beats are missing | #15 |
-| 2026-11-03 | Sparse beats on lone sax: notation takes the beat from the notes | #29 (open) |
+| 2026-11-03 | Sparse beats on lone sax: notation takes the beat from the notes | #29 |
