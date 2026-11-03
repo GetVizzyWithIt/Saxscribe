@@ -9,7 +9,7 @@ as a model does.
 | Component | File | On by default | What it does |
 | --- | --- | --- | --- |
 | One-line | `layers/notes.py: one_line` | Yes, after Basic Pitch | A sax plays one note at a time: of notes starting within 30 ms, keep the louder; cut a note where the next begins. Nothing else is dropped |
-| Split-note join | `layers/segment.py: join_repeats` | Yes (`basic_pitch`); off with `basic_pitch_raw` | Joins same-pitch neighbours less than 30 ms apart, unless the stem shows a re-attack: a level dip of 35% of the loud level, or an attack at 70% of the take's strong attacks that swells the sound again |
+| Split-note join | `layers/segment.py: join_repeats` | No since PR #22 (`--notes-tool basic_pitch_join`); was on by default after PR #10 | Joins same-pitch neighbours less than 30 ms apart, unless the stem shows a re-attack: a level dip of 35% of the loud level, or an attack at 70% of the take's strong attacks that swells the sound again |
 | Segmenter | `layers/segment.py: segment` | No (`--notes-tool segment`) | Cuts the contour into notes after the CREPE Notes method: boundary strength = (1 − confidence) × normalised pitch slope, peaks above 0.002; joins neighbours on the same rounded note; drops quiet pieces; trims ends by level; splits repeats at strong attacks or level dips; drops notes under 30 ms. Pitch = median after the take's tuning offset |
 | Contour cutter | `layers/notes.py: from_contour` | No (`--notes-tool contour`) | New note where the pitch settles somewhere new or the stem has a clear attack (adapted from the game's vocal transcriber) |
 
@@ -32,9 +32,11 @@ Onset F1, note F1 with and without offsets; ratio of our note count to the answe
 | urmp | 64.4% | 46.7% |
 | choralebricks | 77.8% | 60.3% |
 
+On the Omnibook (45 solos, log E9) note F1 is 64.2% for Basic Pitch, 59.8% for the segmenter and 58.3% for the contour cutter.
+
 The segmenter wins on slow legato URMP parts (King, Fugue, Jerusalem) and loses elsewhere. It does not reproduce the published CREPE Notes advantage on Filosax; possible reasons are our thresholds, the absence of the paper's amplitude-based end trimming details, or dataset differences. Not worth more time until Filosax allows a like-for-like check.
 
-Split-note join: before/after runs on URMP, Bach10, ChoraleBricks and Omnibook are running on the Mac.
+Split-note join, before → after (log E8): URMP onset F1 81.6% → 77.7%, note F1 64.4% → 62.8% (412 joins); Bach10 onset F1 92.2% → 88.4%, note F1 87.5% → 77.1% (55 joins); ChoraleBricks onset F1 86.7% → 82.8%, note F1 77.8% → 72.1% (271 joins). It merges real repeated notes, so it is off by default (PR #22). Omnibook pending.
 
 ## Caveats and recommendations
 - Thresholds were set on the synthetic fixture and paper defaults, not tuned on the test sets (good: no leakage; bad: may be far from optimal). Tune only on train splits.
@@ -46,3 +48,4 @@ Split-note join: before/after runs on URMP, Bach10, ChoraleBricks and Omnibook a
 | 2026-11-02 | One-line and contour cutter | #1 |
 | 2026-11-02 | Segmenter | #6 |
 | 2026-11-02 | Split-note join, on by default | #10 |
+| 2026-11-02 | Split-note join off by default after scorecard; `basic_pitch_join` | #22 |

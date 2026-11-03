@@ -66,7 +66,7 @@ Plain-language meanings of terms used in the code and these docs.
 | --- | --- |
 | Layer | One of isolate, contour, notes, notation; each its own file(s) |
 | Take folder | `<file>.saxscribe/`, holding every layer for one recording |
-| Notes tool | Which method makes Layer 3: `basic_pitch`, `basic_pitch_raw`, `segment`, `contour` |
+| Notes tool | Which method makes Layer 3: `basic_pitch` (default), `basic_pitch_join`, `segment`, `contour`; `basic_pitch_raw` is an alias of the default |
 | Horn / instrument profile | Pitch range plus transposition (alto, tenor, baritone) |
 | Fixture | The synthetic 10-second alto phrase the tests run on |
 | Tier A–E | Label quality levels in [data/README.md](data/README.md) |

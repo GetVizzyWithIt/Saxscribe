@@ -24,9 +24,11 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 
 - [x] CREPE Notes style segmenter as a candidate notes tool (PR #6). Lost to
       Basic Pitch on URMP and ChoraleBricks.
-- [x] Join notes Basic Pitch cuts in two, unless the audio shows a re-attack (PR #10)
-- [ ] Before/after scorecard for PR #10 on URMP, Bach10, ChoraleBricks, Omnibook (running on the Mac)
-- [ ] Segmenter and contour-cutter runs on the Omnibook (running on the Mac)
+- [x] Join notes Basic Pitch cuts in two (PR #10). Scored before/after: hurts URMP, Bach10 and ChoraleBricks by merging real repeats; off by default in PR #22 (open). Omnibook run pending
+- [ ] Split notes, second attempt: a better re-attack detector or a trained onset head
+- [x] Segmenter and contour-cutter runs on the Omnibook: Basic Pitch stays best (64.2% vs 59.8% and 58.3%)
+- [x] Weakest Omnibook solos: the answer keys are an octave off in long passages (log E10)
+- [ ] Flag octave disagreements with the key in the scorecard (PR #23, open)
 - [x] Omnibook grading limited to the answer key's span (PR #16); re-run: note F1 64%, onset F1 86%
 - [ ] Note ends: note F1 drops ~9 points when offsets count
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
@@ -37,11 +39,12 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test
 split and on 20 of Austin's recordings.
 
-## Phase 2: the sax out of a full band — next
+## Phase 2: the sax out of a full band — started
 
 Goal: full-mix targets. Currently 4–17% note F1 on ensemble mixes, because
 Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 
+- [ ] Pick the stem the sax actually lands in, sum when split (PR #24, open): worst Parker record 24% → ~58% note F1
 - [ ] Measure Demucs alternatives (BS-RoFormer, UVR community models) on
       urmp-mix, bach10-mix, omnibook-mix and JazzSAMBA stem-vs-mix pairs
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes
@@ -56,7 +59,12 @@ Goal: a score Austin would put on the stand, with few edits.
 
 - [x] PDF export via MuseScore (PR #12)
 - [x] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15)
-- [ ] Triplet markings MuseScore rejects (PR #17, open)
+- [x] Triplet markings MuseScore rejects (PR #17). PDF now complete: test Parker solo, 2 pages, all 398 notes, proper beaming and triplets
+- [ ] Readability pass (PR #21, open): swung eighths, triplets, multi-bar rests, one spelling per part
+  - [ ] Over-fine rhythms (32nds and dotted figures where swung eighths are meant)
+  - [ ] Empty bars written one by one instead of multi-measure rests
+  - [ ] Mixed enharmonic spelling within a line (e.g. F# and Gb in one phrase)
+  - [ ] Check on real recordings (so far synthetic swing solos only)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)

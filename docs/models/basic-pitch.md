@@ -42,11 +42,11 @@ Published reference: on Filosax, CREPE Notes reports note F-measure 82.3 against
 Apache 2.0; no limits.
 
 ## Caveats and recommendations
-- The split-note join (PR #10) targets its main failure; before/after numbers pending.
-- `--notes-tool basic_pitch_raw` keeps its untouched output for comparison.
+- The split-note join (PR #10) aimed at its main failure but merged real repeats and lowered scores (log E8); off by default again in PR #22, available as `basic_pitch_join`.
 
 ## Change history
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-02 | Copied from game; minimum note 50 ms (game used 80 ms) | #1 |
 | 2026-11-02 | Split-note join added after it by default | #10 |
+| 2026-11-02 | Join off by default again | #22 |

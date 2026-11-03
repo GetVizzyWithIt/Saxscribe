@@ -55,6 +55,7 @@ Last updated 2026-11-02.
 - **Same solo, two versions**: `omnibook` and `omnibook-mix` are the same
   performances; both go on the same side of any split.
 - **Thresholds are tuned on train splits only.**
+- **Answer keys can be wrong too.** Some Omnibook keys are an octave off in long passages; the scorecard flags octave disagreements (PR #23) so they aren't counted as model errors without a check.
 - **Machine-made labels are never answer keys** (JazzSAMBA sax MIDI,
   MedleyDB-Pitch pYIN notes).
 

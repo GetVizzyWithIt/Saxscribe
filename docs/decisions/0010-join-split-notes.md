@@ -1,7 +1,7 @@
 # ADR-0010: Join notes Basic Pitch splits, unless the audio shows a re-attack
 
 - **Date**: 2026-11-02
-- **Status**: Accepted (merged); before/after scorecard pending
+- **Status**: Superseded by [ADR-0019](0019-split-note-join-off-by-default.md)
 - **Decided by**: Claude (routine); merged by Austin
 - **PR**: #10
 

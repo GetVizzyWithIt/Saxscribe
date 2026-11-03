@@ -70,7 +70,7 @@ Status key: **Done** = merged and tested; **Partial** = works but incomplete;
 | F3a | Articulation tags: slur, tongued, scoop, fall, bend, vibrato depth/rate, growl | Planned (field exists, empty) | `notes.json` `tags` |
 | F3b | Beats, downbeats, tempo | Done | Beat This!, librosa fallback |
 | F3c | Key | Partial: found at notation step by music21, not stored in notes.json | `layers/notation.py` |
-| F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid | `layers/notation.py` |
+| F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid. Known readability gaps: over-fine rhythms under swing, no multi-measure rests, mixed enharmonics within a line | `layers/notation.py` |
 | F4a | Export MusicXML and MIDI, audio kept aligned | Done | `score.musicxml`, `score.mid` |
 | F4b | Export PDF sheet music (v1 UI) | Done when MuseScore is installed | `layers/engrave.py` |
 | F5 | Transposition: store concert pitch, display Eb or Bb | Done (alto, tenor, baritone) | `horns.py` |

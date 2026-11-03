@@ -5,7 +5,7 @@
 - **Developed by**: Meta AI Research (Rouard, Massa, Défossez). Hybrid Transformer Demucs, v4.
 - **Type**: hybrid network that works on both the waveform and the spectrogram, with a transformer between them. `htdemucs_6s` is the experimental six-stem variant of the four-stem `htdemucs`.
 - **Licence**: MIT (code and weights).
-- **How Saxscribe calls it**: `frontend.separate_stems()` runs `python -m demucs -n htdemucs_6s -d <mps|cpu>`; only with `transcribe --mix` or the `*-mix` scorecard sets. Stem choice: `--stem`, default `other`.
+- **How Saxscribe calls it**: `frontend.separate_stems()` runs `python -m demucs -n htdemucs_6s -d <mps|cpu>`; only with `transcribe --mix` or the `*-mix` scorecard sets. Stem choice: `--stem`; otherwise "other" until PR #24, which picks the stem with the clearest single melody line and sums stems when the sax is split.
 - **Citation**: Rouard, Massa, Défossez, "Hybrid Transformers for Music Source Separation", ICASSP 2023.
 
 ## Intended use
@@ -45,6 +45,7 @@ clarinet, bassoon or brass instead of the sax.
 MIT; no limits for this use. Records fed to it are Austin's own copies and stay on the Mac.
 
 ## Caveats and recommendations
+- On some Parker records the sax lands in "guitar" or is split between "guitar" and "other". Automatic stem choice (PR #24) took the worst record from 24% to about 58% note F1.
 - The URMP and Bach10 mixes are harder than a jazz record (the sax is often an inner voice), so they are stress tests, not forecasts.
 - Next: benchmark BS-RoFormer and UVR models on the same sets; then a sax-vs-rest fine-tune using JazzSAMBA's stems and mixes (Phase 2).
 
@@ -52,3 +53,4 @@ MIT; no limits for this use. Records fed to it are Austin's own copies and stay 
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-02 | Copied from the game analyzer; default stem "other" | #1 |
+| 2026-11-03 | Stem chosen by melody clarity, summed when split (open) | #24 |

@@ -37,6 +37,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Solo take | `stem.wav` is a copy of `source.wav` |
 | Full mix (`--mix`) | Demucs `htdemucs_6s` separates drums, bass, vocals, guitar, piano, other. The chosen stem (`--stem`, default `other`) becomes `stem.wav`; the rest are summed into `accompaniment.wav`; all six stay in `stems/` to audition |
 | Device | MPS, falling back to CPU if Demucs fails on the GPU |
+| Stem choice | PR #24 (open): the stem with the clearest single melody line, or a sum of stems when the sax is split (e.g. "guitar" + "other"); `--stem` overrides ([ADR-0020](../decisions/0020-pick-sax-stem-automatically.md)) |
 | Known gap | No separator has a sax stem; "other" also carries other horns, strings and keys ([model card](../models/demucs.md)) |
 
 ### Layer 2: pitch contour (`saxscribe/layers/contour.py`)
@@ -55,7 +56,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | --- | --- |
 | Default tool | Basic Pitch on `stem.wav` (onset threshold 0.5, frame threshold 0.3, minimum note 50 ms, horn's range, melodia trick on) ([model card](../models/basic-pitch.md)) |
 | One line | Sax plays one note at a time: notes starting within 30 ms of each other keep the louder one; a note still sounding when the next starts is cut there |
-| Split-note join | Same-pitch neighbours less than 30 ms apart are joined unless the stem shows a re-attack (level dip or a strong new attack). Since PR #10. `basic_pitch_raw` skips this ([model card](../models/note-rules.md)) |
+| Split-note join | Optional (`--notes-tool basic_pitch_join`): same-pitch neighbours under 30 ms apart joined unless the stem shows a re-attack. Off by default since PR #22, because it merged real repeats ([model card](../models/note-rules.md)) |
 | Other tools | `segment`: our CREPE Notes style cutter on the contour. `contour`: a simpler cutter on the contour plus librosa onsets |
 | Per note | `cents`: median distance of the pitch line from the note, after the take's overall tuning |
 | Beats | Beat This! `final0` checkpoint on the full `source.wav` (so the band's groove counts), librosa beat tracker as fallback ([model card](../models/beat-this.md)) |
@@ -71,6 +72,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Gaps | Gaps under a third of a beat before the next note are closed, so tongued eighths read as eighths |
 | Key and spelling | music21's key finder on the notes; flats for chromatic notes in flat keys and C, sharps in sharp keys |
 | Meter | 4/4 only for now |
+| Known readability issues | Over-fine rhythms (32nds, dotted figures) where swung eighths are meant; no multi-measure rests; enharmonic spelling can mix within a line. Tracked in the [roadmap](../product/roadmap.md#phase-3-notation-for-the-stand) |
 | Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12) |
 | Missing beats | With almost no tracked beats (unaccompanied sax) every note is still written (PR #15, [ADR-0016](../decisions/0016-notation-never-drops-notes.md)) |
 

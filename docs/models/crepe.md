@@ -35,7 +35,7 @@ Default settings, 2026-11-02 ([log](../evaluation/log.md)):
 | choralebricks (38 parts) | 98.9% | 97% solo |
 | bach10 (10) | 96.9% | 97% solo |
 | urmp (11) | 94.4% | 97% solo |
-| omnibook stems (46) | 73.3% | 90% mix |
+| omnibook stems (45, key-span grading) | 74% (≈87% on solos without key octave errors, log E10) | 90% mix |
 
 Note: our pitch accuracy gives each answer-key frame its note's fixed pitch,
 so deep vibrato or bends cost a little even when the contour is right.
