@@ -131,7 +131,7 @@ SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
 SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last note is lost
 
 
-def sax_spans(stem: Path, mix: Path) -> tuple[list[list[float]], list[list[float]]]:
+def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
     """Where the horn plays in a band record: (spans with sax, spans cut).
 
     A full record has stretches where the sax lays out: piano and bass solos,
@@ -151,18 +151,15 @@ def sax_spans(stem: Path, mix: Path) -> tuple[list[list[float]], list[list[float
     win, hop = int(SPAN_WINDOW * LEAD_RATE), int(SPAN_HOP * LEAD_RATE)
     if n < win:
         return [[0.0, n / LEAD_RATE]], []
-    energy, clarity = frame_clarity(y[:n])
-    frame_t = np.arange(len(energy)) * LEAD_HOP / LEAD_RATE
-    share, clear = [], []
-    for i in range(0, n - win + 1, hop):
-        a, b = i / LEAD_RATE, (i + win) / LEAD_RATE
-        share.append(10 * np.log10((np.mean(y[i:i + win] ** 2) + 1e-10) / (np.mean(m[i:i + win] ** 2) + 1e-10)))
-        k = (frame_t >= a) & (frame_t < b)
-        clear.append(float(np.sum(energy[k] * clarity[k]) / max(np.sum(energy[k]), 1e-12)))
+    share, clear = window_measures(y[:n], m[:n], win, hop)
     share, clear = np.array(share), np.array(clear)
     held = share > SPAN_SHARE_DB
     typical = float(np.median(clear[held])) if held.any() else 0.0
     sax = held & (clear > SPAN_CLARITY * typical)
+    for other in others:
+        o_share, o_clear = window_measures(frontend.load_mono(other, sr=LEAD_RATE)[:n], m[:n], win, hop)
+        k = min(len(sax), len(o_share))
+        sax[:k] |= (o_share[:k] > SPAN_SHARE_DB) & (o_clear[:k] > SPAN_CLARITY * typical)
     from scipy.signal import medfilt
     sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
     end = n / LEAD_RATE
@@ -184,6 +181,20 @@ def sax_spans(stem: Path, mix: Path) -> tuple[list[list[float]], list[list[float
     if t < end:
         keep.append([round(t, 2), round(end, 2)])
     return keep, cuts
+
+
+def window_measures(y: np.ndarray, m: np.ndarray, win: int, hop: int) -> tuple[np.ndarray, np.ndarray]:
+    """Per window: the stem's share of the mix (dB) and how clearly it holds one pitch."""
+    n = min(len(y), len(m))
+    energy, clarity = frame_clarity(y[:n])
+    frame_t = np.arange(len(energy)) * LEAD_HOP / LEAD_RATE
+    share, clear = [], []
+    for i in range(0, n - win + 1, hop):
+        a, b = i / LEAD_RATE, (i + win) / LEAD_RATE
+        share.append(10 * np.log10((np.mean(y[i:i + win] ** 2) + 1e-10) / (np.mean(m[i:i + win] ** 2) + 1e-10)))
+        k = (frame_t >= a) & (frame_t < b)
+        clear.append(float(np.sum(energy[k] * clarity[k]) / max(np.sum(energy[k]), 1e-12)))
+    return np.array(share), np.array(clear)
 
 
 def runs(mask: np.ndarray) -> list[tuple[int, int]]:

@@ -136,3 +136,20 @@ def test_a_short_rest_is_not_cut(tmp_path):
     sf.write(str(tmp_path / "mix.wav"), np.clip(horn + piano, -1, 1), rate)
     keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
     assert cuts == []
+
+
+def test_no_cut_where_the_horn_moved_into_another_stem(tmp_path):
+    # Demucs moved Getz into "guitar" for a few seconds of Blues for Mary Jane;
+    # the sax stem goes quiet there, but the horn is still playing.
+    rate, seconds = 16000, 50
+    t = np.arange(rate * seconds) / rate
+    horn = long_horn(seconds, rate)
+    moved = (t >= 20) & (t < 32)
+    piano = long_chords(seconds, rate)
+    stem, guitar = horn * ~moved + 0.02 * piano, horn * moved
+    for name, y in (("stem", stem), ("guitar", guitar), ("mix", np.clip(horn + piano, -1, 1))):
+        sf.write(str(tmp_path / f"{name}.wav"), y, rate)
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert cuts                                       # the sax stem alone would lose him
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [tmp_path / "guitar.wav"])
+    assert cuts == []
