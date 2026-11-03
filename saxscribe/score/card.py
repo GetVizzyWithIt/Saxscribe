@@ -11,6 +11,7 @@ is two commands. Writes scorecard.md and scorecard.json there.
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -47,26 +48,17 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
     base = Path(runs).expanduser() if runs else Path.home() / "saxscribe-runs"
     out_dir = base / set_name / name
     out_dir.mkdir(parents=True, exist_ok=True)
-    rows = []
-    for i, ref in enumerate(items, 1):
-        frontend.log(f"[{i}/{len(items)}] {ref.id}")
-        folder = out_dir / ref.id
-        fresh = not Take(folder).has("notation") or redo is not None
-        t0 = time.time()
-        take = transcribe(ref.audio, folder, mix=ref.is_mix, horn=ref.extra.get("horn", "alto"),
-                          contour_tool=contour_tool, notes_tool=notes_tool, redo=redo)
-        row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "horn": ref.extra.get("horn", "alto"),
-               "split": refs.split_of(ref)}
-        row.update(metrics.score_take(ref, take))
-        minutes = max(n["offset"] for n in ref.notes) / 60 if ref.notes else 0
-        timing = take.read_manifest().get("seconds_per_minute")
-        if fresh and minutes:
-            timing = round((time.time() - t0) / minutes, 1)
-            m = take.read_manifest()
-            m["seconds_per_minute"] = timing
-            take.write_manifest(m)
-        row["seconds_per_minute"] = timing
-        rows.append(row)
+    # A scorecard never needs PDFs: rendering one per take opens MuseScore
+    # hundreds of times (its window flashes on a Mac) and slows the run.
+    pdfs_before = os.environ.get("SAXSCRIBE_MUSESCORE")
+    os.environ["SAXSCRIBE_MUSESCORE"] = "off"
+    try:
+        rows = score_items(items, out_dir, contour_tool, notes_tool, redo)
+    finally:
+        if pdfs_before is None:
+            os.environ.pop("SAXSCRIBE_MUSESCORE", None)
+        else:
+            os.environ["SAXSCRIBE_MUSESCORE"] = pdfs_before
     card = {"set": set_name, "split": split, "settings": name, "items": len(rows),
             "partial": any(getattr(r, "partial", False) for r in items),
             "made": time.strftime("%Y-%m-%d %H:%M"), "mean": means(rows), "rows": rows}
@@ -129,3 +121,27 @@ def fmt(col: str, v) -> str:
     if col == "seconds_per_minute":
         return f"{v:.0f} s"
     return f"{100 * v:.1f}%"
+
+
+def score_items(items, out_dir, contour_tool, notes_tool, redo) -> list[dict]:
+    rows = []
+    for i, ref in enumerate(items, 1):
+        frontend.log(f"[{i}/{len(items)}] {ref.id}")
+        folder = out_dir / ref.id
+        fresh = not Take(folder).has("notation") or redo is not None
+        t0 = time.time()
+        take = transcribe(ref.audio, folder, mix=ref.is_mix, horn=ref.extra.get("horn", "alto"),
+                          contour_tool=contour_tool, notes_tool=notes_tool, redo=redo)
+        row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "horn": ref.extra.get("horn", "alto"),
+               "split": refs.split_of(ref)}
+        row.update(metrics.score_take(ref, take))
+        minutes = max(n["offset"] for n in ref.notes) / 60 if ref.notes else 0
+        timing = take.read_manifest().get("seconds_per_minute")
+        if fresh and minutes:
+            timing = round((time.time() - t0) / minutes, 1)
+            m = take.read_manifest()
+            m["seconds_per_minute"] = timing
+            take.write_manifest(m)
+        row["seconds_per_minute"] = timing
+        rows.append(row)
+    return rows
