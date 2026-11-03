@@ -6,6 +6,7 @@
 - **Type**: convolutional network on 1024-sample windows of 16 kHz audio; outputs a probability over 360 pitch bins 20 cents apart (about C1 to B7). "Full" capacity model.
 - **Licence**: MIT (CREPE and torchcrepe).
 - **How Saxscribe calls it**: `layers/contour.py` → `torchcrepe.predict(audio, 16000, hop=160, fmin, fmax, "full", return_periodicity=True)`, range from the horn profile; confidence median-filtered over 3 frames; voiced when confidence > 0.5 and loudness > 1% of peak. MPS, retried on CPU on failure.
+- **Decoding**: torchcrepe decodes with Viterbi by default; its transitions forbid jumps of more than about 2.2 semitones per frame, so an octave leap is drawn as a slide over about 50 ms. The note layer comes from Basic Pitch, so this affects the pitch line, not note pitch.
 - **Fallback**: pYIN (Mauch & Dixon, 2014; librosa), frame 1024, same hop; used when torchcrepe is missing or `--contour-tool pyin`.
 - **Citation**: Kim et al., "CREPE: A Convolutional Representation for Pitch Estimation", ICASSP 2018.
 
@@ -22,7 +23,7 @@
 Raw pitch accuracy (±50 cents) on voiced frames, plus voicing recall and false alarm, with mir_eval.
 
 ## Training data
-Per the paper: synthesised datasets re-rendered from real recordings so the pitch labels are exact (RWC-synth and MDB-stem-synth), which include wind instruments but no dedicated sax set.
+The released model was trained on MIR-1K, Bach10, RWC-Synth, MedleyDB, MDB-STEM-Synth and NSynth ([upstream review](upstream-review.md)). No dedicated sax set. **Overlap**: Bach10 is in the training data, so our Bach10 pitch score (96.9%) is on audio the model has seen and flatters it; MedleyDB overlaps MedleyDB-Pitch.
 
 ## Evaluation data
 All answer-key sets; see the log.
@@ -52,3 +53,4 @@ MIT; no limits.
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-02 | Contour layer with torchcrepe full, pYIN fallback | #1 |
+| 2026-11-03 | Training sets (Bach10 overlap) and Viterbi decoding from the upstream review | #51 |

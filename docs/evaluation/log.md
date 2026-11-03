@@ -40,14 +40,14 @@ onset and note F1 untouched, so they are measured on the written score.
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
-| grfia-alto (~950 takes with tenor) | 90% | 71% recall§ | 66.5%‡ | 71%§ | — | solo | E22 |
-| grfia-tenor | 87% | 68% recall§ | 58%‡ | 67%§ | — | solo | E22 |
+| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 66.5%‡ | 78.5% | — | solo | E22 |
+| grfia-tenor | 87.2% | 75.1% | 57.8%‡ | 73.8% | — | solo | E22 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 54% | 70% | — | mix | E19 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
 
-‡ GRFIA with the final answer keys (PRs #46 and #47, E22). § From E20, with the earlier keys.
+‡ GRFIA with the final answer keys (PRs #46 and #47, E22).
 
 Omnibook now uses chorus-limited grading (PR #16, E6); the earlier 45% note F1 (E2) was understated.
 
@@ -72,12 +72,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 | Measure | Alto | Tenor |
 | --- | --- | --- |
-| Note F1 (with offsets) | **66.5%** (E20: 58.1%) | **58%** (E20: 53.8%) |
-| Pitch accuracy | 90% (E20: 84%) | 87% (E20: 85%) |
+| Note F1 (with offsets) | **66.5%** (E20: 58.1%) | **57.8%** (E20: 53.8%) |
+| Note F1 without offsets | 78.5% (E20: 70.6%) | 73.8% (E20: 66.7%) |
+| Onset F1 | 79.1% (E20: 71.1%) | 75.1% (E20: 67.5%) |
+| Pitch accuracy | 90.0% (E20: 84.3%) | 87.2% (E20: 85.3%) |
 | Trill takes, note F1 | ~27% | ~27% |
 
 - **Alignment**: 27 of the 28 scale takes that slid after #46 are fixed. One tenor exercise appears to be paired with the wrong score (a dataset issue, *to check*).
-- **What it shows**: with sound answer keys, real solo sax scores 66.5% (alto) and 58% (tenor) note F1, against the 80% solo target. The gap to alto on tenor is now 8 points, so tenor needs its own look. Trills stay low by labelling convention (E20).
+- **What it shows**: with sound answer keys, real solo sax scores 66.5% (alto) and 57.8% (tenor) note F1, against the 80% solo target. The gap to alto on tenor is now 8 points, so tenor needs its own look. Trills stay low by labelling convention (E20).
 - These are the current GRFIA numbers; E20 and E21 are kept as history.
 
 ### E21 — 2026-11-03 — GRFIA-RealSax answer keys re-aligned (PRs #46 and #47 merged): an answer-key change, not a model change
@@ -103,7 +105,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | --- | --- | --- |
 | Pitch accuracy | 84% | 85% |
 | Octave errors | 0.1% | 0.1% |
-| Onset recall | 71% | 68% |
+| Onset F1 | 71.1% | 67.5% |
 | Note F1 (with offsets) | 58% | 54% |
 | Note F1 without offsets | 71% | 67% |
 

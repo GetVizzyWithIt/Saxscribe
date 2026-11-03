@@ -60,8 +60,8 @@ Real players recording real horns. Room, microphones and number of players:
 Version, md5 and folder recorded in `datasets/manifest.json` once downloaded.
 
 ## Saxscribe results
-- **Current (2026-11-03, final keys after PR #47, [log E22](../../evaluation/log.md))**: alto note F1 66.5%, pitch 90%; tenor note F1 58%, pitch 87%; trill takes about 27%. 27 of 28 slid scale takes fixed; one tenor exercise looks paired with the wrong score (*to check*).
+- **Current (2026-11-03, final keys after PR #47, [log E22](../../evaluation/log.md))**: alto note F1 66.5% (78.5% without offsets), onset F1 79.1%, pitch 90.0%; tenor note F1 57.8% (73.8%), onset F1 75.1%, pitch 87.2%; trill takes about 27%. 27 of 28 slid scale takes fixed; one tenor exercise looks paired with the wrong score (*to check*).
 - History (answer-key changes, not transcription changes):
-  - E20, first full run (about 950 takes): alto pitch 84%, onset recall 71%, note F1 58% (71% without offsets); tenor pitch 85%, onset recall 68%, note F1 54% (67% without offsets); octave errors 0.1%. Trill takes 24% (score writes one trilled note; we write each alternation). Bends and falls: alto pitch 71–78%. Vibrato: no effect.
+  - E20, first full run (about 950 takes): alto pitch 84.3%, onset F1 71.1%, note F1 58.1% (70.6% without offsets); tenor pitch 85.3%, onset F1 67.5%, note F1 53.8% (66.7% without offsets); octave errors 0.1%. Trill takes 24% (score writes one trilled note; we write each alternation). Bends and falls: alto pitch 71–78%. Vibrato: no effect.
   - E21, after PR #46 aligned metronome takes on the beat: alto 65%, tenor 53%; one-pitch drills 25% → 79% alto, 35% → 79% tenor; 14 alto and 14 tenor scale takes slipped by one step (fixed by PR #47).
   - E17, 10-take preliminary (pitch 80%), superseded.

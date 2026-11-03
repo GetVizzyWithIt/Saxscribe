@@ -34,7 +34,7 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
 - [ ] Austin's first etude takes → 20-take frozen test set
 - [ ] Trained note/onset head (on Filosax when granted, Austin's takes, Omnibook train split)
-- [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 58% vs alto 66.5% with final answer keys (log E22); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
+- [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 57.8% vs alto 66.5% with final answer keys (log E22); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
 - [ ] Trill tag, so a trilled passage reads as one written trill while every alternation stays in notes.json (GRFIA trill takes 24%, log E20)
 
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test

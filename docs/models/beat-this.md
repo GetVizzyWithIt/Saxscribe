@@ -4,7 +4,7 @@
 - **What it does**: finds beats and downbeats in a recording.
 - **Developed by**: Foscarin, Schlüter, Widmer (JKU Linz), 2024.
 - **Type**: transformer over a spectrogram, predicting beat and downbeat frames directly, without the dynamic Bayesian network (DBN) clean-up older trackers needed.
-- **Licence**: MIT (code and checkpoints), *to verify* for checkpoints.
+- **Licence**: MIT for code and weights ([upstream review](upstream-review.md)).
 - **How Saxscribe calls it**: `frontend.detect_beats()` → `File2Beats(checkpoint_path="final0", dbn=False)` on the full `source.wav`; CPU retry on GPU failure. Falls back to librosa's beat tracker (and a 4/4 low-end-energy guess for downbeats) if fewer than 8 beats are found or the model can't load.
 - **Citation**: Foscarin, Schlüter, Widmer, "Beat this! Accurate beat tracking without DBN postprocessing", ISMIR 2024.
 
@@ -19,10 +19,10 @@ Band present vs. solo horn; swing; rubato; tempo changes.
 Beat F1 at ±70 ms (mir_eval), only on sets whose answer keys have beats (Omnibook downbeats; Filosax). Not yet reported separately.
 
 ## Training data
-Per the paper: a large collection of public beat-annotated datasets across genres, including jazz. "final0" is one of the checkpoints trained on all training data. *To verify* the exact list.
+`final0` was trained on 16 beat-annotated datasets, everything except GTZAN, **including Filosax and JAAH** ([upstream review](upstream-review.md)). So a beat F1 on Filosax with `final0` would be on audio it has seen: use the `single_final` or a fold checkpoint that held Filosax out.
 
 ## Evaluation data
-Pending: Omnibook (downbeats), Filosax when granted.
+Pending: Omnibook (downbeats), Filosax when granted (with a checkpoint that did not train on it; see above).
 
 ## Quantitative results
 None reported yet. On the synthetic fixture it placed the last bar one beat later than librosa did, which is why the notation test now uses the fixture's true grid (PR #7).
@@ -42,3 +42,4 @@ No known limits.
 | 2026-11-02 | Copied from game analyzer | #1 |
 | 2026-11-02 | Notation no longer drops notes when beats are missing | #15 |
 | 2026-11-03 | Sparse beats on lone sax: notation takes the beat from the notes | #29 |
+| 2026-11-03 | Training sets (Filosax, JAAH in final0) and licence from the upstream review | #51 |
