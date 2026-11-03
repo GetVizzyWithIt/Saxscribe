@@ -17,7 +17,7 @@ No Saxscribe loader yet. Pairing needs records Austin owns, aligned to the
 database's timing (check the offset per record).
 
 ## Uses
-- **Role**: key-finding test set (no audio needed; PR #34); full-mix answer keys (especially tenor) once paired with Austin's records; chord context for enharmonic spelling; style statistics.
+- **Role**: key-finding test set (no audio needed; PR #34); rhythm scorecard for the notation layer (`python -m saxscribe rhythm`, PR #53; split by performer; Parker melids 52, 53, 55, 58–61, 63, 64, 66–68 excluded because they are also in the Omnibook); full-mix answer keys (especially tenor) once paired with Austin's records; chord context for enharmonic spelling; style statistics.
 - **Do not use for**: anything requiring audio until records are sourced.
 
 ## Distribution
@@ -28,4 +28,5 @@ https://jazzomat.hfm-weimar.de/download/, open download, 44 MB. Licence:
 Checksums in the manifest.
 
 ## Saxscribe results
+- Rhythm scorecard baseline: pending (PR #53, [log E24](../../evaluation/log.md)).
 - Key-finding test set: 429 solos with annotated keys, home note right 49% → 60% with the blues-aware finder ([log E15](../../evaluation/log.md)). Labels are the tune's key, so 100% isn't reachable.

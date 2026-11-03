@@ -14,6 +14,7 @@
     {"pr": 34, "merged": "2026-11-03T04:38:19Z", "title": "Blues-aware key finder", "layer": "notation", "sets": ["weimar-key"], "measure": "Home key right (429 Weimar solos)", "before": "49.3% (blues 46.7%)", "after": "60.0% (blues 69.6%)", "kept": true, "entry": "E15"},
     {"pr": 35, "merged": "2026-11-03T05:05:50Z", "title": "Write only where the sax plays", "layer": "isolate + notation", "sets": ["omnibook-mix"], "measure": "Note F1 on 7XTyc (answer-key notes lost to cuts: 0)", "before": "56%", "after": "62%", "kept": true, "entry": "E16"},
     {"pr": 43, "merged": "2026-11-03T05:27:56Z", "title": "No sax-span cut where Demucs moved the horn into another melodic stem", "layer": "isolate", "sets": [], "measure": "Wrong cuts (older take)", "before": "1 (8 s)", "after": "0", "kept": true, "entry": "E16"},
-    {"pr": 44, "merged": null, "title": "Chromatic runs spelled with sharps going up, flats going down", "layer": "notation", "sets": [], "measure": "Spelling", "before": "Ab where the book has G#", "after": "to check", "kept": null, "entry": "E18"}
+    {"pr": 44, "merged": null, "title": "Chromatic runs spelled with sharps going up, flats going down", "layer": "notation", "sets": [], "measure": "Spelling", "before": "Ab where the book has G#", "after": "to check", "kept": null, "entry": "E18"},
+    {"pr": 52, "merged": null, "title": "Shortest note follows the take's tempo, with a fast-passage safeguard", "layer": "notes", "sets": ["grfia-alto", "grfia-tenor", "omnibook"], "measure": "Note F1", "before": "67.4 / 56.8 / 64.2%", "after": "76.3 / 67.4 / 64.2%", "kept": true, "entry": "E23"}
   ]
 }

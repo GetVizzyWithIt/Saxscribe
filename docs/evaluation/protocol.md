@@ -101,6 +101,25 @@ The app's Results page (PR #38, `/results`) merges the repo's
 A log entry without its `results.jsonl` line, or a table row without its
 `changes.json` object, is incomplete.
 
+## Rhythm scorecard (Weimar, no audio)
+
+`python -m saxscribe rhythm` (PR #53) scores Layer 4 alone. It feeds the
+Weimar Jazz Database's exact note timings and beats through the notation step
+and compares the written rhythm with the Weimar transcription, so no audio
+and no transcription errors are involved.
+
+| Measure | Meaning |
+| --- | --- |
+| Exact position | Note written at the same position in the bar as the transcription |
+| Right slot | Same grid slot (eighth, triplet, sixteenth) |
+| Right beat | Same beat, slot may differ |
+| Triplet / sixteenth / busy ratios | How often we write triplets, sixteenths or crowded beats compared with the transcription |
+| Notes kept | Notes written ÷ notes given (must be 100%, [ADR-0016](../decisions/0016-notation-never-drops-notes.md)) |
+
+Split: train/test by performer. Excluded: 12 Parker solos that are also in
+the Omnibook (Weimar melids 52, 53, 55, 58–61, 63, 64, 66–68), so rhythm
+tuning never sees an Omnibook solo.
+
 ## Known limitations
 
 - No f0-based pitch scoring yet, even where human-checked f0 exists.
