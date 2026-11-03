@@ -16,7 +16,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
 | 2026-11-03 | #43 | No sax-span cut where Demucs moved the horn into another melodic stem | isolate | older take | Wrong cuts | 1 (8 s) | 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
-| 2026-11-03 | — | First run on GRFIA-RealSax (preliminary) | all | 10 alto takes | Pitch correct | — | 80%, no octave errors | — | [E17](#e17--2026-11-03--grfia-realsax-first-10-alto-takes-preliminary) |
+| 2026-11-03 | — | First full run on GRFIA-RealSax (provisional; baseline, not a change) | all | grfia-alto / grfia-tenor, ~950 takes | Note F1 / pitch | — | 71 / 84% alto, 67 / 85% tenor | — | [E20](#e20--2026-11-03--grfia-realsax-full-scorecards-alto-and-tenor-provisional) |
 | 2026-11-03 | #35 | Write only where the sax plays | isolate + notation | omnibook-mix (7XTyc); Blues for Mary Jane | Note F1 on 7XTyc; answer-key notes lost to cuts | 56%; — | 62%; 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
 | 2026-11-03 | #34 | Blues-aware key finder | notation | Weimar, 429 solos | Home key right | 49.3% (blues 46.7%) | 60.0% (blues 69.6%) | yes | [E15](#e15--2026-11-03--key-finder-that-hears-the-blues-pr-34-merged) |
 | 2026-11-03 | #32 | Syncopations as one note | notation | Parker 7XTyc | Ties | 46 | 41 | yes | [E14](#e14--2026-11-03--syncopations-as-one-note-instead-of-tied-eighths-pr-32-merged) |
@@ -40,6 +40,8 @@ onset and note F1 untouched, so they are measured on the written score.
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
+| grfia-alto (~950 takes with tenor; provisional) | 84% | 71% recall | 71% | — | — | solo | E20 |
+| grfia-tenor (provisional) | 85% | 68% recall | 67% | — | — | solo | E20 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 70% | — | — | mix | E19 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
@@ -62,6 +64,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
+
+### E20 — 2026-11-03 — GRFIA-RealSax full scorecards, alto and tenor (provisional)
+- **Set**: `grfia-alto`, `grfia-tenor`, about 950 real takes, scores aligned to the audio by the etude aligner (tier B). Default settings, on the Mac. Supersedes the 10-take preliminary (E17).
+
+| Measure | Alto | Tenor |
+| --- | --- | --- |
+| Pitch accuracy | 84% | 85% |
+| Octave errors | 0.1% | 0.1% |
+| Onset recall | 71% | 68% |
+| Note F1 | 71% | 67% |
+
+- **By technique tag**:
+  - **Trills**: note F1 24% against about 57% elsewhere. The score writes one trilled note; we write every alternation. That is a labelling convention, not a detection miss: by the fidelity rule we keep the notes, and a "trill" articulation tag (F3a) would let notation show them as one written trill.
+  - **Bends and falls** cost alto pitch accuracy: 71–78% against 85%. The pitch line follows the bend, the score holds one pitch.
+  - **Vibrato**: no measurable effect (tagged in two-thirds of takes).
+- **Provisional**: the worst takes are answer-key alignment slips on short repetitive exercises (scales and patterns repeat, so the alignment can lock one repeat off). Being fixed in the build thread; re-run before these numbers are compared with other sets.
+- **What it shows**: first large real-sax test with both horns. Tenor scores close to alto, which is the first evidence that the default pipeline carries over to tenor. Octave errors are essentially gone on clean takes.
+- `results.jsonl` lines: *to copy* from the Mac.
 
 ### E19 — 2026-11-03 — First personal answer key: Blues for Mary Jane, intro and choruses 1–2
 - **Set**: Austin's own printed transcription of Stan Getz, "Blues for Mary Jane" (full quartet record), hand-entered for the intro and choruses 1–2: 136 notes, first 35 s, aligned to the recording. **The first personal answer key** ([ADR-0014](../decisions/0014-personal-answer-keys-from-paper.md), [datasheet](../data/datasheets/austin-recordings.md)). Tier B: aligned and hand-entered, not yet spot-checked note by note. Settings: default, app run, 2026-11-03.
@@ -87,10 +107,10 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Missing notes**: a few notes in the copy are absent from the PDF. They are **Basic Pitch detection misses (Layer 3)**, not notation losses: the notation layer wrote every sax note (1385 of 1385 in the runs log, 1310 of 1310 in the app run), and the first sax-span cut starts at 195 s, after the compared choruses (0–40 s). [ADR-0016](../decisions/0016-notation-never-drops-notes.md) holds. Note-by-note confirmation follows once the hand-entered answer key (intro and choruses 1–2) is aligned.
 - **Next**: rhythm quantisation (build thread); spelling from the chord or melodic direction (roadmap: chord-aware spelling).
 
-### E17 — 2026-11-03 — GRFIA-RealSax, first 10 alto takes (preliminary)
+### E17 — 2026-11-03 — GRFIA-RealSax, first 10 alto takes (preliminary, superseded by E20)
 - **Set**: GRFIA audio-to-score ("GRFIA-RealSax"), first 10 alto takes, default settings, on the Mac.
 - **Result**: pitch 80% correct, **no octave errors**. Exact measure (frame pitch accuracy or matched-note pitch) *to verify* with the build thread's scorecard.
-- **Status**: preliminary. The full run over about 1,000 takes is in progress; this entry will be replaced by its scorecard.
+- **Status**: superseded by E20 (full run, about 950 takes).
 
 ### E16 — 2026-11-03 — Write only where the sax plays (PR #35, merged)
 - **Finding**: on band records the score covered the whole track. Blues for Mary Jane came to about 419 bars against about 148 for Getz's solo: the piano solo bleeds into the sax stem and the bass solo adds junk. On Parker's 7XTyc, Basic Pitch wrote 8 to 17 notes per 4 s through a drum break.

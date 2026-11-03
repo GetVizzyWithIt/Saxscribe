@@ -31,7 +31,8 @@ Real players recording real horns. Room, microphones and number of players:
 - Pitch: the kern files sit an octave above concert pitch for both horns (checked on real takes); the loader subtracts 12.
 - Saxscribe (`score/kern.py`, `score/refs.py: load_grfia`, PR #33): reads the kern (ties joined, chords to top note, grace notes skipped), lines each score up with its take using the etude aligner (`score/align.py`: chroma DTW, then onsets snapped to heard attacks), and caches the key as JSON under `~/saxscribe-runs/keys/grfia-<horn>/`.
 - Takes whose length is outside 0.8–1.6× the score's length at its tempo (count-ins, repeats) are skipped and logged. Since PR #40, zero-length notes are dropped from keys and a take that can't be scored no longer stops the run.
-- The aligned keys are machine-made and not yet spot-checked: tier B.
+- The aligned keys are machine-made and not yet spot-checked: tier B. Known issue: on short, repetitive exercises (scales, patterns) the alignment can slip by a repeat; these are the worst-scoring takes (E20).
+- Labelling convention: a trill is written as one note in the score, so a transcription that writes every alternation scores low on trill takes. Score trill takes separately or by tag.
 
 ## Uses
 - **Scorecard sets**: `grfia-alto`, `grfia-tenor` (PR #33).
@@ -59,4 +60,7 @@ Real players recording real horns. Room, microphones and number of players:
 Version, md5 and folder recorded in `datasets/manifest.json` once downloaded.
 
 ## Saxscribe results
-- Preliminary (2026-11-03): first 10 alto takes, pitch 80% correct with no octave errors ([log E17](../../evaluation/log.md)). Full run over about 1,000 takes in progress.
+- 2026-11-03, full run (about 950 takes, provisional until alignment slips on short repetitive exercises are fixed) ([log E20](../../evaluation/log.md)):
+  - Alto: pitch 84%, onset recall 71%, note F1 71%. Tenor: pitch 85%, onset recall 68%, note F1 67%. Octave errors 0.1% on both.
+  - Trill takes: note F1 24% (score writes one trilled note; we write each alternation). Bends and falls: alto pitch 71–78%. Vibrato: no effect.
+- Superseded: the 10-take preliminary (pitch 80%, E17).
