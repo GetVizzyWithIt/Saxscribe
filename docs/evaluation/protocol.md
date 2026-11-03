@@ -11,12 +11,15 @@ on the fixed sets, in the PR description and in the log (CLAUDE.md).
 ## How to run
 
 ```bash
-python -m saxscribe score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR]
+python -m saxscribe score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR] [--note "..."]
 ```
 
 Each run keeps its take folders under `~/saxscribe-runs/<set>/<settings>/`
 (re-running a setting reuses lower layers) and writes `scorecard.md` and
 `scorecard.json` with per-recording rows and means against the targets.
+From PR #38 every run also appends one line (time, set, settings, means,
+git commit, optional `--note` label such as a training session) to
+`<runs>/results.jsonl`, by default `~/saxscribe-runs/results.jsonl`.
 
 ## Metrics (`saxscribe/score/metrics.py`, all mir_eval)
 
@@ -83,6 +86,20 @@ Each log entry records: date, commit, machine, set, split, settings
 (`--contour-tool`, `--notes-tool`), recordings scored, the metric means,
 note-count ratio when known, and what it shows in one or two sentences.
 Comparisons are on the same recordings with only one setting changed.
+
+### Three records of the same runs, kept in step
+
+| File | What it holds | Who writes it |
+| --- | --- | --- |
+| [log.md](log.md) | The readable record: one entry (E1, E2, ...) per run or finding, and the "Change by change" table | Docs thread |
+| `results.jsonl` (in `docs/evaluation/`) | One JSON line per scorecard run, with an `id` and the log `entry` it belongs to. E2–E17 were backfilled by hand with approximate times (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/results.jsonl` when a run is logged, same `id`, plus `"entry": "E18"` etc. |
+| `changes.json` (in `docs/evaluation/`) | One object per model or pipeline change: `pr`, `merged` (UTC or null), `title`, `layer`, `sets` it was measured on, `measure`, `before`, `after`, `kept`, `entry`. A non-empty `sets` makes it a score-moving marker | Docs thread, mirroring the "Change by change" table row for row |
+
+The app's Results page (PR #38, `/results`) merges the repo's
+`results.jsonl` with the Mac's, showing each run once, and draws
+`changes.json` as markers ([ADR-0025](../decisions/0025-scorecard-history-files.md)).
+A log entry without its `results.jsonl` line, or a table row without its
+`changes.json` object, is incomplete.
 
 ## Known limitations
 

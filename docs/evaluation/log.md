@@ -1,6 +1,7 @@
 # Evaluation log
 
 Every scorecard run, newest first. Protocol: [protocol.md](protocol.md).
+The same runs, machine-readable, are in [results.jsonl](results.jsonl) (one line per run, `entry` = the E-number here) and the change table below is mirrored in [changes.json](changes.json); both feed the app's Results page (PR #38). Keep all three in step ([protocol](protocol.md#three-records-of-the-same-runs-kept-in-step)).
 Machine is Austin's M3 Pro MacBook unless noted. "Default" = torchcrepe full
 for the contour, Basic Pitch for notes, Beat This! for beats.
 
