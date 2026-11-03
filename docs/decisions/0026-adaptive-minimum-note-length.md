@@ -1,7 +1,7 @@
 # ADR-0026: Basic Pitch's shortest note follows the take's tempo
 
 - **Date**: 2026-11-03
-- **Status**: Accepted, with the fidelity caveat below (PR #52)
+- **Status**: Accepted, conditional on restoring URMP onset recall (PR #52 merged; fix in progress)
 - **Decided by**: Claude (build thread), from a settings sweep
 - **PR**: #52
 
@@ -21,4 +21,5 @@ a pitch different from both neighbours. Keep the fixed 50 ms behaviour as
 ## Consequences
 - Note F1: GRFIA alto 67.4% → 76.3%, tenor 56.8% → 67.4%; Blues for Mary Jane 53.6% → 56.2%; Omnibook 64.2% → 64.2% ([log E23](../evaluation/log.md)).
 - **Fidelity caveat**: on the Omnibook, the fastest material we have, about 350 notes that match the answer key are no longer written (490 before the safeguard, 134 recovered). The same change removes about 350 ghost notes there, so the score is flat, but these are real played notes. Accepted because the gain on every other set is large; revisit with a trained onset model, and check the lost notes by hand on one Parker solo.
+- **Full scorecards** ([log E26](../evaluation/log.md)): Bach10 87.5% → 97.3%, ChoraleBricks 77.8% → 91.8%, GRFIA alto 66.5% → 75.8%, URMP 64.4% → 69.0%, Parker band records 56.4% → 57.8%, Omnibook flat. **But URMP onset recall fell 89% → 75%**: real short notes are dropped. That breaks the fidelity rule, so this ADR stays accepted only on condition the follow-up fix restores onset recall.
 - Every take's chosen minimum should be recorded in `take.json` so a lost note can be traced to the setting.
