@@ -60,6 +60,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E18 — 2026-11-03 — Blues for Mary Jane PDF against Austin's transcription, first two choruses (qualitative)
+- **What**: bar-by-bar reading of the app's tenor PDF against Austin's printed transcription (Stan Getz), first two choruses. A hand check, not a scorecard; numeric scoring waits on the OMR tool install (Austin to approve) so the transcription can become a personal answer key.
+- **Lines up**: bar count and bar lines, key (D on the tenor part, concert C).
+- **Pitch**: mostly right. Some enharmonic spellings differ from the copy (Ab written where the copy has G#, and the like).
+- **Rhythm, the weak spot**: extra triplets, sixteenths and ties where the copy has plain eighths and quarters; some pickups placed early or late.
+- **Missing notes**: a few notes in the copy are absent from the PDF. Whether they were never detected (Layer 3) or lost in notation (Layer 4) is *to check*; a notation-layer loss would break [ADR-0016](../decisions/0016-notation-never-drops-notes.md).
+- **Next**: rhythm quantisation (build thread); spelling from the chord or melodic direction (roadmap: chord-aware spelling).
+
 ### E17 — 2026-11-03 — GRFIA-RealSax, first 10 alto takes (preliminary)
 - **Set**: GRFIA audio-to-score ("GRFIA-RealSax"), first 10 alto takes, default settings, on the Mac.
 - **Result**: pitch 80% correct, **no octave errors**. Exact measure (frame pitch accuracy or matched-note pitch) *to verify* with the build thread's scorecard.

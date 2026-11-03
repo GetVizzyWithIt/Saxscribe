@@ -33,3 +33,4 @@ and are never uploaded or shared. Not in the repo.
 ## Status
 - 2026-11-02: none recorded yet. Scans to be sent in the UI thread.
 - 2026-11-03: first personal answer key under way: Austin's printed transcription of Stan Getz, "Blues for Mary Jane" (4 pages, concert C), being digitised. The record is Austin's own copy, on the Mac only. The transcription confirms Getz plays 0–192 s (intro plus 12 choruses), which PR #35's sax-span probe matched.
+- 2026-11-03: first hand comparison of the app's PDF against this transcription, two choruses ([log E18](../../evaluation/log.md)). Turning it into a scored answer key needs an OMR tool on the Mac (awaiting Austin's approval).

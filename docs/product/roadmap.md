@@ -63,6 +63,7 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
 - [x] MuseScore accepts every file: off-grid points after triplets moved to sixteenths (PR #26)
 - [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
+- [ ] Rhythm quantisation on real records: Blues for Mary Jane check shows extra triplets, sixteenths and ties, pickups early or late (log E18). Current focus
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
 - [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
 - [x] Syncopations as one note instead of tied eighths (PR #32; ties 46 → 41, log E14)
