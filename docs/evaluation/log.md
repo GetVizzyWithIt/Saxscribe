@@ -67,6 +67,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database (PR #53, open)
+- **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).
+- **Baseline**: pending, after merge.
+
+### E23 — 2026-11-03 — Basic Pitch shortest note set from the take's tempo (PR #52, open)
+- **Change**: the shortest note Basic Pitch keeps is 0.4 × the take's median gap between note starts, clamped to 50–128 ms (was a fixed 50 ms), with the melodia trick off. The old behaviour stays as `--notes-tool basic_pitch_fixed` ([ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)).
+- **Experiment** (Mac, settings sweep; versions in `~/saxscribe-runs/exp/2026-11-03-settings/pip-freeze.txt`), note F1 change:
+
+| Set | Note F1 change |
+| --- | --- |
+| GRFIA alto | +9.0 |
+| GRFIA tenor | +10.5 |
+| Blues for Mary Jane (Austin's key) | +2.0 |
+| Omnibook | −0.2, and 473 of 15,206 matched notes lost |
+
+- **Fidelity check**: on the Omnibook, the fastest material we have, 473 notes that matched the answer key (3.1%) are no longer written. Those are real notes, so this needs a look before the change is called done (project rule: the tool must not learn to omit notes). The full scorecards after merge should list which notes were lost and how short they were.
+- **Full scorecards**: pending, after merge.
+
 ### E22 — 2026-11-03 — GRFIA-RealSax rescored with the final answer keys (after PR #47): current numbers
 - **Set**: `grfia-alto`, `grfia-tenor`, same takes and default settings as E20; only the answer keys changed (PR #46 beat alignment, PR #47 per-take choice by pitch agreement). Not a model change.
 

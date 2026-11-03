@@ -53,6 +53,7 @@ Last updated 2026-11-03.
 - **Same notes, different files**: OrchideaSOL's "ordinario" notes are the same
   99 performances as TinySOL, processed differently. Never put one in train
   and the other in test.
+- **Same solo, two datasets**: 12 Weimar Parker solos (melids 52, 53, 55, 58–61, 63, 64, 66–68) are also Omnibook solos; the rhythm scorecard leaves them out.
 - **Same solo, two versions**: `omnibook` and `omnibook-mix` are the same
   performances; both go on the same side of any split.
 - **Thresholds are tuned on train splits only.**
