@@ -40,7 +40,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
 | omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
-| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% ✓ | 66.5%‡ | 78.5% | — | solo | E22 |
+| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 66.5%‡ | 78.5% | — | solo | E22 |
 | grfia-tenor | 87.2% | 75.1% | 57.8%‡ | 73.8% | — | solo | E22 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 54% | 70% | — | mix | E19 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
