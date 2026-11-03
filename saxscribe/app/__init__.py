@@ -11,7 +11,8 @@ on an iPad on the music stand.
   score_view.py  the score for the page (Verovio SVG), its timing map, and the
                  written part for another horn when asked
   server.py      the web server (FastAPI) and its routes
-  static/        the two pages: the library and the play-along
+  static/        the pages: the library, the play-along, and Results (the
+                 scorecard history from score/history.py)
 
 The app adds no analysis of its own. It runs pipeline.transcribe() and shows
 what the four layers wrote, so a take folder made here is the same as one

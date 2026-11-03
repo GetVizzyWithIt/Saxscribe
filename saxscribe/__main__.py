@@ -116,7 +116,7 @@ def run_app(args) -> int:
         import threading
         import webbrowser
         threading.Timer(1.0, lambda: webbrowser.open(local)).start()
-    uvicorn.run(create_app(library, args.port), host=args.host, port=args.port, log_level="warning")
+    uvicorn.run(create_app(library, args.port, args.runs), host=args.host, port=args.port, log_level="warning")
     return 0
 
 
@@ -140,6 +140,7 @@ def main(argv: list[str] | None = None) -> int:
     ap_app = sub.add_parser("app", help="the web app: upload, sheet music, play-along")
     ap_app.add_argument("--library", help="where uploads and their takes live (default ~/saxscribe-library)")
     ap_app.add_argument("--port", type=int, default=8765)
+    ap_app.add_argument("--runs", help="scorecard runs folder whose results.jsonl the Results page reads (default ~/saxscribe-runs)")
     ap_app.add_argument("--host", default="0.0.0.0",
                         help="0.0.0.0 lets an iPad on the same Wi-Fi open it; 127.0.0.1 keeps it to this Mac")
     ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
@@ -152,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--limit", type=int, help="only the first N recordings")
     sc.add_argument("--runs", help="where take folders and the scorecard go (default ~/saxscribe-runs)")
     sc.add_argument("--redo", choices=LAYERS)
+    sc.add_argument("--note", help="a few words saved with the run and shown on the Results page, e.g. \"CREPE fine-tuned on GRFIA, v1\"")
     sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "segment", "contour"), default="auto")
 
@@ -183,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
-                 args.notes_tool, args.redo)
+                 args.notes_tool, args.redo, args.note)
         return 0
     if args.cmd == "answer-key":
         from .score import align

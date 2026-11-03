@@ -81,6 +81,10 @@ def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path, monkeypatch):
     out = tmp_path / "runs" / "pairs" / "contour-pyin-notes-contour"
     assert (out / "scorecard.md").read_text().startswith("# Scorecard: pairs")
     assert json.loads((out / "scorecard.json").read_text())["rows"][0]["id"] == "phrase"
+    # and the run is added to the history the Results page plots
+    line = json.loads((tmp_path / "runs" / "results.jsonl").read_text().splitlines()[-1])
+    assert line["set"] == "pairs" and line["settings"] == "contour-pyin-notes-contour" and not line["default"]
+    assert line["metrics"]["onset_f1"] == result["mean"]["onset_f1"]
     assert asked == []                     # no PDFs (no MuseScore) during a scorecard
     assert "SAXSCRIBE_MUSESCORE" not in __import__("os").environ   # and the setting is put back
 
