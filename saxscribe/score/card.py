@@ -6,7 +6,8 @@
 
 Each run's take folders are kept under ~/saxscribe-runs/<set>/<settings>/, so
 changing a setting re-runs only what it touches, and comparing two settings
-is two commands. Writes scorecard.md and scorecard.json there.
+is two commands. Writes scorecard.md and scorecard.json there, and adds the
+run to <runs>/results.jsonl, which the app's Results page plots (history.py).
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ import numpy as np
 from .. import frontend
 from ..pipeline import transcribe
 from ..take import Take
-from . import metrics, refs
+from . import history, metrics, refs
 
 # v1 targets from the requirements doc: (solo recording, full mix).
 TARGETS = {"pitch_accuracy": (0.97, 0.90), "onset_f1": (0.90, 0.75), "note_f1": (0.80, 0.60),
@@ -38,7 +39,7 @@ def settings_name(contour_tool: str, notes_tool: str) -> str:
 
 def run(set_name: str, data: str | None = None, split: str = "all", limit: int | None = None,
         runs: str | None = None, contour_tool: str = "auto", notes_tool: str = "auto",
-        redo: str | None = None) -> dict:
+        redo: str | None = None, note: str | None = None) -> dict:
     items = refs.load(set_name, data, split)
     if limit:
         items = items[:limit]
@@ -67,6 +68,7 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
     (out_dir / "scorecard.md").write_text(md)
     print(md)
     frontend.log(f"Scorecard: {out_dir / 'scorecard.md'}")
+    history.append(history.record(card, note), base)
     return card
 
 

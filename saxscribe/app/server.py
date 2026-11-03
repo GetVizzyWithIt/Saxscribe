@@ -5,9 +5,12 @@ Pages:
   /take/<id>         the play-along for one take
   /take/<id>/pdf     the PDF (MuseScore's), or the print page when there is none
   /take/<id>/print   the score as letter pages, to print or save as PDF from the browser
+  /results           the scorecard history: every run per test set over time, with
+                     a marker for each model or pipeline change
 
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
+  GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/takes                 every take, newest first
   POST /api/takes                 upload (form: file, horn, mix, title, artist)
   GET  /api/takes/<id>            one take's status
@@ -57,7 +60,7 @@ def file_name(job: dict, view: str) -> str:
     return re.sub(r'[\\/:*?"<>|]+', "", name).strip() or "score"
 
 
-def create_app(library: Library, port: int = 8765) -> FastAPI:
+def create_app(library: Library, port: int = 8765, runs: str | Path | None = None) -> FastAPI:
     app = FastAPI(title="Saxscribe", docs_url=None, redoc_url=None)
 
     def take_or_404(take_id: str):
@@ -82,6 +85,15 @@ def create_app(library: Library, port: int = 8765) -> FastAPI:
     @app.get("/", include_in_schema=False)
     def index():
         return FileResponse(STATIC / "index.html")
+
+    @app.get("/results", include_in_schema=False)
+    def results_page():
+        return FileResponse(STATIC / "results.html")
+
+    @app.get("/api/results")
+    def results():
+        from ..score import history
+        return history.dashboard_data(runs)
 
     @app.get("/take/{take_id}", include_in_schema=False)
     def play(take_id: str):

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saxscribe results</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/results.css">
+</head>
+<body>
+<div class="wrap wide">
+  <div class="head"><h1>Results</h1><a class="button" href="/">Library</a></div>
+  <p class="quiet">How the transcriber scores on each test set, run by run. Each vertical line is a model or
+    pipeline change, labelled with its pull request. Lines join runs with the default settings; open
+    circles are runs that tried other settings.</p>
+
+  <div class="filters">
+    <div class="seg" id="range" role="group" aria-label="Time range">
+      <button type="button" data-v="all" class="on">All runs</button><button type="button" data-v="30">Last 30 days</button><button type="button" data-v="7">Last 7 days</button>
+    </div>
+    <div class="seg" id="marks" role="group" aria-label="Which changes to mark">
+      <button type="button" data-v="scored" class="on">Changes that move scores</button><button type="button" data-v="all">Every change</button>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>Where each set stands</h2>
+    <p class="quiet small">Latest run with the default settings. ✓ meets the v1 target (solo-recording targets for
+      sets of the sax alone, full-mix targets for sets taken from band records).</p>
+    <div class="scroll"><table class="grid" id="standings"></table></div>
+  </section>
+
+  <div class="legend" id="legend" aria-label="Legend"></div>
+  <div class="panels" id="panels"><p class="quiet">Loading…</p></div>
+
+  <section class="card">
+    <h2>Change by change</h2>
+    <p class="quiet small">Each model or pipeline change and what it did, newest first. Notation changes don't move
+      pitch, onset or note scores, so they are measured on the written score. The same table heads
+      <code>docs/evaluation/log.md</code>.</p>
+    <div class="scroll"><table class="grid" id="changes"></table></div>
+  </section>
+
+  <details class="card">
+    <summary><h2 class="inline">Every run</h2> <span class="quiet small">(the numbers behind the charts)</span></summary>
+    <div class="scroll"><table class="grid" id="runs"></table></div>
+  </details>
+
+  <p class="quiet small" id="sources"></p>
+</div>
+<div class="tip" id="tip" role="status" hidden></div>
+<script src="/static/common.js"></script>
+<script src="/static/results.js"></script>
+</body>
+</html>
