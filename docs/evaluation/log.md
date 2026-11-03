@@ -65,7 +65,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Lines up**: bar count and bar lines, key (D on the tenor part, concert C).
 - **Pitch**: mostly right. Some enharmonic spellings differ from the copy (Ab written where the copy has G#, and the like).
 - **Rhythm, the weak spot**: extra triplets, sixteenths and ties where the copy has plain eighths and quarters; some pickups placed early or late.
-- **Missing notes**: a few notes in the copy are absent from the PDF. Whether they were never detected (Layer 3) or lost in notation (Layer 4) is *to check*; a notation-layer loss would break [ADR-0016](../decisions/0016-notation-never-drops-notes.md).
+- **Missing notes**: a few notes in the copy are absent from the PDF. They are **Basic Pitch detection misses (Layer 3)**, not notation losses: the notation layer wrote every sax note (1385 of 1385 in the runs log, 1310 of 1310 in the app run), and the first sax-span cut starts at 195 s, after the compared choruses (0–40 s). [ADR-0016](../decisions/0016-notation-never-drops-notes.md) holds. Note-by-note confirmation follows once the hand-entered answer key (intro and choruses 1–2) is aligned.
 - **Next**: rhythm quantisation (build thread); spelling from the chord or melodic direction (roadmap: chord-aware spelling).
 
 ### E17 — 2026-11-03 — GRFIA-RealSax, first 10 alto takes (preliminary)
