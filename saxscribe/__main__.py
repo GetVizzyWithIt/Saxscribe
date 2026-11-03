@@ -145,7 +145,8 @@ def main(argv: list[str] | None = None) -> int:
     ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
 
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
-    sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs"))
+    sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs",
+                                           "grfia-alto", "grfia-tenor"))
     sc.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
     sc.add_argument("--split", choices=("all", "train", "test"), default="all")
     sc.add_argument("--limit", type=int, help="only the first N recordings")
