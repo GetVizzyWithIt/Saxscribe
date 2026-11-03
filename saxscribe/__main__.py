@@ -5,7 +5,7 @@
 
   A sax part inside a full band recording (separates stems first):
     python -m saxscribe transcribe record.mp3 --mix
-    python -m saxscribe transcribe record.mp3 --mix --stem piano --redo isolate
+    python -m saxscribe transcribe record.mp3 --mix --stem guitar --redo isolate
 
   A whole folder of recordings:
     python -m saxscribe transcribe ~/Music/Takes/
@@ -128,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("paths", nargs="+", help="audio files or folders of them")
     t.add_argument("-o", "--out", help="output folder (one file only); default: <file>.saxscribe/ next to it")
     t.add_argument("--mix", action="store_true", help="the sax is inside a full band: separate stems first")
-    t.add_argument("--stem", help="which Demucs stem holds the sax (default: other)")
+    t.add_argument("--stem", help="which Demucs stem holds the sax: auto (default) picks by lead score; or a name such as other or guitar, or a sum such as other+guitar")
     t.add_argument("--horn", choices=sorted(HORNS), default="alto")
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
