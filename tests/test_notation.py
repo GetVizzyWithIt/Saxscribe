@@ -261,6 +261,7 @@ def test_written_part_is_spelled_in_its_own_key():
             names = {}
             for n in score.recurse().notes:
                 names.setdefault(n.pitch.pitchClass, set()).add(n.pitch.name)
+            # one rising run: each pitch spelled one way all through (sharps going up)
             assert all(len(v) == 1 for v in names.values()), (horn, key, names)
             assert [n.pitch.midi for n in score.recurse().notes] == [58 + i + HORNS[horn].written_shift
                                                                      for i in range(24)]
@@ -361,3 +362,18 @@ def test_syncopations_are_written_as_one_note_not_tied_eighths(tmp_path):
     assert musicxml_problems(path) == []
     assert not any(n.tie for n in score.recurse().notes)
     assert [n.duration.quarterLength for n in score.recurse().notes] == [0.5, 1.0, 0.5, 2.0]
+
+
+def test_chromatic_notes_are_spelled_the_way_the_line_moves():
+    up = notation.spell(66, "C major", rising=True).name      # F# on the way up
+    down = notation.spell(66, "C major", rising=False).name   # Gb on the way down
+    assert (up, down) == ("F#", "G-")
+    assert notation.spell(66, "C major").name == "G-"          # no direction: the key's way (flats in C)
+    assert notation.spell(66, "D major", rising=False).name == "F#"   # in the key: never respelled
+
+
+def test_a_rising_chromatic_run_is_written_in_sharps():
+    r = {"key": "C major", "tempo_bpm": 120,
+         "notes": [{"start": F(i, 2), "length": F(1, 2), "pitch": p} for i, p in enumerate([65, 66, 67, 68, 69])]}
+    names = [n.pitch.name for n in notation.build_score(r, HORNS["alto"], written=False).recurse().notes]
+    assert names == ["F", "F#", "G", "G#", "A"]
