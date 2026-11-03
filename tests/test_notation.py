@@ -264,3 +264,34 @@ def test_written_part_is_spelled_in_its_own_key():
             assert all(len(v) == 1 for v in names.values()), (horn, key, names)
             assert [n.pitch.midi for n in score.recurse().notes] == [58 + i + HORNS[horn].written_shift
                                                                      for i in range(24)]
+
+
+def test_off_grid_spots_after_a_triplet_are_cleaned_up(tmp_path):
+    """Blues for Mary Jane bar 63: a squeeze after a triplet point left a note on
+    23/24 of a beat, written as a 6:5 tuplet that MuseScore refused (exit 40)."""
+    placed = [{"index": 0, "start": F(0), "length": F(3, 4), "pitch": 62},
+              {"index": 1, "start": F(3, 4), "length": F(5, 24), "pitch": 74},
+              {"index": 2, "start": F(23, 24), "length": F(1, 24), "pitch": 62},
+              {"index": 3, "start": F(1), "length": F(2, 3), "pitch": 64},
+              {"index": 4, "start": F(5, 3) + F(1, 8), "length": F(5, 24), "pitch": 65},
+              {"index": 5, "start": F(2), "length": F(2), "pitch": 67}]
+    fixed = notation.one_grid_per_beat([dict(p) for p in placed])
+    assert len(fixed) == len(placed)
+    points = [x for p in fixed for x in (p["start"], p["start"] + p["length"])]
+    assert all(notation.on_grid(x) for x in points)
+    assert all(b["start"] > a["start"] for a, b in zip(fixed, fixed[1:]))
+    path = tmp_path / "bar63.musicxml"
+    notation.build_score({"key": "C minor", "tempo_bpm": 120, "notes": fixed}, HORNS["tenor"], True
+                         ).write("musicxml", fp=str(path))
+    assert musicxml_problems(path) == []
+
+
+def test_pdfs_can_be_turned_off(take, tmp_path, monkeypatch):
+    fake = tmp_path / "mscore"
+    fake.write_text('#!/bin/sh\ntouch "$2"\nexit 1\n')
+    fake.chmod(0o755)
+    from saxscribe.layers import engrave
+    monkeypatch.setenv("SAXSCRIBE_MUSESCORE", "off")
+    assert engrave.turned_off() and engrave.find_musescore() is None
+    assert not engrave.to_pdf(take.musicxml, tmp_path / "score.pdf")
+    assert not (tmp_path / "score.pdf").exists()
