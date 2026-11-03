@@ -85,3 +85,32 @@ def test_load_grfia_pairs_takes_with_scores_and_caches_the_aligned_key(tmp_path,
     assert (tmp_path / "keys" / "grfia-alto" / "Ex2.json").exists()   # the skip is cached too
     refs.load_grfia(tmp_path, "alto")
     assert calls == ["Ex1.wav"]   # aligned once, then read from the cache
+
+
+def test_tidy_gives_every_key_note_a_length_and_keeps_them_all():
+    from saxscribe.score.align import MIN_NOTE, tidy
+    # A thirty-second warped onto the same instant as its neighbour (seen on GRFIA alto 000100047).
+    notes = [{"onset": 1.0, "offset": 1.1146, "pitch": 71},
+             {"onset": 1.1146, "offset": 1.1146, "pitch": 69},
+             {"onset": 1.1146, "offset": 1.4, "pitch": 67}]
+    out = tidy(notes)
+    assert [n["pitch"] for n in out] == [71, 69, 67]
+    assert all(n["offset"] - n["onset"] >= MIN_NOTE - 1e-9 for n in out)
+    assert all(a["onset"] < b["onset"] for a, b in zip(out, out[1:]))
+
+
+def test_cached_grfia_keys_are_tidied_on_load(tmp_path, monkeypatch):
+    import json
+    root = tmp_path / "real_a2s_sax_dataset"
+    (root / "real" / "tenor").mkdir(parents=True)
+    (root / "krn" / "tenor").mkdir(parents=True)
+    (root / "krn" / "tenor" / "T1.krn").write_text(KERN)
+    sf.write(root / "real" / "tenor" / "T1.wav", np.zeros(8000), 8000)
+    cache = tmp_path / "keys" / "grfia-tenor"
+    cache.mkdir(parents=True)
+    (cache / "T1.json").write_text(json.dumps({"notes": [
+        {"onset": 3.0, "offset": 3.9474, "pitch": 50, "beat": 4.5},
+        {"onset": 3.9474, "offset": 3.9474, "pitch": 49, "beat": 4.875}], "meter": "4/4", "tempo": 96}))
+    monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
+    r = refs.load_grfia(tmp_path, "tenor")[0]
+    assert all(n["offset"] > n["onset"] for n in r.notes)

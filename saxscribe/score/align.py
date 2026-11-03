@@ -96,9 +96,28 @@ def align_notes(audio: Path, notes: list[dict]) -> list[dict]:
             k = int(np.argmin(np.abs(onsets - t0)))
             if abs(onsets[k] - t0) <= SNAP:
                 t0 = float(onsets[k])
-        out.append({"onset": t0, "offset": max(t1, t0 + 0.03), "pitch": n["pitch"], "beat": float(n["start"])})
+        out.append({"onset": t0, "offset": max(t1, t0 + MIN_NOTE), "pitch": n["pitch"], "beat": float(n["start"])})
+    return tidy(out)
+
+
+MIN_NOTE = 0.03  # seconds: the shortest note an answer key may hold
+
+
+def tidy(notes: list[dict]) -> list[dict]:
+    """Every key note keeps a length of at least MIN_NOTE and starts after the one before.
+
+    Warping can put a very short note (a thirty-second) on the same instant as
+    its neighbour, which left it with no length at all and stopped the scoring
+    (mir_eval needs every note to last). Such a note moves just after the one
+    before it rather than being dropped."""
+    out = sorted((dict(n) for n in notes), key=lambda n: n["onset"])
     for a, b in zip(out, out[1:]):
-        a["offset"] = min(a["offset"], b["onset"])
+        if b["onset"] < a["onset"] + MIN_NOTE:
+            b["onset"] = a["onset"] + MIN_NOTE
+    for a, b in zip(out, out[1:]):
+        a["offset"] = min(max(a["offset"], a["onset"] + MIN_NOTE), b["onset"])
+    if out:
+        out[-1]["offset"] = max(out[-1]["offset"], out[-1]["onset"] + MIN_NOTE)
     return out
 
 

@@ -136,7 +136,11 @@ def score_items(items, out_dir, contour_tool, notes_tool, redo) -> list[dict]:
                           contour_tool=contour_tool, notes_tool=notes_tool, redo=redo)
         row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "horn": ref.extra.get("horn", "alto"),
                "split": refs.split_of(ref)}
-        row.update(metrics.score_take(ref, take))
+        try:
+            row.update(metrics.score_take(ref, take))
+        except ValueError as exc:  # one bad answer key must not stop a long run
+            frontend.log(f"  could not score {ref.id}: {exc}; left out of the card")
+            continue
         minutes = max(n["offset"] for n in ref.notes) / 60 if ref.notes else 0
         timing = take.read_manifest().get("seconds_per_minute")
         if fresh and minutes:
