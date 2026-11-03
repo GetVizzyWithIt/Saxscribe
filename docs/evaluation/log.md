@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-03 | #52 (open) | Shortest note follows the take's tempo, fast-passage safeguard | notes | grfia-alto / grfia-tenor / omnibook | Note F1 | 67.4 / 56.8 / 64.2% | 76.3 / 67.4 / 64.2% | yes | [E23](#e23--2026-11-03--basic-pitch-shortest-note-set-from-the-takes-tempo-with-a-fast-passage-safeguard-pr-52) |
+| 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | grfia-alto / grfia-tenor / omnibook | Note F1 | 67.4 / 56.8 / 64.2% | 76.3 / 67.4 / 64.2% | yes | [E23](#e23--2026-11-03--basic-pitch-shortest-note-set-from-the-takes-tempo-with-a-fast-passage-safeguard-pr-52) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
 | 2026-11-03 | #43 | No sax-span cut where Demucs moved the horn into another melodic stem | isolate | older take | Wrong cuts | 1 (8 s) | 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
 | 2026-11-03 | — | First full run on GRFIA-RealSax (provisional; baseline, not a change) | all | grfia-alto / grfia-tenor, ~950 takes | Note F1 / pitch | — | 58 / 84% alto, 54 / 85% tenor | — | [E20](#e20--2026-11-03--grfia-realsax-full-scorecards-alto-and-tenor-provisional) |
@@ -82,7 +82,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **What it shows**: both alternatives are slower and worse here; they leave piano and guitar in the stem the sax lands in. Averaging two shifts helps a little at 50% more time.
 - **Decision**: keep `htdemucs_6s` ([ADR-0027](../decisions/0027-keep-htdemucs-6s.md)); two shifts may become an optional quality setting later.
 
-### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database (PR #53, open)
+### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database (PR #53, merged)
 - **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).
 - **Baseline**: pending, after merge.
 
