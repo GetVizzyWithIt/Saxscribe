@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import os
+import tempfile
+
 import pytest
 
 from saxscribe.pipeline import transcribe
 
 from . import fixture
+
+# Tests never write to the real Desktop: the app's copy goes to a temp folder.
+DESKTOP = os.environ.setdefault("SAXSCRIBE_DESKTOP", tempfile.mkdtemp(prefix="saxscribe-desktop-"))
 
 
 @pytest.fixture(scope="session")

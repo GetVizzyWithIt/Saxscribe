@@ -207,9 +207,25 @@ class Library:
             return
         if code == 0:
             self._set(take_id, state="done", finished=time.strftime("%Y-%m-%dT%H:%M:%S"))
+            self.copy_to_desktop(take_id)
         else:
             tail = last_lines(f / "log.txt", 1)
             self._set(take_id, state="failed", error=tail[0] if tail else f"exit code {code}")
+
+    def copy_to_desktop(self, take_id: str) -> None:
+        """Copy the finished sheet music to ~/Desktop/Saxscribe (see export.py)."""
+        from .export import copy_out
+        f = self.root / take_id
+        try:
+            dst = copy_out(self.take(take_id), json.loads((f / "job.json").read_text()))
+        except Exception as exc:  # the upload worked; only the copy didn't
+            with open(f / "log.txt", "a") as log:
+                log.write(f"[saxscribe] Could not copy to the Desktop: {exc}\n")
+            return
+        if dst is not None:
+            self._set(take_id, desktop=str(dst))
+            with open(f / "log.txt", "a") as log:
+                log.write(f"[saxscribe] Copied the sheet music to {dst}\n")
 
     # ---------------------------------------------------------------- stop, retry, remove
 

@@ -204,3 +204,21 @@ def test_musescore_files_have_no_printed_credits():
     assert "<credit" not in plain.replace("<creator", "") and "<rights>" not in plain
     assert '<creator type="composer">As played by Player</creator>' in plain
     assert plain.count("<credit page") == 0 and stamp(xml, "Song", "Player", credits=True).count("<credit page") == 3
+
+
+def test_a_finished_upload_is_copied_to_the_desktop_folder(client):
+    import os
+    from pathlib import Path
+    job = client.get(f"/api/takes/{client.take_id}").json()
+    dst = Path(os.environ["SAXSCRIBE_DESKTOP"]) / "Fixture phrase"
+    assert job.get("desktop") == str(dst)
+    names = sorted(p.name for p in dst.iterdir())
+    assert "Fixture phrase (alto).musicxml" in names and "Fixture phrase (concert).musicxml" in names
+    assert "Fixture phrase.mid" in names
+    assert "Fixture phrase" in (dst / "Fixture phrase (alto).musicxml").read_text()   # title in the file
+
+
+def test_the_desktop_copy_can_be_turned_off(monkeypatch):
+    from saxscribe.app import export
+    monkeypatch.setenv("SAXSCRIBE_DESKTOP", "off")
+    assert export.folder_setting() is None
