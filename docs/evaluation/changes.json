@@ -1,167 +1,17 @@
 {
   "about": "Model and pipeline changes drawn as markers on the app's Results page. Mirrors the 'Change by change' table in log.md: keep the two in step. merged is the PR's merge time (UTC); null while the PR is open. sets names the scorecard sets the change was measured on.",
   "changes": [
-    {
-      "pr": 6,
-      "merged": "2026-11-02T07:46:40Z",
-      "title": "CREPE Notes style note cutter (option, not default)",
-      "layer": "notes",
-      "sets": [
-        "omnibook"
-      ],
-      "measure": "Note F1",
-      "before": "64.2% (Basic Pitch)",
-      "after": "59.8% (cutter)",
-      "kept": false,
-      "entry": "E9"
-    },
-    {
-      "pr": 10,
-      "merged": "2026-11-02T20:52:19Z",
-      "title": "Join notes Basic Pitch splits",
-      "layer": "notes",
-      "sets": [
-        "urmp",
-        "bach10",
-        "choralebricks"
-      ],
-      "measure": "Note F1",
-      "before": "64.4 / 87.5 / 77.8%",
-      "after": "62.8 / 77.1 / 72.1%",
-      "kept": false,
-      "entry": "E8"
-    },
-    {
-      "pr": 15,
-      "merged": "2026-11-02T22:11:20Z",
-      "title": "Never drop notes without a beat grid",
-      "layer": "notation",
-      "sets": [],
-      "measure": "Notes written (Parker solo PDF)",
-      "before": "42 of 398",
-      "after": "398 of 398",
-      "kept": true,
-      "entry": "E5"
-    },
-    {
-      "pr": 16,
-      "merged": "2026-11-02T22:14:11Z",
-      "title": "Grade only inside the answer key's span (grading fix)",
-      "layer": "scorecard",
-      "sets": [
-        "omnibook"
-      ],
-      "measure": "Note F1 / onset F1",
-      "before": "45.0% / 60.4%",
-      "after": "64% / 86%",
-      "kept": true,
-      "entry": "E6"
-    },
-    {
-      "pr": 21,
-      "merged": "2026-11-03T01:26:30Z",
-      "title": "Readability pass",
-      "layer": "notation",
-      "sets": [],
-      "measure": "Swung eighths misplaced / triplets right",
-      "before": "~33 / ~4",
-      "after": "~3 / ~45",
-      "kept": true,
-      "entry": "E7"
-    },
-    {
-      "pr": 22,
-      "merged": "2026-11-03T01:26:41Z",
-      "title": "Split-note join turned off",
-      "layer": "notes",
-      "sets": [
-        "urmp",
-        "bach10",
-        "choralebricks"
-      ],
-      "measure": "Note F1",
-      "before": "62.8 / 77.1 / 72.1%",
-      "after": "64.4 / 87.5 / 77.8%",
-      "kept": true,
-      "entry": "E8"
-    },
-    {
-      "pr": 24,
-      "merged": "2026-11-03T01:27:03Z",
-      "title": "Auto pick of the Demucs stem holding the sax",
-      "layer": "isolate",
-      "sets": [
-        "omnibook-mix"
-      ],
-      "measure": "Note F1 / s per min",
-      "before": "50.6% / 110",
-      "after": "56.4% / 64",
-      "kept": true,
-      "entry": "E11"
-    },
-    {
-      "pr": 26,
-      "merged": "2026-11-03T01:30:34Z",
-      "title": "Off-grid points moved to sixteenths",
-      "layer": "notation",
-      "sets": [],
-      "measure": "Files MuseScore refuses",
-      "before": "1",
-      "after": "0",
-      "kept": true,
-      "entry": "E12"
-    },
-    {
-      "pr": 29,
-      "merged": "2026-11-03T02:36:22Z",
-      "title": "Beat from the notes on lone sax",
-      "layer": "notation",
-      "sets": [],
-      "measure": "32nd notes / plain eighths (Parker 7XTyc)",
-      "before": "80 / 88",
-      "after": "1 / 231",
-      "kept": true,
-      "entry": "E13"
-    },
-    {
-      "pr": 32,
-      "merged": "2026-11-03T04:36:10Z",
-      "title": "Syncopations as one note",
-      "layer": "notation",
-      "sets": [],
-      "measure": "Ties (Parker 7XTyc)",
-      "before": "46",
-      "after": "41",
-      "kept": true,
-      "entry": "E14"
-    },
-    {
-      "pr": 34,
-      "merged": "2026-11-03T04:38:19Z",
-      "title": "Blues-aware key finder",
-      "layer": "notation",
-      "sets": [
-        "weimar-key"
-      ],
-      "measure": "Home key right (429 Weimar solos)",
-      "before": "49.3% (blues 46.7%)",
-      "after": "60.0% (blues 69.6%)",
-      "kept": true,
-      "entry": "E15"
-    },
-    {
-      "pr": 35,
-      "merged": "2026-11-03T05:05:50Z",
-      "title": "Write only where the sax plays",
-      "layer": "isolate + notation",
-      "sets": [
-        "omnibook-mix"
-      ],
-      "measure": "Note F1 on 7XTyc (answer-key notes lost to cuts: 0)",
-      "before": "56%",
-      "after": "62%",
-      "kept": true,
-      "entry": "E16"
-    }
+    {"pr": 6, "merged": "2026-11-02T07:46:40Z", "title": "CREPE Notes style note cutter (option, not default)", "layer": "notes", "sets": ["omnibook"], "measure": "Note F1", "before": "64.2% (Basic Pitch)", "after": "59.8% (cutter)", "kept": false, "entry": "E9"},
+    {"pr": 10, "merged": "2026-11-02T20:52:19Z", "title": "Join notes Basic Pitch splits", "layer": "notes", "sets": ["urmp", "bach10", "choralebricks"], "measure": "Note F1", "before": "64.4 / 87.5 / 77.8%", "after": "62.8 / 77.1 / 72.1%", "kept": false, "entry": "E8"},
+    {"pr": 15, "merged": "2026-11-02T22:11:20Z", "title": "Never drop notes without a beat grid", "layer": "notation", "sets": [], "measure": "Notes written (Parker solo PDF)", "before": "42 of 398", "after": "398 of 398", "kept": true, "entry": "E5"},
+    {"pr": 16, "merged": "2026-11-02T22:14:11Z", "title": "Grade only inside the answer key's span (grading fix)", "layer": "scorecard", "sets": ["omnibook"], "measure": "Note F1 / onset F1", "before": "45.0% / 60.4%", "after": "64% / 86%", "kept": true, "entry": "E6"},
+    {"pr": 21, "merged": "2026-11-03T01:26:30Z", "title": "Readability pass", "layer": "notation", "sets": [], "measure": "Swung eighths misplaced / triplets right", "before": "~33 / ~4", "after": "~3 / ~45", "kept": true, "entry": "E7"},
+    {"pr": 22, "merged": "2026-11-03T01:26:41Z", "title": "Split-note join turned off", "layer": "notes", "sets": ["urmp", "bach10", "choralebricks"], "measure": "Note F1", "before": "62.8 / 77.1 / 72.1%", "after": "64.4 / 87.5 / 77.8%", "kept": true, "entry": "E8"},
+    {"pr": 24, "merged": "2026-11-03T01:27:03Z", "title": "Auto pick of the Demucs stem holding the sax", "layer": "isolate", "sets": ["omnibook-mix"], "measure": "Note F1 / s per min", "before": "50.6% / 110", "after": "56.4% / 64", "kept": true, "entry": "E11"},
+    {"pr": 26, "merged": "2026-11-03T01:30:34Z", "title": "Off-grid points moved to sixteenths", "layer": "notation", "sets": [], "measure": "Files MuseScore refuses", "before": "1", "after": "0", "kept": true, "entry": "E12"},
+    {"pr": 29, "merged": "2026-11-03T02:36:22Z", "title": "Beat from the notes on lone sax", "layer": "notation", "sets": [], "measure": "32nd notes / plain eighths (Parker 7XTyc)", "before": "80 / 88", "after": "1 / 231", "kept": true, "entry": "E13"},
+    {"pr": 32, "merged": "2026-11-03T04:36:10Z", "title": "Syncopations as one note", "layer": "notation", "sets": [], "measure": "Ties (Parker 7XTyc)", "before": "46", "after": "41", "kept": true, "entry": "E14"},
+    {"pr": 34, "merged": "2026-11-03T04:38:19Z", "title": "Blues-aware key finder", "layer": "notation", "sets": ["weimar-key"], "measure": "Home key right (429 Weimar solos)", "before": "49.3% (blues 46.7%)", "after": "60.0% (blues 69.6%)", "kept": true, "entry": "E15"},
+    {"pr": 35, "merged": "2026-11-03T05:05:50Z", "title": "Write only where the sax plays", "layer": "isolate + notation", "sets": ["omnibook-mix"], "measure": "Note F1 on 7XTyc (answer-key notes lost to cuts: 0)", "before": "56%", "after": "62%", "kept": true, "entry": "E16"}
   ]
 }
