@@ -42,7 +42,7 @@ Published reference: on Filosax, CREPE Notes reports note F-measure 82.3 against
 Apache 2.0; no limits.
 
 ## Caveats and recommendations
-- PR #52 (open, [ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)): shortest note = 0.4 × the take's median onset gap, clamped to 50–128 ms, melodia off; old behaviour as `basic_pitch_fixed`. GRFIA +9 to +10.5 note F1, Omnibook −0.2 with 473 real notes lost ([log E23](../evaluation/log.md)).
+- PR #52 ([ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)): shortest note = 0.4 × the take's median onset gap, clamped to 50–128 ms, melodia off, with a fast-passage safeguard; old behaviour as `basic_pitch_fixed`. GRFIA alto 67.4% → 76.3%, tenor 56.8% → 67.4%, Blues for Mary Jane 53.6% → 56.2%, Omnibook flat; about 350 real Omnibook notes still lost ([log E23](../evaluation/log.md)).
 - The split-note join (PR #10) aimed at its main failure but merged real repeats and lowered scores (log E8); off by default again in PR #22, available as `basic_pitch_join`.
 
 ## Change history

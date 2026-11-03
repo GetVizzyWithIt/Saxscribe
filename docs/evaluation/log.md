@@ -71,19 +71,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).
 - **Baseline**: pending, after merge.
 
-### E23 — 2026-11-03 — Basic Pitch shortest note set from the take's tempo (PR #52, open)
-- **Change**: the shortest note Basic Pitch keeps is 0.4 × the take's median gap between note starts, clamped to 50–128 ms (was a fixed 50 ms), with the melodia trick off. The old behaviour stays as `--notes-tool basic_pitch_fixed` ([ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)).
-- **Experiment** (Mac, settings sweep; versions in `~/saxscribe-runs/exp/2026-11-03-settings/pip-freeze.txt`), note F1 change:
+### E23 — 2026-11-03 — Basic Pitch shortest note set from the take's tempo, with a fast-passage safeguard (PR #52)
+- **Change**: the shortest note Basic Pitch keeps is 0.4 × the take's median gap between note starts, clamped to 50–128 ms (was a fixed 50 ms), with the melodia trick off. **Safeguard**: a short note the stricter minimum would remove comes back on fast passages (onsets under 200 ms apart) when it has its own attack and a pitch different from both neighbours. The old behaviour stays as `--notes-tool basic_pitch_fixed` ([ADR-0026](../decisions/0026-adaptive-minimum-note-length.md)).
+- **Results** (Mac; versions in `~/saxscribe-runs/exp/2026-11-03-settings/pip-freeze.txt`), note F1 with offsets:
 
-| Set | Note F1 change |
-| --- | --- |
-| GRFIA alto | +9.0 |
-| GRFIA tenor | +10.5 |
-| Blues for Mary Jane (Austin's key) | +2.0 |
-| Omnibook | −0.2, and 473 of 15,206 matched notes lost |
+| Set | Before | After |
+| --- | --- | --- |
+| GRFIA alto | 67.4% | **76.3%** |
+| GRFIA tenor | 56.8% | **67.4%** |
+| Blues for Mary Jane (Austin's key) | 53.6% | 56.2% |
+| Omnibook | 64.2% | 64.2% |
 
-- **Fidelity check**: on the Omnibook, the fastest material we have, 473 notes that matched the answer key (3.1%) are no longer written. Those are real notes, so this needs a look before the change is called done (project rule: the tool must not learn to omit notes). The full scorecards after merge should list which notes were lost and how short they were.
-- **Full scorecards**: pending, after merge.
+- **Fidelity check**: without the safeguard the Omnibook lost 490 notes that matched the answer key. The safeguard brings back 134; about 350 real notes are still missed, offset by about 350 ghost notes removed, so Omnibook note F1 is unchanged. Those ~350 are the cost of the change and are recorded here so they aren't forgotten.
+- GRFIA "before" differs slightly from E22 (66.5 / 57.8) because this sweep ran on the current code; same answer keys.
 
 ### E22 — 2026-11-03 — GRFIA-RealSax rescored with the final answer keys (after PR #47): current numbers
 - **Set**: `grfia-alto`, `grfia-tenor`, same takes and default settings as E20; only the answer keys changed (PR #46 beat alignment, PR #47 per-take choice by pitch agreement). Not a model change.
