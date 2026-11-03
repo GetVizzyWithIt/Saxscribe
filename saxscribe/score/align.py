@@ -55,10 +55,17 @@ def score_chroma(notes: list[dict], frames_per_beat: float) -> np.ndarray:
 
 
 def align(audio: Path, score: Path, horn: str = "alto", written: bool = True) -> list[dict]:
-    import librosa
     notes = score_notes(score, horn, written)
     if not notes:
         raise SystemExit(f"No notes in {score}")
+    return align_notes(audio, notes)
+
+
+def align_notes(audio: Path, notes: list[dict]) -> list[dict]:
+    """Score notes [{start, end, pitch}] in quarters, concert pitch, lined up with
+    the recording: [{onset, offset, pitch, beat}] in seconds (beat is the
+    note's place in the score, in quarters, kept for rhythm scoring)."""
+    import librosa
     y = frontend.load_mono(audio, SR)
     chroma = librosa.feature.chroma_cqt(y=y, sr=SR, hop_length=HOP)
     rms = librosa.feature.rms(y=y, hop_length=HOP)[0][: chroma.shape[1]]
@@ -89,7 +96,7 @@ def align(audio: Path, score: Path, horn: str = "alto", written: bool = True) ->
             k = int(np.argmin(np.abs(onsets - t0)))
             if abs(onsets[k] - t0) <= SNAP:
                 t0 = float(onsets[k])
-        out.append({"onset": t0, "offset": max(t1, t0 + 0.03), "pitch": n["pitch"]})
+        out.append({"onset": t0, "offset": max(t1, t0 + 0.03), "pitch": n["pitch"], "beat": float(n["start"])})
     for a, b in zip(out, out[1:]):
         a["offset"] = min(a["offset"], b["onset"])
     return out

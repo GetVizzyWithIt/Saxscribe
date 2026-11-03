@@ -28,7 +28,8 @@ from pathlib import Path
 
 AUDIO = {".wav", ".flac", ".mp3", ".m4a", ".aif", ".aiff", ".ogg"}
 MIDI = {".mid", ".midi"}
-DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "choralebricks": "ChoraleBricks", "bach10": "Bach10", "bach10-mix": "Bach10", "pairs": "saxscribe-etudes"}
+DEFAULT_DIRS = {"omnibook": "CharlieParkerOmnibook", "omnibook-mix": "CharlieParkerOmnibook", "filosax": "Filosax", "urmp": "URMP", "urmp-mix": "URMP", "choralebricks": "ChoraleBricks", "bach10": "Bach10", "bach10-mix": "Bach10", "pairs": "saxscribe-etudes",
+                "grfia-alto": "GRFIA-RealSax", "grfia-tenor": "GRFIA-RealSax"}
 # Words in file names that say what kind of file it is, not which tune.
 NOISE = {"fine", "sax", "saxophone", "alto", "stem", "stems", "separated", "aligned", "alignment", "midi",
          "audio", "mix", "other", "vocals", "solo", "pitch", "corrected", "440", "a440", "track"}
@@ -369,6 +370,95 @@ def load_bach10(folder: Path, mix: bool = False) -> list[Reference]:
     return refs
 
 
+# ---------------------------------------------------------------- GRFIA-RealSax
+
+GRFIA_KERN_TO_CONCERT = -12   # the kern files sit an octave above concert for both horns (checked on real takes)
+GRFIA_RATIO = (0.8, 1.6)      # take length / score length at its tempo; outside this, skip the take
+GRFIA_TAGS = ("ALTISSIMO", "BEND", "BREATH", "FALL", "FALSE FINGERING", "GLISSANDO", "GROWL", "TRILL", "VIBRATO")
+
+
+def grfia_root(folder: Path) -> Path:
+    for cand in (folder / "real_a2s_sax_dataset", folder):
+        if (cand / "real").is_dir():
+            return cand
+    return folder / "real_a2s_sax_dataset"
+
+
+def grfia_index(root: Path, horn: str) -> dict[str, dict]:
+    import csv
+    path = root / f"{horn.capitalize()}_Sax_Index.csv"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f, delimiter=";"))
+    return {r["FILENAME"].strip(): {k.strip(): (v or "").strip() for k, v in r.items()} for r in rows}
+
+
+def grfia_key_cache(horn: str) -> Path:
+    configured = config().get("data", {}).get("keys")
+    base = Path(configured).expanduser() if configured else Path.home() / "saxscribe-runs" / "keys"
+    return base / f"grfia-{horn}"
+
+
+def load_grfia(folder: Path, horn: str) -> list[Reference]:
+    """GRFIA-RealSax: one player's real alto or tenor takes of written melodies,
+    exercises and scales, with technique tags (vibrato, bend, fall, growl ...).
+
+    The scores are not timed to the takes, so each answer key is made by
+    lining the score up with the take's audio (align.align_notes: chroma DTW,
+    then onsets snapped to heard attacks), once, and cached as JSON under
+    ~/saxscribe-runs/keys/grfia-<horn>/. Takes much longer or shorter than
+    their score at its tempo (count-ins, repeats) are skipped."""
+    import json
+
+    import soundfile as sf
+
+    from . import kern
+    from .align import align_notes
+    root = grfia_root(folder)
+    index = grfia_index(root, horn)
+    cache = grfia_key_cache(horn)
+    cache.mkdir(parents=True, exist_ok=True)
+    refs, skipped = [], 0
+    for audio in sorted((root / "real" / horn).glob("*.wav")):
+        name = audio.stem
+        score = next((p for p in (root / "krn" / horn / f"{name}.krn", root / "krn" / horn / f"{name}.skm")
+                      if p.exists()), None)
+        if score is None:
+            continue
+        row = index.get(name, {})
+        cached = cache / f"{name}.json"
+        if cached.exists():
+            key = json.loads(cached.read_text())
+        else:
+            parsed = kern.read(score)
+            if not parsed["notes"]:
+                continue
+            tempo = float(row.get("TEMPO") or parsed["tempo"] or 80)
+            score_seconds = float(parsed["length"]) * 60 / tempo
+            take_seconds = sf.info(str(audio)).duration
+            ratio = take_seconds / score_seconds if score_seconds else 0
+            if not GRFIA_RATIO[0] <= ratio <= GRFIA_RATIO[1]:
+                key = {"skip": f"take/score length {ratio:.2f}"}
+            else:
+                notes = [{"start": float(n["start"]), "end": float(n["end"]),
+                          "pitch": n["pitch"] + GRFIA_KERN_TO_CONCERT} for n in parsed["notes"]]
+                key = {"notes": align_notes(audio, notes), "meter": parsed["meter"], "tempo": tempo,
+                       "score": score.name}
+            cached.write_text(json.dumps(key))
+        if "skip" in key:
+            skipped += 1
+            continue
+        tags = [t.lower() for t in GRFIA_TAGS if row.get(t, "").upper() == "YES"]
+        refs.append(Reference(name, audio, key["notes"], tune=name, player=row.get("PERFORMER", ""),
+                              extra={"horn": horn, "tags": tags, "type": row.get("TYPE", ""),
+                                     "meter": key.get("meter"), "tempo": key.get("tempo")}))
+    if skipped:
+        from .. import frontend
+        frontend.log(f"GRFIA {horn}: skipped {skipped} takes whose length does not fit their score")
+    return refs
+
+
 # ---------------------------------------------------------------- splits
 
 def split_of(ref: Reference) -> str:
@@ -386,7 +476,8 @@ def load(set_name: str, data: str | None = None, split: str = "all") -> list[Ref
                "omnibook-mix": lambda f: load_omnibook(f, mix=True),
                "urmp": load_urmp, "urmp-mix": lambda f: load_urmp(f, mix=True),
                "choralebricks": load_choralebricks,
-               "bach10": load_bach10, "bach10-mix": lambda f: load_bach10(f, mix=True)}
+               "bach10": load_bach10, "bach10-mix": lambda f: load_bach10(f, mix=True),
+               "grfia-alto": lambda f: load_grfia(f, "alto"), "grfia-tenor": lambda f: load_grfia(f, "tenor")}
     refs = loaders[set_name](folder)
     if split != "all":
         refs = [r for r in refs if split_of(r) == split]

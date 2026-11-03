@@ -27,4 +27,6 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0018](0018-swing-aware-notation.md) | Readable notation over literal rhythm, without dropping notes | 2026-11-02 | Accepted |
 | [0019](0019-split-note-join-off-by-default.md) | Split-note join off by default | 2026-11-02 | Accepted |
 | [0020](0020-pick-sax-stem-automatically.md) | Pick the sax stem automatically, sum stems when split | 2026-11-03 | Accepted |
-| [0021](0021-beat-from-notes-when-tracker-sparse.md) | Take the beat from the notes when the tracker finds too few beats | 2026-11-03 | Proposed (PR #29) |
+| [0021](0021-beat-from-notes-when-tracker-sparse.md) | Take the beat from the notes when the tracker finds too few beats | 2026-11-03 | Accepted |
+| [0022](0022-blues-aware-key-finding.md) | Blues-aware key finding | 2026-11-03 | Proposed (PR #34) |
+| [0023](0023-write-only-where-the-sax-plays.md) | On band records, write only where the sax plays (amends 0016) | 2026-11-03 | Proposed (PR #35) |

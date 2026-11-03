@@ -66,11 +66,13 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 
 | Step | Rule |
 | --- | --- |
-| Time to beats | Seconds become beat positions along the tracked beat grid, so tempo drift follows the band. When the tracker finds too few beats (lone sax), the beat comes from the note onsets instead (PR #29, open, [ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)) |
+| Time to beats | Seconds become beat positions along the tracked beat grid, so tempo drift follows the band. When the tracker finds too few beats (lone sax), the beat comes from the note onsets instead (PR #29, [ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)) |
 | Swing | Off-beat eighths' average position gives the swing ratio (needs ≥6 off-beat notes); `--swing` overrides. Swung eighths are written as plain eighths |
 | Grid | Each beat snaps to sixteenths, or to triplets when they fit clearly better (a 0.03-beat penalty per note favours sixteenths) |
 | Gaps | Gaps under a third of a beat before the next note are closed, so tongued eighths read as eighths |
-| Key and spelling | music21's key finder on the notes; flats for chromatic notes in flat keys and C, sharps in sharp keys |
+| Syncopation | PR #32 (open): an off-beat eighth tied into the beat is written as one syncopated quarter or dotted quarter, within each half bar |
+| Sax spans | PR #35 (draft): on band records, only stretches where the sax plays are written; notes elsewhere stay in `notes.json` tagged `not_sax`; cut stretches saved in `take.json` as `sax_cuts` ([ADR-0023](../decisions/0023-write-only-where-the-sax-plays.md)) |
+| Key and spelling | music21's key finder on the notes; PR #34 (open) adds length weighting and a blues profile so blues tunes get their home key ([ADR-0022](../decisions/0022-blues-aware-key-finding.md)); flats for chromatic notes in flat keys and C, sharps in sharp keys |
 | Meter | 4/4 only for now |
 | Readability (PR #21) | Swung pairs written as plain eighths, real triplets kept, runs of empty bars as one numbered rest, one enharmonic spelling per part from the horn's key ([ADR-0018](../decisions/0018-swing-aware-notation.md)). Any point on neither grid moves to sixteenths so MuseScore accepts every file (PR #26). Still too many 32nds and triplets on real recordings |
 | Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12) |

@@ -1,7 +1,7 @@
 # ADR-0021: Take the beat from the notes when the beat tracker finds too few beats
 
 - **Date**: 2026-11-03
-- **Status**: Proposed (PR #29 open)
+- **Status**: Accepted (PR #29 merged)
 - **Decided by**: Claude (routine, from readability evidence)
 - **PR**: #29
 

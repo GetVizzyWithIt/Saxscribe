@@ -62,14 +62,17 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Triplet markings MuseScore rejects (PR #17). PDF now complete: test Parker solo, 2 pages, all 398 notes, proper beaming and triplets
 - [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
 - [x] MuseScore accepts every file: off-grid points after triplets moved to sixteenths (PR #26)
-- [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (open) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
-- [ ] Rhythm accuracy against the Omnibook's printed rhythm
-- [ ] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; UI thread)
+- [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
+- [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
+- [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
+- [ ] Syncopations as one note instead of tied eighths (PR #32, open; ties 46 → 41, log E14)
+- [ ] Key for blues tunes (PR #34, open; Weimar 49% → 60%, blues 47% → 70%, log E15)
+- [ ] Band records: write only where the sax plays (PR #35, draft; scorecard pending, log E16)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
 - [ ] Phrase marks, meters other than 4/4, pickups
-- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align)
+- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align). First: Blues for Mary Jane (Getz, 4 pages, concert C), being digitised
 
 **Gate:** edits per 100 notes ≤5 solo, ≤15 full mix.
 
@@ -77,7 +80,7 @@ Goal: a score Austin would put on the stand, with few edits.
 
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
-1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27 (open): the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
+1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27: the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
 2. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
 3. Developer compare view against an answer key.
 4. Editor; edits saved as diffs (training data).

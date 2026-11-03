@@ -342,3 +342,22 @@ def test_key_finder_hears_the_blues_home_note():
 def test_key_finder_keeps_minor_keys():
     d_minor = [62, 65, 69, 74, 72, 70, 69, 67, 65, 64, 62, 61, 62, 65, 69, 62]
     assert notation.find_key(d_minor) == "D minor"
+
+
+def test_syncopations_are_written_as_one_note_not_tied_eighths(tmp_path):
+    """Eighth-quarter-eighth, the way a chart writes it; ties only across the middle of the bar."""
+    P = notation.pieces
+    assert P(F(1, 2), F(3, 2)) == [(F(1, 2), F(1))]          # syncopated quarter
+    assert P(F(1, 2), F(2)) == [(F(1, 2), F(3, 2))]          # syncopated dotted quarter
+    assert P(F(0), F(3, 2)) == [(F(0), F(3, 2))]             # dotted quarter on the beat
+    assert P(F(3, 2), F(5, 2)) == [(F(3, 2), F(1, 2)), (F(2), F(1, 2))]  # crosses the middle: tied
+    assert P(F(1, 3), F(4, 3)) == [(F(1, 3), F(2, 3)), (F(1), F(1, 3))]  # triplets stay inside their beat
+    r = {"key": "F major", "tempo_bpm": 200,
+         "notes": [{"start": F(0), "length": F(1, 2), "pitch": 65}, {"start": F(1, 2), "length": F(1), "pitch": 67},
+                   {"start": F(3, 2), "length": F(1, 2), "pitch": 69}, {"start": F(2), "length": F(2), "pitch": 70}]}
+    path = tmp_path / "sync.musicxml"
+    score = notation.build_score(r, HORNS["tenor"], written=True)
+    score.write("musicxml", fp=str(path))
+    assert musicxml_problems(path) == []
+    assert not any(n.tie for n in score.recurse().notes)
+    assert [n.duration.quarterLength for n in score.recurse().notes] == [0.5, 1.0, 0.5, 2.0]

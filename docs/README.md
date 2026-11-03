@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03, with PRs through #26 merged (#27 and #29 open).
+Last full review: 2026-11-03, with PRs through #30 merged (#32, #34, #35 open).
 
 ## Map
 
@@ -45,6 +45,9 @@ evaluation, deployment).
   in our own words.
 
 ## Open documentation items
+
+- GRFIA audio-to-score: confirm the paper, licence terms, score format,
+  alto/tenor split and the manifest entry once the download lands.
 
 - Bach10 licence: read `Dataset_v1.0.pdf` inside the download and record it.
 - Weimar Jazz Database licence: the dataset search noted ODbL; the manifest
