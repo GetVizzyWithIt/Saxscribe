@@ -68,6 +68,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ---
 
+### E25 — 2026-11-03 — Separator comparison on band records (no code change)
+- **Question**: does a newer separator get the sax out of a band better than Demucs `htdemucs_6s`?
+- **Sets**: `omnibook-mix` (10 Parker band records) and Blues for Mary Jane (Austin's answer key). Default settings otherwise. Note F1:
+
+| Separator | Parker records (10) | Blues for Mary Jane | Speed |
+| --- | --- | --- | --- |
+| htdemucs_6s (current) | 56.4% | 51.0% | baseline |
+| htdemucs_6s, two shifts averaged | 57.0% | 54.3% | +50% time |
+| htdemucs_ft | 52.2% | 32.3% | 3–4× slower |
+| BS-RoFormer | 52.7% | 39.8% | 3–4× slower |
+
+- **What it shows**: both alternatives are slower and worse here; they leave piano and guitar in the stem the sax lands in. Averaging two shifts helps a little at 50% more time.
+- **Decision**: keep `htdemucs_6s` ([ADR-0027](../decisions/0027-keep-htdemucs-6s.md)); two shifts may become an optional quality setting later.
+
 ### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database (PR #53, open)
 - **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).
 - **Baseline**: pending, after merge.

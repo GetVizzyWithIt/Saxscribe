@@ -46,8 +46,8 @@ Goal: full-mix targets. Currently 4–17% note F1 on ensemble mixes, because
 Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 
 - [x] Pick the stem the sax actually lands in, sum when split (PR #24): 10 Parker records 50.6% → 56.4% note F1, 110 → 64 s/min
-- [ ] Measure Demucs alternatives (BS-RoFormer, UVR community models) on
-      urmp-mix, bach10-mix, omnibook-mix and JazzSAMBA stem-vs-mix pairs
+- [x] Measure Demucs alternatives: htdemucs_ft and BS-RoFormer lose to htdemucs_6s on Parker records and Blues for Mary Jane, and are 3–4× slower; keep htdemucs_6s (log E25, ADR-0027)
+- [ ] Optional quality setting: two averaged Demucs shifts (+0.6 / +3.3 points, +50% time)
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes
 - [ ] Fallback: instrument-conditioned transcription (MuScriptor) on the "other" stem
 - [ ] Ten records Austin wants to learn as the fixed full-mix test set

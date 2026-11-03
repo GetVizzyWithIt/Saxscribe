@@ -33,3 +33,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0024](0024-no-pdfs-in-test-and-scorecard-runs.md) | PDFs only for app runs, never in tests or scorecards | 2026-11-03 | Accepted |
 | [0025](0025-scorecard-history-files.md) | Scorecard history kept as data files beside the log; app Results page | 2026-11-03 | Accepted |
 | [0026](0026-adaptive-minimum-note-length.md) | Basic Pitch's shortest note follows the take's tempo | 2026-11-03 | Accepted (with fidelity caveat) |
+| [0027](0027-keep-htdemucs-6s.md) | Keep Demucs htdemucs_6s as the separator | 2026-11-03 | Accepted |
