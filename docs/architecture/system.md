@@ -75,7 +75,7 @@ survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)
 | Key and spelling | music21's key finder on the notes; PR #34 (open) adds length weighting and a blues profile so blues tunes get their home key ([ADR-0022](../decisions/0022-blues-aware-key-finding.md)); flats for chromatic notes in flat keys and C, sharps in sharp keys |
 | Meter | 4/4 only for now |
 | Readability (PR #21) | Swung pairs written as plain eighths, real triplets kept, runs of empty bars as one numbered rest, one enharmonic spelling per part from the horn's key ([ADR-0018](../decisions/0018-swing-aware-notation.md)). Any point on neither grid moves to sixteenths so MuseScore accepts every file (PR #26). Still too many 32nds and triplets on real recordings |
-| Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12) |
+| Engraving | MuseScore command line turns each MusicXML into PDF, when installed (PR #12). Only for app and `transcribe` runs; test and scorecard runs never make PDFs (PR #36, [ADR-0024](../decisions/0024-no-pdfs-in-test-and-scorecard-runs.md)) |
 | Missing beats | With almost no tracked beats (unaccompanied sax) every note is still written (PR #15, [ADR-0016](../decisions/0016-notation-never-drops-notes.md)) |
 
 Outputs: `score.mid` (exact times, lines up with the audio), `score.musicxml`

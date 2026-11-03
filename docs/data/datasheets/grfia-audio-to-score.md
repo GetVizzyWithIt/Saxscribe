@@ -1,4 +1,4 @@
-# Datasheet: GRFIA audio-to-score (saxophone)
+# Datasheet: GRFIA audio-to-score (saxophone), "GRFIA-RealSax"
 
 Format: Gebru et al., "Datasheets for Datasets" (CACM 2021), trimmed. Written
 2026-11-03 from the dataset page and the coordinator's summary; items marked
@@ -56,4 +56,4 @@ Real players recording real horns. Room, microphones and number of players:
 Version, md5 and folder recorded in `datasets/manifest.json` once downloaded.
 
 ## Saxscribe results
-None yet.
+- Preliminary (2026-11-03): first 10 alto takes, pitch 80% correct with no octave errors ([log E17](../../evaluation/log.md)). Full run over about 1,000 takes in progress.

@@ -9,8 +9,10 @@ outputs. Format follows Mitchell et al., "Model Cards for Model Reporting"
 | [Demucs (htdemucs_6s)](demucs.md) | 1 isolate | Pretrained, used as is | Default for `--mix` |
 | [CREPE via torchcrepe](crepe.md) | 2 contour | Pretrained, used as is | Default |
 | [Basic Pitch](basic-pitch.md) | 3 notes | Pretrained, used as is | Default |
-| [Note rules: one-line, split-note join, segmenter, contour cutter](note-rules.md) | 3 notes | Our own rules, no training | Join on by default; others optional |
+| [Note rules: one-line, split-note join, segmenter, contour cutter](note-rules.md) | 3 notes | Our own rules, no training | Join off by default since PR #22; others optional |
 | [Beat This!](beat-this.md) | 3 beats | Pretrained, used as is | Default |
+
+Before/after numbers for every model and pipeline change, in one table: [evaluation log, change by change](../evaluation/log.md#change-by-change-what-each-model-or-pipeline-change-did).
 
 No model has been trained or fine-tuned for Saxscribe yet. The first trained
 model gets a card from [_template.md](_template.md) before its PR merges.

@@ -4,6 +4,29 @@ Every scorecard run, newest first. Protocol: [protocol.md](protocol.md).
 Machine is Austin's M3 Pro MacBook unless noted. "Default" = torchcrepe full
 for the contour, Basic Pitch for notes, Beat This! for beats.
 
+## Change by change: what each model or pipeline change did
+
+One row per change, newest first, with the main number before and after.
+"Kept" says whether the change is on by default. Details and full tables are
+in the entry linked in the last column. Notation-only changes leave pitch,
+onset and note F1 untouched, so they are measured on the written score.
+
+| Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-03 | — | First run on GRFIA-RealSax (preliminary) | all | 10 alto takes | Pitch correct | — | 80%, no octave errors | — | [E17](#e17--2026-11-03--grfia-realsax-first-10-alto-takes-preliminary) |
+| 2026-11-03 | #35 (draft) | Write only where the sax plays | notation | Blues for Mary Jane | Bars written | ~419 | pending (Getz plays ~148) | pending | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-draft) |
+| 2026-11-03 | #34 (open) | Blues-aware key finder | notation | Weimar, 429 solos | Home key right | 49.3% (blues 46.7%) | 60.0% (blues 69.6%) | yes | [E15](#e15--2026-11-03--key-finder-that-hears-the-blues-pr-34-open) |
+| 2026-11-03 | #32 (open) | Syncopations as one note | notation | Parker 7XTyc | Ties | 46 | 41 | yes | [E14](#e14--2026-11-03--syncopations-as-one-note-instead-of-tied-eighths-pr-32-open) |
+| 2026-11-03 | #29 | Beat from the notes on lone sax | notation | Parker 7XTyc | 32nd notes / plain eighths | 80 / 88 | 1 / 231 | yes | [E13](#e13--2026-11-03--beat-taken-from-the-notes-on-lone-sax-pr-29-merged) |
+| 2026-11-03 | #26 | Off-grid points moved to sixteenths | notation | Blues for Mary Jane | Files MuseScore refuses | 1 | 0 | yes | [E12](#e12--2026-11-03--readable-notation-on-a-real-recording) |
+| 2026-11-03 | #24 | Auto pick of the Demucs stem holding the sax | isolate | omnibook-mix, 10 records | Note F1 / s per min | 50.6% / 110 | 56.4% / 64 | yes | [E11](#e11--2026-11-03--picking-the-sax-stem-from-demucs-pr-24-merged) |
+| 2026-11-02 | #22 | Split-note join turned off | notes | urmp / bach10 / choralebricks | Note F1 | 62.8 / 77.1 / 72.1% | 64.4 / 87.5 / 77.8% | yes | [E8](#e8--2026-11-02--split-note-join-pr-10-before-and-after) |
+| 2026-11-02 | #21 | Readability pass | notation | synthetic swing solos | Swung eighths misplaced / triplets right | ~33 / ~4 | ~3 / ~45 | yes | [E7](#e7--2026-11-02--notation-readability-pass-on-synthetic-swing-solos-pr-21-merged) |
+| 2026-11-02 | #16 | Grade only inside the answer key's span (grading fix, not a model change) | scorecard | omnibook, 45 solos | Note F1 / onset F1 | 45.0% / 60.4% | 64% / 86% | yes | [E6](#e6--2026-11-02--omnibook-re-graded-inside-each-answer-keys-span-pr-16) |
+| 2026-11-02 | #15 | Never drop notes without a beat grid | notation | Parker solo PDF | Notes written | 42 of 398 | 398 of 398 | yes | [E5](#e5--2026-11-02--first-real-pdf-render-finding-not-a-scorecard) |
+| 2026-11-02 | #10 | Join notes Basic Pitch splits | notes | urmp / bach10 / choralebricks | Note F1 | 64.4 / 87.5 / 77.8% | 62.8 / 77.1 / 72.1% | no (off in #22) | [E8](#e8--2026-11-02--split-note-join-pr-10-before-and-after) |
+| 2026-11-02 | #6 | CREPE Notes style cutter vs Basic Pitch | notes | omnibook, 45 solos | Note F1 | 64.2% (Basic Pitch) | 59.8% (cutter) | no | [E9](#e9--2026-11-02--omnibook-three-note-tools-graded-inside-the-key-span) |
+
 ## Summary: best result so far per set
 
 | Set | Pitch | Onset F1 | Note F1 | Note F1 no offset | s/min | Targets | Run |
@@ -35,6 +58,11 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
+
+### E17 — 2026-11-03 — GRFIA-RealSax, first 10 alto takes (preliminary)
+- **Set**: GRFIA audio-to-score ("GRFIA-RealSax"), first 10 alto takes, default settings, on the Mac.
+- **Result**: pitch 80% correct, **no octave errors**. Exact measure (frame pitch accuracy or matched-note pitch) *to verify* with the build thread's scorecard.
+- **Status**: preliminary. The full run over about 1,000 takes is in progress; this entry will be replaced by its scorecard.
 
 ### E16 — 2026-11-03 — Write only where the sax plays (PR #35, draft)
 - **Finding**: on band records the score covered the whole track. Blues for Mary Jane came to about 419 bars against about 148 for Getz's solo: the piano solo bleeds into the sax stem and the bass solo adds junk. On Parker's 7XTyc, Basic Pitch wrote 8 to 17 notes per 4 s through a drum break.
