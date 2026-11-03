@@ -187,7 +187,9 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
     Ghost and split notes are short next to the line around them, so a slow
     melody sheds them while fast bebop keeps its short notes. Measured on
     2026-11-03 (note F1): GRFIA alto +9.0, tenor +10.5, Blues for Mary Jane
-    +2.0, Omnibook -0.2. by_spacing=False is the old fixed 50 ms read.
+    +2.0, Omnibook -0.2. A short note the second read drops comes back when
+    the recording confirms it (restore_short), so fast real notes are kept.
+    by_spacing=False is the old fixed 50 ms read.
     info, when given, gets the gap and the shortest note used.
     """
     logging.getLogger().setLevel(logging.ERROR)  # Basic Pitch warns about optional backends
@@ -226,6 +228,38 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
     if not gap:
         return notes
     shortest = float(np.clip(BP_SPACING_SHARE * gap * 1000, *BP_SHORTEST))
+    kept = read(shortest, False)
+    attacks = [o for o in detect_onsets(load_mono(wav)) if o["s"] >= RESTORE_STRENGTH]
+    back = restore_short(notes, kept, [o["t"] for o in attacks])
     if info is not None:
-        info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1))
-    return read(shortest, False)
+        info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1), restored=len(back))
+    return sorted(kept + back, key=lambda n: (n["onset"], n["pitch"]))
+
+
+RESTORE_NEAR = 0.04       # s: a short note the long read already has (a note starting this close)
+RESTORE_ATTACK = 0.03     # s: an attack this close confirms a short note
+RESTORE_STRENGTH = 0.3    # onset strength (0-1) that counts as an attack
+
+
+def restore_short(short_read: list[dict], kept: list[dict], attacks: list[float]) -> list[dict]:
+    """Short notes the second read dropped that the recording confirms: a clear
+    attack at their start and a pitch different from the notes on both sides
+    (a split note or a ghost repeats its neighbour's pitch; a fast bebop note
+    moves). Returned to be added back, so a real fast note is never lost to
+    the longer shortest-note setting."""
+    starts = np.array(sorted(n["onset"] for n in kept)) if kept else np.array([])
+    hits = np.array(sorted(attacks)) if attacks else np.array([])
+    line = sorted(kept, key=lambda n: n["onset"])
+    on = [n["onset"] for n in line]
+    back = []
+    for n in short_read:
+        if len(starts) and np.min(np.abs(starts - n["onset"])) <= RESTORE_NEAR:
+            continue
+        if not len(hits) or np.min(np.abs(hits - n["onset"])) > RESTORE_ATTACK:
+            continue
+        i = int(np.searchsorted(on, n["onset"]))
+        sides = [line[j]["pitch"] for j in (i - 1, i) if 0 <= j < len(line)]
+        if any(p == n["pitch"] for p in sides):
+            continue
+        back.append(dict(n))
+    return back

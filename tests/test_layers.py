@@ -183,12 +183,28 @@ def test_basic_pitch_shortest_note_follows_the_take(monkeypatch, tmp_path):
     }
     for name, mod in fakes.items():
         monkeypatch.setitem(sys.modules, name, mod)
+    monkeypatch.setattr(frontend, "load_mono", lambda path: None)
+    monkeypatch.setattr(frontend, "detect_onsets", lambda y: [])
     info = {}
     notes = frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, info=info)
     assert len(runs) == 1 and len(notes) == 10
     frames = lambda ms: int(round(ms / 1000 * 22050 / 256))
     assert reads == [(frames(50), True), (frames(120), False)]
-    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0}
+    assert info == {"spacing_ms": 300.0, "shortest_ms": 120.0, "restored": 0}
     reads.clear()
     frontend.basic_pitch_notes(tmp_path / "x.wav", 100, 1000, by_spacing=False)
     assert reads == [(frames(50), True)]
+
+
+def test_short_notes_come_back_when_the_recording_confirms_them():
+    """A fast real note (own attack, a new pitch) dropped by the longer
+    shortest-note read is put back; a split note or a ghost is not."""
+    from saxscribe import frontend
+    kept = [{"onset": 1.0, "offset": 1.2, "pitch": 60}, {"onset": 1.3, "offset": 1.5, "pitch": 64}]
+    short = kept + [
+        {"onset": 1.22, "offset": 1.27, "pitch": 62},   # passing note, own attack: back
+        {"onset": 1.51, "offset": 1.55, "pitch": 64},   # same pitch as its neighbour: a split, stays out
+        {"onset": 2.00, "offset": 2.05, "pitch": 67},   # no attack there: a ghost, stays out
+    ]
+    back = frontend.restore_short(short, kept, attacks=[1.0, 1.21, 1.3, 1.52])
+    assert [n["onset"] for n in back] == [1.22]
