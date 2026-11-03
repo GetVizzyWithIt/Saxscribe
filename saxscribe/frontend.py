@@ -234,9 +234,11 @@ def basic_pitch_notes(wav: Path, min_hz: float, max_hz: float, by_spacing: bool 
     if gap < RESTORE_FAST:
         attacks = [o for o in detect_onsets(load_mono(wav)) if o["s"] >= RESTORE_STRENGTH]
         back = restore_short(notes, kept, [o["t"] for o in attacks])
+    retongued = restore_dipped(notes, kept + back, level_db(load_mono(wav, sr=DIP_RATE)))
     if info is not None:
-        info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1), restored=len(back))
-    return sorted(kept + back, key=lambda n: (n["onset"], n["pitch"]))
+        info.update(spacing_ms=round(gap * 1000, 1), shortest_ms=round(shortest, 1), restored=len(back),
+                    restored_after_dip=len(retongued))
+    return sorted(kept + back + retongued, key=lambda n: (n["onset"], n["pitch"]))
 
 
 RESTORE_NEAR = 0.04       # s: a short note the long read already has (a note starting this close)
@@ -245,6 +247,42 @@ RESTORE_STRENGTH = 0.3    # onset strength (0-1) that counts as an attack
 RESTORE_FAST = 0.2        # s: only lines whose notes start closer than this (fast playing) get notes back.
                           # Omnibook (151 ms): 137 of 490 lost real notes back, F1 -0.23 -> -0.01; on
                           # slow GRFIA takes (~350 ms) restored notes were nearly all extras (tenor 1 of 33).
+
+
+DIP_RATE = 44100
+DIP_DB = 10.0             # dB: a short note comes back when the level dips this far just before it
+DIP_BEFORE = 6            # 10 ms frames looked at before the note (60 ms), plus its first frame
+
+
+def level_db(y: np.ndarray) -> np.ndarray:
+    """Loudness in dB per 10 ms frame (frame k centred at k x 10 ms), at DIP_RATE."""
+    import librosa
+    hop = DIP_RATE // 100
+    r = librosa.feature.rms(y=y, frame_length=2 * hop, hop_length=hop)[0]
+    return 20 * np.log10(np.maximum(r, 1e-6))
+
+
+def restore_dipped(short_read: list[dict], kept: list[dict], db: np.ndarray) -> list[dict]:
+    """Short notes the second read dropped that start after a clear dip in level
+    (at least 10 dB below the note's own median, within 60 ms before it): a
+    re-tongued note, often the same pitch again, which a slow classical line
+    is full of. URMP lost 221 real notes to the longer shortest note, 78% of
+    them repeats; this brings back about half (119 of 150 restored were real,
+    onset recall loss -15.5 -> -8.1 points) at a cost under 1.5 points of
+    note F1 elsewhere (2026-11-03). Any pitch, any speed."""
+    starts = np.array(sorted(n["onset"] for n in kept)) if kept else np.array([])
+    back = []
+    for n in short_read:
+        if len(starts) and np.min(np.abs(starts - n["onset"])) <= RESTORE_NEAR:
+            continue
+        i0, i1 = int(n["onset"] * 100), int(n["offset"] * 100) + 1
+        if i0 >= len(db):
+            continue
+        own = float(np.median(db[i0:i1])) if i1 > i0 else float(db[i0])
+        before = db[max(0, i0 - DIP_BEFORE):i0 + 1]
+        if len(before) and own - float(before.min()) >= DIP_DB:
+            back.append(dict(n))
+    return back
 
 
 def restore_short(short_read: list[dict], kept: list[dict], attacks: list[float]) -> list[dict]:
