@@ -60,11 +60,8 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] PDF export via MuseScore (PR #12)
 - [x] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15)
 - [x] Triplet markings MuseScore rejects (PR #17). PDF now complete: test Parker solo, 2 pages, all 398 notes, proper beaming and triplets
-- [ ] Readability pass (PR #21, open): swung eighths, triplets, multi-bar rests, one spelling per part
-  - [ ] Over-fine rhythms (32nds and dotted figures where swung eighths are meant)
-  - [ ] Empty bars written one by one instead of multi-measure rests
-  - [ ] Mixed enharmonic spelling within a line (e.g. F# and Gb in one phrase)
-  - [ ] Check on real recordings (so far synthetic swing solos only)
+- [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
+- [ ] Check the readability pass on real recordings (so far synthetic swing solos only)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
@@ -77,7 +74,7 @@ Goal: a score Austin would put on the stand, with few edits.
 
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
-1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`).
+1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. First real test: Austin's band recording "Blues for Mary Jane".
 2. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
 3. Developer compare view against an answer key.
 4. Editor; edits saved as diffs (training data).

@@ -1,7 +1,7 @@
 # ADR-0018: Readable notation over literal rhythm, without dropping notes
 
 - **Date**: 2026-11-02
-- **Status**: Proposed (PR #21 open)
+- **Status**: Accepted (PR #21 merged)
 - **Decided by**: Claude (routine)
 - **PR**: #21
 
