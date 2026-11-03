@@ -8,7 +8,7 @@ Format: Gebru et al., "Datasheets for Datasets" (CACM 2021), trimmed. Written
 Made by the GRFIA group (Pattern Recognition and Artificial Intelligence,
 DLSI, University of Alicante) for audio-to-score research: going from a
 recording straight to a written score. Paper and funding: *to verify*.
-Pointed out by Austin on 2026-11-03.
+Pointed out by Austin on 2026-11-03. Loader added in PR #33, fixed in PR #40.
 
 ## Composition
 - **One item**: a short recording of a real alto or tenor sax, with the
@@ -19,19 +19,22 @@ Pointed out by Austin on 2026-11-03.
   the audio), plus tags for techniques such as growl, bend, fall and vibrato.
 - **What the labels are not**: the notes are **not time-aligned** to the
   audio. They say what was meant to be played, not exactly when.
-- **Players, style, overlap with other sets**: *to verify*.
+- **Players and material**: one player, per the loader (`PERFORMER` column); written melodies, exercises and scales. Overlap with other sets: none known.
+- **Technique tags** (columns in the index, read by the loader): altissimo, bend, breath, fall, false fingering, glissando, growl, trill, vibrato.
 
 ## Collection process
 Real players recording real horns. Room, microphones and number of players:
 *to verify*.
 
 ## Preprocessing and labelling
-- Creators: score format (MusicXML, kern or other) *to verify*.
-- Saxscribe: none yet. Before it can grade anything, each score has to be
-  aligned to its take with the etude aligner (`score/align.py`, DTW, as for
-  Austin's etudes), then spot-checked.
+- Creators: scores are Humdrum **kern (`krn/<horn>/*.krn` or `.skm`), audio in `real/<horn>/*.wav`, plus an index with tempo, performer and tags.
+- Pitch: the kern files sit an octave above concert pitch for both horns (checked on real takes); the loader subtracts 12.
+- Saxscribe (`score/kern.py`, `score/refs.py: load_grfia`, PR #33): reads the kern (ties joined, chords to top note, grace notes skipped), lines each score up with its take using the etude aligner (`score/align.py`: chroma DTW, then onsets snapped to heard attacks), and caches the key as JSON under `~/saxscribe-runs/keys/grfia-<horn>/`.
+- Takes whose length is outside 0.8–1.6× the score's length at its tempo (count-ins, repeats) are skipped and logged. Since PR #40, zero-length notes are dropped from keys and a take that can't be scored no longer stops the run.
+- The aligned keys are machine-made and not yet spot-checked: tier B.
 
 ## Uses
+- **Scorecard sets**: `grfia-alto`, `grfia-tenor` (PR #33).
 - **Role in Saxscribe**:
   - **Notation answer key** (Phase 3): the written score is exactly the
     target for "notes to readable sheet music", including rhythm. This is the

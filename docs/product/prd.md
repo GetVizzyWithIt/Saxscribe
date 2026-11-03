@@ -69,7 +69,7 @@ Status key: **Done** = merged and tested; **Partial** = works but incomplete;
 | F3 | **Note events**: onset, offset, MIDI pitch, cents deviation | Done | `layers/notes.py` |
 | F3a | Articulation tags: slur, tongued, scoop, fall, bend, vibrato depth/rate, growl | Planned (field exists, empty) | `notes.json` `tags` |
 | F3b | Beats, downbeats, tempo | Done | Beat This!, librosa fallback |
-| F3c | Key | Partial: found at notation step by music21, not stored in notes.json. Blues-aware version in PR #34 (open) | `layers/notation.py` |
+| F3c | Key | Partial: found at notation step by music21, not stored in notes.json. Blues-aware since PR #34 | `layers/notation.py` |
 | F4 | **Notation**: quantized to beat grid, swing setting, key-driven spelling, rests | Done (4/4 only; no chord-aware spelling; no phrase marks). Fixed in PR #15: never drops notes without a beat grid. Readability pass merged (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part; checked on synthetic solos so far | `layers/notation.py` |
 | F4a | Export MusicXML and MIDI, audio kept aligned | Done | `score.musicxml`, `score.mid` |
 | F4b | Export PDF sheet music (v1 UI) | Done when MuseScore is installed; can be turned off (PR #26); printable-page fallback in the app (PR #27) | `layers/engrave.py` |

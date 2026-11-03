@@ -16,8 +16,8 @@ onset and note F1 untouched, so they are measured on the written score.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-03 | — | First run on GRFIA-RealSax (preliminary) | all | 10 alto takes | Pitch correct | — | 80%, no octave errors | — | [E17](#e17--2026-11-03--grfia-realsax-first-10-alto-takes-preliminary) |
 | 2026-11-03 | #35 (draft) | Write only where the sax plays | notation | Blues for Mary Jane | Bars written | ~419 | pending (Getz plays ~148) | pending | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-draft) |
-| 2026-11-03 | #34 (open) | Blues-aware key finder | notation | Weimar, 429 solos | Home key right | 49.3% (blues 46.7%) | 60.0% (blues 69.6%) | yes | [E15](#e15--2026-11-03--key-finder-that-hears-the-blues-pr-34-open) |
-| 2026-11-03 | #32 (open) | Syncopations as one note | notation | Parker 7XTyc | Ties | 46 | 41 | yes | [E14](#e14--2026-11-03--syncopations-as-one-note-instead-of-tied-eighths-pr-32-open) |
+| 2026-11-03 | #34 | Blues-aware key finder | notation | Weimar, 429 solos | Home key right | 49.3% (blues 46.7%) | 60.0% (blues 69.6%) | yes | [E15](#e15--2026-11-03--key-finder-that-hears-the-blues-pr-34-merged) |
+| 2026-11-03 | #32 | Syncopations as one note | notation | Parker 7XTyc | Ties | 46 | 41 | yes | [E14](#e14--2026-11-03--syncopations-as-one-note-instead-of-tied-eighths-pr-32-merged) |
 | 2026-11-03 | #29 | Beat from the notes on lone sax | notation | Parker 7XTyc | 32nd notes / plain eighths | 80 / 88 | 1 / 231 | yes | [E13](#e13--2026-11-03--beat-taken-from-the-notes-on-lone-sax-pr-29-merged) |
 | 2026-11-03 | #26 | Off-grid points moved to sixteenths | notation | Blues for Mary Jane | Files MuseScore refuses | 1 | 0 | yes | [E12](#e12--2026-11-03--readable-notation-on-a-real-recording) |
 | 2026-11-03 | #24 | Auto pick of the Demucs stem holding the sax | isolate | omnibook-mix, 10 records | Note F1 / s per min | 50.6% / 110 | 56.4% / 64 | yes | [E11](#e11--2026-11-03--picking-the-sax-stem-from-demucs-pr-24-merged) |
@@ -72,7 +72,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Guard**: cut stretches are saved in `take.json` (`sax_cuts`); the scorecard reports answer-key notes inside them per take and in a "Sax-span check" total. Any non-zero count is a cut that hid real sax.
 - **Scorecard**: pending, `omnibook-mix` before/after and Blues for Mary Jane, on the Mac.
 
-### E15 — 2026-11-03 — Key finder that hears the blues (PR #34, open)
+### E15 — 2026-11-03 — Key finder that hears the blues (PR #34, merged)
 - **Finding**: Blues for Mary Jane (concert C) was written in F major. The blues flat third and flat seventh, plus the IV chord, pull music21's key finder to the subdominant.
 - **Change**: weight notes by length, and also match against a blues profile (Krumhansl's major profile with flat 3 and flat 7 raised, major 7 lowered). When the blues profile fits better, its home note wins and the key is written as major ([ADR-0022](../decisions/0022-blues-aware-key-finding.md)).
 - **Set**: Weimar Jazz Database, 429 solos with annotated keys, plus Blues for Mary Jane (home note right):
@@ -87,7 +87,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Blues for Mary Jane: F before, C after. Minor tunes lose about 4 points; a minor guard was tried and left out (it cost more on major tunes).
 - **Ceiling**: Weimar labels give the tune's key; a solo often sits on IV or V, so 100% is not reachable on this measure. Note, onset and pitch scores unchanged.
 
-### E14 — 2026-11-03 — Syncopations as one note instead of tied eighths (PR #32, open)
+### E14 — 2026-11-03 — Syncopations as one note instead of tied eighths (PR #32, merged)
 - **Change**: an off-beat eighth tied into the next beat is written as a syncopated quarter (or dotted quarter when it runs to the next "and"); a quarter tied to an on-beat eighth becomes a dotted quarter. Only within one half of the bar, so beat 3 stays visible. Triplets unchanged.
 - **Result** on 7XTyc's real timings: ties 46 → 41, 407 notes, no MuseScore problems. Note, onset and pitch scores unchanged.
 - **Remaining ties** are mostly notes running into a beat on a different grid (an "and" held into a triplet beat). Judging those needs a rhythm answer key (GRFIA audio-to-score).

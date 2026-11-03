@@ -1,7 +1,7 @@
 # ADR-0024: PDFs only for app runs, never in tests or scorecards
 
 - **Date**: 2026-11-03
-- **Status**: Proposed (PR #36 open)
+- **Status**: Accepted (PR #36 merged)
 - **Decided by**: Claude (build thread), after MuseScore pop-ups during batch runs on the Mac
 - **PR**: #36
 - **Refines**: [ADR-0012](0012-pdf-via-musescore.md)
