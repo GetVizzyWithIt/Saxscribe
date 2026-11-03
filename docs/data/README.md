@@ -40,7 +40,7 @@ Last updated 2026-11-03.
 | MedleyDB-Pitch | Stems incl. sax with checked f0 | A (pitch) | none | Pitch check; separation | On request; pending | [medleydb-pitch](datasheets/medleydb-pitch.md) |
 | TinySOL, Iowa MIS, Philharmonia, OrchideaSOL, GoodSounds | Single alto/tenor/soprano/bari notes, techniques | C | none | Range and technique checks, augmentation | various | [single-note-sets](datasheets/single-note-sets.md) |
 | SaxTimbre, Vibrato Dataset, Register Control, Medley-solos-DB | Technique and register clips | C | none | Articulation/technique classifiers | various | [technique-sets](datasheets/technique-sets.md) |
-| GRFIA audio-to-score | 1,026 short alto and tenor takes (~3 h), written score per take, technique tags | B once aligned; C (techniques) | none yet | Notation and rhythm answer key; technique tags; tenor | Non-commercial | [grfia-audio-to-score](datasheets/grfia-audio-to-score.md) |
+| GRFIA audio-to-score | 1,026 short alto and tenor takes (~3 h), written score per take, technique tags | B (machine-aligned, not spot-checked); C (techniques) | `grfia-alto`, `grfia-tenor` | Notation and rhythm answer key; technique tags; tenor | Non-commercial | [grfia-audio-to-score](datasheets/grfia-audio-to-score.md) |
 | Austin's recordings and answer keys | Etude takes; records paired with his paper transcriptions | A (once aligned and checked) | `pairs` | Frozen 20-take test set; fine-tuning; personal answer keys | Private | [austin-recordings](datasheets/austin-recordings.md) |
 | FiloBass | Jazz bass, no sax | — | none | Future bass instrument | CC BY 4.0 | listed in manifest only |
 

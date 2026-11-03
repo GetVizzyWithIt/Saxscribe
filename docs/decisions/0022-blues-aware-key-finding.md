@@ -1,7 +1,7 @@
 # ADR-0022: Blues-aware key finding
 
 - **Date**: 2026-11-03
-- **Status**: Proposed (PR #34 open)
+- **Status**: Accepted (PR #34 merged)
 - **Decided by**: Claude (routine, from scorecard evidence)
 - **PR**: #34
 

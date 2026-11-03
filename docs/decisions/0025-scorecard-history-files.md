@@ -1,7 +1,7 @@
 # ADR-0025: Scorecard history kept as data files beside the log
 
 - **Date**: 2026-11-03
-- **Status**: Proposed (PR #38 open)
+- **Status**: Accepted (PR #38 merged)
 - **Decided by**: Claude (dashboard thread), for Austin's request to see model performance over time
 - **PR**: #38
 

@@ -65,9 +65,10 @@ Goal: a score Austin would put on the stand, with few edits.
 - [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
 - [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
-- [ ] Syncopations as one note instead of tied eighths (PR #32, open; ties 46 → 41, log E14)
-- [ ] Key for blues tunes (PR #34, open; Weimar 49% → 60%, blues 47% → 70%, log E15)
-- [ ] Band records: write only where the sax plays (PR #35, draft; scorecard pending, log E16)
+- [x] Syncopations as one note instead of tied eighths (PR #32; ties 46 → 41, log E14)
+- [x] Key for blues tunes (PR #34; Weimar 49% → 60%, blues 47% → 70%, log E15)
+- [x] Band records: write only where the sax plays (PR #35; 0 answer-key notes lost, 7XTyc 56% → 62%, log E16). One wrong 8 s cut on an older take is being fixed
+- [ ] MusicXML title from the song metadata (still "Transcription"); copy outputs to a Desktop folder
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
