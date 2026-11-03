@@ -84,7 +84,11 @@ def pages(take: Take, view: str, song: dict | None = None) -> list[str]:
     tk.setOptions({"pageWidth": 2159, "pageHeight": 2794, "scale": 45, "footer": "none",
                    "pageMarginLeft": 120, "pageMarginRight": 120, "pageMarginTop": 100,
                    "pageMarginBottom": 100, "spacingSystem": 10, "svgViewBox": True})
-    if not tk.loadFile(str(musicxml(take, view, song))):
+    from .meta import stamp
+    song = song or {}
+    xml = stamp(musicxml(take, view, song).read_text(encoding="utf-8"),
+                song.get("title", ""), song.get("artist", ""), credits=True)
+    if not tk.loadData(xml):
         raise ValueError(f"Verovio could not read the {view} score")
     out = [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
     if out and song and song.get("title"):
