@@ -77,7 +77,9 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
     pdfs = [pdf.name for xml, pdf in ((take.musicxml, take.pdf),
                                       (take.written_musicxml(horn.name), take.written_pdf(horn.name)))
             if engrave.to_pdf(xml, pdf)]
-    if not pdfs and engrave.find_musescore() is None:
+    if engrave.turned_off():
+        frontend.log("  PDFs turned off ([tools] musescore = \"off\"). MusicXML is written.")
+    elif not pdfs and engrave.find_musescore() is None:
         frontend.log("  No PDF: MuseScore is not installed (brew install --cask musescore). MusicXML is written.")
     elif len(pdfs) < 2:
         frontend.log("  Some PDFs were not made (see the MuseScore message above). MusicXML is written.")
@@ -300,27 +302,37 @@ def is_triplet(x: Fraction) -> bool:
     return (x % 1).denominator == 3
 
 
+def on_grid(x: Fraction) -> bool:
+    """A spot MuseScore can write without odd tuplets: a 32nd-note point or a triplet point."""
+    d = (x % 1).denominator
+    return d == 3 or 8 % d == 0
+
+
 def one_grid_per_beat(placed: list[dict]) -> list[dict]:
     """Each beat is written in one grid: triplets, or sixteenths and thirty-seconds.
 
     A beat that mixes the two (from a squeezed note, or a long note that started
-    on a triplet) cannot be written cleanly, so its triplet points move to the
-    nearest sixteenth. Order is kept and no note is dropped.
+    on a triplet), or holds a point on neither grid (a squeeze after a triplet
+    point lands on 11/24 of a beat, which would need a 6:5 or 12:7 tuplet), is
+    moved to sixteenths. Order is kept and no note is dropped. If a few passes
+    do not settle it, every point goes to the 32nd grid, which always works.
     """
-    for _ in range(4):
+    for attempt in range(5):
         points: dict[int, list[Fraction]] = {}
         for p in placed:
             for x in (p["start"], p["start"] + p["length"]):
                 if x % 1:
                     points.setdefault(int(x // 1), []).append(x)
         mixed = {b for b, xs in points.items()
-                 if any(is_triplet(x) for x in xs) and any(not is_triplet(x) for x in xs)}
+                 if any(not on_grid(x) for x in xs)
+                 or (any(is_triplet(x) for x in xs) and any(not is_triplet(x) for x in xs))}
         if not mixed:
             return placed
+        last = attempt == 4
 
         def fix(x: Fraction) -> Fraction:
-            if int(x // 1) in mixed and is_triplet(x):
-                return Fraction(round(x * 4), 4)
+            if last or int(x // 1) in mixed and (is_triplet(x) or not on_grid(x)):
+                return Fraction(round(x * 4), 4) if not last else Fraction(round(x * 8), 8)
             return x
         ends = [fix(p["start"] + p["length"]) for p in placed]
         starts = [fix(p["start"]) for p in placed]
