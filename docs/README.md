@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03, with PRs through #21 merged (#22 to #24 open).
+Last full review: 2026-11-03, with PRs through #26 merged (#27 open).
 
 ## Map
 

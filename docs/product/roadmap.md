@@ -24,11 +24,11 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 
 - [x] CREPE Notes style segmenter as a candidate notes tool (PR #6). Lost to
       Basic Pitch on URMP and ChoraleBricks.
-- [x] Join notes Basic Pitch cuts in two (PR #10). Scored before/after: hurts URMP, Bach10 and ChoraleBricks by merging real repeats; off by default in PR #22 (open). Omnibook run pending
+- [x] Join notes Basic Pitch cuts in two (PR #10). Scored before/after: hurts URMP, Bach10 and ChoraleBricks by merging real repeats; off by default (PR #22). Omnibook run pending
 - [ ] Split notes, second attempt: a better re-attack detector or a trained onset head
 - [x] Segmenter and contour-cutter runs on the Omnibook: Basic Pitch stays best (64.2% vs 59.8% and 58.3%)
 - [x] Weakest Omnibook solos: the answer keys are an octave off in long passages (log E10)
-- [ ] Flag octave disagreements with the key in the scorecard (PR #23, open)
+- [x] Flag octave disagreements with the key in the scorecard (PR #23)
 - [x] Omnibook grading limited to the answer key's span (PR #16); re-run: note F1 64%, onset F1 86%
 - [ ] Note ends: note F1 drops ~9 points when offsets count
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
@@ -44,7 +44,7 @@ split and on 20 of Austin's recordings.
 Goal: full-mix targets. Currently 4–17% note F1 on ensemble mixes, because
 Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 
-- [ ] Pick the stem the sax actually lands in, sum when split (PR #24, open): worst Parker record 24% → ~58% note F1
+- [x] Pick the stem the sax actually lands in, sum when split (PR #24): 10 Parker records 50.6% → 56.4% note F1, 110 → 64 s/min
 - [ ] Measure Demucs alternatives (BS-RoFormer, UVR community models) on
       urmp-mix, bach10-mix, omnibook-mix and JazzSAMBA stem-vs-mix pairs
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes
@@ -61,7 +61,9 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Never drop notes when the beat grid is missing; MuseScore macOS crash (PR #15)
 - [x] Triplet markings MuseScore rejects (PR #17). PDF now complete: test Parker solo, 2 pages, all 398 notes, proper beaming and triplets
 - [x] Readability pass (PR #21): swung eighths, triplets, multi-bar rests, one spelling per part (log E7)
-- [ ] Check the readability pass on real recordings (so far synthetic swing solos only)
+- [x] MuseScore accepts every file: off-grid points after triplets moved to sixteenths (PR #26)
+- [ ] On real recordings: still too many 32nds and triplets; tune the grid choice (log E12)
+- [ ] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; UI thread)
 - [ ] Notation fidelity check in the scorecard (notes written = notes detected)
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
@@ -74,7 +76,7 @@ Goal: a score Austin would put on the stand, with few edits.
 
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
-1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. First real test: Austin's band recording "Blues for Mary Jane".
+1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27 (open): the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
 2. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
 3. Developer compare view against an answer key.
 4. Editor; edits saved as diffs (training data).

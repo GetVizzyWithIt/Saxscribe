@@ -28,7 +28,7 @@ targets plus guitar and piano for the six-stem model. Saxophone is not a target
 class. *To verify*: exact training mix for the six-stem variant.
 
 ## Evaluation data
-`urmp-mix` (11 parts), `bach10-mix` (10 chorales), `omnibook-mix` (Parker records, run pending).
+`urmp-mix` (11 parts), `bach10-mix` (10 chorales), `omnibook-mix` (10 Parker records).
 
 ## Quantitative results
 Downstream, default tools, 2026-11-02 ([log](../evaluation/log.md)):
@@ -45,7 +45,7 @@ clarinet, bassoon or brass instead of the sax.
 MIT; no limits for this use. Records fed to it are Austin's own copies and stay on the Mac.
 
 ## Caveats and recommendations
-- On some Parker records the sax lands in "guitar" or is split between "guitar" and "other". Automatic stem choice (PR #24) took the worst record from 24% to about 58% note F1.
+- On some Parker records the sax lands in "guitar" or is split between "guitar" and "other". Automatic stem choice (PR #24) lifted 10 Parker records from 50.6% to 56.4% note F1 (worst three: 24/30/25% → 56/49/41%) and cut time from 110 to 64 s per minute.
 - The URMP and Bach10 mixes are harder than a jazz record (the sax is often an inner voice), so they are stress tests, not forecasts.
 - Next: benchmark BS-RoFormer and UVR models on the same sets; then a sax-vs-rest fine-tune using JazzSAMBA's stems and mixes (Phase 2).
 
@@ -53,4 +53,4 @@ MIT; no limits for this use. Records fed to it are Austin's own copies and stay 
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-02 | Copied from the game analyzer; default stem "other" | #1 |
-| 2026-11-03 | Stem chosen by melody clarity, summed when split (open) | #24 |
+| 2026-11-03 | Stem chosen by melody clarity, summed when split | #24 |

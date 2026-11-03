@@ -1,7 +1,7 @@
 # ADR-0019: Split-note join off by default
 
 - **Date**: 2026-11-02
-- **Status**: Proposed (PR #22 open). Supersedes [ADR-0010](0010-join-split-notes.md)
+- **Status**: Accepted (PR #22 merged). Supersedes [ADR-0010](0010-join-split-notes.md)
 - **Decided by**: Claude (routine, from the scorecard)
 - **PR**: #22
 
