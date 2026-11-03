@@ -1,7 +1,7 @@
 # ADR-0012: PDF sheet music engraved by MuseScore from the MusicXML
 
 - **Date**: 2026-11-02
-- **Status**: Accepted
+- **Status**: Accepted; refined by [ADR-0024](0024-no-pdfs-in-test-and-scorecard-runs.md) (no PDFs in test or scorecard runs)
 - **Decided by**: Claude (routine) for Austin's v1 scope; merged by Austin
 - **PR**: #12
 
