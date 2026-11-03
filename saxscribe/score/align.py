@@ -29,6 +29,8 @@ SNAP = 0.08
 STEADY_SNAP = 0.04      # metronome keys: attacks this close to the beat grid are taken
 STEADY_SLOPES = np.linspace(0.97, 1.03, 13)   # how far the player's tempo may sit off the marking
 STEADY_GOOD = 0.6       # share of key notes that must land on a heard attack for the fit to stand
+STEADY_CLOSE = 0.85     # fits landing this share of the best fit's notes are compared by pitch
+DTW_BETTER = 0.05       # DTW key wins only when its pitches agree this much better than the steady key's
 
 
 def score_notes(path: Path, horn: str, written: bool) -> list[dict]:
@@ -114,6 +116,9 @@ def tidy(notes: list[dict]) -> list[dict]:
     (mir_eval needs every note to last). Such a note moves just after the one
     before it rather than being dropped."""
     out = sorted((dict(n) for n in notes), key=lambda n: n["onset"])
+    for n in out:
+        n["onset"] = max(0.0, n["onset"])
+        n["offset"] = max(0.0, n["offset"])
     for a, b in zip(out, out[1:]):
         if b["onset"] < a["onset"] + MIN_NOTE:
             b["onset"] = a["onset"] + MIN_NOTE
@@ -133,55 +138,109 @@ def run(audio: Path, score: Path, out: Path | None, horn: str, written: bool) ->
     return dst
 
 
-def attacks(y: np.ndarray, sr: int = frontend.SR, look: float = 0.05) -> np.ndarray:
-    """Onset times where the sound gets louder. The onset detector also fires
-    on releases (the sound stopping is a change too); a metronome fit that
-    locks onto releases puts every key note one note-length late."""
+def attacks(y: np.ndarray, sr: int = frontend.SR, before: float = 0.05, after: float = 0.08) -> np.ndarray:
+    """Onset times that are not just a note stopping. The onset detector also
+    fires on releases (the sound stopping is a change too); a metronome fit
+    that locks onto releases puts every key note one note-length late. An
+    onset stays when the sound within 80 ms after it gets back to at least
+    0.7 of its level just before (a release followed straight away by the
+    next attack still counts)."""
     times = np.array([o["t"] for o in frontend.detect_onsets(y)])
-    w = int(look * sr)
+    hop = int(0.01 * sr)
+    if len(y) < hop:
+        return np.array([])
+    frames = np.sqrt(np.mean(y[: len(y) // hop * hop].reshape(-1, hop) ** 2, axis=1))
     keep = []
     for t in times:
-        i = int(t * sr)
-        before = float(np.sqrt(np.mean(y[max(0, i - w):i] ** 2))) if i > 0 else 0.0
-        after = float(np.sqrt(np.mean(y[i:i + w] ** 2))) if i < len(y) else 0.0
-        if after >= 0.7 * before:   # tongued legato notes dip a little; releases fall away
+        i = int(t / 0.01)
+        was = float(frames[max(0, i - int(before / 0.01)):i].mean()) if i > 0 else 0.0
+        now = float(frames[i:i + int(after / 0.01)].max()) if i < len(frames) else 0.0
+        if now >= 0.7 * was:
             keep.append(t)
     return np.array(keep)
 
 
-def align_steady(audio: Path, notes: list[dict], tempo: float) -> tuple[list[dict], float]:
+def pitch_profile(audio: Path):
+    """What pitch classes sound when: (chroma per frame, silent frames zeroed)."""
+    import librosa
+    y = frontend.load_mono(audio, SR)
+    chroma = librosa.feature.chroma_cqt(y=y, sr=SR, hop_length=HOP)
+    rms = librosa.feature.rms(y=y, hop_length=HOP)[0][: chroma.shape[1]]
+    chroma = chroma[:, : len(rms)]
+    chroma[:, rms < 0.02 * rms.max()] = 0.0
+    return chroma
+
+
+def pitch_agreement(chroma: np.ndarray, notes: list[dict]) -> float:
+    """How well a key's pitches match what is heard under them, 0 to 1: for each
+    note, the strength of its pitch class over its span (1 = the loudest class
+    in every frame, 0 = silence or another note), averaged over notes."""
+    if not notes or chroma.shape[1] == 0:
+        return 0.0
+    sums = np.concatenate([np.zeros((12, 1)), np.cumsum(chroma, axis=1)], axis=1)
+    last = chroma.shape[1]
+    got = []
+    for n in notes:
+        a = int(np.clip(n["onset"] * SR / HOP, 0, last - 1))
+        b = int(np.clip(n["offset"] * SR / HOP, a + 1, last))
+        got.append((sums[int(n["pitch"]) % 12, b] - sums[int(n["pitch"]) % 12, a]) / (b - a))
+    return float(np.mean(got))
+
+
+def align_steady(audio: Path, notes: list[dict], tempo: float,
+                 chroma: np.ndarray | None = None) -> tuple[list[dict], float]:
     """Score notes lined up with a take played to a metronome: (key notes, fit).
 
     GRFIA-RealSax takes are played at the marked tempo, so each note sits at
     t0 + beat x 60 / tempo, give or take a few percent. Chroma DTW can't line
     up a one-pitch drill (nothing changes to lock onto) and drifted 150-270 ms
-    there. This finds the start and the exact tempo (within 3% of the
-    marking) that put the most score notes on heard attacks, then takes each
-    attack within 40 ms. fit is the share of notes that landed on one; the
-    caller falls back to DTW when it is low."""
+    there. This tries every start and tempo (within 3% of the marking) that
+    puts a score note on a heard attack and counts how many notes land on
+    one. Attacks alone can't tell the steps of a scale apart (every beat has
+    one), so among the fits that land nearly as many notes as the best, the
+    one whose pitches agree best with what is heard wins. Each note then
+    takes an attack within 40 ms. fit is the share of notes that landed on
+    one; the caller falls back to DTW when it is low."""
     onsets = attacks(frontend.load_mono(audio))
     first = min(n["start"] for n in notes)
     q = np.array([(n["start"] - first) * 60.0 / tempo for n in notes])
     if len(onsets) == 0:
         return [], 0.0
-    best = (-1, np.inf, 0.0, 1.0)
+    if chroma is None:
+        chroma = pitch_profile(audio)
+    fits = {}
     for slope in STEADY_SLOPES:
         for j in range(min(len(onsets), 12)):
             for k in range(min(len(q), 3)):
                 t0 = onsets[j] - q[k] * slope
+                if t0 < -STEADY_SNAP:
+                    continue          # the first note can't start before the recording
                 pred = t0 + q * slope
                 d = np.abs(onsets[None, :] - pred[:, None]).min(axis=1)
                 hits = int((d <= STEADY_SNAP).sum())
                 err = float(np.mean(np.minimum(d, 0.2)))
-                if hits > best[0] or (hits == best[0] and err < best[1]):
-                    best = (hits, err, t0, slope)
-    hits, _, t0, slope = best
-    out = []
-    for n, qi in zip(notes, q):
-        t = t0 + qi * slope
-        k = int(np.argmin(np.abs(onsets - t)))
-        if abs(onsets[k] - t) <= STEADY_SNAP:
-            t = float(onsets[k])
-        length = (n["end"] - n["start"]) * 60.0 / tempo * slope
-        out.append({"onset": t, "offset": t + length, "pitch": n["pitch"], "beat": float(n["start"])})
-    return tidy(out), hits / len(notes)
+                fits[(round(t0, 2), round(float(slope), 3))] = (hits, err, t0, slope)
+    if not fits:
+        return [], 0.0
+
+    def place(t0, slope):
+        out = []
+        for n, qi in zip(notes, q):
+            t = max(0.0, t0 + qi * slope)
+            k = int(np.argmin(np.abs(onsets - t)))
+            if abs(onsets[k] - t) <= STEADY_SNAP:
+                t = float(onsets[k])
+            length = (n["end"] - n["start"]) * 60.0 / tempo * slope
+            out.append({"onset": t, "offset": t + length, "pitch": n["pitch"], "beat": float(n["start"])})
+        return tidy(out)
+
+    most = max(f[0] for f in fits.values())
+    close = [f for f in fits.values() if f[0] >= STEADY_CLOSE * most]
+    best, best_rank = None, None
+    for hits, err, t0, slope in close:
+        key = place(t0, slope)
+        rank = (round(pitch_agreement(chroma, key), 2), hits, -err)
+        if best_rank is None or rank > best_rank:
+            best, best_rank = (key, hits), rank
+    key, hits = best
+    return key, hits / len(notes)

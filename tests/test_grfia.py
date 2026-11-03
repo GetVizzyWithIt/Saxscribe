@@ -110,7 +110,8 @@ def test_cached_grfia_keys_are_tidied_on_load(tmp_path, monkeypatch):
     cache.mkdir(parents=True)
     (cache / "T1.json").write_text(json.dumps({"notes": [
         {"onset": 3.0, "offset": 3.9474, "pitch": 50, "beat": 4.5},
-        {"onset": 3.9474, "offset": 3.9474, "pitch": 49, "beat": 4.875}], "meter": "4/4", "tempo": 96, "method": "dtw"}))
+        {"onset": 3.9474, "offset": 3.9474, "pitch": 49, "beat": 4.875}], "meter": "4/4", "tempo": 96, "method": "dtw",
+        "version": refs.GRFIA_KEY_VERSION}))
     monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
     r = refs.load_grfia(tmp_path, "tenor")[0]
     assert all(n["offset"] > n["onset"] for n in r.notes)
@@ -178,19 +179,65 @@ def test_grfia_keys_from_the_old_aligner_are_made_again(tmp_path, monkeypatch):
     cache.mkdir(parents=True)
     old = {"notes": [{"onset": 1.0, "offset": 1.5, "pitch": 48, "beat": 0}], "meter": "4/4", "tempo": 96}
     (cache / "Old.json").write_text(json.dumps(old))
-    (cache / "New.json").write_text(json.dumps({**old, "method": "steady"}))
+    (cache / "New.json").write_text(json.dumps({**old, "method": "steady", "version": refs.GRFIA_KEY_VERSION}))
     (cache / "Skip.json").write_text(json.dumps({"skip": "take/score length 3.00"}))
     made = []
 
-    def fake_steady(audio, notes, tempo):
+    def fake_steady(audio, notes, tempo, chroma=None):
         made.append(audio.name)
         return [{"onset": 0.5 + n["start"] * 0.625, "offset": 0.5 + n["end"] * 0.625,
                  "pitch": n["pitch"], "beat": n["start"]} for n in notes], 0.9
 
     monkeypatch.setattr("saxscribe.score.align.align_steady", fake_steady)
+    monkeypatch.setattr("saxscribe.score.align.align_notes", lambda audio, notes: [])
     monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
     got = {r.id: r for r in refs.load_grfia(tmp_path, "alto")}
     assert made == ["Old.wav"]
     assert set(got) == {"Old", "New"}
     assert json.loads((cache / "Old.json").read_text())["method"] == "steady"
     assert len(got["Old"].notes) > 1 and len(got["New"].notes) == 1
+
+
+def _scale_take(path, lead, tempo, pitches, per_beat=2, rate=22050):
+    """An evenly tongued scale: every note has an attack, so attacks alone can't
+    say which step is which."""
+    from . import fixture
+    step = 60 / tempo / per_beat
+    y = np.zeros(int(rate * (lead + len(pitches) * step + 1)))
+    truth = []
+    for i, p in enumerate(pitches):
+        t0 = lead + i * step
+        n = np.arange(int(rate * step * 0.85))
+        tone = sum(np.sin(2 * np.pi * k * fixture.hz(p) * n / rate) / k for k in range(1, 5))
+        y[int(t0 * rate):int(t0 * rate) + len(n)] += 0.3 * tone * np.minimum(1, n / 200)
+        truth.append(t0)
+    sf.write(path, y, rate)
+    return truth
+
+
+def test_steady_alignment_does_not_slide_a_scale_onto_the_neighbouring_steps(tmp_path):
+    """GRFIA scales: the attack-only fit locked whole steps late (pitch 3% on
+    AbMajScale). Pitch must pick the right lock."""
+    from saxscribe.score import align
+    up = [60, 62, 64, 65, 67, 69, 71, 72]
+    pitches = up + up[::-1][1:] + up[1:] + up[::-1][1:]
+    truth = _scale_take(tmp_path / "scale.wav", 0.4, 100.0, pitches)
+    notes = [{"start": i / 2, "end": i / 2 + 0.5, "pitch": p} for i, p in enumerate(pitches)]
+    got, fit = align.align_steady(tmp_path / "scale.wav", notes, 100.0)
+    assert fit >= align.STEADY_GOOD
+    errors = np.abs(np.array([n["onset"] for n in got]) - truth)
+    assert errors.max() <= 0.05, errors.round(3)   # the scorecard's onset tolerance
+    chroma = align.pitch_profile(tmp_path / "scale.wav")
+    late = [dict(n, onset=n["onset"] + 0.6, offset=n["offset"] + 0.6) for n in got]
+    assert align.pitch_agreement(chroma, got) > align.pitch_agreement(chroma, late) + 0.3
+
+
+def test_steady_keys_never_start_before_the_recording(tmp_path):
+    """Ex14 tenor: a fit that put the first note before 0 s stopped the scoring."""
+    from saxscribe.score import align
+    pitches = [60, 62, 64, 65, 67, 65, 64, 62] * 2
+    _scale_take(tmp_path / "early.wav", 0.02, 120.0, pitches)
+    notes = [{"start": i / 2, "end": i / 2 + 0.5, "pitch": p} for i, p in enumerate(pitches)]
+    got, _ = align.align_steady(tmp_path / "early.wav", notes, 120.0)
+    assert all(n["onset"] >= 0 and n["offset"] > n["onset"] for n in got)
+    assert align.tidy([{"onset": -0.2, "offset": 0.1, "pitch": 60}])[0]["onset"] == 0.0
