@@ -57,6 +57,7 @@ Last updated 2026-11-03.
   performances; both go on the same side of any split.
 - **Thresholds are tuned on train splits only.**
 - **Answer keys can be wrong too.** Some Omnibook keys are an octave off in long passages; the scorecard flags octave disagreements (PR #23) so they aren't counted as model errors without a check.
+- **Pretrained models have seen some of our test sets.** CREPE trained on Bach10 and MedleyDB; Basic Pitch on MedleyDB-Pitch; Beat This! `final0` on Filosax and JAAH ([upstream review](../models/upstream-review.md)). Scores on those sets flatter the model; say so when reporting them, and use a held-out checkpoint where one exists.
 - **Machine-made labels are never answer keys** (JazzSAMBA sax MIDI,
   MedleyDB-Pitch pYIN notes).
 

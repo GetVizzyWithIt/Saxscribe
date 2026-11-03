@@ -5,7 +5,7 @@
 - **Developed by**: Spotify Audio Intelligence Lab (Bittner et al., 2022).
 - **Type**: small convolutional network (under 20k parameters) on a harmonic constant-Q spectrogram; predicts onsets, active notes and fine pitch, then a rule-based step turns those into notes.
 - **Licence**: Apache 2.0.
-- **How Saxscribe calls it**: `frontend.basic_pitch_notes()` → `predict(onset_threshold=0.5, frame_threshold=0.3, minimum_note_length=50 ms, min/max frequency from the horn, melodia_trick=True)`. Core ML backend on the Mac, ONNX elsewhere; one automatic retry because the first Core ML call sometimes fails while loading. Output then goes through the [note rules](note-rules.md) (one-line, split-note join).
+- **How Saxscribe calls it**: `frontend.basic_pitch_notes()` → `predict(onset_threshold=0.5, frame_threshold=0.3, minimum_note_length=50 ms, min/max frequency from the horn, melodia_trick=True)`; `infer_onsets` is on (library default). The library's default minimum note is 127.7 ms; we use 50 ms because fast runs are the point. Core ML backend on the Mac, ONNX elsewhere; one automatic retry because the first Core ML call sometimes fails while loading. Output then goes through the [note rules](note-rules.md) (one-line, split-note join).
 - **Citation**: Bittner, Bosch, Rubinstein, Meseguer-Brocal, Ewert, "A Lightweight Instrument-Agnostic Model for Polyphonic Note Transcription and Multipitch Estimation", ICASSP 2022.
 
 ## Intended use
@@ -21,7 +21,7 @@
 Onset F1 and note F1 (with and without offsets), mir_eval, 50 ms / 50 cents / 20% offset.
 
 ## Training data
-Per the paper: a mix of datasets covering voice, guitar, piano and multitrack recordings (GuitarSet, iKala, MAESTRO, MedleyDB-Pitch, Slakh). Saxophone appears only inside MedleyDB-Pitch and Slakh's synthesised tracks. *To verify* against the paper.
+GuitarSet, iKala, MAESTRO, MedleyDB-Pitch and Slakh (confirmed in the [upstream review](upstream-review.md)). Saxophone appears only inside MedleyDB-Pitch and Slakh's synthesised tracks. **Overlap**: MedleyDB-Pitch, if we ever score on it.
 
 ## Evaluation data
 All answer-key sets.
@@ -50,3 +50,4 @@ Apache 2.0; no limits.
 | 2026-11-02 | Copied from game; minimum note 50 ms (game used 80 ms) | #1 |
 | 2026-11-02 | Split-note join added after it by default | #10 |
 | 2026-11-02 | Join off by default again | #22 |
+| 2026-11-03 | Training data confirmed; defaults (minimum note 127.7 ms, infer_onsets, melodia_trick) from the upstream review | #51 |

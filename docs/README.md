@@ -64,5 +64,3 @@ evaluation, deployment).
 - The project folder's SMC 2023 PDF (pages 72-78) holds the Järveläinen et al.
   vibrotactile paper, not CREPE Notes. The CREPE Notes paper (Riley & Dixon,
   SMC 2023, Zenodo 8315899) should be added if a local copy is wanted.
-- Beat This! training data and checkpoint details are summarised from memory
-  of the paper; check against the paper before the model card is called final.

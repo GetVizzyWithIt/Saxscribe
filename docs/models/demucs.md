@@ -4,7 +4,8 @@
 - **What it does**: splits a full mix into six stems: drums, bass, vocals, guitar, piano, other.
 - **Developed by**: Meta AI Research (Rouard, Massa, Défossez). Hybrid Transformer Demucs, v4.
 - **Type**: hybrid network that works on both the waveform and the spectrogram, with a transformer between them. `htdemucs_6s` is the experimental six-stem variant of the four-stem `htdemucs`.
-- **Licence**: MIT (code and weights).
+- **Licence**: code MIT. The `htdemucs_6s` weights were trained only on Meta's internal dataset, which the author says "likely means CC-NC-BY": non-commercial. Fine for a single-user tool; would matter for any public release ([upstream review](upstream-review.md)).
+- **Maintenance**: the author's fork (adefossez/demucs) gets bug fixes only. Version 4.1.0 (2026-07-11) drops torchaudio for inference, which would let us lift the `torchaudio<2.9` cap.
 - **How Saxscribe calls it**: `frontend.separate_stems()` runs `python -m demucs -n htdemucs_6s -d <mps|cpu>`; only with `transcribe --mix` or the `*-mix` scorecard sets. Stem choice: `--stem`; otherwise "other" until PR #24, which picks the stem with the clearest single melody line and sums stems when the sax is split.
 - **Citation**: Rouard, Massa, Défossez, "Hybrid Transformers for Music Source Separation", ICASSP 2023.
 
@@ -23,9 +24,7 @@ downstream pitch accuracy and note F1 on the `*-mix` sets, compared with the
 same parts' solo recordings.
 
 ## Training data
-MUSDB18-HQ plus an internal set of several hundred songs, per the paper; four-stem
-targets plus guitar and piano for the six-stem model. Saxophone is not a target
-class. *To verify*: exact training mix for the six-stem variant.
+Per the author's README, the `htdemucs_6s` weights were trained only on Meta's internal dataset (not MUSDB18-HQ plus internal, as this card said before). Stems: drums, bass, vocals, guitar, piano, other. Saxophone is not a target class ([upstream review](upstream-review.md)).
 
 ## Evaluation data
 `urmp-mix` (11 parts), `bach10-mix` (10 chorales), `omnibook-mix` (10 Parker records).
@@ -42,7 +41,7 @@ The drop from solo to mix is the separator's: the stem follows violin,
 clarinet, bassoon or brass instead of the sax.
 
 ## Ethical and licensing considerations
-MIT; no limits for this use. Records fed to it are Austin's own copies and stay on the Mac.
+Weights are likely non-commercial (CC-NC-BY, per the author); no limit for Austin's private use, but a blocker for any public release. Records fed to it are Austin's own copies and stay on the Mac.
 
 ## Caveats and recommendations
 - On some Parker records the sax lands in "guitar" or is split between "guitar" and "other". Automatic stem choice (PR #24) lifted 10 Parker records from 50.6% to 56.4% note F1 (worst three: 24/30/25% → 56/49/41%) and cut time from 110 to 64 s per minute.
@@ -54,3 +53,4 @@ MIT; no limits for this use. Records fed to it are Austin's own copies and stay 
 | --- | --- | --- |
 | 2026-11-02 | Copied from the game analyzer; default stem "other" | #1 |
 | 2026-11-03 | Stem chosen by melody clarity, summed when split | #24 |
+| 2026-11-03 | Licence and training data corrected from the upstream review; maintenance status and 4.1.0 noted | #51 |
