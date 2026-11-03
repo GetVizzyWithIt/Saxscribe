@@ -9,10 +9,11 @@ notes.json holds:
   key        not filled in yet (step 2)
 
 Note tools (--notes-tool):
-  basic_pitch  Spotify's Basic Pitch on the stem (the default when installed),
-               then same-pitch neighbours joined where the stem shows no
-               re-articulation (Basic Pitch often cuts one held note in two)
-  basic_pitch_raw  Basic Pitch's notes without that join, for comparison
+  basic_pitch  Spotify's Basic Pitch on the stem (the default when installed).
+               basic_pitch_raw is the same thing, kept as an older name.
+  basic_pitch_join  Basic Pitch, then same-pitch neighbours joined where the
+               stem shows no re-articulation. Off by default: on URMP and
+               Bach10 it merged real repeated notes (note F1 -1.6 and -10.4).
   segment      the pitch line cut into notes after the CREPE Notes method (segment.py)
   contour      a simpler cutter on the pitch line: a new note wherever the pitch
                settles somewhere new or the stem has a clear new attack
@@ -41,12 +42,13 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
         y = frontend.load_mono(take.stem, sr=contour_layer.RATE)
         return segment.envelopes(y, contour_layer.RATE, len(line["time"]))
 
-    if tool in ("auto", "basic_pitch", "basic_pitch_raw") and frontend.basic_pitch_available():
+    basic = ("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join")
+    if tool in basic and frontend.basic_pitch_available():
         notes = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz))
-        name = "basic_pitch_raw" if tool == "basic_pitch_raw" else "basic_pitch"
-        if name == "basic_pitch":
+        name = "basic_pitch_join" if tool == "basic_pitch_join" else "basic_pitch"
+        if name == "basic_pitch_join":
             notes, extra["joined"] = segment.join_repeats(notes, *stem_envelopes())
-    elif tool in ("basic_pitch", "basic_pitch_raw"):
+    elif tool in basic:
         raise SystemExit("Basic Pitch is not installed; use --notes-tool segment or install it.")
     elif tool == "segment":
         notes, name = segment.segment(line, *stem_envelopes()), "segment"
