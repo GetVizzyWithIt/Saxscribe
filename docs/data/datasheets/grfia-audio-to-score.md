@@ -31,7 +31,7 @@ Real players recording real horns. Room, microphones and number of players:
 - Pitch: the kern files sit an octave above concert pitch for both horns (checked on real takes); the loader subtracts 12.
 - Saxscribe (`score/kern.py`, `score/refs.py: load_grfia`, PR #33): reads the kern (ties joined, chords to top note, grace notes skipped), lines each score up with its take using the etude aligner (`score/align.py`: chroma DTW, then onsets snapped to heard attacks), and caches the key as JSON under `~/saxscribe-runs/keys/grfia-<horn>/`.
 - Takes whose length is outside 0.8–1.6× the score's length at its tempo (count-ins, repeats) are skipped and logged. Since PR #40, zero-length notes are dropped from keys and a take that can't be scored no longer stops the run.
-- The aligned keys are machine-made and not yet spot-checked: tier B. Known issue: on short, repetitive exercises (scales, patterns) the alignment can slip by a repeat; these are the worst-scoring takes (E20).
+- The aligned keys are machine-made and not yet spot-checked: tier B. Known issue: on short, repetitive exercises (scales, patterns) the alignment can slip by a repeat; these are the worst-scoring takes (E20). Metronome takes are aligned on the beat since PR #46; PR #47 picks per take between the beat and the older alignment by pitch agreement.
 - Labelling convention: a trill is written as one note in the score, so a transcription that writes every alternation scores low on trill takes. Score trill takes separately or by tag.
 
 ## Uses
@@ -61,6 +61,7 @@ Version, md5 and folder recorded in `datasets/manifest.json` once downloaded.
 
 ## Saxscribe results
 - 2026-11-03, full run (about 950 takes, provisional until alignment slips on short repetitive exercises are fixed) ([log E20](../../evaluation/log.md)):
-  - Alto: pitch 84%, onset recall 71%, note F1 71%. Tenor: pitch 85%, onset recall 68%, note F1 67%. Octave errors 0.1% on both.
+  - Alto: pitch 84%, onset recall 71%, note F1 58% (71% without offsets). Tenor: pitch 85%, onset recall 68%, note F1 54% (67% without offsets). Octave errors 0.1% on both.
+- After PR #46 re-aligned the metronome takes on the beat ([log E21](../../evaluation/log.md)): alto 65%, tenor 53%; one-pitch drills 25% → 79% alto, 35% → 79% tenor. 14 alto and 14 tenor scale takes now slip by one step; PR #47 picks the better alignment per take (expected ~70% alto, ~62% tenor). These are answer-key changes, not transcription changes.
   - Trill takes: note F1 24% (score writes one trilled note; we write each alternation). Bends and falls: alto pitch 71–78%. Vibrato: no effect.
 - Superseded: the 10-take preliminary (pitch 80%, E17).

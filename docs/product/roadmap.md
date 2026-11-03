@@ -34,7 +34,7 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 - [ ] Articulation tags (slur/tongued first, then scoop, fall, bend, vibrato)
 - [ ] Austin's first etude takes → 20-take frozen test set
 - [ ] Trained note/onset head (on Filosax when granted, Austin's takes, Omnibook train split)
-- [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 67% vs alto 71% (log E20); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
+- [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 54% vs alto 58% (log E20; keys being re-aligned, E21); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
 - [ ] Trill tag, so a trilled passage reads as one written trill while every alternation stays in notes.json (GRFIA trill takes 24%, log E20)
 
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test
@@ -78,7 +78,7 @@ Goal: a score Austin would put on the stand, with few edits.
 - [ ] Hand-count edits per 100 notes on 10 fixed tunes
 - [ ] Chord-aware spelling (Weimar chords; existing chord model for records)
 - [ ] Phrase marks, meters other than 4/4, pickups
-- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align). First: Blues for Mary Jane (Getz, 4 pages, concert C); intro and choruses 1–2 hand-entered and scored (note F1 70%, log E19); rest waits on OMR
+- [ ] Personal answer keys from Austin's paper transcriptions (OMR → MusicXML → align). First: Blues for Mary Jane (Getz, 4 pages, concert C); intro and choruses 1–2 hand-entered and scored (note F1 54%, 70% without note ends; log E19); rest waits on OMR
 
 **Gate:** edits per 100 notes ≤5 solo, ≤15 full mix.
 
