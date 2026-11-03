@@ -32,6 +32,7 @@ No known limits.
 
 ## Caveats and recommendations
 - On unaccompanied sax it can find almost no beats; before PR #15 the notation step then dropped most notes (42 of 398 in the first PDF render). See [log E5](../evaluation/log.md).
+- On the Parker test solo (sax alone) it found 13 beats in 90 s, and the filled grid read 162 BPM for a ~261 BPM solo. PR #29 takes the beat from the notes in that case ([log E13](../evaluation/log.md)).
 - Add a beat F1 column to the Omnibook scorecard summary.
 - For Austin's solo takes, a click track or backing track would give the grid.
 
@@ -40,3 +41,4 @@ No known limits.
 | --- | --- | --- |
 | 2026-11-02 | Copied from game analyzer | #1 |
 | 2026-11-02 | Notation no longer drops notes when beats are missing | #15 |
+| 2026-11-03 | Sparse beats on lone sax: notation takes the beat from the notes | #29 (open) |

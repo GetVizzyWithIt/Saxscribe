@@ -13,6 +13,7 @@ for the contour, Basic Pitch for notes, Beat This! for beats.
 | urmp | 94.4% | 81.6% | 64.4% | 80.8% | 24 | solo | E3 |
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
+| omnibook-mix (10) | — | — | 56.4% | — | 64 | mix | E11 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -29,21 +30,50 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P1 | PR #10 before/after on omnibook | `basic_pitch_raw` vs `basic_pitch_join` | URMP, Bach10, ChoraleBricks done (E8); Omnibook still running |
 | P2 | Omnibook with the segmenter and the contour cutter | `--notes-tool segment`, `--notes-tool contour` | Done, see E9 |
 | P6 | Pitch-error breakdown on the weakest Omnibook solos | default | Done, see E10 |
-| P3 | 10 full Parker records | `omnibook-mix --limit 10` | Running |
+| P3 | 10 full Parker records | `omnibook-mix --limit 10` | Done, see E11 |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 
 ---
 
-### E11 — 2026-11-03 — Picking the sax stem from Demucs (PR #24, open)
+### E13 — 2026-11-03 — Beat taken from the notes on lone sax (PR #29, open)
+- **Finding**: on the Parker test solo (Omnibook 7XTyc, sax stem alone) Beat This! found only 13 beats in 90 s. Filling the gaps gave a beat every 0.370 s (162 BPM); Parker's swung eighth pairs repeat every 0.23 s (about 261 BPM). On a grid 1.6× too slow, eighths come out as triplets and 32nds. This is the main cause of the busy notation in E12.
+- **Change**: when the tracker finds too few beats (and there are at least 16 notes), take the beat from the note onsets: autocorrelation over 80–300 BPM, then step beat by beat, leaning toward nearby notes and moving the grid onto the beat if it sits on the off-beats. Band recordings with a dense tracked grid keep the tracker's beats. notation.json records where the grid came from ([ADR-0021](../decisions/0021-beat-from-notes-when-tracker-sparse.md)).
+- **Scorecard**: notes, onset and pitch unchanged (notation only). Readability on 7XTyc, every note kept, MuseScore problems 0 both times:
+
+| Measure | main | PR #29 |
+| --- | --- | --- |
+| Tempo | 162 BPM (wrong) | 264 BPM |
+| Plain eighths | 88 | 231 |
+| Triplet eighths | 162 | 146 (mostly full groups Parker plays) |
+| 32nd notes | 80 | 1 |
+| Dotted sixteenths | 20 | 1 |
+| Notes squeezed off a shared spot | 85 | 1 |
+
+- **Next**: score rhythm against the Omnibook's printed rhythm to see how many of the remaining triplets are right.
+
+### E12 — 2026-11-03 — Readable notation on a real recording
+- **Finding**: on real output (Parker solos, Austin's "Blues for Mary Jane") PR #21 gives multi-bar rests and far fewer ties, but still too many 32nds and triplets. Tuning is next.
+- One bar of "Blues for Mary Jane" still produced a 6:5 tuplet MuseScore refused. PR #26 (merged) moves any point that is on neither the sixteenth nor the triplet grid onto sixteenths, and adds a setting to turn PDFs off (`[tools] musescore = "off"`).
+
+### E11 — 2026-11-03 — Picking the sax stem from Demucs (PR #24, merged)
 - **Finding**: Demucs has no sax stem. On some Parker records the sax lands in "guitar", or is split between "guitar" and "other", but the pipeline always read "other".
 - **Change**: pick the stem that carries the clearest single melody line, and sum stems when the sax is split between them ([ADR-0020](../decisions/0020-pick-sax-stem-automatically.md)).
-- **Result**: the worst Parker band record goes from 24% to about 58% note F1. *To fill in*: the full `omnibook-mix` before/after table.
+- **Set**: `omnibook-mix`, 10 Parker band records.
+
+| Measure | Always "other" | Auto stem pick |
+| --- | --- | --- |
+| Note F1 (mean) | 50.6% | 56.4% |
+| Worst three records | 24%, 30%, 25% | 56%, 49%, 41% |
+| Other records | — | unchanged |
+| Seconds per minute | 110 | 64 |
+
+- **What it shows**: the gain comes entirely from the records where the sax had landed in the wrong stem; the rest are untouched. Speed is now close to the 60 s/min mix target.
 
 ### E10 — 2026-11-02 — Why Omnibook pitch accuracy is 74%: answer-key octave errors
 - **Finding**: on the two worst solos (7RfYc, BRfYc) long passages of the answer key are an octave above what was played, checked against the recording. Our pitch line is right; the key is wrong.
 - **On healthy solos**: pitch line right on ~87% of frames; matched notes have the correct pitch ~95% of the time.
-- **Action**: PR #23 (open) flags octave disagreements with the answer key in the scorecard. Datasheet updated with the data-quality issue.
+- **Action**: PR #23 (merged) flags octave disagreements with the answer key in the scorecard. Datasheet updated with the data-quality issue.
 - **Implication**: the 74% headline mixes our errors with the dataset's. Report Omnibook pitch with and without flagged solos once PR #23 lands.
 
 ### E9 — 2026-11-02 — Omnibook: three note tools, graded inside the key span
@@ -78,7 +108,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | | Notes joined | — | 271 |
 
 - **What it shows**: the join hurts all three clean sets. On ChoraleBricks it brings the note count closer to the key (1.25× → 1.10×) yet scores lower, so the notes it removes are often real ones. It merges real repeated notes (a player re-tonguing the same pitch), so it costs more than the split notes it fixes.
-- **Action**: PR #22 (open) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). Omnibook before/after still running.
+- **Action**: PR #22 (merged) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). Omnibook before/after still running.
 - Fidelity note: wrongly joined repeats drop written notes, which is the failure the project rule forbids.
 
 ### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, merged)

@@ -1,7 +1,7 @@
 # ADR-0020: Pick the sax stem automatically, and sum stems when it is split
 
 - **Date**: 2026-11-03
-- **Status**: Proposed (PR #24 open)
+- **Status**: Accepted (PR #24 merged)
 - **Decided by**: Claude (routine, from scorecard evidence)
 - **PR**: #24
 
@@ -17,7 +17,7 @@ and sum stems when the sax is split between them. `--stem` still overrides,
 and all six stems stay in `stems/` to audition.
 
 ## Consequences
-- Worst Parker band record: note F1 24% → about 58% ([log E11](../evaluation/log.md)).
+- 10 Parker band records: note F1 50.6% → 56.4%; the three collapsed records 24/30/25% → 56/49/41%; 110 → 64 s per minute ([log E11](../evaluation/log.md)).
 - A first step toward any-instrument transcription: choosing a stem by what it
   contains instead of by its name.
 - Does not help when other horns share the stem (URMP, Bach10 mixes); that still needs a better separator (Phase 2).
