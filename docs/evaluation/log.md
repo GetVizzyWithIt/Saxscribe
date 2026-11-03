@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp | Onset-recall loss vs before #52 | 15 points | 8 points | yes | [E27](#e27--2026-11-03--re-tongued-repeats-restored-pr-57-merged) |
+| 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp (all sets in E29) | Onset recall (89.1% before #52); note F1 | 74.5%; 69.0% | 81.9%; 68.8% | yes | [E29](#e29--2026-11-03--full-scorecards-for-re-tongued-repeats-pr-57-merged) |
 | 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
 | 2026-11-03 | #43 | No sax-span cut where Demucs moved the horn into another melodic stem | isolate | older take | Wrong cuts | 1 (8 s) | 0 | yes | [E16](#e16--2026-11-03--write-only-where-the-sax-plays-pr-35-merged) |
@@ -36,20 +36,20 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Set | Pitch | Onset F1 | Note F1 | Note F1 no offset | s/min | Targets | Run |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| bach10 | 96.9% | **92.2%** ✓ | **97.3%** ✓¶ | 92.2% | 21 | solo | E4, E26 |
-| choralebricks | **98.9%** ✓ | 86.7% | **91.8%** ✓¶ | 86.5% | 22 | solo | E4, E26 |
-| urmp | 94.4% | 81.6% | 69.0%¶ | 80.8% | 24 | solo | E3, E26 |
+| bach10 | 96.9% | **92.2%** ✓ | **97.3%** ✓¶ | 92.2% | 21 | solo | E4, E29 |
+| choralebricks | **98.9%** ✓ | 86.7% | **90.3%** ✓¶ | 86.5% | 22 | solo | E4, E29 |
+| urmp | 94.4% | 81.6% | 68.8%¶ | 80.8% | 24 | solo | E3, E29 |
 | omnibook | 74%† | **86%** ✓ | **64.2%** ✓ | — | — | mix | E6, E9 |
 | urmp-mix | 41.6% | 48.9% | 17.1% | 35.4% | 27 | mix | E3 |
-| omnibook-mix (10) | — | — | 57.8%¶ | — | 64 | mix | E11, E26 |
-| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 75.8%‡¶ | 78.5% | — | solo | E22 |
-| grfia-tenor | 87.2% | 75.1% | 57.8%‡ | 73.8% | — | solo | E22 |
-| bfmj-austin (Getz, 35 s, 136 notes) | — | 83% recall | 54% | 70% | — | mix | E19 |
+| omnibook-mix (10) | — | — | 57.6%¶ | — | 64 | mix | E11, E29 |
+| grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 75.2%‡¶ | 78.5% | — | solo | E22, E29 |
+| grfia-tenor | 87.2% | 75.1% | 66.1%‡¶ | 73.8% | — | solo | E22, E29 |
+| bfmj-austin (Getz, 35 s, 136 notes) | — | 80% recall¶ | 56%¶ | 70% | — | mix | E19, E29 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
 
-¶ Note F1 after PR #52 (E26); other columns from the earlier run. Provisional: URMP onset recall fell 89% → 75% with #52, a fidelity regression being fixed.
+¶ Current default, after PRs #52 and #57 (E29); other columns from the earlier run. Provisional: onset recall is still 1–7 points below where it was before #52 (URMP 89% → 82%), a fidelity regression being fixed.
 
 ‡ GRFIA with the final answer keys (PRs #46 and #47, E22).
 
@@ -94,10 +94,27 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E29 — 2026-11-03 — Full scorecards for re-tongued repeats (PR #57, merged)
+- **What**: every scorecard set rerun with #57 on main `78063ad`, PDFs off. Notes were redone from the #52 runs (`--redo notes`); outputs are in `~/saxscribe-runs-pr57/` on the Mac. Pitch accuracy is unchanged on every set (per-set values to follow).
+
+| Set | Note F1: before #52 / #52 / #57 | Onset F1: #52 / #57 | Onset recall: before #52 / #52 / #57 | Notes restored by the dip rule |
+| --- | --- | --- | --- | --- |
+| urmp | 64.4 / 69.0 / 68.8% | 75.3 / 79.8% | 89.1 / 74.5 / **81.9%** | 143 |
+| bach10 | 87.5 / 97.3 / 97.3% | 98.6 / 98.6% | 99.0 / 98.8 / 98.8% | 0 |
+| choralebricks | 77.8 / 91.8 / 90.3% | 95.4 / 94.8% | 97.1 / 95.3 / 96.1% | 58 |
+| grfia-alto | 66.5 / 75.8 / 75.2% | 83.0 / 82.7% | 88.0 / 85.3 / 86.0% | 169 |
+| grfia-tenor | 57.8 / 67.2 / 66.1% | 79.0 / 78.8% | 85.3 / 81.6 / 82.9% | 256 |
+| omnibook | 64.2 / 64.2 / 64.2% | 85.7 / 85.7% | 87.0 / 84.8 / 85.1% | 282 |
+| omnibook-mix (Parker band records) | 56.4 / 57.8 / 57.6% | 80.9 / 81.0% | 84.1 / 81.5 / 81.8% | 55 |
+| bfmj-austin (Blues for Mary Jane, book) | 54.4 / 56.6 / 56.4% | — | 83.1 / 79.4 / 80.1% | 57 |
+
+- **Result**: #57 brings back about half of the notes #52 lost on URMP: onset recall goes from 74.5% to 81.9%, against 89.1% before #52. Note F1 stays within 1.5 points of #52 on every set, so most of the #52 gain is kept. The results match the prototype within about 1 point.
+- **Still lost against before #52 (onset recall)**: URMP −7.2 points, Blues for Mary Jane −3.0, GRFIA tenor −2.4, Parker band records −2.3, GRFIA alto −2.0, Omnibook −1.9, ChoraleBricks −1.0. These are real notes not written, so ADR-0026 stays conditional. The build thread is working on them next.
+
 ### E27 — 2026-11-03 — Re-tongued repeats restored (PR #57, merged)
 - **Finding**: most URMP notes lost under #52 (E26) were re-tongued repeats: the same pitch attacked again after the reed stops, which the tempo-based minimum removed as too short.
 - **Change**: a removed short note comes back when the loudness dips by at least 10 dB in the 60 ms before its attack.
-- **Result**: URMP onset-recall loss from #52 shrinks from 15 to 8 points; about 80% of the restored notes are real; the gains on other sets mostly hold. Full tables to follow.
+- **Result**: URMP onset-recall loss from #52 shrinks from 15 to 8 points; about 80% of the restored notes are real; the gains on other sets mostly hold. Full tables in E29.
 - **Still open**: an 8-point onset-recall loss on URMP; the build thread keeps working on it. ADR-0026 stays conditional.
 
 ### E26 — 2026-11-03 — Full scorecards for the adaptive shortest note (PR #52, merged)
