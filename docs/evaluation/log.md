@@ -81,7 +81,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Action**: PR #22 (open) turns it off by default ([ADR-0019](../decisions/0019-split-note-join-off-by-default.md)). Omnibook before/after still running.
 - Fidelity note: wrongly joined repeats drop written notes, which is the failure the project rule forbids.
 
-### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, open)
+### E7 — 2026-11-02 — Notation readability pass on synthetic swing solos (PR #21, merged)
 - **Set**: synthetic swing solos with known written answers (not a mir_eval scorecard; notation layer only). Per-solo averages.
 
 | Measure | Before | After |
