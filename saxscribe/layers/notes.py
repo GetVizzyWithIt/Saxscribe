@@ -13,7 +13,11 @@ notes.json holds:
 
 Note tools (--notes-tool):
   basic_pitch  Spotify's Basic Pitch on the stem (the default when installed).
-               basic_pitch_raw is the same thing, kept as an older name.
+               Its shortest note follows the take's own note spacing
+               (frontend.basic_pitch_notes). basic_pitch_raw is the same thing,
+               kept as an older name.
+  basic_pitch_fixed  Basic Pitch with a fixed 50 ms shortest note (the
+               default before 2026-11-03).
   basic_pitch_join  Basic Pitch, then same-pitch neighbours joined where the
                stem shows no re-articulation. Off by default: on URMP and
                Bach10 it merged real repeated notes (note F1 -1.6 and -10.4).
@@ -46,10 +50,13 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
         y = frontend.load_mono(take.stem, sr=contour_layer.RATE)
         return segment.envelopes(y, contour_layer.RATE, len(line["time"]))
 
-    basic = ("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join")
+    basic = ("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed")
     if tool in basic and frontend.basic_pitch_available():
-        notes = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz))
-        name = "basic_pitch_join" if tool == "basic_pitch_join" else "basic_pitch"
+        info = {}
+        notes = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz,
+                                                    by_spacing=tool != "basic_pitch_fixed", info=info))
+        extra.update(info)
+        name = tool if tool in ("basic_pitch_join", "basic_pitch_fixed") else "basic_pitch"
         if name == "basic_pitch_join":
             notes, extra["joined"] = segment.join_repeats(notes, *stem_envelopes())
     elif tool in basic:
