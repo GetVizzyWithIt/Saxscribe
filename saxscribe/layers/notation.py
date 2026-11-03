@@ -67,10 +67,12 @@ MIN_STEP = Fraction(1, 8)  # beats: two notes on one grid slot are written this 
 def run(take: Take, horn: Horn, swing: str = "auto") -> None:
     frontend.log("Layer 4/4: notation")
     data = notes_layer.read(take)
-    notes = data["notes"]
+    places, notes = notes_layer.played(data["notes"])
     write_midi(take.midi, notes)
     result = quantize(notes, data.get("beats") or [], data.get("downbeats") or [],
                       data.get("tempo_bpm"), swing)
+    for p in result["notes"]:
+        p["index"] = places[p["index"]]  # back to its place in notes.json
     concert = build_score(result, horn, written=False)
     concert.write("musicxml", fp=str(take.musicxml))
     build_score(result, horn, written=True).write("musicxml", fp=str(take.written_musicxml(horn.name)))
@@ -89,7 +91,7 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
                 swing_source=result["swing_source"], pdf=pdfs)
     if result.get("squeezed") or result.get("grid", "tracked") != "tracked":
         frontend.log(f"  beat grid: {result.get('grid')}; {result.get('squeezed', 0)} notes moved off a shared slot")
-    frontend.log(f"  {len(result['notes'])} of {len(notes)} notes written in {result['key']}, swing {result['swing']:.2f} "
+    frontend.log(f"  {len(result['notes'])} of {len(notes)} sax notes written in {result['key']}, swing {result['swing']:.2f} "
                  f"({result['swing_source']}); wrote {take.musicxml.name} and "
                  f"{take.written_musicxml(horn.name).name}")
 

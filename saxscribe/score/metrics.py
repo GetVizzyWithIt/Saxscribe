@@ -96,7 +96,7 @@ def score_take(ref, take) -> dict:
     """Every layer's scores for one take folder against one Reference."""
     from ..layers import contour as contour_layer, notes as notes_layer
     data = notes_layer.read(take)
-    est = data["notes"]
+    est = notes_layer.played(data["notes"])[1]
     beats = data.get("beats") or []
     if getattr(ref, "partial", False) and ref.notes:
         span = span_of(ref.notes)
