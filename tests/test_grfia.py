@@ -110,7 +110,87 @@ def test_cached_grfia_keys_are_tidied_on_load(tmp_path, monkeypatch):
     cache.mkdir(parents=True)
     (cache / "T1.json").write_text(json.dumps({"notes": [
         {"onset": 3.0, "offset": 3.9474, "pitch": 50, "beat": 4.5},
-        {"onset": 3.9474, "offset": 3.9474, "pitch": 49, "beat": 4.875}], "meter": "4/4", "tempo": 96}))
+        {"onset": 3.9474, "offset": 3.9474, "pitch": 49, "beat": 4.875}], "meter": "4/4", "tempo": 96, "method": "dtw"}))
     monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
     r = refs.load_grfia(tmp_path, "tenor")[0]
     assert all(n["offset"] > n["onset"] for n in r.notes)
+
+
+def test_alignment_holds_on_a_repeated_figure_after_a_long_count_in(tmp_path):
+    """GRFIA exercises: one short figure repeated, with seconds of silence before
+    the first note. The aligned key must not slip a note or a figure."""
+    from saxscribe.score import align
+    from . import fixture
+    rate, beat = 22050, 0.5                      # 120 BPM, eighth notes
+    figure = [60, 62, 64, 62]
+    pitches = (figure * 3)[:11]
+    lead, tail = 2.5, 1.5
+    y = np.zeros(int(rate * (lead + len(pitches) * beat / 2 + tail)))
+    truth = []
+    for i, p in enumerate(pitches):
+        t0 = lead + i * beat / 2
+        n = np.arange(int(rate * beat / 2 * 0.9))
+        tone = sum(np.sin(2 * np.pi * k * fixture.hz(p) * n / rate) / k for k in range(1, 5))
+        y[int(t0 * rate):int(t0 * rate) + len(n)] += 0.3 * tone * np.minimum(1, n / 200)
+        truth.append(t0)
+    sf.write(tmp_path / "take.wav", y, rate)
+    notes = [{"start": i / 2, "end": i / 2 + 0.5, "pitch": p} for i, p in enumerate(pitches)]
+    got = align.align_notes(tmp_path / "take.wav", notes)
+    assert [n["pitch"] for n in got] == pitches
+    errors = np.abs(np.array([n["onset"] for n in got]) - truth)
+    assert np.mean(errors <= 0.05) >= 0.9, errors.round(3)
+
+
+def test_steady_alignment_lines_up_a_one_pitch_drill_played_to_a_metronome(tmp_path):
+    """GRFIA articulation drills: one pitch, repeated. Chroma DTW has nothing to
+    lock onto there; the metronome fit must put every key note on its attack."""
+    from saxscribe.score import align
+    from . import fixture
+    rate, tempo, played = 22050, 100.0, 1.02     # marked 100 BPM, played 2% slow
+    beats = [0, 1, 2, 2.5, 3, 4, 5, 6, 6.5, 7, 8, 9, 10, 11]
+    lead = 1.7
+    y = np.zeros(int(rate * (lead + 12 * 0.6 * played + 1)))
+    truth = []
+    for b in beats:
+        t0 = lead + b * 60 / tempo * played
+        n = np.arange(int(rate * 0.22))
+        tone = sum(np.sin(2 * np.pi * k * fixture.hz(65) * n / rate) / k for k in range(1, 5))
+        y[int(t0 * rate):int(t0 * rate) + len(n)] += 0.3 * tone * np.minimum(1, n / 200)
+        truth.append(t0)
+    sf.write(tmp_path / "drill.wav", y, rate)
+    notes = [{"start": b, "end": b + 0.5, "pitch": 65} for b in beats]
+    got, fit = align.align_steady(tmp_path / "drill.wav", notes, tempo)
+    assert fit >= align.STEADY_GOOD
+    assert len(got) == len(beats) and all(n["pitch"] == 65 for n in got)
+    errors = np.abs(np.array([n["onset"] for n in got]) - truth)
+    assert errors.max() <= 0.04, errors.round(3)
+
+
+def test_grfia_keys_from_the_old_aligner_are_made_again(tmp_path, monkeypatch):
+    import json
+    root = tmp_path / "real_a2s_sax_dataset"
+    (root / "real" / "alto").mkdir(parents=True)
+    (root / "krn" / "alto").mkdir(parents=True)
+    for name in ("Old", "New", "Skip"):
+        (root / "krn" / "alto" / f"{name}.krn").write_text(KERN)
+        sf.write(root / "real" / "alto" / f"{name}.wav", np.zeros(7 * 8000), 8000)
+    cache = tmp_path / "keys" / "grfia-alto"
+    cache.mkdir(parents=True)
+    old = {"notes": [{"onset": 1.0, "offset": 1.5, "pitch": 48, "beat": 0}], "meter": "4/4", "tempo": 96}
+    (cache / "Old.json").write_text(json.dumps(old))
+    (cache / "New.json").write_text(json.dumps({**old, "method": "steady"}))
+    (cache / "Skip.json").write_text(json.dumps({"skip": "take/score length 3.00"}))
+    made = []
+
+    def fake_steady(audio, notes, tempo):
+        made.append(audio.name)
+        return [{"onset": 0.5 + n["start"] * 0.625, "offset": 0.5 + n["end"] * 0.625,
+                 "pitch": n["pitch"], "beat": n["start"]} for n in notes], 0.9
+
+    monkeypatch.setattr("saxscribe.score.align.align_steady", fake_steady)
+    monkeypatch.setattr(refs, "grfia_key_cache", lambda horn: cache)
+    got = {r.id: r for r in refs.load_grfia(tmp_path, "alto")}
+    assert made == ["Old.wav"]
+    assert set(got) == {"Old", "New"}
+    assert json.loads((cache / "Old.json").read_text())["method"] == "steady"
+    assert len(got["Old"].notes) > 1 and len(got["New"].notes) == 1
