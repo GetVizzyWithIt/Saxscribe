@@ -191,3 +191,16 @@ def test_stamp_keeps_every_note():
     out = stamp(xml, "A & B", "Someone")
     assert out.count("<note/>") == 2 and "A &amp; B" in out and "saxscribe</creator>" not in out
     assert stamp(out, "A & B", "Someone") == out  # stamping twice changes nothing
+
+
+def test_musescore_files_have_no_printed_credits():
+    """MuseScore 4 piles position-less <credit>s at the page foot, so the files carry header
+    fields only (MuseScore builds its title block from them); credits are for Verovio's page."""
+    from saxscribe.app.meta import stamp
+    xml = ('<score-partwise><work><work-title>T</work-title></work><identification>'
+           '<rights>old</rights></identification><credit page="1"><credit-words>old</credit-words>'
+           '</credit><part-list/></score-partwise>')
+    plain = stamp(xml, "Song", "Player")
+    assert "<credit" not in plain.replace("<creator", "") and "<rights>" not in plain
+    assert '<creator type="composer">As played by Player</creator>' in plain
+    assert plain.count("<credit page") == 0 and stamp(xml, "Song", "Player", credits=True).count("<credit page") == 3
