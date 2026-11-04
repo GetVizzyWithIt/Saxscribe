@@ -101,18 +101,18 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E39 — 2026-11-04 — Moving suspected overtones by default: rejected; overtone check off by default (PR #78)
-- **Question**: with the range rules (PR #69), should notes tagged `overtone` be moved down to the lower note by default (`--range-rules overtones`) instead of only tagged (`--range-rules out`)? Run on the Mac at main `4ed61f2` (with #69 and #74).
+- **Question**: with the range rules (PR #69), should notes tagged `overtone` be moved down to the lower note by default (`--range-rules overtones`) instead of only tagged (`--range-rules out`)? Run on the Mac at main `4ed61f2` (with #69 and #74), 16:11–16:32 UTC.
 
 | Set | Note F1, default → overtones moved | Moved notes the key could judge: agrees with lower note / with note as heard |
 | --- | --- | --- |
-| Omnibook (45 solos) | 64.20% → 63.85% | 6 / 116 |
+| Omnibook (45 solos) | 64.20% → 63.85% (without offsets 78.79% → 78.30%) | 6 / 116 |
 | GRFIA tenor (473 takes) | 65.84% → 65.83% | 0 / 11 |
 | GRFIA alto (479 takes) | 75.10% → 75.10% | 0 / 2 |
 
 - **What the tag got right**: 678 notes were flagged as overtones. Where the answer key could judge (135 of them), it backed the overtone reading 6 times and the note as heard 129 times. As a tag it points at the wrong note about 95% of the time.
 - **Decision**: don't move overtones by default. PR #78 goes further and turns the overtone check off in the default mode (`out`), so no `overtone` tags are added there: a tag that is wrong 95% of the time would mislead editing and pollute edited takes saved as training data. `--range-rules overtones` and `flag` still run the check, for later tuning; the Omnibook solos with wrong moves (wkTyc, N3fYc, V3fYc, KRfYc) are the study set. Notes above the altissimo range still use the spectrum to choose between an octave and an octave-and-a-fifth move.
 - **Scores**: unchanged by #78, since the default never moved overtone notes and tags are not scored. Tag counts in E38 (599 `overtone` on the Omnibook) no longer apply to the default.
-- **Reading**: the spectrum test behind the tag is too loose to act on. Tightening it is a possible follow-up, not scheduled.
+- **Reading**: the spectrum test behind the tag is too loose to act on. Tightening it is a possible follow-up, not scheduled. Recorded as [ADR-0032](../decisions/0032-overtone-moving-rejected.md).
 
 ### E38 — 2026-11-04 — Range rules final scorecards; PR #74 confirmed as the pitch-line fix
 - **Omnibook** (45 solos, confirmed on the Mac at main `4ed61f2`), before #69 / with #69 / with #74: pitch 74.2% / 72.4% / **74.3%**; chroma 76.1% / 74.1% / 76.1%; note F1 64.2% throughout. Tags with #74: 599 `overtone`, 240 `altissimo`, 48 `below_range`. The three solos that dropped (N3fYc, S5VYc, 9THwc) are back within 0.5 points of their numbers before #69. Note and onset F1 unchanged (64.2%, 85.7%).
