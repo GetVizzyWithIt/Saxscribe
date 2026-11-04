@@ -17,7 +17,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-CREPE_MAX_HZ = 2000.0  # torchcrepe can't look above about 2006 Hz
+# CREPE (the pitch line) looks no higher than this. Its own limit is about
+# 2006 Hz, but a search band reaching its top bins goes wrong: on some
+# Omnibook solos whole stretches of playing came out at 1966-1998 Hz with
+# confidence 0, so they were dropped from the line (pitch accuracy N3fYc
+# 62.2 -> 49.4 with 2000 Hz, 2026-11-04). 1600 Hz is the alto ceiling CREPE
+# ran with on every scorecard before; it still covers the tenor's whole
+# altissimo (to concert G6, 1568 Hz). The note detector (Basic Pitch) keeps
+# the full range, so higher alto altissimo still becomes notes.
+CREPE_MAX_HZ = 1600.0
 BEND_ROOM = 2          # semitones searched below the lowest note: a lipped-down low note or flat tuning
 
 

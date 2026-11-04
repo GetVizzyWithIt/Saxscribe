@@ -129,3 +129,10 @@ def test_cli_takes_every_range_mode(fixture_wav, tmp_path, mode):
     assert main(["transcribe", str(fixture_wav), "-o", str(out), "--range-rules", mode,
                  "--notes-tool", "contour", "--contour-tool", "pyin"]) == 0
     assert (out / "notes.json").exists()
+
+
+def test_crepe_never_searches_near_its_top_bins():
+    # A band reaching CREPE's top bins made it lock there with confidence 0 (Omnibook, 2026-11-04).
+    from saxscribe.horns import CREPE_MAX_HZ
+    assert CREPE_MAX_HZ <= 1600
+    assert hz(HORNS["tenor"].altissimo) <= CREPE_MAX_HZ  # tenor altissimo still on the pitch line
