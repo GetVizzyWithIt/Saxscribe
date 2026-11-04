@@ -1,7 +1,7 @@
 # ADR-0028: Run Demucs with two averaged shifts by default
 
 - **Date**: 2026-11-04
-- **Status**: Proposed (PR #61 open)
+- **Status**: Accepted (PR #61 merged)
 - **Decided by**: Claude (build thread), from separator round 2; Austin asked the question
 - **PR**: #61
 - **Refines**: [ADR-0027](0027-keep-htdemucs-6s.md)

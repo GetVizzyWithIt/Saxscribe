@@ -47,7 +47,7 @@ Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 
 - [x] Pick the stem the sax actually lands in, sum when split (PR #24): 10 Parker records 50.6% → 56.4% note F1, 110 → 64 s/min
 - [x] Measure Demucs alternatives: htdemucs_ft and BS-RoFormer lose to htdemucs_6s on Parker records and Blues for Mary Jane, and are 3–4× slower; keep htdemucs_6s (log E25, ADR-0027)
-- [ ] Two averaged Demucs shifts by default (+0.8 / +1.9 points, +50% time; PR #61, log E30)
+- [x] Two averaged Demucs shifts by default (+0.8 / +1.9 points, +50% time; PR #61, log E30)
 - [ ] Onset model trained on sax, for the soft same-pitch repeats still missed since #52 (log E31)
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes
 - [ ] Fallback: instrument-conditioned transcription (MuScriptor) on the "other" stem

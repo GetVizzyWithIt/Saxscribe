@@ -47,7 +47,7 @@ Weights are likely non-commercial (CC-NC-BY, per the author); no limit for Austi
 - On some Parker records the sax lands in "guitar" or is split between "guitar" and "other". Automatic stem choice (PR #24) lifted 10 Parker records from 50.6% to 56.4% note F1 (worst three: 24/30/25% → 56/49/41%) and cut time from 110 to 64 s per minute.
 - The URMP and Bach10 mixes are harder than a jazz record (the sax is often an inner voice), so they are stress tests, not forecasts.
 - Compared 2026-11-03 ([log E25](../evaluation/log.md), [ADR-0027](../decisions/0027-keep-htdemucs-6s.md)): htdemucs_ft and BS-RoFormer were 3–4× slower and scored lower (Parker records 52.2% and 52.7% vs 56.4%; Blues for Mary Jane 32.3% and 39.8% vs 51.0%). Two averaged shifts: 57.0% / 54.3% at +50% time, a candidate quality setting.
-- Round 2, 2026-11-04 ([log E30](../evaluation/log.md), [ADR-0028](../decisions/0028-two-demucs-shifts-by-default.md)): ten alternatives tested (UVR woodwind model, AudioSep, pitch-guided filter, BS-RoFormer cascade, Demucs twice, Banquet). Only two averaged shifts helped on both sets with no loss (Parker 57.1% → 57.9%, Blues for Mary Jane 53.1% → 55.0%); it becomes the default in PR #61.
+- Round 2, 2026-11-04 ([log E30](../evaluation/log.md), [ADR-0028](../decisions/0028-two-demucs-shifts-by-default.md)): ten alternatives tested (UVR woodwind model, AudioSep, pitch-guided filter, BS-RoFormer cascade, Demucs twice, Banquet). Only two averaged shifts helped on both sets with no loss (Parker 57.1% → 57.9%, Blues for Mary Jane 53.1% → 55.0%); it is the default since PR #61.
 - Next: a sax-vs-rest fine-tune using JazzSAMBA's stems and mixes (Phase 2).
 
 ## Change history

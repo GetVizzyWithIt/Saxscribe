@@ -34,4 +34,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0025](0025-scorecard-history-files.md) | Scorecard history kept as data files beside the log; app Results page | 2026-11-03 | Accepted |
 | [0026](0026-adaptive-minimum-note-length.md) | Basic Pitch's shortest note follows the take's tempo | 2026-11-03 | Accepted, conditional (onset recall fix pending) |
 | [0027](0027-keep-htdemucs-6s.md) | Keep Demucs htdemucs_6s as the separator | 2026-11-03 | Accepted |
-| [0028](0028-two-demucs-shifts-by-default.md) | Demucs with two averaged shifts by default | 2026-11-04 | Proposed (PR #61) |
+| [0028](0028-two-demucs-shifts-by-default.md) | Demucs with two averaged shifts by default | 2026-11-04 | Accepted |
