@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #64 | Sextuplet and 32nd grids on slow or busy beats; swing read from one- or two-note beats | notation | Weimar, 444 solos | Position read (ballads) | 63.1% (16.9%) | 65.9% (36.2%) | yes | [E32](#e32--2026-11-04--sextuplet-and-32nd-grids-for-slow-and-busy-beats-pr-64-merged) |
 | 2026-11-04 | #61 | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-merged) |
 | 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp (all sets in E29) | Onset recall (89.1% before #52); note F1 | 74.5%; 69.0% | 81.9%; 68.8% | yes | [E29](#e29--2026-11-03--full-scorecards-for-re-tongued-repeats-pr-57-merged) |
 | 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
@@ -94,6 +95,25 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E32 — 2026-11-04 — Sextuplet and 32nd grids for slow and busy beats (PR #64, merged)
+- **Problem** (E24, E28): ballads and slow tunes were written in the right place only 17–34% of the time. 85–88% of those misses were written late: with only quarter and triplet grids, a beat holding 6 or 8 notes put two notes on one spot, and pushing each later note into the next slot made whole runs late. The inner notes of busy ballad beats were also being read as swing.
+- **Change**: a beat may be written as sextuplet sixteenths (6 per beat) or 32nds (8 per beat), offered only when the beat lasts at least 0.6 s (100 BPM or slower) or holds 5 or more note starts (penalty 0.07). Swing is read only from beats with one or two notes. Two notes on one spot are separated by the beat's own grid step. Sextuplet beats are written as 3:2 triplet sixteenths so MuseScore accepts them ([ADR-0029](../decisions/0029-finer-grids-for-slow-and-busy-beats.md)).
+- **Scorecard**: all 444 Weimar solos, scored on the Mac with the PR's notation on main `245952d`. Tempo groups here are the PR's own (slow includes medium slow; up includes medium up; ballads counted on their own), so they differ from E28's five bands. Cells: position read / exact / right beat.
+
+| Group | Before (main) | After (#64) | Position read change |
+| --- | --- | --- | --- |
+| Ballad (10) | 16.9 / 15.7 / 62.9% | **36.2** / 35.4 / 84.4% | +19.3 |
+| Slow (60) | 34.3 / 33.2 / 74.9% | **44.0** / 43.0 / 87.1% | +9.7 |
+| Medium (85) | 51.7 / 47.9 / 86.0% | 54.4 / 49.8 / 88.7% | +2.7 |
+| Up (289) | 74.1 / 68.7 / 94.1% | 74.8 / 69.1 / 94.6% | +0.7 |
+| **All (444)** | 63.1 / 58.7 / 89.3% | **65.9 / 61.1 / 92.2%** | +2.8 |
+
+  - Triplets 1.29× → 1.37×, sixteenths 0.71× → 0.65× of Weimar's counts. Notes kept 100% on every solo (ADR-0016 holds).
+  - Note F1, onset and pitch are unaffected: notation layer only.
+- **Not adopted** (by position read on all 444): the finer grids on every beat 63.1 (up tempo −3.7); swing fix alone 63.7; no beat-length gate 65.5; no busy-beat gate 64.9; gate at 0.5 s 65.9 and 0.75 s 65.8 (0.6 s kept); higher fine-grid penalties (0.10, 0.13) 64.4. Shifting each solo by a lay-back before quantising (fixed 40 or 80 ms, or estimated per solo): 50.8 / 26.3 / 15–59, up tempo collapses. Files: `~/saxscribe-runs/exp/2026-11-04-slow-rhythm/` on the Mac.
+- **Ceiling**: about 37% of ballad notes sit in Weimar divisions of 5, 7 or 9+ per beat (free-time tuplets) that no regular grid can hit, so ballads top out near 65–75% on this measure.
+- **Next**: choose the rhythm per phrase rather than per beat.
 
 ### E31 — 2026-11-04 — Two more tries at the remaining missed repeats (not adopted)
 - **Goal**: win back the onset recall still lost since #52 (E29) without adding wrong notes. Keep rule: note F1 may not drop more than 0.5 points on any set. Files: `~/saxscribe-runs/exp/2026-11-03-recall/` on the Mac.

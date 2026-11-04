@@ -67,7 +67,8 @@ Goal: a score Austin would put on the stand, with few edits.
 - [ ] On real recordings: too many 32nds and triplets (log E12). Cause on lone sax: the beat tracker finds too few beats; PR #29 (merged) takes the beat from the notes, Parker test solo 32nds 80 → 1 (log E13)
 - [ ] Rhythm quantisation on real records: Blues for Mary Jane check shows extra triplets, sixteenths and ties, pickups early or late (log E18). Current focus
 - [x] Rhythm scorecard on Weimar (PR #53): baseline exact position 58.7%, right beat 89.3% (log E24)
-- [ ] Ballads and slow tunes: 17–20% position read vs 63% overall; finer beat divisions (6, 8) and runs pushed onto the next beat (log E24, E28). Next rhythm target
+- [x] Ballads and slow tunes: sextuplet and 32nd grids on slow or busy beats (PR #64): ballads 17% → 36%, slow 34% → 44%, all 63% → 66% position read (log E32). Ceiling near 70% for ballads (free-time tuplets)
+- [ ] Choose rhythm per phrase instead of per beat. Next rhythm target
 - [x] `position_read` measure so correct swing notation isn't counted wrong (PR #55): 63.1% on all solos, 57.6% on saxes (log E28)
 - [ ] Rhythm accuracy against the Omnibook's printed rhythm, and against GRFIA audio-to-score's written scores once aligned
 - [x] PDF header: artist, title and a "Transcribed with Saxscribe" line (Austin, 2026-11-03; PR #30)
