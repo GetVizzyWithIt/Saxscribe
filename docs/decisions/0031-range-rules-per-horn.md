@@ -1,7 +1,7 @@
 # ADR-0031: Range rules per horn; altissimo kept, unplayable notes moved by octaves
 
 - **Date**: 2026-11-04
-- **Status**: Accepted (PR #69 merged); real scorecards pending
+- **Status**: Accepted (PR #69 merged; scorecards in, log E38)
 - **Decided by**: Claude (range thread), at Austin's request
 - **PR**: #69
 - **Relates to**: [ADR-0005](0005-instrument-profiles-alto-first.md), [ADR-0016](0016-notation-never-drops-notes.md)
@@ -20,6 +20,6 @@ fundamental as its octave.
 - Never delete a note; when many notes are out of range, suspect the wrong horn and move nothing.
 
 ## Consequences
-- On a synthetic phrase, altissimo notes found 15/24 → 24/24 (alto) and 12/24 → 24/24 (tenor); note F1 92.6% → 100% and 89.6% → 100% ([log E34](../evaluation/log.md)). On GRFIA altissimo-tagged takes (8 per horn) no change either way, alto 71.5% and tenor 47.6% note F1 before and after; those takes stay below written A6, so they can't show the raised ceiling. On the Omnibook (45 solos) note and onset F1 were flat; pitch accuracy fell 74.2% → 72.4% because the raised CREPE ceiling (2000 Hz) failed on three solos, not because of the rules. PR #74 caps CREPE at 1600 Hz; Basic Pitch keeps the full range ([log E37](../evaluation/log.md)). Full GRFIA pending.
+- On a synthetic phrase, altissimo notes found 15/24 → 24/24 (alto) and 12/24 → 24/24 (tenor); note F1 92.6% → 100% and 89.6% → 100% ([log E34](../evaluation/log.md)). On GRFIA altissimo-tagged takes (8 per horn) no change either way, alto 71.5% and tenor 47.6% note F1 before and after; those takes stay below written A6, so they can't show the raised ceiling. On the Omnibook (45 solos) note and onset F1 were flat; pitch accuracy fell 74.2% → 72.4% because the raised CREPE ceiling (2000 Hz) failed on three solos, not because of the rules. PR #74 caps CREPE at 1600 Hz; Basic Pitch keeps the full range ([log E37](../evaluation/log.md)). Final cards ([log E38](../evaluation/log.md)): Omnibook pitch back to 74.3% with #74; GRFIA alto note F1 75.2% → 75.1%, pitch 90.0% → 90.0%; tenor note F1 66.1% → 65.8%. A stray top overtone tagged `altissimo` on very short takes costs 0.07–0.27 points; whether overtones move by default is still open.
 - The table is per instrument, so other instruments need only the same three numbers.
 - Open: whether to move suspected overtones by default; on band records a bass note an octave below could fake a lower fundamental.
