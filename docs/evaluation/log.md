@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 | #61 (open) | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-open) |
+| 2026-11-04 | #61 | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-merged) |
 | 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp (all sets in E29) | Onset recall (89.1% before #52); note F1 | 74.5%; 69.0% | 81.9%; 68.8% | yes | [E29](#e29--2026-11-03--full-scorecards-for-re-tongued-repeats-pr-57-merged) |
 | 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
@@ -101,7 +101,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Try 2, split held notes at Basic Pitch's onset peaks**: −2 to −6 F1 on every set; only 2–13% of the splits were real notes.
 - **Finding**: what is still missed is mostly soft same-pitch repeats with less than 4 dB of dip (73 of 107 on URMP). Loudness and Basic Pitch's own onset signal can't separate those from noise. Next route: an onset model trained on sax, possibly on Austin's own recordings.
 
-### E30 — 2026-11-04 — Separator comparison, round 2: clean-ups after Demucs and other separators (PR #61 open)
+### E30 — 2026-11-04 — Separator comparison, round 2: clean-ups after Demucs and other separators (PR #61, merged)
 - **Question** (Austin, 2026-11-03): is Demucs with two shifts right, or should another tool run after it or instead of it?
 - **Sets**: `omnibook-mix` (10 Parker band records) and Blues for Mary Jane (Austin's answer key). Every row on main `c588240` with the #52 note settings, so the baseline differs slightly from E25. Report: `~/saxscribe-runs/exp/2026-11-03-separators2/final_report.txt` on the Mac.
 
