@@ -1,7 +1,7 @@
 # ADR-0018: Readable notation over literal rhythm, without dropping notes
 
 - **Date**: 2026-11-02
-- **Status**: Accepted (PR #21 merged)
+- **Status**: Accepted (PR #21 merged); refined by [ADR-0029](0029-finer-grids-for-slow-and-busy-beats.md) (finer grids on slow or busy beats, swing read from one- or two-note beats)
 - **Decided by**: Claude (routine)
 - **PR**: #21
 
