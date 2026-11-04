@@ -52,10 +52,17 @@ BPM = 120.0   # fixed MIDI tempo, so a tick is an exact slice of a second (1/192
 EIGHTH = (Fraction(0), Fraction(1, 2), Fraction(1))
 STRAIGHT = (Fraction(0), Fraction(1, 4), Fraction(1, 2), Fraction(3, 4), Fraction(1))
 TRIPLET = (Fraction(0), Fraction(1, 3), Fraction(2, 3), Fraction(1))
+# Finer grids for slow tunes and ballads, where four to eight notes share a beat:
+# sixteenth-note sextuplets and thirty-seconds. Without them a busy beat puts two
+# notes on one spot and the later one is pushed into the next slot, so whole runs
+# were written late (log E31).
+SEXTUPLET = tuple(Fraction(k, 6) for k in range(7))
+THIRTY_SECOND = tuple(Fraction(k, 8) for k in range(9))
+TRIPLET_FAMILY = (TRIPLET, SEXTUPLET)   # fitted to the time as played, never unswung
 # Beats of extra error per event a grid must save before it wins over eighths.
 # Straight playing: sixteenths before triplets. Swing: triplets before sixteenths.
-PENALTY = {False: {EIGHTH: 0.0, STRAIGHT: 0.02, TRIPLET: 0.05},
-           True: {EIGHTH: 0.0, TRIPLET: 0.02, STRAIGHT: 0.08}}
+PENALTY = {False: {EIGHTH: 0.0, STRAIGHT: 0.02, TRIPLET: 0.05, SEXTUPLET: 0.07, THIRTY_SECOND: 0.07},
+           True: {EIGHTH: 0.0, TRIPLET: 0.02, STRAIGHT: 0.08, SEXTUPLET: 0.07, THIRTY_SECOND: 0.1}}
 COLLIDE = 0.25          # beats of cost when a grid puts two onsets on one spot
 OFFSET_WEIGHT = 0.5     # note ends matter less than starts when choosing a grid
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
@@ -251,8 +258,14 @@ def detect_swing(positions: np.ndarray) -> float | None:
     """Where off-beat eighths fall inside the beat (0.5 straight, 0.67 triplet swing).
 
     Looks at onsets between 40% and 80% of the way through a beat and takes
-    their median. Returns None when there are too few to tell.
+    their median. Only beats with one or two onsets count: swing is how a pair
+    of eighths is split, and the inner notes of a busy ballad beat (six or
+    eight to a beat) would otherwise read as swing. Returns None when there
+    are too few to tell.
     """
+    whole = np.floor(positions)
+    _, where, count = np.unique(whole, return_inverse=True, return_counts=True)
+    positions = positions[count[where] <= 2]
     frac = positions - np.floor(positions)
     off = frac[(frac > 0.4) & (frac < 0.8)]
     if len(off) < SWING_MIN_NOTES:
@@ -305,7 +318,7 @@ def snap_beat(events: list[tuple[str, float, float]], swung: bool = False
         g = np.array([float(x) for x in grid])
         picks, cost = [], 0.0
         for kind, straight, played in events:
-            f = played if grid is TRIPLET else straight
+            f = played if grid in TRIPLET_FAMILY else straight
             pick = grid[int(np.argmin(np.abs(g - f)))]
             picks.append(pick)
             cost += abs(float(pick) - f) * (1.0 if kind == "on" else OFFSET_WEIGHT) + penalty
@@ -359,7 +372,8 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     squeezed = 0
     for i in range(1, len(notes)):
         if q_on[i] <= q_on[i - 1]:
-            move = Fraction(1, 3) if is_triplet(q_on[i - 1]) else MIN_STEP
+            prev = step.get(int(q_on[i - 1] // 1), MIN_STEP)
+            move = prev if is_triplet(q_on[i - 1]) and prev in (Fraction(1, 3), Fraction(1, 6)) else MIN_STEP
             q_on[i] = q_on[i - 1] + move
             squeezed += 1
     placed = []
@@ -370,7 +384,8 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
         # written as a sixteenth and a rest.
         least = step.get(int(start // 1), Fraction(1, 4))
         if (start % 1) % least:
-            least = Fraction(1, 4) if not is_triplet(start) else Fraction(1, 3)
+            least = Fraction(1, 6) if is_triplet(start) and (start % 1).denominator == 6 else \
+                Fraction(1, 3) if is_triplet(start) else Fraction(1, 4)
         if end - start < least:
             end = start + least
         if i + 1 < len(notes):
@@ -392,17 +407,18 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
 
 
 def is_triplet(x: Fraction) -> bool:
-    return (x % 1).denominator == 3
+    """A point on the triplet or sextuplet grid (and not on the plain one)."""
+    return (x % 1).denominator in (3, 6)
 
 
 def on_grid(x: Fraction) -> bool:
-    """A spot MuseScore can write without odd tuplets: a 32nd-note point or a triplet point."""
+    """A spot MuseScore can write without odd tuplets: a 32nd-note point, or a triplet or sextuplet point."""
     d = (x % 1).denominator
-    return d == 3 or 8 % d == 0
+    return d in (3, 6) or 8 % d == 0
 
 
 def one_grid_per_beat(placed: list[dict]) -> list[dict]:
-    """Each beat is written in one grid: triplets, or sixteenths and thirty-seconds.
+    """Each beat is written in one grid: triplets or sextuplets, or sixteenths and thirty-seconds.
 
     A beat that mixes the two (from a squeezed note, or a long note that started
     on a triplet), or holds a point on neither grid (a squeeze after a triplet
@@ -416,9 +432,11 @@ def one_grid_per_beat(placed: list[dict]) -> list[dict]:
             for x in (p["start"], p["start"] + p["length"]):
                 if x % 1:
                     points.setdefault(int(x // 1), []).append(x)
+        # A beat with triplet or sextuplet points is written as a sextuplet at
+        # finest, so every point in it must sit on the sixth-of-a-beat grid.
         mixed = {b for b, xs in points.items()
                  if any(not on_grid(x) for x in xs)
-                 or (any(is_triplet(x) for x in xs) and any(not is_triplet(x) for x in xs))}
+                 or (any(is_triplet(x) for x in xs) and any((x * 6).denominator != 1 for x in xs))}
         if not mixed:
             return placed
         last = attempt == 4
@@ -440,10 +458,11 @@ def one_grid_per_beat(placed: list[dict]) -> list[dict]:
     return placed
 
 
-def pieces(start: Fraction, end: Fraction) -> list[tuple[Fraction, Fraction]]:
+def pieces(start: Fraction, end: Fraction, sixths: frozenset = frozenset()) -> list[tuple[Fraction, Fraction]]:
     """(start, length) pieces of a span, cut at beat lines so no written value
     straddles a beat (a triplet never spills into the next beat). Whole beats
-    in a row stay one piece, so a half note is still a half note."""
+    in a row stay one piece, so a half note is still a half note. sixths
+    holds the beats written as sextuplets (see triplet_pieces)."""
     cuts = [start]
     b = int(start // 1) + 1
     while b < end:
@@ -458,7 +477,30 @@ def pieces(start: Fraction, end: Fraction) -> list[tuple[Fraction, Fraction]]:
             out[-1] = (out[-1][0], out[-1][1] + (z - a))
         else:
             out.append((a, z - a))
-    return syncopate(out)
+    return syncopate([bit for a, n in out for bit in triplet_pieces(a, n, int(a // 1) in sixths)])
+
+
+def triplet_pieces(start: Fraction, length: Fraction, sextuplet: bool = False) -> list[tuple[Fraction, Fraction]]:
+    """A piece inside a triplet or sextuplet beat, cut so each value is one
+    3:2 value: in a triplet beat, triplet eighths and quarters; in a
+    sextuplet beat, triplet sixteenths only, so the brackets close every half
+    beat. Without the cut a span of five sixths would need a 6:5 tuplet, which
+    MuseScore will not read."""
+    end = start + length
+    if not sextuplet and (start % 1).denominator not in (3, 6) and (end % 1).denominator not in (3, 6):
+        return [(start, length)]
+    if length >= 1 and start % 1 == 0:
+        return [(start, length)]
+    third = Fraction(1, 6) if sextuplet else Fraction(1, 3)
+    cuts = [start] + [k * third for k in range(int(start // third) + 1, int(-(-end // third)))] + [end]
+    bits = [(x, y - x) for x, y in zip(cuts, cuts[1:]) if y > x]
+    out: list[tuple[Fraction, Fraction]] = []
+    for x, n in bits:
+        if not sextuplet and out and out[-1][1] == third and n == third and (out[-1][0] % 1) in (0, third):
+            out[-1] = (out[-1][0], 2 * third)   # two triplet eighths on the beat or its first third: a triplet quarter
+        else:
+            out.append((x, n))
+    return out
 
 
 def syncopate(bits: list[tuple[Fraction, Fraction]]) -> list[tuple[Fraction, Fraction]]:
@@ -601,8 +643,9 @@ def build_score(result: dict, horn: Horn, written: bool):
             else:
                 way[i] = None
             j += 1
+    sixths = frozenset(int(x // 1) for a, z, _ in spans for x in (a, z) if (x % 1).denominator == 6)
     for i, (a, z, pitch) in enumerate(spans):
-        bits = pieces(a, z)
+        bits = pieces(a, z, sixths)
         for k, (s, length) in enumerate(bits):
             if pitch is None:
                 el = note.Rest(quarterLength=length)
