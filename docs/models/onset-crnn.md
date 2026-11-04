@@ -54,7 +54,7 @@ GRFIA's non-commercial licence carries to the weights: fine for Austin's persona
 - Higher F1 on four of five sets comes from precision; recall and repeat recall are lower than librosa's on every set, which is the wrong trade for a never-drop tool.
 - URMP fails (14% recall at 0.7). A looser re-check ([log E36](../evaluation/log.md)) shows it is blind, not only strict: even at threshold 0.1 URMP F1 is 58.0% against librosa's 65.3%, and on slow legato takes with ensemble bleed its output at true onsets is no higher than background. At 0.5 it beats librosa by 8–17 F1 on the other four sets.
 - v2 (E41) fixes the URMP blind spot with reverb, bleed and soft-attack augmentation; URMP recall is still 2 points under librosa, and bleed from a loud brass part still hurts (Surprise 29%).
-- Split-only in the pipeline (E44) gains under 1 point on URMP: most starts it finds have no Basic Pitch note to split. Adding notes there instead (E45) gains about +1 on URMP, also short of the bar; the remaining misses are soft re-attacks inside held notes. Next: split only where the model hears an onset and the pitch tracker wavers.
+- Split-only in the pipeline (E44) gains under 1 point on URMP: most starts it finds have no Basic Pitch note to split. Adding notes there instead (E45) gains about +1 on URMP, also short of the bar; the remaining misses are soft re-attacks inside held notes. Requiring a CREPE confidence dip as well (E47) gains +0.2 and causes wrong splits on vibrato and bleed. Next: retrain with targets weighted toward repeats inside held notes.
 
 ## Change history
 | Date | Change | PR |
@@ -64,3 +64,4 @@ GRFIA's non-commercial licence carries to the weights: fine for Austin's persona
 | 2026-11-04 | v2: retrained with reverb, bleed and soft attacks; threshold 0.5; beats v1 and librosa except Bach10 (level); not adopted yet | — (docs only) |
 | 2026-11-04 | v2 split-only in the pipeline: URMP onset F1 under +1 point, short of the +3 bar; most missed starts have no Basic Pitch note to split; not adopted (log E44) | — (docs only) |
 | 2026-11-04 | v2 adding notes where none exist: about +1 URMP onset F1, short of the +3 bar; not adopted (log E45) | — (docs only) |
+| 2026-11-04 | v2 plus CREPE confidence dip: +0.2 URMP onset recall, wrong splits on vibrato and bleed; cheap signals ruled out; not adopted (log E47) | — (docs only) |

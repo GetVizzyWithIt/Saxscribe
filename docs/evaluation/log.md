@@ -102,6 +102,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
+- **Setup**: split a note only where onset model v2 peaks and CREPE's confidence dips at the same time (E45's next step). Output: `~/saxscribe-runs/exp/split2_out.txt` on the Mac.
+- **Result**: best URMP onset recall +0.2 points (bar +3), GRFIA held-out +0.1. At loose settings it costs note F1: ChoraleBricks −1.2 (49 wrong splits against 3 right), Pennies From Heaven −0.6.
+- **Why**: CREPE's confidence barely moves on a soft same-pitch re-attack, but it dips on vibrato and on bleed, so the two signs mostly agree in the wrong places.
+- **Conclusion**: the cheap signals are all ruled out for the URMP repeat gap: v2 alone (E44), v2 adding notes (E45), and v2 with a confidence dip (this entry).
+- **Next (build thread)**: retrain v2 with training targets weighted toward repeats inside held notes, after the piano-bleed test (E46).
+- **Not adopted**.
+
 ### E46 — 2026-11-04 — Pennies From Heaven: piano and bass in the sax part (review, no change yet)
 - **Question (Austin, 11:49 am PT)**: why do piano notes land in the sax part where tenor and piano share a range? Review doc: https://claude.ai/artifact/3yt9mWJbwHkAxrFAgFAbYR; note list `transcriptions/pennies-from-heaven/piano-bleed/suspect-notes.csv` in the project files. Take: `~/saxscribe-runs-pr74/pfh/take` (stem "vocals + other", made before #81).
 - **Findings**:
