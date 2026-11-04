@@ -412,3 +412,20 @@ def test_a_sextuplet_beat_is_written_in_triplet_sixteenths():
     assert notation.pieces(F(1, 6), F(1), frozenset({0})) == [(F(k, 6), F(1, 6)) for k in range(1, 6)]
     assert notation.pieces(F(1, 3), F(1)) == [(F(1, 3), F(2, 3))]
     assert all(n in (F(1, 3), F(2, 3), F(1, 6)) for _, n in notation.pieces(F(1, 6), F(1)))
+
+
+def test_the_phrase_chooser_keeps_one_feel_through_a_phrase():
+    """A beat that fits sixteenths a hair better than triplets, between two triplet
+    beats, stays a triplet once changing feel inside a phrase has a cost; an
+    empty beat starts a new phrase, which may change feel for free."""
+    T, S = notation.TRIPLET, notation.STRAIGHT
+    tri = (0.10, T, [F(0), F(1, 3), F(2, 3)], [F(0), F(1, 3), F(2, 3)])
+    six = (0.30, S, [F(0), F(1, 4), F(3, 4)], [F(0), F(1, 4), F(3, 4)])
+    near_tri = (0.21, T, [F(0), F(1, 3)], [F(0), F(1, 3)])
+    near_six = (0.20, S, [F(0), F(1, 4)], [F(0), F(1, 4)])
+    options = {0: [tri, six], 1: [near_tri, near_six], 2: [tri, six], 4: [near_tri, near_six]}
+    free = notation.choose_grids(options, 0.0)
+    assert free[1][1] is S and free[4][1] is S
+    phrased = notation.choose_grids(options, 0.4)
+    assert phrased[1][1] is T          # inside the phrase: keeps the triplet feel
+    assert phrased[4][1] is S          # after an empty beat: a new phrase
