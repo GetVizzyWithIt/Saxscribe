@@ -139,6 +139,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   4. **Barlines 2 beats off** from the key; with a 2-beat shift, 97% of notes land on the right beat (notation, not scored by note F1).
   5. About 70 ghost notes in rests or shorter than 90 ms.
   6. 63 timing errors of 50–150 ms.
+  7. **14 notes below the horn's range**, all written A3, a half step below tenor low B♭, shown in red (spotted by Austin). 4 fall in rests in the key (two before bar 1, bar 6 beat 3, bar 169 beat 3), 1 is a 90 ms blip at bar 98, and 9 are in the closing solo, where another instrument plays. They are almost certainly piano or bass. They are kept because the #69 range rule allows two half steps below the lowest key (a lipped-down or flat note) and only tags that zone. Planned fix (build thread): tag such notes `not_sax` and keep them off the sheet; never delete them (ADR-0016).
 - **Reading**: the tool does a little worse here than on Blues for Mary Jane, for the same reasons as other band records: separation leaves a busier stem, and Getz's legato and scoops trip the note cutter. The split-held-note and fast-run gaps are the biggest wins; neither may drop real notes (ADR-0016). Not a model change; not in the change table.
 
 ### E39 — 2026-11-04 — Moving suspected overtones by default: rejected; overtone check off by default (PR #78)
