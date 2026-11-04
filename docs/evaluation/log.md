@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 | #84 (open) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | pending merge | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-84-open) |
+| 2026-11-04 | #84 (closed, not merged) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | no (closed; awaiting Austin) | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-84-closed-without-merging) |
 | 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook, omnibook-mix | Note F1 | 50.3% / 75.1% / 64.2% / 57.62% | +0.11 / +0.03 / ~0 / +0.21 points (4 / 8 / 3 / 27 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
 | 2026-11-04 | — (#78) | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default; #78 then turns the overtone check off by default | notes | omnibook, grfia-tenor, grfia-alto | Note F1 (Omnibook / tenor / alto) | 64.20 / 65.84 / 75.10% | 63.85 / 65.83 / 75.10% | no (moves stay an option; check off by default) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-rejected-overtone-check-off-by-default-pr-78) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
@@ -103,7 +103,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
-### E48 — 2026-11-04 — Hide piano and bass notes the sax's pitch line doesn't back up (PR #84, open)
+### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (experiment; PR held)
+- **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
+- **Rule ("hold")**: a note that starts under a held note doesn't cut it while the pitch line stays on the held note. Run with `follow_exp.py` on the Mac, notes layer redone on main `f64316b`; output `~/saxscribe-runs/exp/follow_out.txt`. Branch `claude/held-notes-follow-pitch-line` (153 tests pass).
+- **Result**, note F1: Pennies From Heaven 50.0% → 50.1%, Parker band records 57.8% → 57.9%, Bach10 96.8% → 97.0%, ChoraleBricks 90.1% → 90.3%, GRFIA alto 78.5% → 78.6%, GRFIA tenor 66.3% → 66.4%; Blues for Mary Jane, URMP and Omnibook flat. 93 held notes lengthened; of the 64 notes found under them, 2 were real.
+- **Dropped variant ("pick")**: letting the pitch line choose between two notes that start together cost Blues for Mary Jane −0.7 points.
+- **Status**: on band records this only cleans the sheet together with #84, so the build thread is holding the PR until Austin says whether closing #84 was intended.
+
+### E48 — 2026-11-04 — Hide piano and bass notes the sax's pitch line doesn't back up (PR #84, closed without merging)
 - **Change**: fixes 1 and 2 from the bleed review (E46), on band records only. A stretch where the sax pitch line is unvoiced for 8 s or more is cut from the sax spans, and notes the pitch line never sits on get an `off_line` tag. Those notes come off the sheet but stay in `notes.json`; nothing is deleted (ADR-0016).
 - **Scorecard**:
 
@@ -116,7 +123,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **How** (`layers/bleed.py`, mix takes only): a note gets `not_sax` with a reason. `no_pitch_line` means the pitch line is unvoiced for 8 s or more. `off_line` means the line is voiced for at least 80% of the note but never on its pitch or octave, and more than a semitone away on at least 60% of frames. Scored offline on existing runs; 154 tests pass. [ADR-0034](../decisions/0034-hide-notes-the-pitch-line-does-not-back.md).
 - **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
-- **Status**: pending Austin's merge. Next (build thread): stop piano attacks from splitting held sax notes (fix 3).
+- **Status**: PR #84 was closed without merging at 20:46 UTC, 2 seconds after docs PR #83 merged and with no comment, so it may have been a misclick; the build thread has asked Austin. Not adopted until he answers.
 
 ### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
 - **Setup**: split a note only where onset model v2 peaks and CREPE's confidence dips at the same time (E45's next step). Output: `~/saxscribe-runs/exp/split2_out.txt` on the Mac.
