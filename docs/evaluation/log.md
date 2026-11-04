@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #61 (open) | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-open) |
 | 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp (all sets in E29) | Onset recall (89.1% before #52); note F1 | 74.5%; 69.0% | 81.9%; 68.8% | yes | [E29](#e29--2026-11-03--full-scorecards-for-re-tongued-repeats-pr-57-merged) |
 | 2026-11-03 | #52 | Shortest note follows the take's tempo, fast-passage safeguard | notes | bach10 / choralebricks / grfia-alto / urmp / omnibook | Note F1 (URMP onset recall 89% → 75%: fidelity fix pending) | 87.5 / 77.8 / 66.5 / 64.4 / 64.2% | 97.3 / 91.8 / 75.8 / 69.0 / 64.2% | yes, conditional | [E23](#e26--2026-11-03--full-scorecards-for-the-adaptive-shortest-note-pr-52-merged) |
 | 2026-11-03 | #44 (open) | Chromatic runs spelled with sharps going up, flats going down | notation | Blues for Mary Jane | Spelling | Ab where the book has G# (E18) | to check | — | [E18](#e18--2026-11-03--blues-for-mary-jane-pdf-against-austins-transcription-first-two-choruses-qualitative) |
@@ -94,6 +95,35 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E31 — 2026-11-04 — Two more tries at the remaining missed repeats (not adopted)
+- **Goal**: win back the onset recall still lost since #52 (E29) without adding wrong notes. Keep rule: note F1 may not drop more than 0.5 points on any set. Files: `~/saxscribe-runs/exp/2026-11-03-recall/` on the Mac.
+- **Try 1, a smaller dip or a strong attack, checked against CREPE confidence**: the best rule that passed (dip ≥ 6 dB plus a CREPE confidence dip ≥ 0.2) gave URMP +1.5 points of recall at −0.4 F1, and nothing on Blues for Mary Jane or GRFIA tenor. A strong attack at any pitch gave URMP +2.8 recall but −0.8 F1 (GRFIA alto −1.3), which fails the rule.
+- **Try 2, split held notes at Basic Pitch's onset peaks**: −2 to −6 F1 on every set; only 2–13% of the splits were real notes.
+- **Finding**: what is still missed is mostly soft same-pitch repeats with less than 4 dB of dip (73 of 107 on URMP). Loudness and Basic Pitch's own onset signal can't separate those from noise. Next route: an onset model trained on sax, possibly on Austin's own recordings.
+
+### E30 — 2026-11-04 — Separator comparison, round 2: clean-ups after Demucs and other separators (PR #61 open)
+- **Question** (Austin, 2026-11-03): is Demucs with two shifts right, or should another tool run after it or instead of it?
+- **Sets**: `omnibook-mix` (10 Parker band records) and Blues for Mary Jane (Austin's answer key). Every row on main `c588240` with the #52 note settings, so the baseline differs slightly from E25. Report: `~/saxscribe-runs/exp/2026-11-03-separators2/final_report.txt` on the Mac.
+
+| Separator | Parker: note F1 / onset recall / pitch | Blues for Mary Jane: note F1 / onset recall / pitch |
+| --- | --- | --- |
+| Demucs `htdemucs_6s` alone (current) | 57.1 / 81.1 / 66.2% | 53.1 / 76.5 / 72.7% |
+| **Demucs, two shifts averaged** | **57.9 / 82.1 / 66.6%** | **55.0 / 78.7 / 73.0%** |
+| Pitch-guided (harmonic) filter after Demucs, floor 0.1 | 59.2 / 82.2 / 67.3% | 49.8 / 72.8 / 72.6% |
+| Pitch-guided filter after Demucs, floor 0 | 58.5 / 80.6 / 67.4% | 50.7 / 72.8 / 72.8% |
+| UVR woodwind model instead of Demucs | 59.0 / 77.5 / 68.6% | 55.9 / 72.8 / 69.8% |
+| UVR woodwind model after Demucs | 58.3 / 78.0 / 66.7% | 53.8 / 76.5 / 71.6% |
+| BS-RoFormer cascade | 57.3 / 80.8 / 66.6% | 53.3 / 76.5 / 73.1% |
+| AudioSep ("saxophone") after Demucs | 57.2 / 80.7 / 66.6% | 53.1 / 76.5 / 73.0% |
+| Demucs twice | 56.7 / 80.4 / 66.1% | 52.6 / 73.5 / 72.8% |
+| AudioSep instead of Demucs | 53.2 / 82.2 / 61.4% | 34.3 / 83.1 / 65.2% |
+| Banquet after Demucs | 41.6 / 61.6 / 56.1% (alto query) | 28.6% (tenor query), 1.4% (alto query) |
+| Banquet instead of Demucs | 35.5 / 60.6 / 43.1% | 0.0% (tenor query), 5.0% (alto query) |
+
+- **What it shows**: two averaged shifts is the only change that helps on both sets with no loss anywhere (+0.8 / +1.9 note F1, more notes found, at about 50% more separation time). The woodwind model and the pitch-guided filter score higher on one set but find fewer real notes (onset recall down 4–5 points) or get pitches wrong on the other, which breaks the never-drop rule. Running Demucs twice is slightly worse on both sets.
+- **Banquet** was included this time (non-commercial licence, fine for personal use; recorded in `SOURCES.md`). It was worst by far. It ran with 50% chunk overlap instead of the published 12×, and lost about 1000 answer-key notes to sax-span cuts, so these numbers understate it, but not by enough to matter.
+- **Decision**: keep Demucs alone and make two shifts the default (PR #61, [ADR-0028](../decisions/0028-two-demucs-shifts-by-default.md)).
+
 ### E29 — 2026-11-03 — Full scorecards for re-tongued repeats (PR #57, merged)
 - **What**: every scorecard set rerun with #57 on main `78063ad`, PDFs off. Notes were redone from the #52 runs (`--redo notes`); outputs are in `~/saxscribe-runs-pr57/` on the Mac. Cards: `~/saxscribe-runs-pr52/<set>/after.json` (#52, commit `c588240`) and `~/saxscribe-runs-pr57/<set>/pr57.json` (#57). Pitch accuracy is identical for #52 and #57 on every set: URMP 94.4%, Bach10 96.9%, ChoraleBricks 98.9%, Parker band records 66.4%, Omnibook 74.2%, GRFIA alto 90.0%, GRFIA tenor 87.2%. Speed is not reported: these runs shared the CPU.
 
@@ -144,8 +174,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | BS-RoFormer | 52.7% | 39.8% | 3–4× slower |
 
 - **What it shows**: both alternatives are slower and worse here; they leave piano and guitar in the stem the sax lands in. Averaging two shifts helps a little at 50% more time.
-- Banquet was dropped from the comparison: non-commercial licence.
-- **Decision**: keep `htdemucs_6s` ([ADR-0027](../decisions/0027-keep-htdemucs-6s.md)); two shifts may become an optional quality setting later.
+- Banquet was left out of this round for its non-commercial licence; it was added in round 2 (E30) once Austin confirmed the tool is for personal use.
+- **Decision**: keep `htdemucs_6s` ([ADR-0027](../decisions/0027-keep-htdemucs-6s.md)); two shifts may become an optional quality setting later (made the default after round 2, E30).
 
 ### E24 — 2026-11-03 — Rhythm scorecard on the Weimar Jazz Database: baseline (PR #53, merged)
 - **What**: `python -m saxscribe rhythm`, a notation-only scorecard with no audio: the Weimar solos' exact note timings go through Layer 4, and the written rhythm is compared with the Weimar transcription. Measures: exact position, right slot, right beat, triplet / sixteenth / busy ratios, notes kept. Split by performer; 12 Parker solos that are also in the Omnibook are left out ([protocol](protocol.md#rhythm-scorecard-weimar-no-audio)).

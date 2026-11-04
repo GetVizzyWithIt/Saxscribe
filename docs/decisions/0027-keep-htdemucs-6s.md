@@ -1,7 +1,7 @@
 # ADR-0027: Keep Demucs htdemucs_6s as the separator
 
 - **Date**: 2026-11-03
-- **Status**: Accepted (no code change)
+- **Status**: Accepted (no code change); refined by [ADR-0028](0028-two-demucs-shifts-by-default.md)
 - **Decided by**: Claude (build thread), from the separator comparison
 - **PR**: none
 
