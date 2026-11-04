@@ -114,6 +114,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Blues for Mary Jane | 56.0% → 56.2% |
 | Solo sets | unchanged (rule applies to band records only) |
 
+- **How** (`layers/bleed.py`, mix takes only): a note gets `not_sax` with a reason. `no_pitch_line` means the pitch line is unvoiced for 8 s or more. `off_line` means the line is voiced for at least 80% of the note but never on its pitch or octave, and more than a semitone away on at least 60% of frames. Scored offline on existing runs; 154 tests pass. [ADR-0034](../decisions/0034-hide-notes-the-pitch-line-does-not-back.md).
 - **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
 - **Status**: pending Austin's merge. Next (build thread): stop piano attacks from splitting held sax notes (fix 3).
 
