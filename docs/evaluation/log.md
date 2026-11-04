@@ -100,11 +100,11 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E38 — 2026-11-04 — Range rules final scorecards; PR #74 confirmed as the pitch-line fix
-- **Omnibook pitch accuracy** (45 solos), before #69 / with #69 / with #74: 74.2% / 72.4% / **74.3%**. The three solos that dropped (N3fYc, S5VYc, 9THwc) are back within 0.5 points of their numbers before #69. Note and onset F1 unchanged (64.2%, 85.7%).
-- **GRFIA alto, full set** (479 takes): note F1 75.2% → 75.1% with #69; pitch 90.0% → 89.6% with #69 → **90.0%** with #74. Takes where CREPE dropped out near its top limit: 316 → 0.
-- **GRFIA tenor, full set**: note F1 66.1% → 65.8% with #69; pitch flat.
+- **Omnibook** (45 solos, confirmed on the Mac at main `4ed61f2`), before #69 / with #69 / with #74: pitch 74.2% / 72.4% / **74.3%**; chroma 76.1% / 74.1% / 76.1%; note F1 64.2% throughout. Tags with #74: 599 `overtone`, 240 `altissimo`, 48 `below_range`. The three solos that dropped (N3fYc, S5VYc, 9THwc) are back within 0.5 points of their numbers before #69. Note and onset F1 unchanged (64.2%, 85.7%).
+- **GRFIA alto, full set** (479 takes): note F1 75.2% / 75.1% / 75.1%; pitch 90.0% / 89.6% / **90.0%**. Takes where CREPE dropped out near its top limit: 316 → 0.
+- **GRFIA tenor, full set**: note F1 66.1% → 65.8% with #69; pitch 87.2% flat.
 - Note F1 unchanged on the other sets.
-- **Small open item**: on very short takes a stray top overtone is tagged `altissimo` and kept, costing 0.27 points of note F1 on tenor and 0.07 on alto overall. The range thread holds the full numbers and will decide whether suspected overtones move by default.
+- **Small open item**: Basic Pitch's higher ceiling lets a few stray top-of-range notes through (on very short takes an overtone is tagged `altissimo` and kept), costing 0.27 points of note F1 on tenor and 0.07 on alto. Scorecards with suspected overtones moved are queued on the Mac to decide the default.
 - **Reading**: the range rules do no harm on the public sets and #74 removes the pitch-line regression. Their benefit (altissimo above written E7 / D#7) still needs recordings that go that high (E34).
 
 ### E37 — 2026-11-04 — Range rules on the Omnibook: a pitch-line regression from the raised ceiling, fixed by PR #74
