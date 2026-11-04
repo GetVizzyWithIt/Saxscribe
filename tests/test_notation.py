@@ -377,3 +377,38 @@ def test_a_rising_chromatic_run_is_written_in_sharps():
          "notes": [{"start": F(i, 2), "length": F(1, 2), "pitch": p} for i, p in enumerate([65, 66, 67, 68, 69])]}
     names = [n.pitch.name for n in notation.build_score(r, HORNS["alto"], written=False).recurse().notes]
     assert names == ["F", "F#", "G", "G#", "A"]
+
+
+# ---------------------------------------------------------------- slow tunes
+
+def slow_run(figures, spb=1.0, jitter=0.012, seed=7):
+    """A ballad line at 60 BPM: each beat split into `figures[b]` even notes."""
+    rng = np.random.default_rng(seed)
+    grid = [i * spb for i in range(len(figures) + 8)]
+    notes, truth = [], []
+    for b, k in enumerate(figures):
+        for j in range(k):
+            on = (b + 4 + j / k) * spb + rng.normal(0, jitter)
+            notes.append({"onset": on, "offset": on + 0.85 * spb / k, "pitch": 60 + (b + j) % 7})
+            truth.append(F(b) + F(j, k))
+    return notes, truth, grid
+
+
+def test_a_ballad_run_of_six_and_eight_to_a_beat_is_written_where_it_was_played(tmp_path):
+    """Sextuplets and thirty-seconds: a busy beat no longer piles notes onto one
+    spot and pushes the rest of the run late (WJD ballads were 85% late misses)."""
+    notes, truth, grid = slow_run([1, 6, 2, 8, 6, 1, 4, 6])
+    r = notation.quantize(notes, grid, grid[::4], 60.0, "auto")
+    starts = [p["start"] - r["shift"] - 4 for p in r["notes"]]
+    assert len(starts) == len(notes)
+    assert sum(s == t for s, t in zip(starts, truth)) >= 0.9 * len(truth), list(zip(starts, truth))
+    path = tmp_path / "ballad.musicxml"
+    notation.build_score(r, HORNS["alto"], written=False).write("musicxml", fp=str(path))
+    assert musicxml_problems(path) == []
+    assert len([n for n in converter.parse(str(path)).recurse().notes if not n.tie or n.tie.type == "start"]) == len(notes)
+
+
+def test_a_sextuplet_beat_is_written_in_triplet_sixteenths():
+    assert notation.pieces(F(1, 6), F(1), frozenset({0})) == [(F(k, 6), F(1, 6)) for k in range(1, 6)]
+    assert notation.pieces(F(1, 3), F(1)) == [(F(1, 3), F(2, 3))]
+    assert all(n in (F(1, 3), F(2, 3), F(1, 6)) for _, n in notation.pieces(F(1, 6), F(1)))
