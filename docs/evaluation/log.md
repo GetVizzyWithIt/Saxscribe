@@ -102,6 +102,21 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E46 — 2026-11-04 — Pennies From Heaven: piano and bass in the sax part (review, no change yet)
+- **Question (Austin, 11:49 am PT)**: why do piano notes land in the sax part where tenor and piano share a range? Review doc: https://claude.ai/artifact/3yt9mWJbwHkAxrFAgFAbYR; note list `transcriptions/pennies-from-heaven/piano-bleed/suspect-notes.csv` in the project files. Take: `~/saxscribe-runs-pr74/pfh/take` (stem "vocals + other", made before #81).
+- **Findings**:
+  1. **3:42–4:21 is probably a piano break** (Austin to confirm): the CREPE pitch line is 0% voiced there (82–86% elsewhere), yet about 65 notes reach the sheet. The sax-span check (#35) cut nothing.
+  2. **In the keyed half (bars 1–169), 87 notes in the tenor's range are piano or bass**: 33 in rests of the key, 48 under held sax notes, 6 an octave or fifth below. That is 9% of the 964 notes on the sheet. They cluster on written D5 and G5 (concert C4 and F4), mostly in bars 62–77 and 122–143.
+  3. **Separation can't remove them**: Demucs's piano stem is about 58 dB below the sax stem. Oscar Peterson's piano ends up inside "vocals + other" with the sax.
+- **Size of the problem**: onset-and-pitch match 66.3% now; 69.9% if all 87 were hidden.
+- **Ranked fixes (tag and hide only, never delete; ADR-0016)**:
+  1. Sax-span cut when the pitch line is unvoiced for 8 s or more.
+  2. An `off_line` tag for notes the CREPE pitch line never sits on. Trial: 66.3% → 67.9%, hiding 48 of the 87 piano notes, but also 9 notes that are in the key. Those 9 real notes need a look before this is adopted.
+  3. Where two notes overlap, keep the one the pitch line follows, not the louder one.
+  4. Onset model v2 as a check for piano attacks.
+  5. Better separation.
+- **Next (build thread)**: try 1 and 2 first, then 3.
+
 ### E45 — 2026-11-04 — Onset model v2 adding notes where none exist (not adopted)
 - **Setup**: following E44, the model may add a note where it fires on a voiced stretch of the pitch line with no note present, pitch from CREPE. Adds only, never drops.
 - **Result** (output `~/saxscribe-runs/exp/add_out.txt` on the Mac):
