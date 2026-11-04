@@ -104,9 +104,11 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ### E45 — 2026-11-04 — Onset model v2 adding notes where none exist (not adopted)
 - **Setup**: following E44, the model may add a note where it fires on a voiced stretch of the pitch line with no note present, pitch from CREPE. Adds only, never drops.
-- **Result**: never costs more than a fraction of a point anywhere; best gain about +1 onset F1 on URMP, against the +3 bar. Exact numbers with the build thread.
+- **Result** (output `~/saxscribe-runs/exp/add_out.txt` on the Mac):
+  - Best URMP onset recall +1.2 points (bar +3); best GRFIA held-out +0.6 (bar +1). Note F1 within −0.2 everywhere.
+  - Safest variant (threshold 0.7, notes at least 50 ms, plus splitting): note F1 −0.1 to +1.3 across sets; 34 of the 64 added notes were right.
 - **Reading**: after this step, the URMP onsets still missed are mostly soft re-attacks inside held notes, not notes in silence. E44's finding (missed starts lie outside kept notes) held for the starts this test could add; what remains is inside notes.
-- **Next (build thread)**: split only where two signs agree: the model hears an onset and the pitch tracker wavers.
+- **Next (build thread, running)**: split only where v2 fires and CREPE's confidence dips at the same time.
 - **Not adopted**.
 
 ### E44 — 2026-11-04 — Onset model v2 in the pipeline, split-only (not adopted)
