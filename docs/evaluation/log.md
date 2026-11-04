@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #69 (open) | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-open) |
 | 2026-11-04 | #66 | Triplet or plain feel chosen per phrase on fast beats | notation | Weimar, 444 solos | Position read (up tempo); triplets × Weimar | 65.9% (74.8%); 1.37× | 67.4% (77.0%); 0.76× | yes | [E33](#e33--2026-11-04--triplet-or-plain-feel-chosen-per-phrase-on-fast-beats-pr-66-merged) |
 | 2026-11-04 | #64 | Sextuplet and 32nd grids on slow or busy beats; swing read from one- or two-note beats | notation | Weimar, 444 solos | Position read (ballads) | 63.1% (16.9%) | 65.9% (36.2%) | yes | [E32](#e32--2026-11-04--sextuplet-and-32nd-grids-for-slow-and-busy-beats-pr-64-merged) |
 | 2026-11-04 | #61 | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-merged) |
@@ -96,6 +97,28 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E34 — 2026-11-04 — Range rules per horn: altissimo kept, unplayable notes moved by octaves (PR #69 open)
+- **Problem**: the pitch search stopped below the top of the altissimo range (tenor at 1100 Hz, written D#7; alto at 1600 Hz, written E7), so real altissimo above those was impossible to transcribe. Nothing checked whether a note was playable on the chosen horn.
+- **Change** ([ADR-0031](../decisions/0031-range-rules-per-horn.md)): a range table per horn in `saxscribe/horns.py` (soprano, alto, tenor, baritone: lowest key, top keyed note F#6 written, top altissimo A7 written on alto and tenor, F7 on soprano and bari). Rules in `saxscribe/layers/ranges.py`, run in the notes layer and recorded in `take.json`:
+  - up to 2 semitones below the low note: kept, tagged `below_range` (a lipped-down low Bb or a flat horn);
+  - further below: moved up by octaves, tagged `octave_up`;
+  - above the keyed range but within altissimo: kept and never moved for being high, tagged `altissimo`;
+  - above the top altissimo note: moved down an octave (or an octave and a fifth if the spectrum shows a 3rd partial), tagged `octave_down`;
+  - spectrum shows the partials of a note an octave (or an octave and a fifth) lower: tagged `overtone`, kept as heard unless `--range-rules overtones`;
+  - many notes out of range: nothing moved, the log suggests another `--horn`.
+  - A moved note keeps the detector's pitch as `detected_pitch`; nothing is deleted; `not_sax` notes are skipped. Notes kept outside the horn's range show in red in the app, also when a take is viewed for another horn.
+- **New options**: `--range-rules out|overtones|flag|off` on `transcribe` and `score` (default `out`: only moves notes no sax can play); `score --tag altissimo` scores only GRFIA takes with that technique tag ([protocol](protocol.md#how-to-run)).
+- **Scorecard, synthetic only** (provisional): a 72-note phrase (low notes with a weak fundamental, middle notes, altissimo) in the build sandbox, Basic Pitch notes with a pYIN contour (no CREPE there), note F1 without offsets:
+
+| Take | Before (main) | After (#69) | Altissimo notes found |
+| --- | --- | --- | --- |
+| Alto phrase, Basic Pitch | 92.6% | 100.0% | 15/24 → 24/24 |
+| Alto phrase, contour cutter | 83.6% | 91.8% | 18/24 → 24/24 |
+| Tenor phrase, Basic Pitch | 89.6% | 100.0% | 12/24 → 24/24 |
+
+  - Low and middle notes unchanged; no false `overtone` tags on clean notes. A tenor phrase run as alto had its two notes heard two octaves up tagged `overtone`.
+- **Still to come**: real scorecards on the Mac after merge, with the contour redone because the search range changed: GRFIA alto and tenor altissimo takes (`--tag altissimo`), Omnibook, GRFIA tenor. Whether to move suspected overtones by default is open: on a band record, a bass note an octave below the sax could look like a lower fundamental. Other altissimo sources: GoodSounds, SaxTimbre (multiphonics and subtone as overtone traps), Weimar for range statistics.
 
 ### E33 — 2026-11-04 — Triplet or plain feel chosen per phrase on fast beats (PR #66, merged)
 - **Problem**: after #64 the notation layer still chose triplet or plain feel beat by beat, so fast runs flipped between the two and wrote about 37% more triplets than the Weimar transcribers (1.37×).

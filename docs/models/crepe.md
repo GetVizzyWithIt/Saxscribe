@@ -5,7 +5,7 @@
 - **Developed by**: CREPE by Kim, Salamon, Li and Bello (NYU, 2018); torchcrepe is Max Morrison's PyTorch port.
 - **Type**: convolutional network on 1024-sample windows of 16 kHz audio; outputs a probability over 360 pitch bins 20 cents apart (about C1 to B7). "Full" capacity model.
 - **Licence**: MIT (CREPE and torchcrepe).
-- **How Saxscribe calls it**: `layers/contour.py` → `torchcrepe.predict(audio, 16000, hop=160, fmin, fmax, "full", return_periodicity=True)`, range from the horn profile; confidence median-filtered over 3 frames; voiced when confidence > 0.5 and loudness > 1% of peak. MPS, retried on CPU on failure.
+- **How Saxscribe calls it**: `layers/contour.py` → `torchcrepe.predict(audio, 16000, hop=160, fmin, fmax, "full", return_periodicity=True)`, range from the horn profile (from PR #69, the horn's range table up to written A7 on alto and tenor, capped at CREPE's 2000 Hz; was 1100 Hz on tenor, 1600 Hz on alto); confidence median-filtered over 3 frames; voiced when confidence > 0.5 and loudness > 1% of peak. MPS, retried on CPU on failure.
 - **Decoding**: torchcrepe decodes with Viterbi by default; its transitions forbid jumps of more than about 2.2 semitones per frame, so an octave leap is drawn as a slide over about 50 ms. The note layer comes from Basic Pitch, so this affects the pitch line, not note pitch.
 - **Fallback**: pYIN (Mauch & Dixon, 2014; librosa), frame 1024, same hop; used when torchcrepe is missing or `--contour-tool pyin`.
 - **Citation**: Kim et al., "CREPE: A Convolutional Representation for Pitch Estimation", ICASSP 2018.
