@@ -59,6 +59,11 @@ TRIPLET = (Fraction(0), Fraction(1, 3), Fraction(2, 3), Fraction(1))
 SEXTUPLET = tuple(Fraction(k, 6) for k in range(7))
 THIRTY_SECOND = tuple(Fraction(k, 8) for k in range(9))
 TRIPLET_FAMILY = (TRIPLET, SEXTUPLET)   # fitted to the time as played, never unswung
+FINE = (SEXTUPLET, THIRTY_SECOND)
+# The fine grids are offered only on a long beat or a crowded one. At up tempo
+# they wrote triplets where the Weimar transcriptions have sixteenths.
+FINE_BEAT_SECONDS = 0.6   # a beat this long or longer (100 BPM or slower)
+FINE_ONSETS = 5           # or this many notes starting in one beat
 # Beats of extra error per event a grid must save before it wins over eighths.
 # Straight playing: sixteenths before triplets. Swing: triplets before sixteenths.
 PENALTY = {False: {EIGHTH: 0.0, STRAIGHT: 0.02, TRIPLET: 0.05, SEXTUPLET: 0.07, THIRTY_SECOND: 0.07},
@@ -301,9 +306,10 @@ def step_of(grid: tuple[Fraction, ...]) -> Fraction:
     return grid[1]
 
 
-def snap_beat(events: list[tuple[str, float, float]], swung: bool = False
+def snap_beat(events: list[tuple[str, float, float]], swung: bool = False, fine: bool = False
               ) -> tuple[tuple[Fraction, ...], list[Fraction]]:
-    """Snaps the events inside one beat to one grid: eighths, sixteenths or triplets.
+    """Snaps the events inside one beat to one grid: eighths, sixteenths or triplets,
+    and when fine (a long or crowded beat) also sextuplets or thirty-seconds.
 
     events are (kind, straight position, as-played position) with kind "on" or
     "off". Eighths and sixteenths are fitted to the straightened position,
@@ -315,6 +321,8 @@ def snap_beat(events: list[tuple[str, float, float]], swung: bool = False
     """
     best = None
     for grid, penalty in PENALTY[swung].items():
+        if grid in FINE and not fine:
+            continue
         g = np.array([float(x) for x in grid])
         picks, cost = [], 0.0
         for kind, straight, played in events:
@@ -363,7 +371,9 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     q_on, q_off = [Fraction(0)] * len(notes), [Fraction(0)] * len(notes)
     step: dict[int, Fraction] = {}  # each beat's grid step: 1/2, 1/3 or 1/4
     for beat, evs in events.items():
-        grid, picks = snap_beat([(k, f, pf) for _, k, f, pf in evs], swung=s != 0.5)
+        seconds = beats[beat + 1] - beats[beat] if 0 <= beat < len(beats) - 1 else 60.0 / (tempo_bpm or 120.0)
+        fine = seconds >= FINE_BEAT_SECONDS or sum(k == "on" for _, k, _, _ in evs) >= FINE_ONSETS
+        grid, picks = snap_beat([(k, f, pf) for _, k, f, pf in evs], swung=s != 0.5, fine=fine)
         step[beat] = step_of(grid)
         for (i, kind, _, _), p in zip(evs, picks):
             (q_on if kind == "on" else q_off)[i] = beat + p
