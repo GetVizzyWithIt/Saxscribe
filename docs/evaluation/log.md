@@ -98,6 +98,23 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E36 — 2026-11-04 — Onset model re-checked at looser thresholds (not adopted)
+- **Question**: was the first onset model (E35) only too strict? Same saved model, no retraining, scored at lower thresholds. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/rescore.txt` and `rescore.py` on the Mac.
+- **Result** (onset F1 / recall):
+
+| Set | Threshold 0.1 | 0.3 | 0.5 | 0.6 | librosa |
+| --- | --- | --- | --- | --- | --- |
+| URMP | 58.0 / 58.8% | 49.0 / 42.1% | 38.9 / 29.7% | | 65.3 / 81.5% |
+| Bach10 | 66.2 / 99.0% | | 77.8 / 95.9% | 80.9 / 94.1% | 68.4 / 99.4% |
+| ChoraleBricks | | | 61.4 / 70.9% | | 53.0 / 72.7% |
+| GRFIA alto test | | | 75.4 / 86.5% | | 58.5 / 95.0% |
+| GRFIA tenor test | | | 73.4 / 85.6% | | 60.9 / 93.3% |
+
+- At 0.5 the model beats librosa by 8–17 points of F1 everywhere except URMP, though its recall is still lower than librosa's on GRFIA.
+- **URMP is a blind spot, not a threshold problem**: recall at 0.5 per take is Entertainer 2 82%, Rejouissance 1 64%, Entertainer 1 31%, King 25%, Pirates 14%, Fugue 14%, Surprise 11%, Miserere 3%, Jerusalem 1%, March 0.4%. On the worst takes its output at true onsets (about 0.005) is no higher than in between. These are slow legato pieces with bleed from the other players, which the GRFIA training takes lack.
+- Scaling the output over non-silent frames helps a little (best threshold 0.4, URMP F1 38.9 → 45.6, GRFIA unchanged) but the blind takes stay blind.
+- **Not adopted**. Next: training data or augmentation with legato playing, reverb, bleed and soft attacks; then threshold 0.4–0.5 with non-silent scaling, and a comparison against Basic Pitch's onsets.
+
 ### E35 — 2026-11-04 — First sax-trained onset model (interim, not adopted)
 - **Goal**: catch the soft same-pitch repeats that loudness and Basic Pitch's own onsets miss (E29, E31) with an onset model trained on sax. Card: [onset-crnn](../models/onset-crnn.md).
 - **Setup**: small CRNN on log-mel input, trained on GRFIA alto and tenor plus Omnibook train tunes (811 takes, 3.27 h, 2 h on the Mac). Scored on held-out URMP, Bach10, ChoraleBricks and GRFIA test tunes with mir_eval onsets at 50 ms; threshold 0.7. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/` on the Mac.

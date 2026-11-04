@@ -40,10 +40,11 @@ GRFIA's non-commercial licence carries to the weights: fine for Austin's persona
 
 ## Caveats and recommendations
 - Higher F1 on four of five sets comes from precision; recall and repeat recall are lower than librosa's on every set, which is the wrong trade for a never-drop tool.
-- URMP fails (14% recall). The threshold (0.7) was chosen on training data and is too strict; a looser re-check is next. URMP's recording conditions differ from the training data, so poor generalisation is also possible.
-- Next: lower the threshold on a validation split, compare against Basic Pitch's own onsets, then try it only as a splitter of long same-pitch notes.
+- URMP fails (14% recall at 0.7). A looser re-check ([log E36](../evaluation/log.md)) shows it is blind, not only strict: even at threshold 0.1 URMP F1 is 58.0% against librosa's 65.3%, and on slow legato takes with ensemble bleed its output at true onsets is no higher than background. At 0.5 it beats librosa by 8–17 F1 on the other four sets.
+- Next: train or augment with legato, reverb, ensemble bleed and soft attacks; use threshold 0.4–0.5 with output scaled over non-silent frames; compare against Basic Pitch's own onsets; then try it only as a splitter of long same-pitch notes.
 
 ## Change history
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-04 | First training run, interim results, not adopted | — (docs only) |
+| 2026-11-04 | Re-checked at thresholds 0.1–0.6: blind on legato URMP takes; not adopted | — (docs only) |
