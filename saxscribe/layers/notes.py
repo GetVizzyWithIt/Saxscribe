@@ -6,8 +6,9 @@ notes.json holds:
              (median over the note, +30 = 30 cents sharp). tags is for
              articulations (slur, scoop, fall, ...). On a band record, notes
              found where the sax lays out (piano or bass solo, drum break; see
-             isolate.sax_spans) are tagged "not_sax": kept here, left off the
-             score and the scorecard.
+             isolate.sax_spans), or that the sax's pitch line does not back up
+             (bleed.py: no_pitch_line, off_line), are tagged "not_sax": kept
+             here, left off the score and the scorecard.
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
@@ -88,6 +89,11 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         if cuts:
             frontend.log(f"  The sax lays out at {', '.join(f'{a:.0f}-{b:.0f} s' for a, b in cuts)}: "
                          f"{dropped} notes there are kept in notes.json, tagged {NOT_SAX!r}, and left off the score")
+        from . import bleed
+        extra["bleed"] = bleed.tag(notes, line)
+        if extra["bleed"]["no_pitch_line"] or extra["bleed"]["off_line"]:
+            frontend.log(f"  {extra['bleed']['no_pitch_line']} notes where the sax's pitch line is silent and "
+                         f"{extra['bleed']['off_line']} off the line (other instruments): kept, left off the score")
     from . import ranges
     stem = frontend.load_mono(take.stem, sr=ranges.RATE) if range_rules != "off" else None
     extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules)
