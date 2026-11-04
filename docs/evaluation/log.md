@@ -122,7 +122,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **How** (`layers/bleed.py`, mix takes only): a note gets `not_sax` with a reason. `no_pitch_line` means the pitch line is unvoiced for 8 s or more. `off_line` means the line is voiced for at least 80% of the note but never on its pitch or octave, and more than a semitone away on at least 60% of frames. Scored offline on existing runs; 154 tests pass. [ADR-0034](../decisions/0034-hide-notes-the-pitch-line-does-not-back.md).
 - **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
-- **Status**: Austin closed PR #84 without merging (2026-11-04, about 12:45 pm PT); the build thread has asked whether that was on purpose. Not adopted until he answers.
+- **Status**: Austin closed PR #84 without merging (2026-11-04); the build thread has asked whether that was on purpose. Not adopted until he answers.
 
 ### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
 - **Setup**: split a note only where onset model v2 peaks and CREPE's confidence dips at the same time (E45's next step). Output: `~/saxscribe-runs/exp/split2_out.txt` on the Mac.
