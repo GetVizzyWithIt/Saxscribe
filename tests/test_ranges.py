@@ -81,8 +81,19 @@ def test_below_the_low_note():
     far, bend = note(37), note(48)
     counts = ranges.apply([far, bend], HORNS["alto"])
     assert far["pitch"] == 49 and far["detected_pitch"] == 37 and "octave_up" in far["tags"]
-    assert bend["pitch"] == 48 and bend["tags"] == ["below_range"]  # a lipped-down low Bb: kept
+    assert bend["pitch"] == 48 and bend["tags"] == ["below_range", "not_sax"]  # kept, off the score
     assert counts["moved"] == 1
+
+
+def test_a_note_just_below_the_horn_is_kept_but_left_off_the_score():
+    # Pennies From Heaven: piano/bass a half step under tenor low Bb came out as red sax notes.
+    bleed, real = note(43), note(44)
+    counts = ranges.apply([bleed, real], HORNS["tenor"])
+    assert bleed["pitch"] == 43 and bleed["tags"] == ["below_range", "not_sax"]  # kept, not moved
+    assert real["tags"] == [] and counts["below_range"] == 1
+    low_a = note(36)  # baritone low A (concert C2) is in range
+    ranges.apply([low_a], HORNS["baritone"])
+    assert low_a["tags"] == []
 
 
 def test_flag_mode_moves_nothing_and_off_does_nothing():
@@ -100,7 +111,7 @@ def test_a_take_made_with_the_wrong_horn_is_left_alone():
     assert counts["moved"] == 0 and counts["better_horn"] == "tenor"
     assert [n["pitch"] for n in notes[:6]] == [44, 45, 46, 47, 44, 46]
     assert all("out_of_range" in n["tags"] for n in notes[:6] if n["pitch"] < 47)
-    assert notes[3]["tags"] == ["below_range"]  # within a bend of the low note
+    assert notes[3]["tags"] == ["below_range", "not_sax"]  # within a bend of the low note
 
 
 def test_notes_where_the_sax_lays_out_are_skipped():

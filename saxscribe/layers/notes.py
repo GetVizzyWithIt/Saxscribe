@@ -126,7 +126,7 @@ def report_range(c: dict, horn: Horn) -> None:
     bits = [f"{c[k]} {label}" for k, label in (("octave_up", "moved up an octave"),
                                                 ("octave_down", "moved down from above the altissimo"),
                                                 ("altissimo", "altissimo"), ("overtone", "possible overtones"),
-                                                ("below_range", "just below the low note"))
+                                                ("below_range", "just below the low note (left off the score)"))
             if c.get(k)]
     if bits:
         frontend.log(f"  range ({horn.name}, {c['mode']}): " + ", ".join(bits))

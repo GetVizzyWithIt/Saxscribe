@@ -14,8 +14,11 @@ pitch whenever the pitch was moved):
   octave_down    above the horn's highest altissimo note: moved down into range
                  (by an octave, or an octave and a fifth when the stem shows it
                  was the third partial)
-  below_range    up to two semitones below the lowest note: kept as heard
-                 (a lipped-down low note, or a horn tuned flat)
+  below_range    up to two semitones below the lowest note (low Bb; low A on
+                 baritone): also tagged not_sax, so it is kept in notes.json
+                 but left off the score and the scorecard. No sax plays there
+                 (Austin, 2026-11-04); on Pennies From Heaven all 14 such notes
+                 were piano or bass coming through the sax stem.
   altissimo      above the keyed range: kept. Real altissimo is never moved
                  for being high.
   overtone       the stem shows the partials of a note an octave (or an octave
@@ -78,7 +81,7 @@ def apply(notes: list[dict], horn: Horn, y: np.ndarray | None = None, sr: int = 
         # and on every note only when asked: as a tag it was wrong far more often than right.
         sub = (spec.lower_partial(n) if spec is not None and (far_out or check_overtones) else None)
         if where == "below" and p >= horn.low - BEND_ROOM:
-            tags.append("below_range")
+            tags += ["below_range", SKIP]
         elif where in ("below", "above"):
             if not move:
                 tags.append("out_of_range")
