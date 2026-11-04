@@ -14,7 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook | Note F1 | 50.3% / 75.1% / 64.2% | +0.11 / +0.03 / ~0 points (4 / 8 / 3 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
+| 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook, omnibook-mix | Note F1 | 50.3% / 75.1% / 64.2% / 57.62% | +0.11 / +0.03 / ~0 / +0.21 points (4 / 8 / 3 / 27 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
 | 2026-11-04 | — (#78) | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default; #78 then turns the overtone check off by default | notes | omnibook, grfia-tenor, grfia-alto | Note F1 (Omnibook / tenor / alto) | 64.20 / 65.84 / 75.10% | 63.85 / 65.83 / 75.10% | no (moves stay an option; check off by default) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-rejected-overtone-check-off-by-default-pr-78) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
 | 2026-11-04 | #69 | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-merged) |
@@ -115,7 +115,11 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Change**: Austin's rule (E40). On soprano, alto and tenor nothing below written low B♭ goes on the sheet, on any take. The pitch search still reaches 2 half steps lower (`BEND_ROOM`), but notes found there are now tagged `not_sax` as well as `below_range` and left off the notation. They stay in `notes.json`. Bari's low A is its lowest note and is unchanged. [ADR-0033](../decisions/0033-nothing-below-the-low-note.md).
 - **Scorecard**, rescoring the runs made with #69 (note F1, notes hidden): GRFIA alto +0.03 (8), Omnibook about 0 (3), Pennies From Heaven +0.11 (4).
 - **Fidelity check**: on a fresh Pennies run, one hidden note was a real sax note, costing 0.12 points of onset recall. It is still in `notes.json`.
-- Older sets predate #69 and carry no range tags, so they are being redone on main; numbers to follow.
+- **Fresh runs on main `80cba98`** (notes redone, compared against #57-era runs):
+  - Parker band records (10): 27 notes hidden in 4 records; note F1 57.62% → 57.83%, onset F1 +0.27, onset recall −0.03 (about one hidden note was real).
+  - URMP, Bach10, ChoraleBricks and Blues for Mary Jane: unchanged; no notes hidden inside the key span.
+- **Side finding, attributed to #69, not #81**: Bach10 note F1 97.32% → 97.04% since #57, even with range rules off. #69 raised Basic Pitch's top frequency to the altissimo ceiling, which lets 1–2 extra high notes through; the same cause as the small loss on very short GRFIA takes (E38).
+- Housekeeping: the Blues for Mary Jane app library take had been removed from `~/saxscribe-library`; it was re-run from the same mp3.
 
 ### E42 — 2026-11-04 — Joining held notes split at small dips (not adopted)
 - **Goal**: fix the biggest Pennies From Heaven gap (E40): held notes split into same-pitch repeats at a small loudness dip.

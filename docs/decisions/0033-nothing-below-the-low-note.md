@@ -21,5 +21,6 @@ below low B♭; low A belongs to the bari.
 
 ## Consequences
 - Note F1: Pennies From Heaven +0.11 (4 notes hidden), GRFIA alto +0.03 (8), Omnibook about 0 (3) ([log E43](../evaluation/log.md)).
-- On a fresh Pennies run one hidden note was real sax (−0.12 onset recall); it is still in `notes.json`.
+- Parker band records: 27 notes hidden in 4 of 10, note F1 57.62% → 57.83%. URMP, Bach10, ChoraleBricks and Blues for Mary Jane unchanged.
+- About one hidden note per set was real sax (fresh Pennies run: −0.12 onset recall; Parker: −0.03) was real sax (−0.12 onset recall); each is still in `notes.json`.
 - A real low B♭ played very flat would be hidden; it is still in `notes.json` and can be restored in the editor.
