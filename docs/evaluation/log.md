@@ -102,6 +102,13 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E45 — 2026-11-04 — Onset model v2 adding notes where none exist (not adopted)
+- **Setup**: following E44, the model may add a note where it fires on a voiced stretch of the pitch line with no note present, pitch from CREPE. Adds only, never drops.
+- **Result**: never costs more than a fraction of a point anywhere; best gain about +1 onset F1 on URMP, against the +3 bar. Exact numbers with the build thread.
+- **Reading**: after this step, the URMP onsets still missed are mostly soft re-attacks inside held notes, not notes in silence. E44's finding (missed starts lie outside kept notes) held for the starts this test could add; what remains is inside notes.
+- **Next (build thread)**: split only where two signs agree: the model hears an onset and the pitch tracker wavers.
+- **Not adopted**.
+
 ### E44 — 2026-11-04 — Onset model v2 in the pipeline, split-only (not adopted)
 - **Setup**: onset model v2 (E41) wired in so it may only split an existing Basic Pitch note at a start it hears; it never removes notes. Scored against main with #74 under the adoption rule (at least +3 points of onset F1 on URMP, nothing worse elsewhere).
 - **Result** (output `~/saxscribe-runs/exp/split_below_out.txt` on the Mac):
