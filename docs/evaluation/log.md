@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto | Note F1 | 50.3% / 75.1% | +0.1 / +0.1 points (8 GRFIA alto notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
 | 2026-11-04 | — (#78) | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default; #78 then turns the overtone check off by default | notes | omnibook, grfia-tenor, grfia-alto | Note F1 (Omnibook / tenor / alto) | 64.20 / 65.84 / 75.10% | 63.85 / 65.83 / 75.10% | no (moves stay an option; check off by default) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-rejected-overtone-check-off-by-default-pr-78) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
 | 2026-11-04 | #69 | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-merged) |
@@ -100,6 +101,16 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E44 — 2026-11-04 — Onset model v2 in the pipeline, split-only (not adopted)
+- **Setup**: onset model v2 (E41) wired in so it may only split an existing Basic Pitch note at a start it hears; it never removes notes. Scored against main with #74 under the adoption rule (at least +3 points of onset F1 on URMP, nothing worse elsewhere).
+- **Result**: URMP onset F1 gains under 1 point. Does not clear the bar.
+- **Why**: most of the starts the model finds and the pipeline misses fall where Basic Pitch has no note at all, so there is nothing to split.
+- **Next (build thread)**: let the model add a note at such a start, with the pitch taken from the CREPE pitch line.
+
+### E43 — 2026-11-04 — No notes below the horn's low note on the sheet (PR #81, merged)
+- **Change**: Austin's rule (E40). On soprano, alto and tenor nothing below written low B♭ goes on the sheet, on any take. The pitch search still reaches 2 half steps lower (`BEND_ROOM`), but notes found there are now tagged `not_sax` as well as `below_range` and left off the notation. They stay in `notes.json`. Bari's low A is its lowest note and is unchanged. [ADR-0033](../decisions/0033-nothing-below-the-low-note.md).
+- **Scorecard**: Pennies From Heaven note F1 +0.1 point; GRFIA alto +0.1 (8 notes hidden). Fresh re-runs of the older sets are queued; numbers to follow.
 
 ### E42 — 2026-11-04 — Joining held notes split at small dips (not adopted)
 - **Goal**: fix the biggest Pennies From Heaven gap (E40): held notes split into same-pitch repeats at a small loudness dip.

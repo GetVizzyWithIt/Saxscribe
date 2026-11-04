@@ -39,3 +39,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0030](0030-rhythm-feel-per-phrase.md) | Triplet or plain feel chosen per phrase on fast beats | 2026-11-04 | Accepted |
 | [0031](0031-range-rules-per-horn.md) | Range rules per horn: altissimo kept, unplayable notes moved by octaves | 2026-11-04 | Accepted |
 | [0032](0032-overtone-moving-rejected.md) | Don't move suspected overtones; overtone check off by default | 2026-11-04 | Accepted |
+| [0033](0033-nothing-below-the-low-note.md) | Nothing below the horn's low note on the sheet | 2026-11-04 | Accepted |

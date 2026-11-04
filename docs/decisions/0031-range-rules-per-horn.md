@@ -1,7 +1,7 @@
 # ADR-0031: Range rules per horn; altissimo kept, unplayable notes moved by octaves
 
 - **Date**: 2026-11-04
-- **Status**: Accepted (PR #69 merged; scorecards in, log E38)
+- **Status**: Accepted (PR #69 merged; scorecards in, log E38); refined by [ADR-0032](0032-overtone-moving-rejected.md) and [ADR-0033](0033-nothing-below-the-low-note.md)
 - **Decided by**: Claude (range thread), at Austin's request
 - **PR**: #69
 - **Relates to**: [ADR-0005](0005-instrument-profiles-alto-first.md), [ADR-0016](0016-notation-never-drops-notes.md)
