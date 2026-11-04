@@ -36,4 +36,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0027](0027-keep-htdemucs-6s.md) | Keep Demucs htdemucs_6s as the separator | 2026-11-03 | Accepted |
 | [0028](0028-two-demucs-shifts-by-default.md) | Demucs with two averaged shifts by default | 2026-11-04 | Accepted |
 | [0029](0029-finer-grids-for-slow-and-busy-beats.md) | Finer beat grids for slow and busy beats | 2026-11-04 | Accepted |
-| [0030](0030-rhythm-feel-per-phrase.md) | Triplet or plain feel chosen per phrase on fast beats | 2026-11-04 | Proposed (PR #66) |
+| [0030](0030-rhythm-feel-per-phrase.md) | Triplet or plain feel chosen per phrase on fast beats | 2026-11-04 | Accepted |
