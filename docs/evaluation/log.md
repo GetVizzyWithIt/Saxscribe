@@ -98,6 +98,23 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E36 — 2026-11-04 — Onset model re-checked at looser thresholds (not adopted)
+- **Question**: was the first onset model (E35) only too strict? Same saved model, no retraining, scored at lower thresholds. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/rescore.txt` and `rescore.py` on the Mac.
+- **Result** (onset F1 / recall):
+
+| Set | Threshold 0.1 | 0.3 | 0.5 | 0.6 | librosa |
+| --- | --- | --- | --- | --- | --- |
+| URMP | 58.0 / 58.8% | 49.0 / 42.1% | 38.9 / 29.7% | | 65.3 / 81.5% |
+| Bach10 | 66.2 / 99.0% | | 77.8 / 95.9% | 80.9 / 94.1% | 68.4 / 99.4% |
+| ChoraleBricks | | | 61.4 / 70.9% | | 53.0 / 72.7% |
+| GRFIA alto test | | | 75.4 / 86.5% | | 58.5 / 95.0% |
+| GRFIA tenor test | | | 73.4 / 85.6% | | 60.9 / 93.3% |
+
+- At 0.5 the model beats librosa by 8–17 points of F1 everywhere except URMP, though its recall is still lower than librosa's on GRFIA.
+- **URMP is a blind spot, not a threshold problem**: recall at 0.5 per take is Entertainer 2 82%, Rejouissance 1 64%, Entertainer 1 31%, King 25%, Pirates 14%, Fugue 14%, Surprise 11%, Miserere 3%, Jerusalem 1%, March 0.4%. On the worst takes its output at true onsets (about 0.005) is no higher than in between. These are slow legato pieces with bleed from the other players, which the GRFIA training takes lack.
+- Scaling the output over non-silent frames helps a little (best threshold 0.4, URMP F1 38.9 → 45.6, GRFIA unchanged) but the blind takes stay blind.
+- **Not adopted**. Next: training data or augmentation with legato playing, reverb, bleed and soft attacks; then threshold 0.4–0.5 with non-silent scaling, and a comparison against Basic Pitch's onsets.
+
 ### E35 — 2026-11-04 — First sax-trained onset model (interim, not adopted)
 - **Goal**: catch the soft same-pitch repeats that loudness and Basic Pitch's own onsets miss (E29, E31) with an onset model trained on sax. Card: [onset-crnn](../models/onset-crnn.md).
 - **Setup**: small CRNN on log-mel input, trained on GRFIA alto and tenor plus Omnibook train tunes (811 takes, 3.27 h, 2 h on the Mac). Scored on held-out URMP, Bach10, ChoraleBricks and GRFIA test tunes with mir_eval onsets at 50 ms; threshold 0.7. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/` on the Mac.
@@ -134,7 +151,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Tenor phrase, Basic Pitch | 89.6% | 100.0% | 12/24 → 24/24 |
 
   - Low and middle notes unchanged; no false `overtone` tags on clean notes. A tenor phrase run as alto had its two notes heard two octaves up tagged `overtone`.
-- **Still to come**: real scorecards on the Mac after merge, with the contour redone because the search range changed: GRFIA alto and tenor altissimo takes (`--tag altissimo`), Omnibook, GRFIA tenor. Whether to move suspected overtones by default is open: on a band record, a bass note an octave below the sax could look like a lower fundamental. Other altissimo sources: GoodSounds, SaxTimbre (multiphonics and subtone as overtone traps), Weimar for range statistics.
+- **Real check, GRFIA altissimo-tagged takes** (8 per horn, contour redone, 2026-11-04): no change. Alto note F1 71.5% → 71.5% (pitch 86.1% → 86.2%); tenor 47.6% → 47.6% (pitch 82.2% → 82.1%). These takes barely enter altissimo (at most one note above high F# each, highest written A6), which the tool already heard before #69. The raised ceiling only matters above written E7 (alto) or D#7 (tenor), and no public set we have goes that high, so this shows the rules do no harm, not that they help. A real test needs recordings that go that high (Austin parked candidates for later: Lenny Pickett with the SNL band, Foreigner's "Urgent", Jaco Pastorius's "The Chicken").
+- **Still to come**: Omnibook and full GRFIA scorecards with the range rules; with the contour redone because the search range changed: GRFIA alto and tenor altissimo takes (`--tag altissimo`), Omnibook, GRFIA tenor. Whether to move suspected overtones by default is open: on a band record, a bass note an octave below the sax could look like a lower fundamental. Other altissimo sources: GoodSounds, SaxTimbre (multiphonics and subtone as overtone traps), Weimar for range statistics.
 
 ### E33 — 2026-11-04 — Triplet or plain feel chosen per phrase on fast beats (PR #66, merged)
 - **Problem**: after #64 the notation layer still chose triplet or plain feel beat by beat, so fast runs flipped between the two and wrote about 37% more triplets than the Weimar transcribers (1.37×).

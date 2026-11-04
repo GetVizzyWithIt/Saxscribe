@@ -20,6 +20,6 @@ fundamental as its octave.
 - Never delete a note; when many notes are out of range, suspect the wrong horn and move nothing.
 
 ## Consequences
-- On a synthetic phrase, altissimo notes found 15/24 → 24/24 (alto) and 12/24 → 24/24 (tenor); note F1 92.6% → 100% and 89.6% → 100% ([log E34](../evaluation/log.md)). Real scorecards pending.
+- On a synthetic phrase, altissimo notes found 15/24 → 24/24 (alto) and 12/24 → 24/24 (tenor); note F1 92.6% → 100% and 89.6% → 100% ([log E34](../evaluation/log.md)). On GRFIA altissimo-tagged takes (8 per horn) no change either way, alto 71.5% and tenor 47.6% note F1 before and after; those takes stay below written A6, so they can't show the raised ceiling. Omnibook and full GRFIA pending.
 - The table is per instrument, so other instruments need only the same three numbers.
 - Open: whether to move suspected overtones by default; on band records a bass note an octave below could fake a lower fundamental.
