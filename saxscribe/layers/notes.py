@@ -11,6 +11,12 @@ notes.json holds:
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
+One line (one_line): Basic Pitch hears every instrument, so its notes are made
+one line for a single horn. A note that starts while a held note rings ends the
+held note, unless the pitch line shows the horn still holding: then the held
+note keeps going and the note under it is kept, tagged "under_held" (on a band
+record it is usually a piano or bass attack, and the bleed check hides it).
+
 Range rules (ranges.py, --range-rules): every note is checked against the
 horn's range. A note no sax can play is moved by octaves into range, with its
 first pitch kept as "detected_pitch"; altissimo notes and possible overtones
@@ -43,6 +49,10 @@ from . import contour as contour_layer
 
 NOT_SAX = "not_sax"  # tag for notes found where the sax is not playing
 SAME_START = 0.03  # two notes starting closer than this are one attack
+UNDER_HELD = "under_held"  # a note that starts under a held note the pitch line stays on
+HELD_VOICED = 0.8  # share of the later note's frames the pitch line must be voiced for
+HELD_ON = 0.5  # share of those frames on the held note's pitch (or its octave)
+EDGE = 0.02  # s skipped at each end of a note when reading the pitch line
 
 
 def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") -> None:
@@ -59,7 +69,7 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
     if tool in basic and frontend.basic_pitch_available():
         info = {}
         notes = one_line(frontend.basic_pitch_notes(take.stem, horn.min_hz, horn.max_hz,
-                                                    by_spacing=tool != "basic_pitch_fixed", info=info))
+                                                    by_spacing=tool != "basic_pitch_fixed", info=info), line)
         extra.update(info)
         name = tool if tool in ("basic_pitch_join", "basic_pitch_fixed") else "basic_pitch"
         if name == "basic_pitch_join":
@@ -73,7 +83,7 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         notes, name = from_contour(line, onsets), "contour"
     for n in notes:
         n["cents"] = cents_off(line, n)
-        n["tags"] = []
+        n["tags"] = [UNDER_HELD] if n.pop(UNDER_HELD, False) else []
     if take.read_manifest().get("mix") and take.source.exists():
         from .isolate import sax_spans
         used = (take.read_manifest().get("layers", {}).get("isolate", {}).get("stem") or "").split("+")
@@ -132,12 +142,21 @@ def report_range(c: dict, horn: Horn) -> None:
         frontend.log(f"  range ({horn.name}, {c['mode']}): " + ", ".join(bits))
 
 
-def one_line(notes: list[dict]) -> list[dict]:
+def one_line(notes: list[dict], line: dict | None = None) -> list[dict]:
     """A sax plays one note at a time: drop doubled attacks and cut overlaps.
 
     When two notes start at the same moment, keep the louder one (the other is
     usually an octave or a harmonic). A note that is still ringing when the
-    next one starts ends there. Nothing else is removed.
+    next one starts ends there, unless the pitch line says the horn is still
+    holding it (under): then it runs on to the next note that is not under it,
+    and the note under it is kept, marked UNDER_HELD. Nothing else is removed.
+
+    Measured 2026-11-04 (follow_exp.py, notes layer re-run on existing takes,
+    against the keys): note F1 0 to +0.2 on every set (Pennies 50.0 -> 50.1,
+    Parker band 57.8 -> 57.9, Bach10 96.8 -> 97.0, ChoraleBricks 90.1 -> 90.3,
+    GRFIA +0.1), 93 held notes lengthened, 2 of 64 notes under them real.
+    Choosing between doubled attacks by the pitch line was also tried and cost
+    Blues for Mary Jane 0.7, so the louder one is still kept.
     """
     out: list[dict] = []
     for n in sorted(notes, key=lambda n: n["onset"]):
@@ -146,9 +165,44 @@ def one_line(notes: list[dict]) -> list[dict]:
                 out[-1] = dict(n)
             continue
         out.append(dict(n))
-    for a, b in zip(out, out[1:]):
-        a["offset"] = min(a["offset"], b["onset"])
+    flags = [False] * len(out)
+    if line is not None:
+        held = None
+        for i, n in enumerate(out):
+            if held is not None and out[held]["offset"] > n["onset"] and under(n, out[held], line):
+                flags[i] = True
+            else:
+                held = i
+    for i, a in enumerate(out):
+        j = next((j for j in range(i + 1, len(out)) if flags[i] or not flags[j]), None)
+        if j is not None:
+            a["offset"] = min(a["offset"], out[j]["onset"])
+        if flags[i]:
+            a[UNDER_HELD] = True
     return [n for n in out if n["offset"] > n["onset"]]
+
+
+def line_shares(line: dict, pitch: int, a: float, b: float) -> tuple[float, float]:
+    """(share of frames voiced, share of voiced frames on pitch or its octave) over [a, b)."""
+    t = line["time"]
+    m = (t >= a) & (t < b)
+    if m.sum() < 3:
+        return 0.0, 0.0
+    v = line["voiced"][m] & np.isfinite(line["midi"][m])
+    if not v.any():
+        return float(v.mean()), 0.0
+    d = line["midi"][m][v] - pitch
+    on = (np.abs(d) <= 0.5) | (np.abs(np.abs(d) - 12) <= 0.5)
+    return float(v.mean()), float(on.mean())
+
+
+def under(b: dict, a: dict, line: dict) -> bool:
+    """b starts under held note a: through b the line is voiced, never on b, mostly on a."""
+    span = (b["onset"] + EDGE, max(b["offset"] - EDGE, b["onset"] + 0.05))
+    voiced, on_b = line_shares(line, b["pitch"], *span)
+    if voiced < HELD_VOICED or on_b > 0:
+        return False
+    return line_shares(line, a["pitch"], *span)[1] >= HELD_ON
 
 
 def from_contour(line: dict, onsets: list[dict]) -> list[dict]:
