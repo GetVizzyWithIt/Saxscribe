@@ -100,6 +100,8 @@ Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQ
 6. Library and review queue.
 7. Timing and intonation report for Austin's own takes.
 
+Not now (Austin, 2026-11-04): an Auto horn-detect button. The horn stays a user choice (alto default); the range rules (PR #69) only suggest another `--horn` in the log when many notes fall out of range.
+
 ## Later
 
 - Any-instrument transcription: separate every instrument, one profile, answer-key set and model per instrument.
