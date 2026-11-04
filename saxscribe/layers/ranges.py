@@ -20,14 +20,17 @@ pitch whenever the pitch was moved):
                  for being high.
   overtone       the stem shows the partials of a note an octave (or an octave
                  and a fifth) lower: the detector may have heard an overtone.
-                 Kept as heard unless the mode is "overtones".
+                 Only with --range-rules overtones (moved) or flag (kept).
+                 Not in the default: on 2026-11-04, of 678 notes it flagged on
+                 Omnibook and GRFIA, the answer key agreed with the lower note
+                 6 times and with the note as heard 129 times.
   out_of_range   outside the range, and not moved because too many notes are
                  (most likely the take was made with the wrong horn)
 
 Modes (--range-rules):
-  out        (default) move notes no sax can play; tag the rest
+  out        (default) move notes no sax can play; tag altissimo and near-misses
   overtones  also move notes tagged overtone down to the fundamental
-  flag       tag only, move nothing
+  flag       tag only (overtones too), move nothing
   off        no range rules
 """
 from __future__ import annotations
@@ -64,12 +67,16 @@ def apply(notes: list[dict], horn: Horn, y: np.ndarray | None = None, sr: int = 
     if wrong_horn:
         counts["better_horn"] = best_horn([n["pitch"] for n in played], horn)
     move = mode in ("out", "overtones") and not wrong_horn
+    check_overtones = mode in ("overtones", "flag")
 
     for n in played:
         tags = n.setdefault("tags", [])
         p = n["pitch"]
         where = horn.register(p)
-        sub = spec.lower_partial(n) if spec is not None else None
+        far_out = where in ("below", "above") and not (where == "below" and p >= horn.low - BEND_ROOM)
+        # The overtone check runs on notes above the altissimo (which partial was it?),
+        # and on every note only when asked: as a tag it was wrong far more often than right.
+        sub = (spec.lower_partial(n) if spec is not None and (far_out or check_overtones) else None)
         if where == "below" and p >= horn.low - BEND_ROOM:
             tags.append("below_range")
         elif where in ("below", "above"):
