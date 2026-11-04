@@ -1,7 +1,7 @@
 # ADR-0030: Choose triplet or plain feel per phrase on fast beats
 
 - **Date**: 2026-11-04
-- **Status**: Proposed (PR #66 open)
+- **Status**: Accepted (PR #66 merged)
 - **Decided by**: Claude (build thread), from the Weimar rhythm scorecard; Austin's rhythm brief asked for rhythm chosen per phrase
 - **PR**: #66
 - **Refines**: [ADR-0029](0029-finer-grids-for-slow-and-busy-beats.md)
