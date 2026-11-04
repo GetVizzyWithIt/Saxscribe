@@ -14,12 +14,11 @@ pitch whenever the pitch was moved):
   octave_down    above the horn's highest altissimo note: moved down into range
                  (by an octave, or an octave and a fifth when the stem shows it
                  was the third partial)
-  below_range    up to two semitones below the lowest note: kept as heard
-                 (a lipped-down low note, or a horn tuned flat). On a band
-                 record (mix=True) such a note is also tagged not_sax: kept in
-                 notes.json but left off the score, since there it is nearly
-                 always the piano or bass coming through the sax stem (Pennies
-                 From Heaven, 2026-11-04: 14 of 14 were, none was Getz).
+  below_range    up to two semitones below the lowest note (low Bb; low A on
+                 baritone): also tagged not_sax, so it is kept in notes.json
+                 but left off the score and the scorecard. No sax plays there
+                 (Austin, 2026-11-04); on Pennies From Heaven all 14 such notes
+                 were piano or bass coming through the sax stem.
   altissimo      above the keyed range: kept. Real altissimo is never moved
                  for being high.
   overtone       the stem shows the partials of a note an octave (or an octave
@@ -56,10 +55,9 @@ PARTIALS = ((12, 2), (19, 3))
 
 
 def apply(notes: list[dict], horn: Horn, y: np.ndarray | None = None, sr: int = RATE,
-          mode: str = "out", mix: bool = False) -> dict:
+          mode: str = "out") -> dict:
     """Check notes (concert MIDI, with "tags" lists) in place. y is the stem, for
-    the overtone check; without it only the range is used. mix: the take is a
-    band record, so a note just below the horn is another instrument. Returns counts."""
+    the overtone check; without it only the range is used. Returns counts."""
     if mode not in MODES:
         raise ValueError(f"range rules: unknown mode {mode!r}")
     counts = {"mode": mode}
@@ -83,9 +81,7 @@ def apply(notes: list[dict], horn: Horn, y: np.ndarray | None = None, sr: int = 
         # and on every note only when asked: as a tag it was wrong far more often than right.
         sub = (spec.lower_partial(n) if spec is not None and (far_out or check_overtones) else None)
         if where == "below" and p >= horn.low - BEND_ROOM:
-            tags.append("below_range")
-            if mix:
-                tags.append(SKIP)
+            tags += ["below_range", SKIP]
         elif where in ("below", "above"):
             if not move:
                 tags.append("out_of_range")
@@ -108,8 +104,6 @@ def apply(notes: list[dict], horn: Horn, y: np.ndarray | None = None, sr: int = 
     for tag in ("octave_up", "octave_down", "below_range", "altissimo", "overtone", "out_of_range"):
         counts[tag] = sum(tag in n.get("tags", []) for n in played)
     counts["moved"] = sum("detected_pitch" in n for n in played)
-    if mix:
-        counts["below_range_not_sax"] = sum(SKIP in n.get("tags", []) and "below_range" in n["tags"] for n in played)
     return counts
 
 

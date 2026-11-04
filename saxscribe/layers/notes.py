@@ -90,8 +90,7 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
                          f"{dropped} notes there are kept in notes.json, tagged {NOT_SAX!r}, and left off the score")
     from . import ranges
     stem = frontend.load_mono(take.stem, sr=ranges.RATE) if range_rules != "off" else None
-    extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules,
-                                   mix=bool(take.read_manifest().get("mix")))
+    extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules)
     for n in notes:
         if "detected_pitch" in n:
             n["cents"] = cents_off(line, n)
@@ -127,8 +126,7 @@ def report_range(c: dict, horn: Horn) -> None:
     bits = [f"{c[k]} {label}" for k, label in (("octave_up", "moved up an octave"),
                                                 ("octave_down", "moved down from above the altissimo"),
                                                 ("altissimo", "altissimo"), ("overtone", "possible overtones"),
-                                                ("below_range", "just below the low note"),
-                                                ("below_range_not_sax", "of those left off the score as another instrument"))
+                                                ("below_range", "just below the low note (left off the score)"))
             if c.get(k)]
     if bits:
         frontend.log(f"  range ({horn.name}, {c['mode']}): " + ", ".join(bits))
