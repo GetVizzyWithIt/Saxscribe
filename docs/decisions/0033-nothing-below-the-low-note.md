@@ -20,5 +20,6 @@ below low B♭; low A belongs to the bari.
 - Bari's low A is its lowest note, so nothing changes for bari.
 
 ## Consequences
-- Pennies From Heaven +0.1 note F1, GRFIA alto +0.1 (8 notes hidden) ([log E43](../evaluation/log.md)).
+- Note F1: Pennies From Heaven +0.11 (4 notes hidden), GRFIA alto +0.03 (8), Omnibook about 0 (3) ([log E43](../evaluation/log.md)).
+- On a fresh Pennies run one hidden note was real sax (−0.12 onset recall); it is still in `notes.json`.
 - A real low B♭ played very flat would be hidden; it is still in `notes.json` and can be restored in the editor.
