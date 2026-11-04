@@ -11,7 +11,7 @@ on the fixed sets, in the PR description and in the log (CLAUDE.md).
 ## How to run
 
 ```bash
-python -m saxscribe score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR] [--note "..."]
+python -m saxscribe score <set> [--split test] [--notes-tool X] [--contour-tool Y] [--limit N] [--runs DIR] [--note "..."] [--range-rules out|overtones|flag|off] [--tag altissimo]
 ```
 
 Each run keeps its take folders under `~/saxscribe-runs/<set>/<settings>/`
@@ -20,6 +20,7 @@ Each run keeps its take folders under `~/saxscribe-runs/<set>/<settings>/`
 From PR #38 every run also appends one line (time, set, settings, means,
 git commit, optional `--note` label such as a training session) to
 `<runs>/results.jsonl`, by default `~/saxscribe-runs/results.jsonl`.
+`--tag altissimo` (PR #69) scores only GRFIA takes carrying that technique tag; a run after a change to the pitch search range needs `--redo contour`.
 
 ## Metrics (`saxscribe/score/metrics.py`, all mir_eval)
 
