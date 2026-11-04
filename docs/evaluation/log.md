@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | — (#78) | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default; #78 then turns the overtone check off by default | notes | omnibook, grfia-tenor, grfia-alto | Note F1 (Omnibook / tenor / alto) | 64.20 / 65.84 / 75.10% | 63.85 / 65.83 / 75.10% | no (moves stay an option; check off by default) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-rejected-overtone-check-off-by-default-pr-78) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
 | 2026-11-04 | #69 | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-merged) |
 | 2026-11-04 | #66 | Triplet or plain feel chosen per phrase on fast beats | notation | Weimar, 444 solos | Position read (up tempo); triplets × Weimar | 65.9% (74.8%); 1.37× | 67.4% (77.0%); 0.76× | yes | [E33](#e33--2026-11-04--triplet-or-plain-feel-chosen-per-phrase-on-fast-beats-pr-66-merged) |
@@ -98,6 +99,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E39 — 2026-11-04 — Moving suspected overtones by default: rejected; overtone check off by default (PR #78)
+- **Question**: with the range rules (PR #69), should notes tagged `overtone` be moved down to the lower note by default (`--range-rules overtones`) instead of only tagged (`--range-rules out`)? Run on the Mac at main `4ed61f2` (with #69 and #74), 16:11–16:32 UTC.
+
+| Set | Note F1, default → overtones moved | Moved notes the key could judge: agrees with lower note / with note as heard |
+| --- | --- | --- |
+| Omnibook (45 solos) | 64.20% → 63.85% (without offsets 78.79% → 78.30%) | 6 / 116 |
+| GRFIA tenor (473 takes) | 65.84% → 65.83% | 0 / 11 |
+| GRFIA alto (479 takes) | 75.10% → 75.10% | 0 / 2 |
+
+- **What the tag got right**: 678 notes were flagged as overtones. Where the answer key could judge (135 of them), it backed the overtone reading 6 times and the note as heard 129 times. As a tag it points at the wrong note about 95% of the time.
+- **Decision**: don't move overtones by default. PR #78 goes further and turns the overtone check off in the default mode (`out`), so no `overtone` tags are added there: a tag that is wrong 95% of the time would mislead editing and pollute edited takes saved as training data. `--range-rules overtones` and `flag` still run the check, for later tuning; the Omnibook solos with wrong moves (wkTyc, N3fYc, V3fYc, KRfYc) are the study set. Notes above the altissimo range still use the spectrum to choose between an octave and an octave-and-a-fifth move.
+- **Scores**: unchanged by #78, since the default never moved overtone notes and tags are not scored. Tag counts in E38 (599 `overtone` on the Omnibook) no longer apply to the default.
+- **Reading**: the spectrum test behind the tag is too loose to act on. Tightening it is a possible follow-up, not scheduled. Recorded as [ADR-0032](../decisions/0032-overtone-moving-rejected.md).
 
 ### E38 — 2026-11-04 — Range rules final scorecards; PR #74 confirmed as the pitch-line fix
 - **Omnibook** (45 solos, confirmed on the Mac at main `4ed61f2`), before #69 / with #69 / with #74: pitch 74.2% / 72.4% / **74.3%**; chroma 76.1% / 74.1% / 76.1%; note F1 64.2% throughout. Tags with #74: 599 `overtone`, 240 `altissimo`, 48 `below_range`. The three solos that dropped (N3fYc, S5VYc, 9THwc) are back within 0.5 points of their numbers before #69. Note and onset F1 unchanged (64.2%, 85.7%).
