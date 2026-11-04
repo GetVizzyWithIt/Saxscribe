@@ -68,6 +68,9 @@ def best_torch_device() -> str:
     return "cpu"
 
 
+DEMUCS_SHIFTS = 2   # average two shifted passes: more notes found on band records for ~50% more time (log E30)
+
+
 def separate_stems(wav: Path, out_dir: Path) -> dict[str, Path]:
     """Runs Demucs' 6-stem model. Returns {stem name: wav path}.
 
@@ -77,7 +80,7 @@ def separate_stems(wav: Path, out_dir: Path) -> dict[str, Path]:
     device = best_torch_device()
     log(f"Separating stems with Demucs on {device} (the slow step; a few minutes)...")
     cmd = [sys.executable, "-m", "demucs", "-n", "htdemucs_6s", "-d", device,
-           "-o", str(work), "--filename", "{stem}.{ext}", str(wav)]
+           "--shifts", str(DEMUCS_SHIFTS), "-o", str(work), "--filename", "{stem}.{ext}", str(wav)]
     result = subprocess.run(cmd)
     if result.returncode != 0 and device != "cpu":
         log("Demucs failed on the GPU, retrying on the CPU...")
