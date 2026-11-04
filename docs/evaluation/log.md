@@ -105,8 +105,9 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (experiment; PR held)
 - **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
-- **Result** on every test set: note F1 +0 to +0.2 points, 93 held notes lengthened, no set worse.
-- **Dropped variant**: letting the pitch line choose between two notes that start together cost Blues for Mary Jane −0.7.
+- **Rule ("hold")**: a note that starts under a held note doesn't cut it while the pitch line stays on the held note. Run with `follow_exp.py` on the Mac, notes layer redone on main `f64316b`; output `~/saxscribe-runs/exp/follow_out.txt`. Branch `claude/held-notes-follow-pitch-line` (153 tests pass).
+- **Result**, note F1: Pennies From Heaven 50.0% → 50.1%, Parker band records 57.8% → 57.9%, Bach10 96.8% → 97.0%, ChoraleBricks 90.1% → 90.3%, GRFIA alto 78.5% → 78.6%, GRFIA tenor 66.3% → 66.4%; Blues for Mary Jane, URMP and Omnibook flat. 93 held notes lengthened; of the 64 notes found under them, 2 were real.
+- **Dropped variant ("pick")**: letting the pitch line choose between two notes that start together cost Blues for Mary Jane −0.7 points.
 - **Status**: on band records this only cleans the sheet together with #84, so the build thread is holding the PR until Austin says whether closing #84 was intended.
 
 ### E48 — 2026-11-04 — Hide piano and bass notes the sax's pitch line doesn't back up (PR #84, closed without merging)
@@ -122,7 +123,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **How** (`layers/bleed.py`, mix takes only): a note gets `not_sax` with a reason. `no_pitch_line` means the pitch line is unvoiced for 8 s or more. `off_line` means the line is voiced for at least 80% of the note but never on its pitch or octave, and more than a semitone away on at least 60% of frames. Scored offline on existing runs; 154 tests pass. [ADR-0034](../decisions/0034-hide-notes-the-pitch-line-does-not-back.md).
 - **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
-- **Status**: Austin closed PR #84 without merging (2026-11-04); the build thread has asked whether that was on purpose. Not adopted until he answers.
+- **Status**: PR #84 was closed without merging at 20:46 UTC, 2 seconds after docs PR #83 merged and with no comment, so it may have been a misclick; the build thread has asked Austin. Not adopted until he answers.
 
 ### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
 - **Setup**: split a note only where onset model v2 peaks and CREPE's confidence dips at the same time (E45's next step). Output: `~/saxscribe-runs/exp/split2_out.txt` on the Mac.
