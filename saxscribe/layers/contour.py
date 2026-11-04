@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 
 from .. import frontend
-from ..horns import Horn
+from ..horns import CREPE_MAX_HZ, Horn
 from ..take import Take
 
 RATE = 16000
@@ -41,11 +41,11 @@ def track(y: np.ndarray, lo: float, hi: float, tool: str = "auto"):
         device = frontend.best_torch_device()
         audio = torch.tensor(y, dtype=torch.float32)[None]
         try:
-            f0, conf = torchcrepe.predict(audio, RATE, HOP, lo, hi, "full", batch_size=512,
+            f0, conf = torchcrepe.predict(audio, RATE, HOP, lo, min(hi, CREPE_MAX_HZ), "full", batch_size=512,
                                           device=device, return_periodicity=True)
         except Exception as exc:  # some GPU ops are missing on some machines
             frontend.log(f"CREPE failed on {device} ({exc}); retrying on the CPU.")
-            f0, conf = torchcrepe.predict(audio, RATE, HOP, lo, hi, "full", batch_size=512,
+            f0, conf = torchcrepe.predict(audio, RATE, HOP, lo, min(hi, CREPE_MAX_HZ), "full", batch_size=512,
                                           device="cpu", return_periodicity=True)
         conf = torchcrepe.filter.median(conf, 3)[0].cpu().numpy()
         f0 = f0[0].cpu().numpy()

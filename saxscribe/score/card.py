@@ -31,21 +31,27 @@ COLUMNS = ("pitch_accuracy", "chroma_accuracy", "octave_errors", "onset_f1", "no
 MIX_SETS = {"omnibook", "omnibook-mix", "urmp-mix", "bach10-mix"}
 
 
-def settings_name(contour_tool: str, notes_tool: str) -> str:
+def settings_name(contour_tool: str, notes_tool: str, range_rules: str = "out") -> str:
     parts = [f"contour-{contour_tool}" if contour_tool != "auto" else "",
-             f"notes-{notes_tool}" if notes_tool != "auto" else ""]
+             f"notes-{notes_tool}" if notes_tool != "auto" else "",
+             f"range-{range_rules}" if range_rules != "out" else ""]
     return "-".join(p for p in parts if p) or "default"
 
 
 def run(set_name: str, data: str | None = None, split: str = "all", limit: int | None = None,
         runs: str | None = None, contour_tool: str = "auto", notes_tool: str = "auto",
-        redo: str | None = None, note: str | None = None) -> dict:
+        redo: str | None = None, note: str | None = None, range_rules: str = "out",
+        tag: str | None = None) -> dict:
     items = refs.load(set_name, data, split)
+    if tag:  # e.g. only GRFIA's takes tagged altissimo
+        items = [r for r in items if tag.lower() in (r.extra.get("tags") or [])]
     if limit:
         items = items[:limit]
     if not items:
         raise SystemExit(f"No answer keys found for {set_name}.")
-    name = settings_name(contour_tool, notes_tool)
+    name = settings_name(contour_tool, notes_tool, range_rules)
+    if tag:
+        name = f"{name}-tag-{tag.lower()}"
     base = Path(runs).expanduser() if runs else Path.home() / "saxscribe-runs"
     out_dir = base / set_name / name
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -54,7 +60,7 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
     pdfs_before = os.environ.get("SAXSCRIBE_MUSESCORE")
     os.environ["SAXSCRIBE_MUSESCORE"] = "off"
     try:
-        rows = score_items(items, out_dir, contour_tool, notes_tool, redo)
+        rows = score_items(items, out_dir, contour_tool, notes_tool, redo, range_rules)
     finally:
         if pdfs_before is None:
             os.environ.pop("SAXSCRIBE_MUSESCORE", None)
@@ -130,7 +136,7 @@ def fmt(col: str, v) -> str:
     return f"{100 * v:.1f}%"
 
 
-def score_items(items, out_dir, contour_tool, notes_tool, redo) -> list[dict]:
+def score_items(items, out_dir, contour_tool, notes_tool, redo, range_rules="out") -> list[dict]:
     rows = []
     for i, ref in enumerate(items, 1):
         frontend.log(f"[{i}/{len(items)}] {ref.id}")
@@ -138,7 +144,8 @@ def score_items(items, out_dir, contour_tool, notes_tool, redo) -> list[dict]:
         fresh = not Take(folder).has("notation") or redo is not None
         t0 = time.time()
         take = transcribe(ref.audio, folder, mix=ref.is_mix, horn=ref.extra.get("horn", "alto"),
-                          contour_tool=contour_tool, notes_tool=notes_tool, redo=redo)
+                          contour_tool=contour_tool, notes_tool=notes_tool, redo=redo,
+                          range_rules=range_rules)
         row = {"id": ref.id, "tune": ref.tune, "player": ref.player, "horn": ref.extra.get("horn", "alto"),
                "split": refs.split_of(ref)}
         try:

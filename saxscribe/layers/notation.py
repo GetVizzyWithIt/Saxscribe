@@ -734,6 +734,8 @@ def build_score(result: dict, horn: Horn, written: bool):
     for run in empty_bar_runs(part):
         rests = [m.notesAndRests.first() for m in run]
         part.insert(0, spanner.MultiMeasureRest(rests, useSymbols=False))
+    from .ranges import mark_unplayable
+    mark_unplayable(part, horn, shift)  # notes kept as heard but outside the horn's range show red
     score = stream.Score()
     score.metadata = metadata.Metadata(title="Transcription", composer="saxscribe")
     score.insert(0, part)

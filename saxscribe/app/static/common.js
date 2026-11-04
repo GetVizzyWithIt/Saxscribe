@@ -30,4 +30,4 @@ async function download(url) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 60000);
 }
-const HORN_NAMES = {alto: 'Alto', tenor: 'Tenor', baritone: 'Baritone', concert: 'Concert'};
+const HORN_NAMES = {soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', baritone: 'Baritone', concert: 'Concert'};

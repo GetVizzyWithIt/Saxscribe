@@ -46,6 +46,9 @@ def musicxml(take: Take, view: str, song: dict | None = None) -> Path:
         written = score.transpose(interval.Interval(horn.written_interval))
         for part in written.parts:
             part.partName = f"{horn.name.capitalize()} Sax in {horn.key}"
+        from ..layers.ranges import mark_unplayable
+        # Notes this horn can't play (a take made on another horn) stay as heard, shown red.
+        mark_unplayable(written, horn, horn.written_shift)
         written.write("musicxml", fp=str(path))
     if song:
         stamp_file(path, song.get("title", ""), song.get("artist", ""))

@@ -11,6 +11,11 @@ notes.json holds:
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
+Range rules (ranges.py, --range-rules): every note is checked against the
+horn's range. A note no sax can play is moved by octaves into range, with its
+first pitch kept as "detected_pitch"; altissimo notes and possible overtones
+are tagged. Nothing is removed.
+
 Note tools (--notes-tool):
   basic_pitch  Spotify's Basic Pitch on the stem (the default when installed).
                Its shortest note follows the take's own note spacing
@@ -40,7 +45,7 @@ NOT_SAX = "not_sax"  # tag for notes found where the sax is not playing
 SAME_START = 0.03  # two notes starting closer than this are one attack
 
 
-def run(take: Take, horn: Horn, tool: str = "auto") -> None:
+def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") -> None:
     frontend.log("Layer 3/4: note events and beats")
     from . import segment
     line = contour_layer.read(take.contour)
@@ -83,6 +88,13 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
         if cuts:
             frontend.log(f"  The sax lays out at {', '.join(f'{a:.0f}-{b:.0f} s' for a, b in cuts)}: "
                          f"{dropped} notes there are kept in notes.json, tagged {NOT_SAX!r}, and left off the score")
+    from . import ranges
+    stem = frontend.load_mono(take.stem, sr=ranges.RATE) if range_rules != "off" else None
+    extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules)
+    for n in notes:
+        if "detected_pitch" in n:
+            n["cents"] = cents_off(line, n)
+    report_range(extra["range"], horn)
     beats, downbeats, beat_tool = frontend.detect_beats(take.source)
     data = {
         "layout_version": LAYOUT_VERSION,
@@ -95,12 +107,29 @@ def run(take: Take, horn: Horn, tool: str = "auto") -> None:
         "downbeats": [round(d, 4) for d in downbeats],
         "notes": [{"onset": round(n["onset"], 4), "offset": round(n["offset"], 4),
                    "pitch": int(n["pitch"]), "cents": n["cents"],
-                   "amp": round(float(n.get("amp", 0.5)), 3), "tags": n["tags"]} for n in notes],
+                   "amp": round(float(n.get("amp", 0.5)), 3), "tags": n["tags"],
+                   **({"detected_pitch": int(n["detected_pitch"])} if "detected_pitch" in n else {})}
+                  for n in notes],
     }
     take.notes.write_text(json.dumps(data, indent=1) + "\n")
     take.record("notes", tool=name, beats=beat_tool, **extra)
     joined = f" ({extra['joined']} split notes joined)" if "joined" in extra else ""
     frontend.log(f"  {name}: {len(notes)} notes{joined}; {beat_tool}: {len(beats)} beats")
+
+
+def report_range(c: dict, horn: Horn) -> None:
+    if c.get("mode") == "off":
+        return
+    if "better_horn" in c:
+        frontend.log(f"  {c['out_of_range']} notes are outside the {horn.name}'s range; kept as heard. "
+                     f"Was this a {c['better_horn']} take? (--horn {c['better_horn']})")
+    bits = [f"{c[k]} {label}" for k, label in (("octave_up", "moved up an octave"),
+                                                ("octave_down", "moved down from above the altissimo"),
+                                                ("altissimo", "altissimo"), ("overtone", "possible overtones"),
+                                                ("below_range", "just below the low note"))
+            if c.get(k)]
+    if bits:
+        frontend.log(f"  range ({horn.name}, {c['mode']}): " + ", ".join(bits))
 
 
 def one_line(notes: list[dict]) -> list[dict]:

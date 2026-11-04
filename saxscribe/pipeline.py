@@ -16,7 +16,7 @@ from .take import Take, default_folder
 
 def transcribe(src: Path, out: Path | None = None, *, mix: bool = False, stem: str | None = None,
                horn: str = "alto", redo: str | None = None, contour_tool: str = "auto",
-               notes_tool: str = "auto", swing: str = "auto") -> Take:
+               notes_tool: str = "auto", swing: str = "auto", range_rules: str = "out") -> Take:
     src = Path(src).expanduser().resolve()
     if not src.exists():
         raise SystemExit(f"No such file: {src}")
@@ -37,7 +37,7 @@ def transcribe(src: Path, out: Path | None = None, *, mix: bool = False, stem: s
     steps = {
         "isolate": lambda: isolate.run(take, src, mix, stem),
         "contour": lambda: contour.run(take, h, contour_tool),
-        "notes": lambda: notes.run(take, h, notes_tool),
+        "notes": lambda: notes.run(take, h, notes_tool, range_rules),
         "notation": lambda: notation.run(take, h, swing),
     }
     for layer in LAYERS[start:]:
