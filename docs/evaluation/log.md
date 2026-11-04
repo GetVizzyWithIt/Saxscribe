@@ -101,6 +101,25 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E41 — 2026-11-04 — Onset model v2, trained with reverb, bleed and soft attacks (standalone; not adopted yet)
+- **Change from v1 (E35, E36)**: same small CRNN, retrained with room reverb, bleed from other instruments and softer attacks mixed into the training audio. Existing datasets only; none of Austin's takes. Finished 18:04 UTC. Report: `~/saxscribe-runs/exp/2026-11-04-onset-model-v2/report.txt` on the Mac. Card: [onset-crnn](../models/onset-crnn.md).
+- **Threshold**: 0.5 is the new default; the 0.6 picked on training data was too strict.
+- **Result**, onset F1 at threshold 0.5 (mir_eval, 50 ms):
+
+| Set | v1 | v2 | librosa detector |
+| --- | --- | --- | --- |
+| URMP | 38.9 (recall 29.7) | **75.4** (recall 79.3) | 65.3 (recall 81.5) |
+| Bach10 | 77.8 | 77.3 | 68.4 |
+| ChoraleBricks | 61.4 | **69.9** | 53.0 |
+| GRFIA alto test | 75.4 | 75.8 | 58.5 |
+| GRFIA tenor test | 73.4 | 74.3 | 60.9 |
+
+- **Same-pitch repeats found**: URMP 19.6% → 72.3%, ChoraleBricks 64% → 97.7%.
+- **URMP takes that blinded v1**: Miserere 89%, Jerusalem 86%, March 62%; weakest is Surprise (trumpet bleed), 29%.
+- **Reading**: the augmentation fixed the blind spot. v2 now beats v1 and the plain detector on every set except Bach10 (level with v1). URMP recall is still 2 points under the plain detector. GRFIA test tunes share the player with training, so those two rows flatter it. These are detector scores, not transcription scores: the model is not in the pipeline yet.
+- **Fidelity check for the next step**: it will be wired in split-only (it may add note starts, never remove notes, ADR-0016) and scored against #74 under the adoption rule. Pennies From Heaven is being added to that scorecard. That matters because the biggest error there (E40) is the opposite one: 118 held notes already split at small dips. A splitter must not add to those.
+- **Not adopted yet**.
+
 ### E40 — 2026-11-04 — Second personal answer key: "Pennies From Heaven" (Getz with the Oscar Peterson Trio, tenor)
 - **Key**: Austin's printed transcription, verified first half typed in by hand: 169 bars, 867 notes; 87% of key notes confirmed by the heard pitch. Key and a note-by-note differences CSV are in the project files (`transcriptions/pennies-from-heaven/`); Mac copy at `~/saxscribe-runs/keys/pfh/` (pending). Audio stays private on the Mac. Full report: https://claude.ai/artifact/716Zp2PXCrsVk7sCwreG2d
 - **Tool**: main `4ed61f2` (#69 range rules, #74), default settings, band record through Demucs.
