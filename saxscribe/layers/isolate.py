@@ -66,7 +66,7 @@ def run(take: Take, src: Path, mix: bool, stem: str | None) -> None:
     write_accompaniment(take.accompaniment, [p for n, p in stems.items() if n not in chosen])
     name = "+".join(chosen)
     share = {n: round(v, 3) for n, v in shares(scores).items()}
-    take.record("isolate", tool="demucs htdemucs_6s", stem=name, source=str(src), stems=sorted(stems),
+    take.record("isolate", tool="demucs htdemucs_6s", shifts=frontend.DEMUCS_SHIFTS, stem=name, source=str(src), stems=sorted(stems),
                 **({"lead_share": share} if share else {}))
     how = f" (lead share {', '.join(f'{n} {v:.0%}' for n, v in share.items())})" if share else ""
     frontend.log(f"Using the {name!r} stem{how}. Others are in {take.stems} to listen to.")

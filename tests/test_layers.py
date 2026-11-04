@@ -9,6 +9,7 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import mir_eval
 import mido
@@ -221,3 +222,23 @@ def test_a_retongued_note_after_a_dip_comes_back_even_on_the_same_pitch():
                     {"onset": 1.50, "offset": 1.58, "pitch": 61}]     # no dip before it: stays out
     back = frontend.restore_dipped(short, kept, db)
     assert [n["onset"] for n in back] == [1.00]
+
+
+def test_demucs_runs_two_shifts(tmp_path, monkeypatch):
+    """Demucs averages two shifted passes (log E30: the one separator change that found more notes everywhere)."""
+    from saxscribe import frontend
+    seen = {}
+
+    def fake_run(cmd, check=False):
+        seen["cmd"] = cmd
+        out = Path(cmd[cmd.index("-o") + 1]) / "htdemucs_6s"
+        out.mkdir(parents=True)
+        (out / "other.wav").write_bytes(b"")
+        return subprocess.CompletedProcess(cmd, 0)
+
+    monkeypatch.setattr(frontend.subprocess, "run", fake_run)
+    monkeypatch.setattr(frontend, "best_torch_device", lambda: "cpu")
+    stems = frontend.separate_stems(tmp_path / "in.wav", tmp_path / "stems")
+    cmd = seen["cmd"]
+    assert cmd[cmd.index("--shifts") + 1] == "2"
+    assert set(stems) == {"other"}
