@@ -101,6 +101,16 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E42 — 2026-11-04 — Joining held notes split at small dips (not adopted)
+- **Goal**: fix the biggest Pennies From Heaven gap (E40): held notes split into same-pitch repeats at a small loudness dip.
+- **Rule tried**: join same-pitch neighbours when the dip between them is under 1–6 dB, with or without a check that no new attack is heard. Output: `~/saxscribe-runs/exp/join_out.txt` on the Mac.
+- **Result**:
+  - Pennies From Heaven, dip under 2 dB plus the attack check: note F1 50.3% → 51.5%, onset recall −1.0 point, and 10 of 38 joins wrong (real repeated notes merged).
+  - GRFIA tenor: +0.8 points, 1 wrong join.
+  - URMP, ChoraleBricks and the Omnibook: real repeated notes merged at every threshold, about 45–50% of joins wrong.
+- **Decision**: not adopted. Merging real repeats loses notes, which the fidelity rule forbids (ADR-0016). Next idea (build thread): only join where the onset model v2 (E41) hears no new start; that test is running.
+- **Run-to-run note**: the Pennies key is now on the Mac (`~/saxscribe-runs/keys/pfh/`, JSON and MIDI). The app library take reproduces the E40 card exactly (50.3%); a fresh run of main scores 49.2%, so Demucs varies by about 1 point between runs on this record.
+
 ### E41 — 2026-11-04 — Onset model v2, trained with reverb, bleed and soft attacks (standalone; not adopted yet)
 - **Change from v1 (E35, E36)**: same small CRNN, retrained with room reverb, bleed from other instruments and softer attacks mixed into the training audio. Existing datasets only; none of Austin's takes. Finished 18:04 UTC. Report: `~/saxscribe-runs/exp/2026-11-04-onset-model-v2/report.txt` on the Mac. Card: [onset-crnn](../models/onset-crnn.md).
 - **Threshold**: 0.5 is the new default; the 0.6 picked on training data was too strict.
@@ -139,6 +149,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   4. **Barlines 2 beats off** from the key; with a 2-beat shift, 97% of notes land on the right beat (notation, not scored by note F1).
   5. About 70 ghost notes in rests or shorter than 90 ms.
   6. 63 timing errors of 50–150 ms.
+  7. **14 notes below the horn's range**, all written A3, a half step below tenor low B♭, shown in red (spotted by Austin). 4 fall in rests in the key (two before bar 1, bar 6 beat 3, bar 169 beat 3), 1 is a 90 ms blip at bar 98, and 9 are in the closing solo, where another instrument plays. They sound as concert G2, last 60–440 ms, and sit at 0.55, 0.91, 8.72, 130.0 and 221.52 s in the keyed half and at 223.7, 225.0, 232.7, 244.8 (twice), 246.2, 246.3, 260.6 and 304.5 s in the closing solo. They are almost certainly piano or bass. `ranges.apply` tags them `below_range` and keeps them, because the #69 rule leaves 2 half steps of bend room under the lowest key (`BEND_ROOM`) for a lipped-down or flat note. **Austin's rule (2026-11-04, 11:24 am PT)**: no notes below written low B♭ on soprano, alto or tenor, on any take. The bend room goes for those horns. Notes below are kept in `notes.json`, tagged `not_sax`/`below_range`, and left off the sheet; never deleted (ADR-0016). Bari's low A is its bottom note and is unaffected. Code: PR #81 (scorecard to follow).
 - **Reading**: the tool does a little worse here than on Blues for Mary Jane, for the same reasons as other band records: separation leaves a busier stem, and Getz's legato and scoops trip the note cutter. The split-held-note and fast-run gaps are the biggest wins; neither may drop real notes (ADR-0016). Not a model change; not in the change table.
 
 ### E39 — 2026-11-04 — Moving suspected overtones by default: rejected; overtone check off by default (PR #78)
