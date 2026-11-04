@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | to confirm (74.2% before #69) | yes | [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
 | 2026-11-04 | #69 | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-merged) |
 | 2026-11-04 | #66 | Triplet or plain feel chosen per phrase on fast beats | notation | Weimar, 444 solos | Position read (up tempo); triplets × Weimar | 65.9% (74.8%); 1.37× | 67.4% (77.0%); 0.76× | yes | [E33](#e33--2026-11-04--triplet-or-plain-feel-chosen-per-phrase-on-fast-beats-pr-66-merged) |
 | 2026-11-04 | #64 | Sextuplet and 32nd grids on slow or busy beats; swing read from one- or two-note beats | notation | Weimar, 444 solos | Position read (ballads) | 63.1% (16.9%) | 65.9% (36.2%) | yes | [E32](#e32--2026-11-04--sextuplet-and-32nd-grids-for-slow-and-busy-beats-pr-64-merged) |
@@ -97,6 +98,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E37 — 2026-11-04 — Range rules on the Omnibook: a pitch-line regression from the raised ceiling, fixed by PR #74
+- **Run**: Omnibook, 45 solos, 07:01 UTC, #57 settings → #69 (range rules, contour redone).
+- **Result**: note F1 64.2% → 64.2%, onset F1 85.7% → 85.7% (recall 85.1%), octave errors 1.8% → 1.7%, but **pitch accuracy 74.2% → 72.4%** and chroma 76.1% → 74.1%. New tags: 629 `overtone`, 240 `altissimo`, 48 `below_range`; no notes removed.
+- **Where**: three solos carry the whole drop (N3fYc 62.2% → 49.4%, S5VYc 75.0% → 69.8%, 9THwc 77.7% → 72.4% pitch); every other solo moved by 0.2 points or less.
+- **Cause**: not the range rules. #69 raised CREPE's alto search ceiling from 1600 Hz to 2000 Hz; on those three solos CREPE put long stretches of real playing at 1966–1998 Hz with confidence 0, so those frames dropped out of the pitch line.
+- **Fix**: PR #74 (merged) caps CREPE at 1600 Hz again, the ceiling every earlier scorecard used. That still covers tenor altissimo (written A7 = concert G6, 1568 Hz). Basic Pitch keeps the full range, so alto notes above concert 1600 Hz can still be found as notes, but the pitch line won't follow them. A Mac check of torchcrepe at 2000 vs 1600 Hz on the three stems is pending.
+- **Reading**: the 629 overtone tags are worth a look before any default moves overtones (the Omnibook stems are band records, where a bass note an octave down can fake a lower fundamental, E34).
 
 ### E36 — 2026-11-04 — Onset model re-checked at looser thresholds (not adopted)
 - **Question**: was the first onset model (E35) only too strict? Same saved model, no retraining, scored at lower thresholds. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/rescore.txt` and `rescore.py` on the Mac.
