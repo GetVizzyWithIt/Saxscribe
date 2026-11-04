@@ -85,6 +85,17 @@ def test_below_the_low_note():
     assert counts["moved"] == 1
 
 
+def test_on_a_band_record_a_note_just_below_the_horn_is_left_off_the_score():
+    # Pennies From Heaven: piano/bass a half step under tenor low Bb came out as red sax notes.
+    bleed, real = note(43), note(50)
+    counts = ranges.apply([bleed, real], HORNS["tenor"], mix=True)
+    assert bleed["pitch"] == 43 and bleed["tags"] == ["below_range", "not_sax"]  # kept, not moved
+    assert real["tags"] == [] and counts["below_range_not_sax"] == 1
+    solo = note(43)
+    ranges.apply([solo], HORNS["tenor"])  # a solo sax take: a lipped-down note stays on the score
+    assert solo["tags"] == ["below_range"]
+
+
 def test_flag_mode_moves_nothing_and_off_does_nothing():
     a, b = note(37), note(100)
     ranges.apply([a, b], HORNS["alto"], mode="flag")  # no audio here, so no overtone tags
