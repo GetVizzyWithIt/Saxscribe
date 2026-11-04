@@ -34,7 +34,7 @@ copied to `~/Desktop/Saxscribe`.
 
 ```bash
 python -m saxscribe transcribe ~/Music/take.wav                      # solo alto take
-python -m saxscribe transcribe ~/Music/take.wav --horn tenor         # solo tenor (alto, tenor or baritone)
+python -m saxscribe transcribe ~/Music/take.wav --horn tenor         # solo tenor (soprano, alto, tenor or baritone)
 python -m saxscribe transcribe ~/Music/record.mp3 --mix --horn tenor # sax inside a full band
 ```
 
@@ -76,7 +76,8 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | --- | --- |
 | `--mix` | Separate stems with Demucs first. All six stems stay in `stems/` to listen to |
 | `--stem other` | Force a stem (or a sum such as `other+guitar`); the default, `auto`, picks the stem holding the sax |
-| `--horn tenor` | Tenor or baritone instead of alto (default): pitch range and written key |
+| `--horn tenor` | Soprano, tenor or baritone instead of alto (default): pitch range and written key |
+| `--range-rules flag` | How notes outside the horn's range are handled: `out` (default) moves notes no sax can play by octaves into range and tags altissimo and likely overtones; `overtones` also moves likely overtones down; `flag` only tags; `off` skips it. Nothing is ever deleted; a moved note keeps its `detected_pitch`. See `saxscribe/layers/ranges.py` |
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
@@ -137,6 +138,7 @@ python -m saxscribe score omnibook                 # Charlie Parker Aligned Omni
 python -m saxscribe score filosax --split test     # Filosax (needs access, and pip install mirdata)
 python -m saxscribe score pairs --data ~/Music/saxscribe-etudes   # your own takes
 python -m saxscribe score omnibook --notes-tool contour           # compare another setting
+python -m saxscribe score grfia-alto --tag altissimo              # only takes with a technique tag
 ```
 
 Each run keeps its take folders and writes `scorecard.md` and `scorecard.json`

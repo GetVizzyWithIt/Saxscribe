@@ -56,6 +56,10 @@ from pathlib import Path
 
 from . import LAYERS
 from .horns import HORNS
+from .layers.ranges import MODES as RANGE_MODES
+
+RANGE_HELP = ("notes outside the horn's range: out (default) moves notes no sax can play by octaves "
+              "into range, overtones also moves likely overtones, flag only tags, off skips the check")
 
 AUDIO = {".wav", ".aif", ".aiff", ".flac", ".mp3", ".m4a", ".ogg", ".opus"}
 
@@ -133,6 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour"), default="auto")
+    t.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
     t.add_argument("--swing", default="auto", type=swing_arg,
                    help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
     sub.add_parser("check", help="which tools are installed")
@@ -156,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--note", help="a few words saved with the run and shown on the Results page, e.g. \"CREPE fine-tuned on GRFIA, v1\"")
     sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour"), default="auto")
+    sc.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
+    sc.add_argument("--tag", help="only recordings with this technique tag (GRFIA: altissimo, bend, growl, trill...)")
 
     rh = sub.add_parser("rhythm", help="score how the notation layer writes rhythm, on the Weimar Jazz Database (no audio)")
     rh.add_argument("--data", help="wjazzd.db or its folder (default: config.local.toml [data] wjd, then ~/mir_datasets/WeimarJazzDatabase)")
@@ -194,7 +201,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
-                 args.notes_tool, args.redo, args.note)
+                 args.notes_tool, args.redo, args.note, args.range_rules, args.tag)
         return 0
     if args.cmd == "rhythm":
         from .score import rhythm
@@ -215,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             transcribe(f, args.out, mix=args.mix, stem=args.stem, horn=args.horn, redo=args.redo,
                        contour_tool=args.contour_tool, notes_tool=args.notes_tool,
-                       swing=args.swing)
+                       swing=args.swing, range_rules=args.range_rules)
         except (Exception, SystemExit) as exc:  # keep going through a batch
             if len(files) == 1:
                 raise
