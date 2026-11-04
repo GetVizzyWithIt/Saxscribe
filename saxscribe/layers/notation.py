@@ -64,7 +64,8 @@ FINE = (SEXTUPLET, THIRTY_SECOND)
 # they wrote triplets where the Weimar transcriptions have sixteenths.
 FINE_BEAT_SECONDS = 0.6   # a beat this long or longer (100 BPM or slower)
 FINE_ONSETS = 5           # or this many notes starting in one beat
-PHRASE_SWITCH = 0.0       # beats of cost to change between triplet and plain feel inside a phrase
+PHRASE_SWITCH = 0.0       # beats of cost to change between triplet and plain feel inside a phrase,
+PHRASE_SLOW_SECONDS = 0.6  # on beats shorter than this; a slow beat changes feel freely (rubato)
 # Beats of extra error per event a grid must save before it wins over eighths.
 # Straight playing: sixteenths before triplets. Swing: triplets before sixteenths.
 PENALTY = {False: {EIGHTH: 0.0, STRAIGHT: 0.02, TRIPLET: 0.05, SEXTUPLET: 0.07, THIRTY_SECOND: 0.07},
@@ -355,11 +356,12 @@ def feel_of(grid: tuple[Fraction, ...], picks: list[Fraction]) -> str | None:
     return "triplet" if grid in TRIPLET_FAMILY else "plain"
 
 
-def choose_grids(options: dict[int, list], switch: float) -> dict[int, tuple]:
+def choose_grids(options: dict[int, list], switch: float | dict[int, float]) -> dict[int, tuple]:
     """One grid per beat, chosen per phrase: the cheapest path through the beats
     (Viterbi), where changing between triplet and plain feel from one beat to
     the next costs `switch` beats of error. A beat with no notes ends the
-    phrase, so a new phrase starts free. switch = 0 is the old beat-by-beat pick."""
+    phrase, so a new phrase starts free. switch = 0 is the old beat-by-beat pick;
+    a dict gives each beat its own cost of changing feel on the way into it."""
     chosen: dict[int, tuple] = {}
     beats = sorted(options)
     k = 0
@@ -375,12 +377,13 @@ def choose_grids(options: dict[int, list], switch: float) -> dict[int, tuple]:
         feel = [feel_of(o[1], o[2]) for o in options[run[0]]]
         back: list[list[int]] = []
         for b in run[1:]:
+            fee = switch.get(b, 0.0) if isinstance(switch, dict) else switch
             new_cost, new_feel, ptr = [], [], []
             for o in options[b]:
                 f = feel_of(o[1], o[2])
                 best = None
                 for j, c in enumerate(cost):
-                    step = c + (switch if f and feel[j] and f != feel[j] else 0.0)
+                    step = c + (fee if f and feel[j] and f != feel[j] else 0.0)
                     if best is None or step < best[0] - 1e-12:
                         best = (step, j)
                 new_cost.append(best[0] + o[0])
@@ -427,12 +430,13 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
             events.setdefault(beat, []).append((i, kind, float(pos - beat), float(played - beat)))
     q_on, q_off = [Fraction(0)] * len(notes), [Fraction(0)] * len(notes)
     step: dict[int, Fraction] = {}  # each beat's grid step: 1/2, 1/3 or 1/4
-    options = {}
+    options, fees = {}, {}
     for beat, evs in events.items():
         seconds = beats[beat + 1] - beats[beat] if 0 <= beat < len(beats) - 1 else 60.0 / (tempo_bpm or 120.0)
+        fees[beat] = PHRASE_SWITCH if seconds < PHRASE_SLOW_SECONDS else 0.0
         fine = seconds >= FINE_BEAT_SECONDS or sum(k == "on" for _, k, _, _ in evs) >= FINE_ONSETS
         options[beat] = beat_options([(k, f, pf) for _, k, f, pf in evs], swung=s != 0.5, fine=fine)
-    chosen = choose_grids(options, PHRASE_SWITCH)
+    chosen = choose_grids(options, fees)
     for beat, evs in events.items():
         _, grid, picks = chosen[beat]
         step[beat] = step_of(grid)
