@@ -48,8 +48,11 @@ def test_a_low_note_heard_an_octave_up_is_tagged_overtone():
     # the detector reported D4 (62).
     y = tone(50, partials=[0.3, 1.0, 0.6, 0.5, 0.35, 0.25, 0.15, 0.1])
     kept = note(62)
-    ranges.apply([kept], HORNS["alto"], y, mode="out")
-    assert kept["pitch"] == 62 and "overtone" in kept["tags"]  # default: tagged, kept as heard
+    ranges.apply([kept], HORNS["alto"], y, mode="flag")
+    assert kept["pitch"] == 62 and "overtone" in kept["tags"]  # flag: tagged, kept as heard
+    plain = note(62)
+    ranges.apply([plain], HORNS["alto"], y)  # default: no overtone check on playable notes
+    assert plain["pitch"] == 62 and plain["tags"] == []
     moved = note(62)
     ranges.apply([moved], HORNS["alto"], y, mode="overtones")
     assert moved["pitch"] == 50 and moved["detected_pitch"] == 62
@@ -58,7 +61,7 @@ def test_a_low_note_heard_an_octave_up_is_tagged_overtone():
 def test_a_clean_note_is_not_called_an_overtone():
     for p in (52, 62, 72, 80):
         n = note(p)
-        ranges.apply([n], HORNS["alto"], tone(p))
+        ranges.apply([n], HORNS["alto"], tone(p), mode="flag")
         assert "overtone" not in n["tags"], p
 
 
@@ -84,7 +87,7 @@ def test_below_the_low_note():
 
 def test_flag_mode_moves_nothing_and_off_does_nothing():
     a, b = note(37), note(100)
-    ranges.apply([a, b], HORNS["alto"], mode="flag")
+    ranges.apply([a, b], HORNS["alto"], mode="flag")  # no audio here, so no overtone tags
     assert (a["pitch"], b["pitch"]) == (37, 100) and a["tags"] == b["tags"] == ["out_of_range"]
     c = note(37)
     assert ranges.apply([c], HORNS["alto"], mode="off") == {"mode": "off"} and c["tags"] == []

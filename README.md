@@ -77,7 +77,7 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | `--mix` | Separate stems with Demucs first. All six stems stay in `stems/` to listen to |
 | `--stem other` | Force a stem (or a sum such as `other+guitar`); the default, `auto`, picks the stem holding the sax |
 | `--horn tenor` | Soprano, tenor or baritone instead of alto (default): pitch range and written key |
-| `--range-rules flag` | How notes outside the horn's range are handled: `out` (default) moves notes no sax can play by octaves into range and tags altissimo and likely overtones; `overtones` also moves likely overtones down; `flag` only tags; `off` skips it. Nothing is ever deleted; a moved note keeps its `detected_pitch`. See `saxscribe/layers/ranges.py` |
+| `--range-rules flag` | How notes outside the horn's range are handled: `out` (default) moves notes no sax can play by octaves into range and tags altissimo; `overtones` also checks every note for a likely overtone and moves it down (tested 2026-11-04: wrong far more often than right, so off by default); `flag` only tags, overtones included; `off` skips it. Nothing is ever deleted; a moved note keeps its `detected_pitch`. See `saxscribe/layers/ranges.py` |
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
