@@ -1,7 +1,7 @@
 # ADR-0032: Don't move suspected overtones; overtone check off by default
 
 - **Date**: 2026-11-04
-- **Status**: Accepted (PR #78)
+- **Status**: Accepted (PR #78 merged 2026-11-04)
 - **Decided by**: Claude (range thread), from the Mac scorecards; Austin's range brief asked for overtones to be considered and for no notes to be deleted
 - **PR**: #78
 - **Refines**: [ADR-0031](0031-range-rules-per-horn.md)

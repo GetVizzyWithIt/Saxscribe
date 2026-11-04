@@ -51,6 +51,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | grfia-alto (~950 takes with tenor) | 90.0% | 79.1% | 75.2%‡¶ | 78.5% | — | solo | E22, E29 |
 | grfia-tenor | 87.2% | 75.1% | 66.1%‡¶ | 73.8% | — | solo | E22, E29 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 80% recall¶ | 56%¶ | 70% | — | mix | E19, E29 |
+| pfh-austin (Getz, tenor, 169 bars, 867 notes) | 69.3% | 75.1% | 50.3% | 66.5% | — | mix | E40 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -99,6 +100,46 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E41 — 2026-11-04 — Onset model v2, trained with reverb, bleed and soft attacks (standalone; not adopted yet)
+- **Change from v1 (E35, E36)**: same small CRNN, retrained with room reverb, bleed from other instruments and softer attacks mixed into the training audio. Existing datasets only; none of Austin's takes. Finished 18:04 UTC. Report: `~/saxscribe-runs/exp/2026-11-04-onset-model-v2/report.txt` on the Mac. Card: [onset-crnn](../models/onset-crnn.md).
+- **Threshold**: 0.5 is the new default; the 0.6 picked on training data was too strict.
+- **Result**, onset F1 at threshold 0.5 (mir_eval, 50 ms):
+
+| Set | v1 | v2 | librosa detector |
+| --- | --- | --- | --- |
+| URMP | 38.9 (recall 29.7) | **75.4** (recall 79.3) | 65.3 (recall 81.5) |
+| Bach10 | 77.8 | 77.3 | 68.4 |
+| ChoraleBricks | 61.4 | **69.9** | 53.0 |
+| GRFIA alto test | 75.4 | 75.8 | 58.5 |
+| GRFIA tenor test | 73.4 | 74.3 | 60.9 |
+
+- **Same-pitch repeats found**: URMP 19.6% → 72.3%, ChoraleBricks 64% → 97.7%.
+- **URMP takes that blinded v1**: Miserere 89%, Jerusalem 86%, March 62%; weakest is Surprise (trumpet bleed), 29%.
+- **Reading**: the augmentation fixed the blind spot. v2 now beats v1 and the plain detector on every set except Bach10 (level with v1). URMP recall is still 2 points under the plain detector. GRFIA test tunes share the player with training, so those two rows flatter it. These are detector scores, not transcription scores: the model is not in the pipeline yet.
+- **Fidelity check for the next step**: it will be wired in split-only (it may add note starts, never remove notes, ADR-0016) and scored against #74 under the adoption rule. Pennies From Heaven is being added to that scorecard. That matters because the biggest error there (E40) is the opposite one: 118 held notes already split at small dips. A splitter must not add to those.
+- **Not adopted yet**.
+
+### E40 — 2026-11-04 — Second personal answer key: "Pennies From Heaven" (Getz with the Oscar Peterson Trio, tenor)
+- **Key**: Austin's printed transcription, verified first half typed in by hand: 169 bars, 867 notes; 87% of key notes confirmed by the heard pitch. Key and a note-by-note differences CSV are in the project files (`transcriptions/pennies-from-heaven/`); Mac copy at `~/saxscribe-runs/keys/pfh/` (pending). Audio stays private on the Mac. Full report: https://claude.ai/artifact/716Zp2PXCrsVk7sCwreG2d
+- **Tool**: main `4ed61f2` (#69 range rules, #74), default settings, band record through Demucs.
+
+| Measure | Pennies From Heaven | Blues for Mary Jane (E29) |
+| --- | --- | --- |
+| Note F1 | 50.3% | 54.4% |
+| Note F1 without offsets | 66.5% | 70.1% |
+| Onset F1 | 75.1% (recall 80.7%) | 76.9% |
+| Pitch accuracy | 69.3% | 72% |
+| Octave errors | 2 of 867 | 0 |
+
+- **Gaps, largest first**:
+  1. **118 held notes split into repeats** of the same pitch at a small loudness dip (about 1.7 dB, far under #57's 10 dB re-tongue rule). Merging them would lift note F1 without offsets to about 71%. This is the opposite failure to the soft re-tongued repeats #57 restores, so a fix must tell the two apart, not just lower or raise the threshold.
+  2. **85 missed notes**, 78 of them in fast runs; 41 clearly audible on the record.
+  3. **Scoops**: 19 notes take the pitch from the start of a slide (wrong pitch), and about 25 ghost notes 1–2 semitones below the target.
+  4. **Barlines 2 beats off** from the key; with a 2-beat shift, 97% of notes land on the right beat (notation, not scored by note F1).
+  5. About 70 ghost notes in rests or shorter than 90 ms.
+  6. 63 timing errors of 50–150 ms.
+- **Reading**: the tool does a little worse here than on Blues for Mary Jane, for the same reasons as other band records: separation leaves a busier stem, and Getz's legato and scoops trip the note cutter. The split-held-note and fast-run gaps are the biggest wins; neither may drop real notes (ADR-0016). Not a model change; not in the change table.
 
 ### E39 — 2026-11-04 — Moving suspected overtones by default: rejected; overtone check off by default (PR #78)
 - **Question**: with the range rules (PR #69), should notes tagged `overtone` be moved down to the lower note by default (`--range-rules overtones`) instead of only tagged (`--range-rules out`)? Run on the Mac at main `4ed61f2` (with #69 and #74), 16:11–16:32 UTC.
