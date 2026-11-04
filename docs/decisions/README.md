@@ -35,3 +35,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0026](0026-adaptive-minimum-note-length.md) | Basic Pitch's shortest note follows the take's tempo | 2026-11-03 | Accepted, conditional (onset recall fix pending) |
 | [0027](0027-keep-htdemucs-6s.md) | Keep Demucs htdemucs_6s as the separator | 2026-11-03 | Accepted |
 | [0028](0028-two-demucs-shifts-by-default.md) | Demucs with two averaged shifts by default | 2026-11-04 | Accepted |
+| [0029](0029-finer-grids-for-slow-and-busy-beats.md) | Finer beat grids for slow and busy beats | 2026-11-04 | Accepted |
