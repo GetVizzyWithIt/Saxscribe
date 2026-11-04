@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | — | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default | notes | omnibook, grfia-alto, grfia-tenor | Note F1 change vs tag only (Omnibook / tenor / alto) | tag only (`out`) | −0.35 / −0.01 / ±0 points | no (stays an option) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-tested-kept-as-tag-only) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
 | 2026-11-04 | #69 | Range rules per horn; altissimo search ceiling raised to written A7 | contour + notes | synthetic 72-note phrase (real sets pending) | Note F1, alto / tenor (Basic Pitch) | 92.6 / 89.6% | 100 / 100% | yes | [E34](#e34--2026-11-04--range-rules-per-horn-altissimo-kept-unplayable-notes-moved-by-octaves-pr-69-merged) |
 | 2026-11-04 | #66 | Triplet or plain feel chosen per phrase on fast beats | notation | Weimar, 444 solos | Position read (up tempo); triplets × Weimar | 65.9% (74.8%); 1.37× | 67.4% (77.0%); 0.76× | yes | [E33](#e33--2026-11-04--triplet-or-plain-feel-chosen-per-phrase-on-fast-beats-pr-66-merged) |
@@ -98,6 +99,13 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E39 — 2026-11-04 — Moving suspected overtones by default: tested, kept as tag only
+- **Question**: with the range rules (PR #69), should notes tagged `overtone` be moved down to the lower note by default (`--range-rules overtones`) instead of only tagged (`--range-rules out`)? Run on the Mac on top of #69 and #74.
+- **Note F1, overtones moved vs tag only**: Omnibook −0.35 points, GRFIA tenor −0.01, GRFIA alto flat.
+- **Did the moves land on the right note?** Of 678 moves where the answer key had a note to compare, the key agreed with the moved pitch 6 times and with the original pitch 129 times. The rest matched neither. So the overtone check flags real high notes far more often than real overtones.
+- **Decision**: keep `--range-rules out` (tag only) as the default; `overtones` stays an option. Nothing is deleted either way, so the tag still marks notes worth a second look in the editor.
+- **Reading**: the spectrum test behind the `overtone` tag is too loose to act on. Tightening it (or checking the tag against the stem's lower octave over the whole note) is a possible follow-up, not scheduled. Full numbers are in the range thread.
 
 ### E38 — 2026-11-04 — Range rules final scorecards; PR #74 confirmed as the pitch-line fix
 - **Omnibook** (45 solos, confirmed on the Mac at main `4ed61f2`), before #69 / with #69 / with #74: pitch 74.2% / 72.4% / **74.3%**; chroma 76.1% / 74.1% / 76.1%; note F1 64.2% throughout. Tags with #74: 599 `overtone`, 240 `altissimo`, 48 `below_range`. The three solos that dropped (N3fYc, S5VYc, 9THwc) are back within 0.5 points of their numbers before #69. Note and onset F1 unchanged (64.2%, 85.7%).

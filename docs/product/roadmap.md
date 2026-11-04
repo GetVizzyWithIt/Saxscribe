@@ -35,7 +35,7 @@ Goal: meet the solo targets on clean recordings. Pitch is already near target
 - [ ] Austin's first etude takes → 20-take frozen test set
 - [ ] Trained note/onset head: first sax onset model trained 2026-11-04, not adopted (blind on slow legato URMP takes with bleed even at loose thresholds; needs legato, reverb and bleed in training; log E35, E36) (on Filosax when granted, Austin's takes, Omnibook train split)
 - [ ] Tenor check: first evidence from GRFIA-RealSax, tenor note F1 57.8% vs alto 66.5% with final answer keys (log E22); still to do on band records (JazzSAMBA tenor takes, Weimar tenor solos with Austin's records)
-- [ ] Range rules per horn and altissimo up to written A7 (PR #69 merged; synthetic altissimo 15/24 → 24/24 alto, log E34). Real scorecards: no harm on public sets, pitch-line fix #74 confirmed (log E38); still to decide whether to move suspected overtones by default, and to test on recordings above written E7
+- [ ] Range rules per horn and altissimo up to written A7 (PR #69 merged; synthetic altissimo 15/24 → 24/24 alto, log E34). Real scorecards: no harm on public sets, pitch-line fix #74 confirmed (log E38); overtones stay tag only by default (moving them cost note F1, log E39); still to test on recordings above written E7
 - [ ] Trill tag, so a trilled passage reads as one written trill while every alternation stays in notes.json (GRFIA trill takes 24%, log E20)
 
 **Gate:** solo targets (pitch 97%, onset F1 90%, note F1 80%) on Filosax test
