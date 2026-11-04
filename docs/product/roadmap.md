@@ -50,7 +50,7 @@ Demucs' "other" stem carries every non-drum, non-bass, non-vocal instrument.
 - [x] Measure Demucs alternatives: htdemucs_ft and BS-RoFormer lose to htdemucs_6s on Parker records and Blues for Mary Jane, and are 3–4× slower; keep htdemucs_6s (log E25, ADR-0027)
 - [x] Two averaged Demucs shifts by default (+0.8 / +1.9 points, +50% time; PR #61, log E30)
 - [ ] Onset model trained on sax, for the soft same-pitch repeats still missed since #52 (log E31)
-- [ ] Piano and bass notes inside the sax's range: 9% of the sheet on Pennies From Heaven, since the piano shares Demucs's stem with the sax (log E46). Next: sax-span cut on a long unvoiced pitch line, and an `off_line` tag for notes the pitch line never follows (tag and hide only)
+- [ ] Piano and bass notes inside the sax's range: 9% of the sheet on Pennies From Heaven, since the piano shares Demucs's stem with the sax (log E46). PR #84 (open) does the sax-span cut on a long unvoiced pitch line and an `off_line` tag: Pennies 49.2 → 49.8, Parker 57.6 → 57.8, Blues for Mary Jane 56.0 → 56.2 (log E48). Next: stop piano attacks splitting held sax notes
 - [ ] Sax-vs-rest separation fine-tune (GPU, Colab) on JazzSAMBA stems and mixes
 - [ ] Fallback: instrument-conditioned transcription (MuScriptor) on the "other" stem
 - [ ] Ten records Austin wants to learn as the fixed full-mix test set
