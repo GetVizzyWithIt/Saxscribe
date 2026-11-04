@@ -114,7 +114,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Blues for Mary Jane | 56.0% → 56.2% |
 | Solo sets | unchanged (rule applies to band records only) |
 
-- **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`. The 9 key notes the E46 trial hid are not hidden by this version.
+- **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
 - **Status**: pending Austin's merge. Next (build thread): stop piano attacks from splitting held sax notes (fix 3).
 
 ### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
