@@ -98,6 +98,22 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E35 — 2026-11-04 — First sax-trained onset model (interim, not adopted)
+- **Goal**: catch the soft same-pitch repeats that loudness and Basic Pitch's own onsets miss (E29, E31) with an onset model trained on sax. Card: [onset-crnn](../models/onset-crnn.md).
+- **Setup**: small CRNN on log-mel input, trained on GRFIA alto and tenor plus Omnibook train tunes (811 takes, 3.27 h, 2 h on the Mac). Scored on held-out URMP, Bach10, ChoraleBricks and GRFIA test tunes with mir_eval onsets at 50 ms; threshold 0.7. Files: `~/saxscribe-runs/exp/2026-11-04-onset-model/` on the Mac.
+- **Result** (F1 / precision / recall / same-pitch repeat recall):
+
+| Set | Onset model | librosa onset detector |
+| --- | --- | --- |
+| URMP | 20.8 / 66.9 / **14.1** / 8.4% | 65.3 / 55.0 / 81.5 / 67.3% |
+| Bach10 | 83.1 / 78.3 / 88.8 / 89.2% | 68.4 / 52.3 / 99.4 / 100% |
+| ChoraleBricks | 57.9 / 62.4 / 55.4 / 55.7% | 53.0 / 42.6 / 72.7 / 78.0% |
+| GRFIA alto test | 76.6 / 74.2 / 79.8 / 86.7% | 58.5 / 42.6 / 95.0 / 97.0% |
+| GRFIA tenor test | 72.8 / 70.9 / 75.2 / 80.7% | 60.9 / 46.0 / 93.3 / 92.2% |
+
+- **Reading**: better F1 on four sets, but only through precision; it finds fewer note starts than the plain detector on every set, and on URMP, where the repeats go missing, it finds 14%. The threshold was picked on training data and is too strict. The baseline here is librosa, not Basic Pitch, so these numbers don't yet say whether it would help the pipeline. GRFIA test tunes share the player with training, so they flatter it.
+- **Not adopted**. Next: a looser threshold chosen on a validation split, then a comparison against Basic Pitch's onsets on URMP and GRFIA.
+
 ### E34 — 2026-11-04 — Range rules per horn: altissimo kept, unplayable notes moved by octaves (PR #69, merged)
 - **Problem**: the pitch search stopped below the top of the altissimo range (tenor at 1100 Hz, written D#7; alto at 1600 Hz, written E7), so real altissimo above those was impossible to transcribe. Nothing checked whether a note was playable on the chosen horn.
 - **Change** ([ADR-0031](../decisions/0031-range-rules-per-horn.md)): a range table per horn in `saxscribe/horns.py` (soprano, alto, tenor, baritone: lowest key, top keyed note F#6 written, top altissimo A7 written on alto and tenor, F7 on soprano and bari). Rules in `saxscribe/layers/ranges.py`, run in the notes layer and recorded in `take.json`:

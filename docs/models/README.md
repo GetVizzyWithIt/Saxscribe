@@ -9,6 +9,7 @@ outputs. Format follows Mitchell et al., "Model Cards for Model Reporting"
 | [Demucs (htdemucs_6s)](demucs.md) | 1 isolate | Pretrained, used as is | Default for `--mix` |
 | [CREPE via torchcrepe](crepe.md) | 2 contour | Pretrained, used as is | Default |
 | [Basic Pitch](basic-pitch.md) | 3 notes | Pretrained, used as is | Default |
+| [Sax onset model (CRNN)](onset-crnn.md) | 3 notes | Trained by us on GRFIA + Omnibook (non-commercial weights) | Experimental, not in the app |
 | [Note rules: one-line, split-note join, segmenter, contour cutter](note-rules.md) | 3 notes | Our own rules, no training | Join off by default since PR #22; others optional |
 | [Beat This!](beat-this.md) | 3 beats | Pretrained, used as is | Default |
 
