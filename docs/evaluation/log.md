@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 | #66 (open) | Triplet or plain feel chosen per phrase on fast beats | notation | Weimar, 444 solos | Position read (up tempo); triplets × Weimar | 65.9% (74.8%); 1.37× | 67.4% (77.0%); 0.76× | yes | [E33](#e33--2026-11-04--triplet-or-plain-feel-chosen-per-phrase-on-fast-beats-pr-66-open) |
 | 2026-11-04 | #64 | Sextuplet and 32nd grids on slow or busy beats; swing read from one- or two-note beats | notation | Weimar, 444 solos | Position read (ballads) | 63.1% (16.9%) | 65.9% (36.2%) | yes | [E32](#e32--2026-11-04--sextuplet-and-32nd-grids-for-slow-and-busy-beats-pr-64-merged) |
 | 2026-11-04 | #61 | Demucs with two averaged shifts by default | isolate | omnibook-mix / Blues for Mary Jane | Note F1 | 57.1 / 53.1% | 57.9 / 55.0% | yes | [E30](#e30--2026-11-04--separator-comparison-round-2-clean-ups-after-demucs-and-other-separators-pr-61-merged) |
 | 2026-11-03 | #57 | Restore re-tongued repeats (loudness dip ≥ 10 dB before the attack) | notes | urmp (all sets in E29) | Onset recall (89.1% before #52); note F1 | 74.5%; 69.0% | 81.9%; 68.8% | yes | [E29](#e29--2026-11-03--full-scorecards-for-re-tongued-repeats-pr-57-merged) |
@@ -95,6 +96,25 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E33 — 2026-11-04 — Triplet or plain feel chosen per phrase on fast beats (PR #66 open)
+- **Problem**: after #64 the notation layer still chose triplet or plain feel beat by beat, so fast runs flipped between the two and wrote about 37% more triplets than the Weimar transcribers (1.37×).
+- **Change**: a best-path search over the beats of each phrase (an empty beat ends a phrase). Switching between triplet and plain feel costs 0.4 beats, but only on beats shorter than 0.45 s (faster than about 133 BPM), so slow tunes and ballads still switch freely. Each beat's feel is set from its own note starts only ([ADR-0030](../decisions/0030-rhythm-feel-per-phrase.md)).
+- **Scorecard**: all 444 Weimar solos, scored on the PR branch at `278e886` against main `fed6f9a`; same tempo groups as E32. Position read:
+
+| Group | Before (main) | After (#66) |
+| --- | --- | --- |
+| Ballad (10) | 36.2% | 36.2% |
+| Slow (60) | 44.0% | 44.0% |
+| Medium (85) | 54.4% | 54.6% |
+| Up (289) | 74.8% | **77.0%** |
+| **All (444)** | 65.9% | **67.4%** |
+
+  - Exact position 61.1% → 61.6%, right beat 92.2% → 92.5%.
+  - Triplets 1.37× → 0.76× and sixteenths 0.65× → 0.91× of Weimar's counts: the triplet over-count is gone and slightly reversed.
+  - Notes kept 100% (ADR-0016 holds). Note F1, onset and pitch unaffected: notation layer only.
+- **Not adopted**: switch costs on every beat (ballads −1.4 to −2.3); costs of 0.6 and 0.6, which raised all to 68.6% but cut triplets to 0.47× (about half of the real triplets lost); 0.4 and 0.6 (slow −0.5). Experiment scripts: `~/saxscribe-runs/exp/2026-11-04-slow-rhythm/phrase_exp*.py` on the Mac.
+- **Watch**: triplets now sit below Weimar's count (0.76×). Real triplets written as plain eighths are a readability loss, not a dropped note, but worth checking on Austin's own transcriptions.
 
 ### E32 — 2026-11-04 — Sextuplet and 32nd grids for slow and busy beats (PR #64, merged)
 - **Problem** (E24, E28): ballads and slow tunes were written in the right place only 17–34% of the time. 85–88% of those misses were written late: with only quarter and triplet grids, a beat holding 6 or 8 notes put two notes on one spot, and pushing each later note into the next slot made whole runs late. The inner notes of busy ballad beats were also being read as swing.
