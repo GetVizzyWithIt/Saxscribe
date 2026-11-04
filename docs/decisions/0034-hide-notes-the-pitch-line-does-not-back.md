@@ -1,7 +1,7 @@
 # ADR-0034: On band records, hide notes the sax's pitch line doesn't back up
 
 - **Date**: 2026-11-04
-- **Status**: Proposed (PR #84 open, pending Austin's merge)
+- **Status**: Proposed; PR #84 closed without merging (2026-11-04), awaiting Austin's word on whether that was intended
 - **Decided by**: Claude (build thread), from the Pennies From Heaven piano-bleed review
 - **PR**: #84
 - **Relates to**: [ADR-0016](0016-notation-never-drops-notes.md), [ADR-0023](0023-write-only-where-the-sax-plays.md)
