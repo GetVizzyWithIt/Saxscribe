@@ -24,6 +24,7 @@
     python -m saxscribe score choralebricks    (alto and baritone sax chorale parts)
     python -m saxscribe score bach10           (the sax part of 10 Bach chorales)
     python -m saxscribe score pairs --data ~/Music/Etudes
+    python -m saxscribe stress grfia-alto --limit 40   (same set off speed, in reverb, lo-fi)
 
   Make an answer key for your take of a written etude:
     python -m saxscribe answer-key take.wav etude.musicxml
@@ -159,8 +160,9 @@ def main(argv: list[str] | None = None) -> int:
     ap_app.add_argument("--no-browser", action="store_true", help="don't open a browser tab")
 
     sc = sub.add_parser("score", help="run a set of recordings with known answers and score each layer")
-    sc.add_argument("set", choices=("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs",
-                                           "grfia-alto", "grfia-tenor"))
+    sets = ("omnibook", "omnibook-mix", "filosax", "urmp", "urmp-mix", "choralebricks", "bach10", "bach10-mix", "pairs",
+            "grfia-alto", "grfia-tenor")
+    sc.add_argument("set", choices=sets)
     sc.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
     sc.add_argument("--split", choices=("all", "train", "test"), default="all")
     sc.add_argument("--limit", type=int, help="only the first N recordings")
@@ -173,6 +175,15 @@ def main(argv: list[str] | None = None) -> int:
                    help="filosax: Riley and Dixon's sax transcriber (see saxscribe/filosax.py)")
     sc.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
     sc.add_argument("--tag", help="only recordings with this technique tag (GRFIA: altissimo, bend, growl, trill...)")
+
+    st = sub.add_parser("stress", help="score a set again under off-speed, reverb and lo-fi conditions, plus clean scores by technique tag")
+    st.add_argument("set", choices=sets)
+    st.add_argument("--data", help="dataset folder (default: config.local.toml, then ~/mir_datasets/)")
+    st.add_argument("--split", choices=("all", "train", "test"), default="all")
+    st.add_argument("--limit", type=int, help="only the first N recordings")
+    st.add_argument("--runs", help="where take folders and the card go (default ~/saxscribe-runs; card in stress/<set>/)")
+    st.add_argument("--conditions", help="comma list from: clean, detune+25, detune-25, detune+50, detune-50, reverb, lofi (default: all)")
+    st.add_argument("--note", help="a few words saved with the run")
 
     rh = sub.add_parser("rhythm", help="score how the notation layer writes rhythm, on the Weimar Jazz Database (no audio)")
     rh.add_argument("--data", help="wjazzd.db or its folder (default: config.local.toml [data] wjd, then ~/mir_datasets/WeimarJazzDatabase)")
@@ -212,6 +223,10 @@ def main(argv: list[str] | None = None) -> int:
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
                  args.notes_tool, args.redo, args.note, args.range_rules, args.tag, args.separator)
+        return 0
+    if args.cmd == "stress":
+        from .score import stress
+        stress.run(args.set, args.data, args.split, args.limit, args.runs, args.conditions, args.note)
         return 0
     if args.cmd == "rhythm":
         from .score import rhythm
