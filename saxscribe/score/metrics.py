@@ -14,6 +14,10 @@
   note_f1          onset within 50 ms, pitch within 50 cents, offset within
                    20% of the note's length (or 50 ms)
   note_f1_no_offset  the same without the offset rule
+  sax_found    share of the answer key's notes we wrote (onset within 50 ms,
+               pitch within 50 cents, ends ignored): sax the tool did not lose
+  sax_purity   share of our notes the answer key has (same rule): the rest is
+               bleed from other instruments, ghosts or wrong pitches
   beat_f1          beats within 70 ms (only when the answer key has beats)
 
 When an answer key covers only part of the recording (Reference.partial),
@@ -56,7 +60,7 @@ def note_scores(ref: list[dict], est: list[dict]) -> dict:
     if len(ri) == 0:
         return {}
     if len(ei) == 0:
-        return {"onset_f1": 0.0, "note_f1": 0.0, "note_f1_no_offset": 0.0}
+        return {"onset_f1": 0.0, "note_f1": 0.0, "note_f1_no_offset": 0.0, "sax_found": 0.0}
     onset = mir_eval.transcription.onset_precision_recall_f1(ri, ei, onset_tolerance=0.05)
     full = mir_eval.transcription.precision_recall_f1_overlap(ri, rp, ei, ep, onset_tolerance=0.05,
                                                              pitch_tolerance=50.0, offset_ratio=0.2)
@@ -64,7 +68,7 @@ def note_scores(ref: list[dict], est: list[dict]) -> dict:
                                                                pitch_tolerance=50.0, offset_ratio=None)
     return {"onset_precision": onset[0], "onset_recall": onset[1], "onset_f1": onset[2],
             "note_precision": full[0], "note_recall": full[1], "note_f1": full[2],
-            "note_f1_no_offset": no_off[2]}
+            "note_f1_no_offset": no_off[2], "sax_found": no_off[1], "sax_purity": no_off[0]}
 
 
 def pitch_scores(ref: list[dict], contour: dict) -> dict:

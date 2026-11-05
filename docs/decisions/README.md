@@ -40,3 +40,6 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0031](0031-range-rules-per-horn.md) | Range rules per horn: altissimo kept, unplayable notes moved by octaves | 2026-11-04 | Accepted |
 | [0032](0032-overtone-moving-rejected.md) | Don't move suspected overtones; overtone check off by default | 2026-11-04 | Accepted |
 | [0033](0033-nothing-below-the-low-note.md) | Nothing below the horn's low note on the sheet | 2026-11-04 | Accepted |
+| [0034](0034-hide-notes-the-pitch-line-does-not-back.md) | On band records, hide notes the sax's pitch line doesn't back up | 2026-11-04 | Proposed (PR #84 pending merge) |
+| [0035](0035-sax-trained-note-model-plan.md) | Plan for a sax-trained note model: retrain Riley and Dixon's sax model first | 2026-11-05 | Proposed |
+| [0036](0036-gated-two-separator-hybrid.md) | Gated two-separator hybrid on band records; genre only a hint | 2026-11-05 | Proposed |

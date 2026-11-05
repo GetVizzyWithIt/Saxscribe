@@ -59,7 +59,7 @@ function visibleChanges() {
 function standings() {
   const table = $('#standings'); table.replaceChildren();
   const head = el('tr');
-  for (const h of ['Set', 'Note F1', 'Onset F1', 'Pitch', 'Seconds per minute', 'Note F1 vs the run before', 'Last run'])
+  for (const h of ['Set', 'Note F1', 'Onset F1', 'Pitch', 'Sax found', 'Sax purity', 'Seconds per minute', 'Note F1 vs the run before', 'Last run'])
     head.append(el('th', {}, h));
   table.append(head);
   const sets = ORDER.filter(s => DATA.runs.some(r => r.set === s))
@@ -74,9 +74,9 @@ function standings() {
     const m = last.metrics;
     if (set === 'weimar-key') {
       const td = el('td', {class: 'num'}, `${pct(m.key_accuracy)} home key right`);
-      td.colSpan = 4; tr.append(td);
+      td.colSpan = 6; tr.append(td);
     } else {
-      for (const k of ['note_f1', 'onset_f1', 'pitch_accuracy', 'seconds_per_minute']) {
+      for (const k of ['note_f1', 'onset_f1', 'pitch_accuracy', 'sax_found', 'sax_purity', 'seconds_per_minute']) {
         const v = m[k], target = DATA.targets[k] && DATA.targets[k][which];
         const td = el('td', {class: 'num'});
         if (v == null) { td.textContent = '–'; tr.append(td); continue; }
@@ -290,7 +290,7 @@ function changeTable() {
 function runTable() {
   const table = $('#runs'); table.replaceChildren();
   const head = el('tr');
-  for (const h of ['When', 'Set', 'Settings', 'Recordings', 'Note F1', 'Onset F1', 'Pitch', 'Octave errors', 's/min', 'Source'])
+  for (const h of ['When', 'Set', 'Settings', 'Recordings', 'Note F1', 'Onset F1', 'Pitch', 'Octave errors', 'Sax found', 'Sax purity', 's/min', 'Source'])
     head.append(el('th', {}, h));
   table.append(head);
   for (const r of visibleRuns().slice().reverse()) {
@@ -300,7 +300,7 @@ function runTable() {
     tr.append(el('td', {}, r.default ? `default${r.settings !== 'default' ? ' (' + r.settings + ')' : ''}` : r.settings));
     tr.append(el('td', {class: 'num'}, r.items ?? ''));
     tr.append(el('td', {class: 'num'}, r.set === 'weimar-key' ? `key ${pct(m.key_accuracy)}` : pct(m.note_f1)));
-    for (const k of ['onset_f1', 'pitch_accuracy', 'octave_errors']) tr.append(el('td', {class: 'num'}, pct(m[k])));
+    for (const k of ['onset_f1', 'pitch_accuracy', 'octave_errors', 'sax_found', 'sax_purity']) tr.append(el('td', {class: 'num'}, pct(m[k])));
     tr.append(el('td', {class: 'num'}, m.seconds_per_minute != null ? Math.round(m.seconds_per_minute) : '–'));
     tr.append(el('td', {}, r.entry ? `log ${r.entry}` : r.commit ? `scorecard at ${r.commit}${r.dirty ? ' (uncommitted changes)' : ''}` : 'scorecard'));
     table.append(tr);

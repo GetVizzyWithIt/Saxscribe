@@ -14,6 +14,8 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
+| 2026-11-04 | #84 (open) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | pending merge | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-84-pending-merge) |
 | 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook, omnibook-mix | Note F1 | 50.3% / 75.1% / 64.2% / 57.62% | +0.11 / +0.03 / ~0 / +0.21 points (4 / 8 / 3 / 27 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
 | 2026-11-04 | — (#78) | Suspected overtones moved down to the lower note (`--range-rules overtones`), tested as the default; #78 then turns the overtone check off by default | notes | omnibook, grfia-tenor, grfia-alto | Note F1 (Omnibook / tenor / alto) | 64.20 / 65.84 / 75.10% | 63.85 / 65.83 / 75.10% | no (moves stay an option; check off by default) | [E39](#e39--2026-11-04--moving-suspected-overtones-by-default-rejected-overtone-check-off-by-default-pr-78) |
 | 2026-11-04 | #74 | CREPE search capped at 1600 Hz again (Basic Pitch keeps the full range) | contour | omnibook, 45 solos | Pitch accuracy | 72.4% (after #69) | 74.3% (74.2% before #69) | yes | [E38](#e38--2026-11-04--range-rules-final-scorecards-pr-74-confirmed-as-the-pitch-line-fix), [E37](#e37--2026-11-04--range-rules-on-the-omnibook-a-pitch-line-regression-from-the-raised-ceiling-fixed-by-pr-74) |
@@ -101,6 +103,92 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
+- **Setup**: the MVSep website's Saxophone model (sep_type 61, a BS-RoFormer, SDR 9.77; no public weights, so audio is uploaded to MVSep). With Austin's OK (00:41 UTC), 12 commercial records were uploaded 01:30–01:47 UTC; the upload log is `~/saxscribe-runs/exp/2026-11-05-sax-id/mvsep_web_uploads.txt` on the Mac. Compared with Demucs and the local Mega 53-stem model (E51).
+- **Result**, note F1:
+
+| Set | Demucs | Mega 53-stem (local) | MVSep website Saxophone |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.2% | 57.2% | **58.1%** |
+| Parker band records (10) | 57.8% | 60.4% | **61.0%** |
+| Blues for Mary Jane | **56.0%** | 52.4% | 50.9% |
+
+- **Parker onset recall / precision**, Demucs / Mega / website: recall 81.8 / 79.6 / 78.4%, precision 81.0 / 87.0 / 86.7%.
+- **Fidelity problem**: it loses real playing on two Parker records: BRfYc recall 80.5% → 45.2% (over a third of the solo gone) and 6Cbwc 78.4% → 65.6%.
+- **Decision**: not adoptable in the app; it only runs on MVSep's site and it drops real playing.
+- **Reading**: both sax-specific models trade fewer bleed notes and better pitch for occasional missed sax passages. The deciding test is a hybrid that falls back to Demucs where the sax stem goes quiet (build thread, running).
+
+### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted as a swap)
+- **Setup**: the MVSep Mega 53-stem model (ZFTurbo Music-Source-Separation-Training v1.0.21, a BS-RoFormer with its own sax stem, MIT licence), run on CPU at about 210 s per minute of audio. Its sax stem replaced Demucs's stem; rerun on main `f64316b`. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/msst_out.txt` on the Mac. Austin approved the test at 00:41 UTC.
+- **Result**, note F1 Demucs → Mega sax stem:
+
+| Set | Demucs | Mega sax stem | Other measures |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.4% | **57.2%** | pitch accuracy 68.0% → 73.8% |
+| Parker band records (10) | 57.8% | **60.4%** | precision +6.0, recall −2.1, pitch +4.0 points |
+| Blues for Mary Jane | 56.0% | 52.4% | recall 80.2% → 75.7% (thins parts of the solo) |
+
+- **Fidelity problem**: on the Parker record 6Cbwc it dropped part of the solo (recall 78.4% → 58.8%). Losing real playing breaks the never-drop rule (ADR-0016), so it is not adopted as a straight swap.
+- **Piano stem as a bleed check**: fails. Pennies flags 141 notes, 93 of them real sax; Parker flags 267, 190 real.
+- **Reading**: the biggest jump yet on band records, but mixed. Next (build thread): combine the two stems, either the union of their sax spans or a choice per phrase.
+
+### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
+- **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
+- **Model**: panns-inference 0.1.1, Cnn14_DecisionLevelMax weights (327,428,481 bytes, md5 starting 70539c43, CC BY 4.0), run on CPU. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/panns_out.txt` on the Mac.
+- **Result**:
+  - The median piano score is 0.001–0.007 everywhere, even during the confirmed Pennies piano solo (3:42–4:21): it barely hears the piano.
+  - The median sax score is only a little higher on real sax than on bleed: Pennies key notes 0.38 vs other notes 0.28; Parker 0.29 vs 0.19.
+  - Every rule that hid noticeably more notes threw away about half real notes: on the Pennies mix, sax score under 0.05 hides 100 notes, 44 of them real; on Parker, 369 hidden, 173 real. Rules on the separated stem did worse.
+  - Best note F1 per set is still #84's check alone: Pennies 49.9%, Blues for Mary Jane 56.2%, Parker 57.8%.
+- **Decision**: not adopted. #84's pitch-line check beats every PANNs rule on all three sets.
+- **Next (build thread, running)**: a local sax stem from ZFTurbo's Music-Source-Separation-Training (the MVSep Mega 53-stem open model), then the MVSep Saxophone web model (sep_type 61). Austin approved both in writing at 00:41 UTC, including uploading audio for the web model.
+
+### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (PR #86, merged)
+- **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
+- **Rule ("hold")**: a note that starts under a held note doesn't cut it while the pitch line stays on the held note. Run with `follow_exp.py` on the Mac, notes layer redone on main `f64316b`; output `~/saxscribe-runs/exp/follow_out.txt`. Branch `claude/held-notes-follow-pitch-line` (153 tests pass).
+- **Result**, note F1: Pennies From Heaven 50.0% → 50.1%, Parker band records 57.8% → 57.9%, Bach10 96.8% → 97.0%, ChoraleBricks 90.1% → 90.3%, GRFIA alto 78.5% → 78.6%, GRFIA tenor 66.3% → 66.4%; Blues for Mary Jane, URMP and Omnibook flat. 93 held notes lengthened; of the 64 notes found under them, 2 were real.
+- **Dropped variant ("pick")**: letting the pitch line choose between two notes that start together cost Blues for Mary Jane −0.7 points.
+- **Status**: merged as PR #86 (2026-11-05 00:27 UTC), with the `test_history` date fix (the fixed "late" run moved to 2099). On band records it only cleans the sheet together with #84, which is still pending merge.
+
+### E48 — 2026-11-04 — Hide piano and bass notes the sax's pitch line doesn't back up (PR #84, pending merge)
+- **Change**: fixes 1 and 2 from the bleed review (E46), on band records only. A stretch where the sax pitch line is unvoiced for 8 s or more is cut from the sax spans, and notes the pitch line never sits on get an `off_line` tag. Those notes come off the sheet but stay in `notes.json`; nothing is deleted (ADR-0016).
+- **Scorecard**:
+
+| Set | Note F1 before → after |
+| --- | --- |
+| Pennies From Heaven (Austin's key; fresh run) | 49.2% → 49.8%; the whole 3:42–4:21 piano solo hidden (65 notes) |
+| Parker band records (10) | 57.6% → 57.8% |
+| Blues for Mary Jane | 56.0% → 56.2% |
+| Solo sets | unchanged (rule applies to band records only) |
+
+- **How** (`layers/bleed.py`, mix takes only): a note gets `not_sax` with a reason. `no_pitch_line` means the pitch line is unvoiced for 8 s or more. `off_line` means the line is voiced for at least 80% of the note but never on its pitch or octave, and more than a semitone away on at least 60% of frames. Scored offline on existing runs; 154 tests pass. [ADR-0034](../decisions/0034-hide-notes-the-pitch-line-does-not-back.md).
+- **Fidelity**: at most one real note hidden per set, and it stays in `notes.json`.
+- **Status**: pending merge. PR #84 was closed without merging at 20:46 UTC; Austin says he did not close it, and he is reopening and merging it.
+- **Check by ear and eye** (Austin, 2026-11-04 23:57 UTC): the 93 suspect notes on the second staff of the key-vs-suspects MusicXML are not sax, which backs the notes #84 hides.
+
+### E47 — 2026-11-04 — Onset model v2 plus a pitch-confidence dip (not adopted); cheap onset signals ruled out
+- **Setup**: split a note only where onset model v2 peaks and CREPE's confidence dips at the same time (E45's next step). Output: `~/saxscribe-runs/exp/split2_out.txt` on the Mac.
+- **Result**: best URMP onset recall +0.2 points (bar +3), GRFIA held-out +0.1. At loose settings it costs note F1: ChoraleBricks −1.2 (49 wrong splits against 3 right), Pennies From Heaven −0.6.
+- **Why**: CREPE's confidence barely moves on a soft same-pitch re-attack, but it dips on vibrato and on bleed, so the two signs mostly agree in the wrong places.
+- **Conclusion**: the cheap signals are all ruled out for the URMP repeat gap: v2 alone (E44), v2 adding notes (E45), and v2 with a confidence dip (this entry).
+- **Next (build thread)**: retrain v2 with training targets weighted toward repeats inside held notes, after the piano-bleed test (E46).
+- **Not adopted**.
+
+### E46 — 2026-11-04 — Pennies From Heaven: piano and bass in the sax part (review, no change yet)
+- **Question (Austin, 11:49 am PT)**: why do piano notes land in the sax part where tenor and piano share a range? Review doc: https://claude.ai/artifact/3yt9mWJbwHkAxrFAgFAbYR; note list `transcriptions/pennies-from-heaven/piano-bleed/suspect-notes.csv` in the project files. Take: `~/saxscribe-runs-pr74/pfh/take` (stem "vocals + other", made before #81).
+- **Findings**:
+  1. **3:42–4:21 is a piano solo** (confirmed by Austin by ear, 2026-11-05 00:06 UTC: Getz is out and comes back in strong right after): the CREPE pitch line is 0% voiced there (82–86% elsewhere), yet about 65 notes reach the sheet. The sax-span check (#35) cut nothing.
+  2. **In the keyed half (bars 1–169), 87 notes in the tenor's range are piano or bass**: 33 in rests of the key, 48 under held sax notes, 6 an octave or fifth below. That is 9% of the 964 notes on the sheet. They cluster on written D5 and G5 (concert C4 and F4), mostly in bars 62–77 and 122–143.
+  3. **Separation can't remove them**: Demucs's piano stem is about 58 dB below the sax stem. Oscar Peterson's piano ends up inside "vocals + other" with the sax.
+- **Size of the problem**: onset-and-pitch match 66.3% now; 69.9% if all 87 were hidden.
+- **Ranked fixes (tag and hide only, never delete; ADR-0016)**:
+  1. Sax-span cut when the pitch line is unvoiced for 8 s or more.
+  2. An `off_line` tag for notes the CREPE pitch line never sits on. Trial: 66.3% → 67.9%, hiding 48 of the 87 piano notes, but also 9 notes that are in the key. Those 9 real notes need a look before this is adopted.
+  3. Where two notes overlap, keep the one the pitch line follows, not the louder one.
+  4. Onset model v2 as a check for piano attacks.
+  5. Better separation.
+- **Next (build thread)**: try 1 and 2 first, then 3.
 
 ### E45 — 2026-11-04 — Onset model v2 adding notes where none exist (not adopted)
 - **Setup**: following E44, the model may add a note where it fires on a voiced stretch of the pitch line with no note present, pitch from CREPE. Adds only, never drops.
