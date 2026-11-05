@@ -115,6 +115,15 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E63 — 2026-11-05 — Barline check on 22 records (finding, no change yet)
+- **Setup**: the bar positions written by the tool were compared with known bar positions on 22 records: the Parker records, the six Weimar solos and Austin's six keys.
+- **Result**: barlines are wrong on 13 of 22.
+  - Pennies From Heaven is the only whole-tune 2-beat shift: the beat tracker locks on beat 3.
+  - Three Parker records are off by one beat throughout.
+  - Most of the others have a tempo grid that slips: it drops to half time (Impressions, Item 1, both Calypso takes) or gains and loses beats. Because barlines are placed every 4th beat, they drift.
+- **Cues tried**: chord changes, bass hits and the starts of long notes were each tried as barline cues. None beat the beat tracker's own downbeats.
+- **Next** (build thread): hold one tempo in the beat grid, then re-sync the bars from all of the tracker's downbeats. It will be tuned on practice records, with Austin's tunes held out as test.
+
 ### E62 — 2026-11-05 — "Filosax + Demucs check" hybrid, offline (not adopted)
 - **Setup**: offline simulation on the E58/E59 takes. Thresholds were tuned on Confirmation, Calypso 1–2 and the 7 Parker training records; the held-out records were scored once. It tried two ways to use Demucs as a check on Filosax (E61's piano-solo and quiet-sax problems).
 - **FILL** (add Demucs notes where the Filosax stem goes quiet): every setting lowers tuning F1; the best scores 76.7% against 77.0%. On Parker 7XTyc it adds 52–67 notes and none are key notes. **Not adopted.**
