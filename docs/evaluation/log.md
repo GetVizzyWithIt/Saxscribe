@@ -104,6 +104,12 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
+- **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
+- **Result**: it barely detects the piano on any of the three, even during the confirmed Pennies piano solo (3:42–4:21), and its sax score is too weak to tell real sax from bleed. Every rule that hid noticeably more notes threw away about half real notes (Pennies example: 100 hidden, 44 of them real sax).
+- **Decision**: not adopted. #84's pitch-line check beats every PANNs rule on all three sets.
+- **Next (build thread, running)**: the MVSep Mega 53-stem open separator with its own sax stem (survey in the Demucs card).
+
 ### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (PR #86, merged)
 - **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
 - **Rule ("hold")**: a note that starts under a held note doesn't cut it while the pitch line stays on the held note. Run with `follow_exp.py` on the Mac, notes layer redone on main `f64316b`; output `~/saxscribe-runs/exp/follow_out.txt`. Branch `claude/held-notes-follow-pitch-line` (153 tests pass).
