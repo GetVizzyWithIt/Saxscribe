@@ -222,3 +222,55 @@ def test_the_desktop_copy_can_be_turned_off(monkeypatch):
     from saxscribe.app import export
     monkeypatch.setenv("SAXSCRIBE_DESKTOP", "off")
     assert export.folder_setting() is None
+
+
+def test_flag_a_bar_for_review(client):
+    """Flags are saved to flags.json beside the take, with the bar's time and notes, and
+    never change the transcription."""
+    import json
+    take = client.library.take(client.take_id)
+    before = (take.notes.read_text(), take.notation.read_text())
+    url = f"/api/takes/{client.take_id}/flags"
+    assert client.get(url).json()["flags"] == []
+    written = json.loads(take.notation.read_text())["notes"]
+    bar = written[0]["bar"]
+    in_bar = [n for n in written if n["bar"] == bar]
+
+    r = client.post(url, json={"bar": bar, "categories": ["pitch", "bogus"], "scope": "bar",
+                               "text": "sounds a half step high", "view": "alto"})
+    assert r.status_code == 200, r.text
+    f = r.json()["flags"][0]
+    assert f["categories"] == ["pitch"] and f["scope"] == "bar"
+    assert f["end"] > f["start"] >= 0
+    assert [n["index"] for n in f["notes"]] == [n["index"] for n in in_bar]
+    assert not any(n["picked"] for n in f["notes"])
+
+    # Narrow it to one tapped note (its place in quarter notes from bar 1).
+    from fractions import Fraction
+    q = (bar - 1) * 4 + float(Fraction(in_bar[0]["beat"])) - 1
+    r = client.put(f"{url}/{f['id']}", json={"bar": bar, "categories": ["missing", "timing"],
+                                              "scope": "notes", "picked": [q]})
+    f2 = r.json()["flags"][0]
+    assert f2["id"] == f["id"] and f2["created"] == f["created"] and len(r.json()["flags"]) == 1
+    assert [n["picked"] for n in f2["notes"]][0] is True
+    assert sum(n["picked"] for n in f2["notes"]) == 1
+
+    saved = json.loads((client.library.folder(client.take_id) / "flags.json").read_text())
+    assert saved["title"] == "Fixture phrase" and saved["horn"] == "alto" and len(saved["flags"]) == 1
+    text = client.get(f"/api/takes/{client.take_id}/flags.txt").text
+    assert f"Bar {bar}" in text and "Missing note, Timing off" in text
+    assert client.get(f"/api/takes/{client.take_id}/flags.json").status_code == 200
+
+    # The Desktop copy (a temp folder in tests) gets the file and the summary.
+    import os
+    from pathlib import Path
+    DESKTOP = os.environ["SAXSCRIBE_DESKTOP"]
+    assert list(Path(DESKTOP).glob("Fixture phrase/* flags.json"))
+    assert list(Path(DESKTOP).glob("Fixture phrase/* flags.txt"))
+
+    assert client.post(url, json={"bar": bar, "categories": []}).status_code == 400
+    assert client.post(url, json={"bar": 0, "categories": ["pitch"]}).status_code == 400
+    assert client.put(f"{url}/nope", json={"bar": bar, "categories": ["pitch"]}).status_code == 404
+    assert client.delete(f"{url}/{f['id']}").json()["flags"] == []
+    assert client.delete(f"{url}/{f['id']}").status_code == 404
+    assert (take.notes.read_text(), take.notation.read_text()) == before

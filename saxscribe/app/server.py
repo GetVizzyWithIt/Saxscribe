@@ -20,6 +20,12 @@ API (JSON unless noted):
   GET  /api/takes/<id>/score      ?view=alto|tenor|concert&size=0..3: SVG, timemap, sync
   GET  /api/takes/<id>/audio/<which>   source, stem or accompaniment (WAV, seekable)
   GET  /api/takes/<id>/file/<kind>     pdf, musicxml or midi, as a download (?view=)
+  GET  /api/takes/<id>/flags           bars flagged for review, with the category list
+  POST /api/takes/<id>/flags           add a flag (bar, categories, scope, picked, text, view)
+  PUT  /api/takes/<id>/flags/<fid>     change a flag
+  DELETE /api/takes/<id>/flags/<fid>   remove a flag
+  GET  /api/takes/<id>/flags.json      flags.json as a download
+  GET  /api/takes/<id>/flags.txt       the flags as a short text summary (Copy for Claude)
 """
 from __future__ import annotations
 
@@ -27,10 +33,11 @@ import re
 import socket
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import Body, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from . import flags as flag_store
 from . import score_view
 from .library import Library
 
@@ -200,6 +207,71 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
             return FileResponse(take.midi, media_type="audio/midi",
                                 filename=f"{job['title']}.mid")
         raise HTTPException(404, "kind must be pdf, musicxml or midi")
+
+    # ---- flags: bars marked for review in the play-along (flags.py)
+    def flags_out(take_id: str, job: dict) -> dict:
+        data = flag_store.load(library.folder(take_id))
+        return {"flags": data["flags"], "categories": flag_store.CATEGORIES,
+                "text": flag_store.text({**data, "title": job.get("title", ""),
+                                         "artist": job.get("artist", ""), "horn": job.get("horn", ""),
+                                         "engine": job.get("engine", "standard"), "take": take_id})}
+
+    def flags_saved(take_id: str, job: dict) -> dict:
+        out = flags_out(take_id, job)
+        try:  # a failed Desktop copy never loses a flag
+            from .export import copy_flags
+            copy_flags(flag_store.path(library.folder(take_id)), out["text"], job)
+        except OSError:
+            pass
+        return out
+
+    @app.get("/api/takes/{take_id}/flags")
+    def get_flags(take_id: str):
+        job, _ = take_or_404(take_id)
+        return flags_out(take_id, job)
+
+    @app.get("/api/takes/{take_id}/flags.txt")
+    def flags_text(take_id: str):
+        job, _ = take_or_404(take_id)
+        return PlainTextResponse(flags_out(take_id, job)["text"])
+
+    @app.get("/api/takes/{take_id}/flags.json")
+    def flags_file(take_id: str):
+        job, _ = take_or_404(take_id)
+        p = flag_store.path(library.folder(take_id))
+        if not p.exists():
+            raise HTTPException(404, "No bars flagged yet")
+        return FileResponse(p, media_type="application/json",
+                            filename=f"{file_name(job, job.get('horn', 'alto'))} flags.json")
+
+    @app.post("/api/takes/{take_id}/flags")
+    def add_flag(take_id: str, body: dict = Body(...)):
+        job, take = done_or_409(take_id)
+        try:
+            flag_store.save(library.folder(take_id), take, job, body)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        return flags_saved(take_id, job)
+
+    @app.put("/api/takes/{take_id}/flags/{flag_id}")
+    def change_flag(take_id: str, flag_id: str, body: dict = Body(...)):
+        job, take = done_or_409(take_id)
+        try:
+            flag_store.save(library.folder(take_id), take, job, body, flag_id)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        except KeyError:
+            raise HTTPException(404, "No such flag")
+        return flags_saved(take_id, job)
+
+    @app.delete("/api/takes/{take_id}/flags/{flag_id}")
+    def remove_flag(take_id: str, flag_id: str):
+        job, _ = take_or_404(take_id)
+        try:
+            flag_store.remove(library.folder(take_id), flag_id)
+        except KeyError:
+            raise HTTPException(404, "No such flag")
+        return flags_saved(take_id, job)
 
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     return app
