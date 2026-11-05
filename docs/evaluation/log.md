@@ -55,6 +55,10 @@ onset and note F1 untouched, so they are measured on the written score.
 | grfia-tenor | 87.2% | 75.1% | 66.1%‡¶ | 73.8% | — | solo | E22, E29 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 80% recall¶ | 56%¶ | 70% | — | mix | E19, E29 |
 | pfh-austin (Getz, tenor, 169 bars, 867 notes) | 69.3% | 75.1% | 50.3% | 66.5% | — | mix | E40 |
+| resolution-austin (Coltrane, tenor, 939 notes) | — | — | 23.1% | 41.0% | — | mix | E53 |
+| isnt-she-lovely-austin (solo, 319 notes) | — | — | 21.4% | 33.6% | — | mix | E53 |
+| bloody-well-right-austin (174 notes) | — | — | 7.3% | 12.7% | — | mix | E53 |
+| walkers-theme-austin (863 notes) | — | — | 0 (11.0% without the span cut) | 0 (22.3%) | — | mix | E53 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -103,6 +107,23 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)
+- **Setup**: the four tenor keys Austin gave on 2026-11-05 (typed from his PDFs, written pitch minus 14 semitones = concert), run through main `0691a52` with default settings and scored within each key's span. The keys are drafts: their timing was aligned to the full mix, not the sax stem, so a few points may be timing error in the key itself. Sax found = share of key notes we wrote (recall); sax purity = share of our notes that are in the key (precision), as on the Results page (PR #90).
+- **Result**:
+
+| Record | Span scored | Note F1 | No offsets | Sax found | Sax purity |
+| --- | --- | --- | --- | --- | --- |
+| Resolution (Coltrane, 939 key notes) | whole record | 23.1% | 41.0% | 44.3% | 38.1% |
+| Isn't She Lovely (Hornheads, Kenni Holmen solo) | 46–102 s | 21.4% | 33.6% | 40.4% | 28.8% |
+| Bloody Well Right (Supertramp, John Helliwell) | 64–272 s | 7.3% | 12.7% | 32.2% | 7.9% |
+| Walker's Theme (Albright) | whole record | 0 | 0 | 0 | 0 |
+| Walker's Theme, sax-span cut ignored | whole record | 11.0% | 22.3% | 23.9% | 20.9% |
+
+- **Walker's Theme bug**: the sax-span check (`sax_spans`, PR #35) keeps only stretches where the sax stem is louder than a fixed −6 dB share of the mix. On this record the stem's median share is −8.2 dB, so the whole track was cut and nothing was written. The sheet came out empty.
+- **Reading**: far below the jazz records (Pennies 50%, Blues for Mary Jane 56%). On the pop and fusion mixes, guitar, vocals and keys leak into Demucs's "other" stem with the sax, so purity is low (8% on Bloody Well Right). Even on Resolution, under half the key's sax notes are found. These four are the hardest test records so far and the clearest case for a sax-specific separator.
+- **Next** (build thread): a per-record (relative) loudness bar for `sax_spans` instead of the fixed −6 dB; then all four through the sax-specific separators (E51, E52) and the gated hybrid ([ADR-0036](../decisions/0036-gated-two-separator-hybrid.md)).
+- No `results.jsonl` line yet: it will be copied from the Mac's history with the next run that logs these sets.
 
 ### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
 - **Setup**: the MVSep website's Saxophone model (sep_type 61, a BS-RoFormer, SDR 9.77; no public weights, so audio is uploaded to MVSep). With Austin's OK (00:41 UTC), 12 commercial records were uploaded 01:30–01:47 UTC; the upload log is `~/saxscribe-runs/exp/2026-11-05-sax-id/mvsep_web_uploads.txt` on the Mac. Compared with Demucs and the local Mega 53-stem model (E51).
