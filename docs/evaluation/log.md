@@ -15,7 +15,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-05 | #103 (open) | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-pending-merge) |
-| 2026-11-05 | #102 (open) | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | pending merge | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-pending-merge) |
+| 2026-11-05 | #102 | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | yes | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-merged) |
 | 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #97 | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
@@ -63,7 +63,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
 | bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
-| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 57.3% (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
+| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 65.6% default after #102 (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -199,7 +199,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - Mega and the website were not run on Weimar: uploads were approved only for the 13 earlier records.
 - **Decision**: not yet; it is Austin's call whether to adopt their pipeline for jazz band records.
 
-### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, pending merge)
+### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, merged)
 - **Change** (`sax_spans`): (1) the sax's share is measured against the mix without the drums and bass stems; (2) when Demucs splits the lead across stems, they are summed before the "is the sax playing" rescue; (3) a rest is still marked when another instrument takes over and the old whole-mix test also fails: piano at −10 dB or more of the mix and louder than every sax stem, or bass 16 dB over them. Tuned over four rounds on 33 band takes. Tags only; nothing is deleted.
 - **Result**, note F1:
 
@@ -215,6 +215,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Bloody Well Right | 11.6% | 11.4% |
 
 - **Fidelity**: fixes most of E56's wrong cuts on split-stem records. Known sax rests stay mostly cut, with two small leaks: Resolution 154–165 s (about 11 notes) and the end of the Blues for Mary Jane bass solo, 357–368 s (14 notes).
+- **Status**: merged as PR #102 (2026-11-05 15:07 UTC).
 - Details in the PR body.
 
 ### E56 — 2026-11-05 — First Weimar solos with bought audio (main `c06b298`)

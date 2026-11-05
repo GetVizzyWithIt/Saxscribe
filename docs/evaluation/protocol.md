@@ -88,20 +88,20 @@ Each log entry records: date, commit, machine, set, split, settings
 note-count ratio when known, and what it shows in one or two sentences.
 Comparisons are on the same recordings with only one setting changed.
 
-### Three records of the same runs, kept in step
+### Four records of the same runs, kept in step
 
 | File | What it holds | Who writes it |
 | --- | --- | --- |
 | [log.md](log.md) | The readable record: one entry (E1, E2, ...) per run or finding, and the "Change by change" table | Docs thread |
 | `results.jsonl` (in `docs/evaluation/`) | One JSON line per scorecard run, with an `id` and the log `entry` it belongs to. E2–E17 were backfilled by hand with approximate times (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/results.jsonl` when a run is logged, same `id`, plus `"entry": "E18"` etc. |
 | `changes.json` (in `docs/evaluation/`) | One object per model or pipeline change: `pr`, `merged` (UTC or null), `title`, `layer`, `sets` it was measured on, `measure`, `before`, `after`, `kept`, `entry`. A non-empty `sets` makes it a score-moving marker | Docs thread, mirroring the "Change by change" table row for row |
-| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E55 backfilled from this log (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/experiments.jsonl` (written with `saxscribe.score.experiments.row()` and `append()`) when a test is logged |
+| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E59 backfilled from this log (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/experiments.jsonl` (written with `saxscribe.score.experiments.row()` and `append()`) when a test is logged |
 
 The app's Results page (PR #38, `/results`) merges the repo's
 `results.jsonl` with the Mac's, showing each run once, and draws
 `changes.json` as markers ([ADR-0025](../decisions/0025-scorecard-history-files.md)).
 A log entry without its `results.jsonl` line, or a table row without its
-`changes.json` object, is incomplete.
+`changes.json` object, or a head-to-head entry without its `experiments.jsonl` rows, is incomplete ([ADR-0037](../decisions/0037-head-to-head-experiments-file.md)).
 
 For band records, PR #90 (merged 2026-11-05) adds two plain-language measures to the Results page: **Sax found**, the share of the answer key's sax notes the tool wrote (note recall), and **Sax purity**, the share of the tool's notes that are sax in the key (note precision). They separate the two failures that separators trade against each other: losing real sax passages, and letting piano or bass in (log E51, E52).
 
