@@ -172,7 +172,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Held-out records (includes Austin's tunes) | 34.1% | 58.0% | 60.9% |
 | Pennies From Heaven | 0.6% | **87.5%** | — |
 
-- **Per set**, bars right before → after, as shown on the Results page (PR #114): Pennies From Heaven 1 → 88%, Parker 62 → 90%, tenor tunes 29 → 51%, Weimar solos 12 → 37% (still low from half-time grids, E65).
+- **Per set**, bars right before → after, as shown on the Results page (PR #114, merged): Pennies From Heaven 1 → 88%, Parker 62 → 90%, tenor tunes 29 → 51%, Weimar solos 12 → 37% (still low from half-time grids, E65).
 - Fixed records: Parker 1p64c, 6Cbwc and 73bwc, Pennies From Heaven, Isn't She Lovely. No record gets worse by more than 5 points.
 - **Still open**: half-time beat grids (Calypso, Item 1, Impressions; automatic fix rejected in E65), and swing applied to straight 16ths.
 - **Data**: the PR also brings the Mac's E57–E60 rows into `experiments.jsonl`. They replace the 33 overnight rows and the five E59 rows written from the log, and the set "tenor-tunes" becomes "new-tunes". Guard counts and rates (`extras_in_rests_per_min`, `rest_seconds`, `short_notes`, `ghost_notes`) sit in a separate `guards` field, so `metrics` holds shares only.
