@@ -104,6 +104,46 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
+- **Setup**: the MVSep website's Saxophone model (sep_type 61, a BS-RoFormer, SDR 9.77; no public weights, so audio is uploaded to MVSep). With Austin's OK (00:41 UTC), 12 commercial records were uploaded 01:30–01:47 UTC; the upload log is `~/saxscribe-runs/exp/2026-11-05-sax-id/mvsep_web_uploads.txt` on the Mac. Compared with Demucs and the local Mega 53-stem model (E51).
+- **Result**, note F1:
+
+| Set | Demucs | Mega 53-stem (local) | MVSep website Saxophone |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.2% | 57.2% | **58.1%** |
+| Parker band records (10) | 57.8% | 60.4% | **61.0%** |
+| Blues for Mary Jane | **56.0%** | 52.4% | 50.9% |
+
+- **Parker onset recall / precision**, Demucs / Mega / website: recall 81.8 / 79.6 / 78.4%, precision 81.0 / 87.0 / 86.7%.
+- **Fidelity problem**: it loses real playing on two Parker records: BRfYc recall 80.5% → 45.2% (over a third of the solo gone) and 6Cbwc 78.4% → 65.6%.
+- **Decision**: not adoptable in the app; it only runs on MVSep's site and it drops real playing.
+- **Reading**: both sax-specific models trade fewer bleed notes and better pitch for occasional missed sax passages. The deciding test is a hybrid that falls back to Demucs where the sax stem goes quiet (build thread, running).
+
+### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted as a swap)
+- **Setup**: the MVSep Mega 53-stem model (ZFTurbo Music-Source-Separation-Training v1.0.21, a BS-RoFormer with its own sax stem, MIT licence), run on CPU at about 210 s per minute of audio. Its sax stem replaced Demucs's stem; rerun on main `f64316b`. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/msst_out.txt` on the Mac. Austin approved the test at 00:41 UTC.
+- **Result**, note F1 Demucs → Mega sax stem:
+
+| Set | Demucs | Mega sax stem | Other measures |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.4% | **57.2%** | pitch accuracy 68.0% → 73.8% |
+| Parker band records (10) | 57.8% | **60.4%** | precision +6.0, recall −2.1, pitch +4.0 points |
+| Blues for Mary Jane | 56.0% | 52.4% | recall 80.2% → 75.7% (thins parts of the solo) |
+
+- **Fidelity problem**: on the Parker record 6Cbwc it dropped part of the solo (recall 78.4% → 58.8%). Losing real playing breaks the never-drop rule (ADR-0016), so it is not adopted as a straight swap.
+- **Piano stem as a bleed check**: fails. Pennies flags 141 notes, 93 of them real sax; Parker flags 267, 190 real.
+- **Reading**: the biggest jump yet on band records, but mixed. Next (build thread): combine the two stems, either the union of their sax spans or a choice per phrase.
+
+### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
+- **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
+- **Model**: panns-inference 0.1.1, Cnn14_DecisionLevelMax weights (327,428,481 bytes, md5 starting 70539c43, CC BY 4.0), run on CPU. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/panns_out.txt` on the Mac.
+- **Result**:
+  - The median piano score is 0.001–0.007 everywhere, even during the confirmed Pennies piano solo (3:42–4:21): it barely hears the piano.
+  - The median sax score is only a little higher on real sax than on bleed: Pennies key notes 0.38 vs other notes 0.28; Parker 0.29 vs 0.19.
+  - Every rule that hid noticeably more notes threw away about half real notes: on the Pennies mix, sax score under 0.05 hides 100 notes, 44 of them real; on Parker, 369 hidden, 173 real. Rules on the separated stem did worse.
+  - Best note F1 per set is still #84's check alone: Pennies 49.9%, Blues for Mary Jane 56.2%, Parker 57.8%.
+- **Decision**: not adopted. #84's pitch-line check beats every PANNs rule on all three sets.
+- **Next (build thread, running)**: a local sax stem from ZFTurbo's Music-Source-Separation-Training (the MVSep Mega 53-stem open model), then the MVSep Saxophone web model (sep_type 61). Austin approved both in writing at 00:41 UTC, including uploading audio for the web model.
+
 ### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (PR #86, merged)
 - **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
 - **Rule ("hold")**: a note that starts under a held note doesn't cut it while the pitch line stays on the held note. Run with `follow_exp.py` on the Mac, notes layer redone on main `f64316b`; output `~/saxscribe-runs/exp/follow_out.txt`. Branch `claude/held-notes-follow-pitch-line` (153 tests pass).
