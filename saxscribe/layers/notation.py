@@ -75,8 +75,8 @@ OFFSET_WEIGHT = 0.5     # note ends matter less than starts when choosing a grid
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
 SWING_PAIR = 2          # notes in a beat that swing applies to; a busier beat is read as played
-RUN_NOTES = 4           # notes in a beat that make it a run of sixteenths (sixteenth_run)
-RUN_SLOP = 0.25         # ... each within this share of a sixteenth of its slot, as played
+RUN_NOTES = 3           # notes in a beat that make it a run of sixteenths (sixteenth_run)
+RUN_SLOP = 0.2          # ... each within this share of a sixteenth of its slot, as played
 BEATS_PER_BAR = 4       # 4/4 for now
 BAR_WINDOW = 16         # downbeats in the majority that says the bars have slipped (align_bars)
 BAR_HOLD = 4            # ... and how many in a row must agree before the grid is mended
@@ -287,8 +287,9 @@ def detect_swing(positions: np.ndarray) -> float | None:
 
 def sixteenth_run(onsets: list[float]) -> bool:
     """A beat of straight sixteenths, as played: at least RUN_NOTES notes,
-    each near a sixteenth slot. A swung pair with a pickup (three notes, the
-    off-beat late) is not one, so it keeps its swing."""
+    each near a sixteenth slot. A swung pair with a pickup (the off-beat
+    late) is not one, so it keeps its swing. Tuned on the 444 WJD solos
+    (log E66): position read 67.3 -> 67.9%, no solo worse by 2 points."""
     if len(onsets) < RUN_NOTES:
         return False
     return all(abs(f * 4 - round(f * 4)) <= RUN_SLOP for f in onsets)
