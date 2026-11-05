@@ -36,6 +36,15 @@ git commit, optional `--note` label such as a training session) to
 | Note-count ratio | Our notes ÷ answer key's notes; >1 means splitting or extra notes | — | — |
 | Edits per 100 notes | Hand edits to reach an accepted score | — | hand count, 10 fixed tunes (not automated yet) |
 
+**Guard metrics** (PR #106, on every scorecard). They sit beside note F1 and must not fall when note F1 rises, so a gain that comes from dropping or merging notes shows up (ADR-0016):
+
+| Metric | What it measures | Tolerance | Code |
+| --- | --- | --- | --- |
+| Short notes found | Share of the key's notes under 0.12 s that we found (fast runs) | onset ±50 ms, pitch ±50 cents | `score/metrics.py: guard_scores` (PR #106) |
+| Ghost notes found | Share of key notes marked `"ghost": true` that we found; only where the key marks them | as above | same |
+| Notes in rests per minute | Our notes starting where the key has a rest (a gap of at least 0.25 s, no key note within 0.1 s), per minute of rest: bleed and ghosts | — | same |
+| Onset F1 / note F1 at 100 ms | As above with a 100 ms onset window, note ends ignored. A big gap over the 50 ms figure means timing jitter, not missing notes | onset ±100 ms | `transcription` functions, `onset_tolerance=0.1` |
+
 Notes on the definitions:
 - Pitch accuracy gives every answer-key frame its note's fixed pitch, so deep
   vibrato and bends cost a little even when the pitch line is right. When
@@ -95,7 +104,7 @@ Comparisons are on the same recordings with only one setting changed.
 | [log.md](log.md) | The readable record: one entry (E1, E2, ...) per run or finding, and the "Change by change" table | Docs thread |
 | `results.jsonl` (in `docs/evaluation/`) | One JSON line per scorecard run, with an `id` and the log `entry` it belongs to. E2–E17 were backfilled by hand with approximate times (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/results.jsonl` when a run is logged, same `id`, plus `"entry": "E18"` etc. |
 | `changes.json` (in `docs/evaluation/`) | One object per model or pipeline change: `pr`, `merged` (UTC or null), `title`, `layer`, `sets` it was measured on, `measure`, `before`, `after`, `kept`, `entry`. A non-empty `sets` makes it a score-moving marker | Docs thread, mirroring the "Change by change" table row for row |
-| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E59 backfilled from this log (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/experiments.jsonl` (written with `saxscribe.score.experiments.row()` and `append()`) when a test is logged |
+| `experiments.jsonl` (in `docs/evaluation/`) | One JSON line per (record, setup) for head-to-head tests: `setup` {separator, spans_from, note_finder}, `default`, `scope`, `key` {version, heard_ok}, `metrics`, guard counts and rates in a separate `guards` field (so `metrics` stays shares, PR #109), and from `experiments.classify()` the error counts `key_notes` / `our_notes` and per-bar `bars`. E51–E59 backfilled from this log (`"source": "log"`) | Copied from the Mac's `~/saxscribe-runs/experiments.jsonl` (written with `saxscribe.score.experiments.row()` and `append()`) when a test is logged |
 
 The app's Results page (PR #38, `/results`) merges the repo's
 `results.jsonl` with the Mac's, showing each run once, and draws
@@ -106,6 +115,19 @@ A log entry without its `results.jsonl` line, or a table row without its
 For band records, PR #90 (merged 2026-11-05) adds two plain-language measures to the Results page: **Sax found**, the share of the answer key's sax notes the tool wrote (note recall), and **Sax purity**, the share of the tool's notes that are sax in the key (note precision). They separate the two failures that separators trade against each other: losing real sax passages, and letting piano or bass in (log E51, E52).
 
 The Results page's comparison views (setups compared, where the notes go, along the record) read `experiments.jsonl`. A setup that finds 3 or more points fewer of the key's notes than the default on a record is flagged there as losing sax, whatever its F1 (ADR-0016). `sax_found_heard` repeats sax found over only the key notes the recording confirms (`heard_ok`), to show how much of a gap is the key's.
+
+## Stress scorecard
+
+`python -m saxscribe stress <set> [--conditions ...]` (PR #106) scores the same set again under conditions that break transcription on real records, moving the answer key with the audio where needed:
+
+| Condition | What it does |
+| --- | --- |
+| clean | The recording as is (baseline) |
+| detune ±25 / ±50 | Off-speed transfer: pitch moves by that many cents and every time stretches by the same factor. Old jazz records run off speed (Weimar tuning ranges 428–453 Hz) |
+| reverb | A 1.2 s synthetic hall, 35% wet |
+| lofi | 80 Hz–5 kHz band limit plus hiss 20 dB below the music |
+
+The reverb and hiss use their own seeds, so a model later trained with reverb or noise is not tested on the same sounds. Writes `stress.md` and `stress.json` under `<runs>/stress/<set>/`, adds one `results.jsonl` line per condition, and for GRFIA gives clean scores by technique tag.
 
 ## Rhythm scorecard (Weimar, no audio)
 

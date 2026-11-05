@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #109 (open) | Bar lines follow the beat tracker's downbeats; beat grid mended where it slips | notation | tuning records, held-out records, pfh-austin | Bars in the right place | 44.2 / 34.1 / 0.6% | 75.1 / 58.0 / 87.5% | pending merge | [E64](#e64--2026-11-05--bar-lines-kept-on-the-right-beat-pr-109-pending-merge) |
 | 2026-11-05 | #103 | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-merged) |
 | 2026-11-05 | #102 | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | yes | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-merged) |
 | 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
@@ -115,6 +116,36 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E64 — 2026-11-05 — Bar lines kept on the right beat (PR #109, pending merge)
+- **Change**: bars now follow most of the beat tracker's downbeats rather than counting every 4th beat from the start, and the beat grid is mended where it slips (E63). Tuned on practice records, with Austin's tunes held out.
+- **Result**, share of bars in the right place, measured on the Mac from the branch:
+
+| Set | Before | After | Offline simulation |
+| --- | --- | --- | --- |
+| Tuning records | 44.2% | 75.1% | 76.9% |
+| Held-out records (includes Austin's tunes) | 34.1% | 58.0% | 60.9% |
+| Pennies From Heaven | 0.6% | **87.5%** | — |
+
+- Fixed records: Parker 1p64c, 6Cbwc and 73bwc, Pennies From Heaven, Isn't She Lovely. No record gets worse by more than 5 points.
+- **Still open**: half-time beat grids (Calypso, Item 1, Impressions), and swing applied to straight 16ths.
+- **Data**: the PR also brings the Mac's E57–E60 rows into `experiments.jsonl`. They replace the 33 overnight rows and the five E59 rows written from the log, and the set "tenor-tunes" becomes "new-tunes". Guard counts and rates (`extras_in_rests_per_min`, `rest_seconds`, `short_notes`, `ghost_notes`) sit in a separate `guards` field, so `metrics` holds shares only.
+
+### E63 — 2026-11-05 — Barline check on 22 records (finding, no change yet)
+- **Setup**: the bar positions written by the tool were compared with known bar positions on 22 records: the Parker records, the six Weimar solos and Austin's six keys.
+- **Result**: barlines are wrong on 13 of 22.
+  - Pennies From Heaven is the only whole-tune 2-beat shift: the beat tracker locks on beat 3.
+  - Three Parker records are off by one beat throughout.
+  - Most of the others have a tempo grid that slips: it drops to half time (Impressions, Item 1, both Calypso takes) or gains and loses beats. Because barlines are placed every 4th beat, they drift.
+- **Cues tried**: chord changes, bass hits and the starts of long notes were each tried as barline cues. None beat the beat tracker's own downbeats.
+- **Next** (build thread): hold one tempo in the beat grid, then re-sync the bars from all of the tracker's downbeats. It will be tuned on practice records, with Austin's tunes held out as test.
+
+### E62 — 2026-11-05 — "Filosax + Demucs check" hybrid, offline (not adopted)
+- **Setup**: offline simulation on the E58/E59 takes. Thresholds were tuned on Confirmation, Calypso 1–2 and the 7 Parker training records; the held-out records were scored once. It tried two ways to use Demucs as a check on Filosax (E61's piano-solo and quiet-sax problems).
+- **FILL** (add Demucs notes where the Filosax stem goes quiet): every setting lowers tuning F1; the best scores 76.7% against 77.0%. On Parker 7XTyc it adds 52–67 notes and none are key notes. **Not adopted.**
+- **AWAY** (tag Filosax notes where Demucs hears no sax): no effect on the tuning records. Every tagged note falls outside the key spans, because the keys cover solos only, so no setting could be chosen. Held-out score equals E59 (65.1% against E58's 48.7%). On Pennies, a setting of 12 dB for at least 8 s would tag all 70 piano-solo notes plus 3 others. That is descriptive only, since Pennies is a test record.
+- **Also tried, little or no effect**: tagging windows where both stems sound chord-like (0 notes tagged); disagreement between the two pitch lines (0–9 windows per record); energy at each note's own pitch, which was no better than overall loudness.
+- **Blocker**: tuning AWAY needs keys that mark where the sax rests across the whole record, not just the solo. The build thread has asked Austin for rest times on a few records.
+
 ### E61 — 2026-11-05 — Pennies From Heaven in the app with Filosax (test): notes better, rhythm shared, piano solo leaks
 - **Setup**: Austin's own app run of Pennies From Heaven with the "Filosax (test)" note finder after #103 merged (main `0d15200`). Read-only analysis by the build thread against his 867-note key. (E60 is reserved for the guard-metric comparison, still running.)
 - **Notes**:
@@ -133,6 +164,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Quiet sax** (4 stretches, 56 key notes): Filosax finds 20, standard 28. Of Filosax's misses there, 21 are lost in the separator and 15 by the transcriber. In bars 82–84 the Filosax stem holds the sax at −28.5 dB of the mix; Demucs holds it at −3.6 dB.
 - **Fidelity problem, piano solo (3:42–4:21)**: Filosax writes 64 piano notes. The standard path hides them; the bleed check (ADR-0034) can't, because the Filosax stem keeps the piano near sax level and the pitch line stays voiced. A fix needs a rival-stem signal, such as running Demucs's stems alongside Filosax.
 - **Next** (build thread): fix the 2-beat barline shift, then stop swing bending straight 16ths, then test Demucs alongside Filosax for the piano solo and quiet spots.
+
+### E60 — 2026-11-05 — Guard check on the Filosax jump: real gains, not dropped notes
+- **Question**: does Filosax's rise on Weimar (57 → 77% note F1) come from leaving notes out (ADR-0016)?
+- **Setup**: the existing takes were rescored with PR #106's guard metrics, without transcribing again. The two setups are (a) Demucs + ours (E58) and (b) Filosax separator + transcriber (#103 CLI, E59). Scoring commit `1bbb126`. A note under 0.12 s counts as short. A gap of at least 0.25 s in the key counts as a rest. 32 rows were written to the Mac's `experiments.jsonl`.
+- **Result**, (a) / (b):
+
+| Set | Note F1 | Short notes found | Notes in rests per min | Note F1 at 100 ms |
+| --- | --- | --- | --- | --- |
+| Weimar solos (6) | 57.3 / **76.9%** | 55.4 / **76.2%** | 12.6 / **1.0** | 67.5 / **84.6%** |
+| Pennies From Heaven | 50.1 / **56.8%** | **71.7** / 70.5% | 48.6 / **17.7** | 74.3 / **80.5%** |
+| Blues for Mary Jane | **56.2** / 48.6% | **57.9** / 42.1%* | **0** / 17.3* | 79.7 / **84.8%** |
+| Four tenor tunes | 32.5 / **35.9%** | 37.0 / **42.4%** | 94.8 / **77.0** | — |
+
+\* Small samples on Blues for Mary Jane: 3 of only 19 short notes, and 1 note in 3 s of rest.
+
+- **Answer**: the Weimar jump is real. Filosax finds more short notes and writes far fewer notes in rests. Every solo improves on both guards except Impressions 1963, where notes in rests go from 1.7 to 2.5 per minute. Blues for Mary Jane is the exception: it loses a few quick notes. On the four tenor tunes, ghost notes found are 4.6 / 6.9% (only 19 marked).
+- **Caveat**: most notes in the Weimar keys are short, so short found is close to found overall.
+- **Next** (build thread): tune "Filosax + Demucs check", for piano solos and quiet sax (E61), on training records only, with Austin's tunes held out as test.
 
 ### E59 — 2026-11-05 — Filosax separator and transcriber as opt-in settings (PR #103, merged)
 - **Change**: adds `--separator filosax` and `--notes-tool filosax` to the CLI, and a "Filosax (test)" note finder in the app. It is off by default and the default pipeline is unchanged. Model card: `docs/models/filosax.md` (in the PR).
