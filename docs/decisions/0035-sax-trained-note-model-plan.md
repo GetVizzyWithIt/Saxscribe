@@ -49,3 +49,14 @@ Riley and Dixon's public transcriber, without retraining, was compared with our 
 - It loses on Blues for Mary Jane and is about level on Pennies From Heaven.
 
 On the six Weimar solos, whose human keys have no tie to the model, it beats our note layer on every solo. With their separator and no sax cuts it reaches 76.3% note F1, against 65.6% for our best pipeline (#102). Next is whether to adopt it as is for jazz band records, which is Austin's call, before any retraining.
+
+## Plan revision (2026-11-05, plan doc rev 39)
+After E58 the plan changes:
+- **Base model**: Riley and Dixon's checkpoint, not Basic Pitch. The bar to beat is its own score as is, run with their separator: Weimar 76.3% note F1.
+- **Stage 1**: fine-tune it on the Weimar training records plus band mixes with guitar, vocals and keys, aimed at the pop and fusion gap (four tunes 36.1%).
+- **Basic Pitch**: the fine-tune becomes optional.
+- **Separator**: theirs goes into the app first, behind a setting. It beats Demucs on 21 of 22 records at about 7 s per minute of audio.
+- **Weimar test lock**: Impressions 1961, Impressions 1963 and Item 1 (D.I.T.) are held out by record, with about 1 in 5 new records held out going forward. They are never trained on.
+- **Weimar alignment**: passed the go/no-go check, with a residual of 2–15 ms.
+
+Plan doc: https://claude.ai/artifact/9oPaB15bENmCzL49qAnb1Q
