@@ -15,6 +15,29 @@
     The charts below them follow the default pipeline over time.</p>
 
   <section class="card">
+    <h2>What each score measures</h2>
+    <p class="quiet small">A transcription can go wrong in several separate ways, so no single number says how good it is.
+      Each score below checks one of them against an answer key. Pick it with the buttons under <i>Setups compared</i>.</p>
+    <div class="scroll"><table class="grid dims">
+      <tr><th>Dimension</th><th>Score</th><th>What it counts</th><th>Known weak spots</th></tr>
+      <tr><td>Hearing the notes</td><td>Sax found</td><td>Share of the key&rsquo;s notes we wrote, with the right start (50 ms) and pitch.</td>
+        <td>Quiet sax under the band; fast runs; altissimo.</td></tr>
+      <tr><td>Not adding notes</td><td>Sax purity</td><td>Share of our notes that the key has. Notes in rests are mostly bleed from piano or guitar.</td>
+        <td>Piano solos on band records; ghost notes in rests.</td></tr>
+      <tr><td>Both together</td><td>Note F1</td><td>Found and purity combined, and the note&rsquo;s end must be within 20% too.</td>
+        <td>Long held notes split in two; note ends.</td></tr>
+      <tr><td>Fast and short notes</td><td>Short notes found</td><td>Share of the key&rsquo;s notes under 0.12 s that we wrote. Guards against a score that rises by dropping hard notes.</td>
+        <td>Grace notes and ghost notes.</td></tr>
+      <tr><td>Timing and pitch</td><td>Onset recall, Pitch</td><td>Note starts found (any pitch); pitch right on the notes found.</td>
+        <td>Scoops and bends read as another pitch.</td></tr>
+      <tr><td>Bar placement</td><td>Bars right</td><td>Share of the key&rsquo;s bar lines we put in the same place. On the written score only; the notes are not affected.</td>
+        <td>Tunes the beat tracker follows at half speed (fast Weimar records).</td></tr>
+      <tr><td>Rhythm writing</td><td>Notes in the right spot</td><td>Of the notes we found (same pitch, start within 150 ms), the share written at the key&rsquo;s beat position, allowing a whole-bar offset.</td>
+        <td>Light swing; ballads and rubato; onsets more than 50 ms off.</td></tr>
+    </table></div>
+  </section>
+
+  <section class="card">
     <h2>Where each record stands</h2>
     <p class="quiet small">Note F1 with today&rsquo;s default setup: a note counts when its start is within 50 ms, its
       pitch within 50 cents and its end within 20% (mir_eval). The tick is the v1 target (80 alone, 60 in a band).
@@ -33,7 +56,7 @@
       errors below.</p>
     <div class="filters">
       <div class="seg" id="grid-metric" role="group" aria-label="Score shown">
-        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button>
+        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button><button type="button" data-v="short_found">Short notes found</button><button type="button" data-v="bars_right">Bars right</button><button type="button" data-v="notes_in_place">Notes in the right spot</button>
       </div>
     </div>
     <div class="scroll"><table class="grid compare" id="grid"></table></div>

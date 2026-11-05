@@ -22,6 +22,8 @@ const RECORDS = {
   'isnt-she-lovely': ["Isn't She Lovely (solo)", 'pop'],
   'bloody-well-right': ['Bloody Well Right (solo)', 'pop'],
   'new-tunes': ['Four tenor tunes', 'pop'],
+  'tenor-tunes': ['Four tenor tunes', 'pop'],  // the Mac's name for the same set
+  'wjd': ['Weimar database solos (written rhythm only)', 'band'],
 };
 // Answer keys partly built with a model under test: its scores there are not a clean win.
 // The Omnibook's alignment used a Riley & Dixon transcription model (their paper, section 3.1).
@@ -37,6 +39,7 @@ const CLEAN_SETS = ['bach10', 'choralebricks', 'grfia-alto', 'grfia-tenor', 'urm
 const GRID_METRICS = [
   ['note_f1', 'Note F1'], ['sax_found', 'Sax found'], ['sax_purity', 'Sax purity'],
   ['onset_recall', 'Onset recall'], ['pitch_accuracy', 'Pitch'], ['sax_found_heard', 'Found, heard key notes'],
+  ['short_found', 'Short notes found'], ['bars_right', 'Bars right'], ['notes_in_place', 'Notes in the right spot'],
 ];
 // Where the notes go. Slot order is fixed and validated (adjacent pairs, light and dark); the
 // two sides share a colour where the error is the same kind seen from either side.
@@ -161,9 +164,12 @@ function stands() {
 function grid() {
   const table = $('#grid'); table.replaceChildren();
   const L = latest();
-  const rows = recordRows([...L.values()]);
-  const cols = columns([...L.values()]);
-  if (!rows.length) { table.append(el('tr', {}, '')); $('#grid-empty').hidden = false; return; }
+  // Only the records and setups that measured this score (rhythm rows carry no note F1, and the reverse).
+  const has = [...L.values()].filter(r => r.metrics[cmp.metric] != null);
+  const rows = recordRows(has);
+  const cols = columns(has);
+  $('#grid-empty').hidden = !!rows.length;
+  if (!rows.length) return;
   const head = el('tr');
   head.append(el('th', {}, 'Record'));
   for (const c of cols) {
@@ -181,7 +187,7 @@ function grid() {
       const td = el('td', {}, (TIERS.find(t => t[0] === tier) || [, tier])[1]); td.colSpan = cols.length + 1;
       tr.append(td); table.append(tr);
     }
-    const all = cols.map(c => L.get(`${rowKey(r)}#${c.k}`));
+    const all = cols.map(c => L.get(`${rowKey(r)}#${c.k}`)).map(x => x && x.metrics[cmp.metric] != null ? x : null);
     const dk = defaultCol(all.filter(Boolean));
     const base = dk ? L.get(`${rowKey(r)}#${dk}`) : null;
     const tr = el('tr');
@@ -230,14 +236,14 @@ function grid() {
     let up = 0, down = 0, lost = 0;
     for (const r of rows) {
       const x = L.get(`${rowKey(r)}#${c.k}`);
-      const all = cols.map(cc => L.get(`${rowKey(r)}#${cc.k}`)).filter(Boolean);
+      const all = cols.map(cc => L.get(`${rowKey(r)}#${cc.k}`)).filter(y => y && y.metrics[cmp.metric] != null);
       const dk = defaultCol(all); const base = dk ? L.get(`${rowKey(r)}#${dk}`) : null;
       if (!x || !base || x === base) continue;
       const v = x.metrics[cmp.metric], bv = base.metrics[cmp.metric];
       if (v != null && bv != null) { if (v - bv > 0.005) up++; else if (bv - v > 0.005) down++; }
       if (lostSax(x, base)) lost++;
     }
-    foot.append(el('td', {class: 'num'}, c.k === defaultCol(EXP) ? '' : `${up} ▲ · ${down} ▼${lost ? ` · ${lost} lose sax` : ''}`));
+    foot.append(el('td', {class: 'num'}, c.k === defaultCol(has) ? '' : `${up} ▲ · ${down} ▼${lost ? ` · ${lost} lose sax` : ''}`));
   }
   table.append(foot);
 }
@@ -364,7 +370,7 @@ function rampBlue(f) { return RAMP[Math.min(RAMP.length - 1, Math.floor(f * RAMP
 function expTable() {
   const table = $('#exp-rows'); table.replaceChildren();
   const head = el('tr');
-  for (const h of ['When', 'Record', 'Setup', 'Scope', 'Note F1', 'No offsets', 'Onset F1', 'Onset recall', 'Pitch', 'Sax found', 'Sax purity', 'Source'])
+  for (const h of ['When', 'Record', 'Setup', 'Scope', 'Note F1', 'No offsets', 'Onset F1', 'Onset recall', 'Pitch', 'Sax found', 'Sax purity', 'Short found', 'Bars right', 'Notes in spot', 'Source'])
     head.append(el('th', {}, h));
   table.append(head);
   for (const r of EXP.slice().reverse()) {
@@ -373,7 +379,8 @@ function expTable() {
     tr.append(el('td', {}, rowInfo(r).name));
     tr.append(el('td', {}, setupName(r.setup) + (r.default ? ' (default)' : '')));
     tr.append(el('td', {}, r.scope || ''));
-    for (const k of ['note_f1', 'note_f1_no_offset', 'onset_f1', 'onset_recall', 'pitch_accuracy', 'sax_found', 'sax_purity'])
+    for (const k of ['note_f1', 'note_f1_no_offset', 'onset_f1', 'onset_recall', 'pitch_accuracy', 'sax_found', 'sax_purity',
+                     'short_found', 'bars_right', 'notes_in_place'])
       tr.append(el('td', {class: 'num'}, pts(m[k])));
     tr.append(el('td', {}, [r.entry && `log ${r.entry}`, r.commit].filter(Boolean).join(' · ')));
     table.append(tr);

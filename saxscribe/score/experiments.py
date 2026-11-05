@@ -26,6 +26,11 @@ A row:
    "our_notes": {"right": .., "timing": .., "wrong_pitch": .., "split": .., "in_rest": .., "extra": ..},
    "hidden_notes": {"in_key": .., "not_in_key": ..},
    "guards": {"extras_in_rests_per_min": .., "rest_seconds": .., "short_notes": .., ...},   # optional
+   "grid": {"tempo_ratio": .., "ref_bars": .., "bar_fixes": ..},   # optional, rhythm rows
+Rhythm rows (written score only, no note scores) carry metrics bars_right,
+barline_precision, barline_f (bar lines against the key's) and notes_in_place
+(found notes written at the key's beat position, whole-bar offset allowed);
+code versions are told apart by setup.variant.
    "bars": [{"bar": 17, "t0": 20.9, "key": 4, "right": 3, "hidden": 0, "ours": 5, "extra": 1, "cut": 0.0}, ...],
    "note": "..."}
 
