@@ -134,6 +134,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Fidelity problem, piano solo (3:42–4:21)**: Filosax writes 64 piano notes. The standard path hides them; the bleed check (ADR-0034) can't, because the Filosax stem keeps the piano near sax level and the pitch line stays voiced. A fix needs a rival-stem signal, such as running Demucs's stems alongside Filosax.
 - **Next** (build thread): fix the 2-beat barline shift, then stop swing bending straight 16ths, then test Demucs alongside Filosax for the piano solo and quiet spots.
 
+### E60 — 2026-11-05 — Guard check on the Filosax jump: real gains, not dropped notes
+- **Question**: does Filosax's rise on Weimar (57 → 77% note F1) come from leaving notes out (ADR-0016)?
+- **Setup**: the existing takes were rescored with PR #106's guard metrics, without transcribing again. The two setups are (a) Demucs + ours (E58) and (b) Filosax separator + transcriber (#103 CLI, E59). Scoring commit `1bbb126`. A note under 0.12 s counts as short. A gap of at least 0.25 s in the key counts as a rest. 32 rows were written to the Mac's `experiments.jsonl`.
+- **Result**, (a) / (b):
+
+| Set | Note F1 | Short notes found | Notes in rests per min | Note F1 at 100 ms |
+| --- | --- | --- | --- | --- |
+| Weimar solos (6) | 57.3 / **76.9%** | 55.4 / **76.2%** | 12.6 / **1.0** | 67.5 / **84.6%** |
+| Pennies From Heaven | 50.1 / **56.8%** | **71.7** / 70.5% | 48.6 / **17.7** | 74.3 / **80.5%** |
+| Blues for Mary Jane | **56.2** / 48.6% | **57.9** / 42.1%* | **0** / 17.3* | 79.7 / **84.8%** |
+| Four tenor tunes | 32.5 / **35.9%** | 37.0 / **42.4%** | 94.8 / **77.0** | — |
+
+\* Small samples on Blues for Mary Jane: 3 of only 19 short notes, and 1 note in 3 s of rest.
+
+- **Answer**: the Weimar jump is real. Filosax finds more short notes and writes far fewer notes in rests. Every solo improves on both guards except Impressions 1963, where notes in rests go from 1.7 to 2.5 per minute. Blues for Mary Jane is the exception: it loses a few quick notes. On the four tenor tunes, ghost notes found are 4.6 / 6.9% (only 19 marked).
+- **Caveat**: most notes in the Weimar keys are short, so short found is close to found overall.
+- **Next** (build thread): tune "Filosax + Demucs check", for piano solos and quiet sax (E61), on training records only, with Austin's tunes held out as test.
+
 ### E59 — 2026-11-05 — Filosax separator and transcriber as opt-in settings (PR #103, merged)
 - **Change**: adds `--separator filosax` and `--notes-tool filosax` to the CLI, and a "Filosax (test)" note finder in the app. It is off by default and the default pipeline is unchanged. Model card: `docs/models/filosax.md` (in the PR).
 - **Setup**: the branch's own CLI path on the Mac, commit `7708267`, Filosax separator + Filosax transcriber.
