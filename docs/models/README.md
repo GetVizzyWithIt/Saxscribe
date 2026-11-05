@@ -12,6 +12,7 @@ outputs. Format follows Mitchell et al., "Model Cards for Model Reporting"
 | [Sax onset model (CRNN)](onset-crnn.md) | 3 notes | Trained by us on GRFIA + Omnibook (non-commercial weights) | Experimental, not in the app |
 | [Note rules: one-line, split-note join, segmenter, contour cutter](note-rules.md) | 3 notes | Our own rules, no training | Join off by default since PR #22; others optional |
 | [Beat This!](beat-this.md) | 3 beats | Pretrained, used as is | Default |
+| [Filosax separator and transcriber (Riley & Dixon)](filosax.md) | 1 isolate, 3 notes | Pretrained on Filosax, used as is | Opt-in (`--separator filosax`, `--notes-tool filosax`, app "Filosax (test)") |
 
 What the upstream authors document (training data, limits, licences, versions, alternatives), checked against our cards: [upstream model review](upstream-review.md), 2026-11-03.
 

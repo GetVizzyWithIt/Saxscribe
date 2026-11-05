@@ -16,17 +16,20 @@ from .take import Take, default_folder
 
 def transcribe(src: Path, out: Path | None = None, *, mix: bool = False, stem: str | None = None,
                horn: str = "alto", redo: str | None = None, contour_tool: str = "auto",
-               notes_tool: str = "auto", swing: str = "auto", range_rules: str = "out") -> Take:
+               notes_tool: str = "auto", swing: str = "auto", range_rules: str = "out",
+               separator: str = "demucs") -> Take:
     src = Path(src).expanduser().resolve()
     if not src.exists():
         raise SystemExit(f"No such file: {src}")
     take = Take(Path(out).expanduser().resolve() if out else default_folder(src))
     h = HORNS[horn]
     manifest = take.read_manifest()
+    made_by = manifest.get("layers", {}).get("isolate", {}).get("separator", "demucs")
+    remake = mix and take.has("isolate") and made_by != separator  # asked for the other separator
     manifest.update({"source": str(src), "horn": horn, "mix": mix})
     take.write_manifest(manifest)
 
-    start = LAYERS.index(redo) if redo else len(LAYERS)
+    start = 0 if remake else LAYERS.index(redo) if redo else len(LAYERS)
     for i, layer in enumerate(LAYERS):
         if not take.has(layer):
             start = min(start, i)
@@ -35,7 +38,7 @@ def transcribe(src: Path, out: Path | None = None, *, mix: bool = False, stem: s
         return take
 
     steps = {
-        "isolate": lambda: isolate.run(take, src, mix, stem),
+        "isolate": lambda: isolate.run(take, src, mix, stem, separator),
         "contour": lambda: contour.run(take, h, contour_tool),
         "notes": lambda: notes.run(take, h, notes_tool, range_rules),
         "notation": lambda: notation.run(take, h, swing),

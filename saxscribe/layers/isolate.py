@@ -12,6 +12,9 @@ its loudness in frames that sound like one clear pitch, which favours a horn
 line over chords. A stem with LEAD_ALONE of the total is used on its own;
 otherwise every stem over LEAD_PART is added together. The scores and the
 choice go in take.json.
+
+--separator filosax uses Riley and Dixon's sax separator instead (filosax.py):
+one sax stem and one backing stem, kept in stems-filosax/.
 """
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ import numpy as np
 from .. import frontend
 from ..take import Take
 
+FILOSAX_STEMS = "stems-filosax"  # take subfolder for the Filosax separator's two stems
 DEFAULT_STEM = "other"  # where sax usually lands in Demucs' six stems
 MELODIC = ("other", "guitar", "piano", "vocals")  # stems a horn can land in
 LEAD_ALONE = 0.8   # a stem with this share of the lead score is used alone
@@ -33,7 +37,7 @@ LEAD_HOP = 800     # 50 ms
 LEAD_HZ = (95.0, 1600.0)  # tenor low B-flat (concert A-flat2, 104 Hz) up to altissimo
 
 
-def run(take: Take, src: Path, mix: bool, stem: str | None) -> None:
+def run(take: Take, src: Path, mix: bool, stem: str | None, separator: str = "demucs") -> None:
     take.folder.mkdir(parents=True, exist_ok=True)
     frontend.log(f"Layer 1/4: isolate ({'full mix' if mix else 'solo take'})")
     frontend.decode(src, take.source)
@@ -42,6 +46,8 @@ def run(take: Take, src: Path, mix: bool, stem: str | None) -> None:
         take.accompaniment.unlink(missing_ok=True)
         take.record("isolate", tool="passthrough", source=str(src))
         return
+    if separator == "filosax":
+        return run_filosax(take, src, stem)
 
     stems = {p.stem: p for p in take.stems.glob("*.wav")}
     if stems:
@@ -70,6 +76,29 @@ def run(take: Take, src: Path, mix: bool, stem: str | None) -> None:
                 **({"lead_share": share} if share else {}))
     how = f" (lead share {', '.join(f'{n} {v:.0%}' for n, v in share.items())})" if share else ""
     frontend.log(f"Using the {name!r} stem{how}. Others are in {take.stems} to listen to.")
+
+
+def run_filosax(take: Take, src: Path, stem: str | None) -> None:
+    """Riley and Dixon's sax separator: a sax stem and a backing stem, in stems-filosax/
+    so the Demucs stems (if any) stay for comparison."""
+    from .. import filosax
+    folder = take.folder / FILOSAX_STEMS
+    stems = {p.stem: p for p in folder.glob("*.wav")}
+    if filosax.SAX in stems and filosax.BACKING in stems:
+        frontend.log(f"Using the stems already separated (delete {FILOSAX_STEMS}/ to separate again).")
+    else:
+        if not frontend.demucs_available():
+            raise SystemExit("The Filosax separator runs on Demucs. Install it with: pip install -r requirements.txt")
+        stems = filosax.separate(take.source, folder)
+    name = filosax.SAX if stem in (None, "auto") else stem
+    if name not in stems:
+        raise SystemExit(f"No stem called {name!r}. Stems: {', '.join(sorted(stems))}")
+    shutil.copyfile(stems[name], take.stem)
+    write_accompaniment(take.accompaniment, [p for n, p in stems.items() if n != name])
+    take.record("isolate", tool="filosax demucs_v3 (Riley & Dixon)", separator="filosax", stem=name,
+                source=str(src), stems=sorted(stems), stems_folder=FILOSAX_STEMS,
+                weights_sha256=filosax.WEIGHTS["separator"]["sha256"])
+    frontend.log(f"Using the {name!r} stem from the Filosax separator. Both stems are in {folder}.")
 
 
 def lead_score(path: Path) -> float:

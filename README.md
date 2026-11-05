@@ -81,6 +81,8 @@ Results go in a folder next to the file (`take.saxscribe/`), or wherever `-o` sa
 | `--redo LAYER` | Remake a layer and the ones above it; the ones below are left alone |
 | `--contour-tool pyin` | Use pYIN instead of CREPE for the pitch line |
 | `--notes-tool contour` | Cut notes from the pitch line instead of Basic Pitch |
+| `--separator filosax` | With `--mix`: Riley and Dixon's sax separator instead of Demucs (a sax stem and a backing stem, in `stems-filosax/`). Opt-in; see [the model card](docs/models/filosax.md) |
+| `--notes-tool filosax` | Riley and Dixon's sax transcriber instead of Basic Pitch; skips the sax-rest and bleed checks. Weights (about 175 MB for both) download once to `~/.cache/saxscribe/models` |
 | `--swing 2` | Swing ratio for the notation (`auto` detects it, `straight` turns it off) |
 
 ## The app

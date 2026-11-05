@@ -57,6 +57,11 @@ def last_lines(path: Path, n: int = 3) -> list[str]:
     return lines[-n:]
 
 
+# How notes are found. standard: Demucs + Basic Pitch with the sax-rest and
+# bleed checks. filosax: Riley and Dixon's sax separator and transcriber
+# (saxscribe/filosax.py), an opt-in test while it is compared on more records.
+ENGINES = ("standard", "filosax")
+
 class Library:
     def __init__(self, root: Path | None = None, inline: bool = False):
         """inline=True runs each job inside add() instead of on the worker (for tests)."""
@@ -125,13 +130,15 @@ class Library:
     # ---------------------------------------------------------------- adding
 
     def add(self, filename: str, data: bytes, *, horn: str = "alto", mix: bool = False,
-            title: str | None = None, artist: str | None = None) -> str:
+            title: str | None = None, artist: str | None = None, engine: str = "standard") -> str:
         name = Path(filename).name
         if Path(name).suffix.lower() not in AUDIO:
             raise ValueError(f"{name} is not an audio file this tool reads "
                              f"({', '.join(sorted(AUDIO))})")
         if horn not in HORNS:
             raise ValueError(f"unknown horn {horn}")
+        if engine not in ENGINES:
+            raise ValueError(f"unknown engine {engine}")
         stem = Path(name).stem
         take_id = f"{time.strftime('%Y%m%d-%H%M%S')}-{slug(stem)}"
         while (self.root / take_id).exists():
@@ -144,7 +151,7 @@ class Library:
         found = tags(f / safe)
         (f / "job.json").write_text(json.dumps({
             "title": title or found.get("title") or stem, "artist": artist or found.get("artist", ""),
-            "filename": safe, "horn": horn, "mix": mix,
+            "filename": safe, "horn": horn, "mix": mix, "engine": engine,
             "state": "queued", "added": time.strftime("%Y-%m-%dT%H:%M:%S"),
         }, indent=1) + "\n")
         self._enqueue(take_id)
@@ -177,7 +184,10 @@ class Library:
         job = json.loads((f / "job.json").read_text())
         cmd = [sys.executable, "-m", "saxscribe", "transcribe", str(f / job["filename"]),
                "-o", str(f / "take"), "--horn", job["horn"]]
-        return cmd + (["--mix"] if job["mix"] else [])
+        cmd += ["--mix"] if job["mix"] else []
+        if job.get("engine") == "filosax":
+            cmd += ["--notes-tool", "filosax"] + (["--separator", "filosax"] if job["mix"] else [])
+        return cmd
 
     def run(self, take_id: str) -> None:
         f = self.root / take_id
