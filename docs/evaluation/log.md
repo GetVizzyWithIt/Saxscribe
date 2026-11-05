@@ -106,9 +106,14 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 ### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
 - **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
-- **Result**: it barely detects the piano on any of the three, even during the confirmed Pennies piano solo (3:42–4:21), and its sax score is too weak to tell real sax from bleed. Every rule that hid noticeably more notes threw away about half real notes (Pennies example: 100 hidden, 44 of them real sax).
+- **Model**: panns-inference 0.1.1, Cnn14_DecisionLevelMax weights (327,428,481 bytes, md5 starting 70539c43, CC BY 4.0), run on CPU. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/panns_out.txt` on the Mac.
+- **Result**:
+  - The median piano score is 0.001–0.007 everywhere, even during the confirmed Pennies piano solo (3:42–4:21): it barely hears the piano.
+  - The median sax score is only a little higher on real sax than on bleed: Pennies key notes 0.38 vs other notes 0.28; Parker 0.29 vs 0.19.
+  - Every rule that hid noticeably more notes threw away about half real notes: on the Pennies mix, sax score under 0.05 hides 100 notes, 44 of them real; on Parker, 369 hidden, 173 real. Rules on the separated stem did worse.
+  - Best note F1 per set is still #84's check alone: Pennies 49.9%, Blues for Mary Jane 56.2%, Parker 57.8%.
 - **Decision**: not adopted. #84's pitch-line check beats every PANNs rule on all three sets.
-- **Next (build thread, running)**: the MVSep Mega 53-stem open separator with its own sax stem (survey in the Demucs card).
+- **Next (build thread, running)**: a local sax stem from ZFTurbo's Music-Source-Separation-Training (the MVSep Mega 53-stem open model), then the MVSep Saxophone web model (sep_type 61). Austin approved both in writing at 00:41 UTC, including uploading audio for the web model.
 
 ### E49 — 2026-11-04 — Piano notes no longer cut held sax notes short (PR #86, merged)
 - **Change** (bleed fix 3 from E46): when a piano note sounds under a held sax note, the sax note keeps its full length instead of being cut at the piano attack.
