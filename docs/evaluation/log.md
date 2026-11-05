@@ -55,10 +55,10 @@ onset and note F1 untouched, so they are measured on the written score.
 | grfia-tenor | 87.2% | 75.1% | 66.1%‡¶ | 73.8% | — | solo | E22, E29 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 80% recall¶ | 56%¶ | 70% | — | mix | E19, E29 |
 | pfh-austin (Getz, tenor, 169 bars, 867 notes) | 69.3% | 75.1% | 50.3% | 66.5% | — | mix | E40 |
-| resolution-austin (Coltrane, tenor, 939 notes) | — | — | 23.1% | 41.0% | — | mix | E53 |
-| isnt-she-lovely-austin (solo, 319 notes) | — | — | 21.4% | 33.6% | — | mix | E53 |
-| bloody-well-right-austin (174 notes) | — | — | 7.3% | 12.7% | — | mix | E53 |
-| walkers-theme-austin (863 notes) | — | — | 0 (11.0% without the span cut) | 0 (22.3%) | — | mix | E53 |
+| resolution-austin (Coltrane, tenor, 939 notes) | 85.4% | 63.1% | 41.7% | 55.8% | — | mix | E53 |
+| isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
+| bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
+| walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -68,6 +68,8 @@ onset and note F1 untouched, so they are measured on the written score.
 ‡ GRFIA with the final answer keys (PRs #46 and #47, E22).
 
 Omnibook now uses chorus-limited grading (PR #16, E6); the earlier 45% note F1 (E2) was understated.
+
+\* Walker's Theme with the sax-span cut ignored; the default hides every note (E53 bug).
 
 ✓ = meets the v1 target for that set. Speed meets the full-mix target (60 s/min)
 on every mix set and misses the solo target (15 s/min) on every solo set (21–24 s/min).
@@ -109,19 +111,32 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)
-- **Setup**: the four tenor keys Austin gave on 2026-11-05 (typed from his PDFs, written pitch minus 14 semitones = concert), run through main `0691a52` with default settings and scored within each key's span. The keys are drafts: their timing was aligned to the full mix, not the sax stem, so a few points may be timing error in the key itself. Sax found = share of key notes we wrote (recall); sax purity = share of our notes that are in the key (precision), as on the Results page (PR #90).
-- **Result**:
+- **Keys**: four tenor parts from Austin's PDFs, typed by eye (concert = written minus 14 semitones). Resolution (Coltrane, 939 notes, whole record; sax out in bars 1–16, a bass solo, and 84–175, a piano solo), Walker's Theme (Gerald Albright, 863 notes, whole record), Isn't She Lovely (Hornheads, Kenni Holmen's tenor solo only, 319 notes) and Bloody Well Right (Supertramp, John Helliwell, 174 notes: bars 17–18, 47–49 probably in unison with the band, and the solo in bars 69–87). Key timing is a draft, fitted by DTW to the sax stem's pitch line; 66–81% of key notes agree with the pitch heard on the stem. Report: https://claude.ai/artifact/AUNMwoXsCKudesizn1a1PY; files in the project files under `transcriptions/<tune>/`.
+- **Setup**: main `0691a52`, default settings, scored within each key's span against the notes shown on the sheet. Two scorings exist. The new-tunes thread used the keys timed on the sax stem (the better timing). The build thread used an earlier version timed on the full mix, and also gives sax found (recall) and sax purity (precision) as on the Results page (PR #90).
+- **Result**, keys timed on the sax stem (headline):
+
+| Record | Note F1 | No offsets | Onset F1 | Pitch |
+| --- | --- | --- | --- | --- |
+| Resolution | 41.7% | 55.8% | 63.1% | 85.4% |
+| Isn't She Lovely (solo) | 24.6% | 36.3% | 62.7% | 52.1% |
+| Bloody Well Right (solo) | 21.0% | 34.8% | 50.4% | 67.3% |
+| Walker's Theme | 0 | 0 | 0 | 0 |
+| Walker's Theme, `not_sax` ignored | 28.2% | 47.6% | 61.7% | 70.4% |
+
+- **Result**, keys timed on the full mix (build thread):
 
 | Record | Span scored | Note F1 | No offsets | Sax found | Sax purity |
 | --- | --- | --- | --- | --- | --- |
-| Resolution (Coltrane, 939 key notes) | whole record | 23.1% | 41.0% | 44.3% | 38.1% |
-| Isn't She Lovely (Hornheads, Kenni Holmen solo) | 46–102 s | 21.4% | 33.6% | 40.4% | 28.8% |
-| Bloody Well Right (Supertramp, John Helliwell) | 64–272 s | 7.3% | 12.7% | 32.2% | 7.9% |
-| Walker's Theme (Albright) | whole record | 0 | 0 | 0 | 0 |
-| Walker's Theme, sax-span cut ignored | whole record | 11.0% | 22.3% | 23.9% | 20.9% |
+| Resolution | whole record | 23.1% | 41.0% | 44.3% | 38.1% |
+| Isn't She Lovely (solo) | 46–102 s | 21.4% | 33.6% | 40.4% | 28.8% |
+| Bloody Well Right | 64–272 s | 7.3% | 12.7% | 32.2% | 7.9% |
+| Walker's Theme | whole record | 0 | 0 | 0 | 0 |
+| Walker's Theme, span cut ignored | whole record | 11.0% | 22.3% | 23.9% | 20.9% |
 
-- **Walker's Theme bug**: the sax-span check (`sax_spans`, PR #35) keeps only stretches where the sax stem is louder than a fixed −6 dB share of the mix. On this record the stem's median share is −8.2 dB, so the whole track was cut and nothing was written. The sheet came out empty.
-- **Reading**: far below the jazz records (Pennies 50%, Blues for Mary Jane 56%). On the pop and fusion mixes, guitar, vocals and keys leak into Demucs's "other" stem with the sax, so purity is low (8% on Bloody Well Right). Even on Resolution, under half the key's sax notes are found. These four are the hardest test records so far and the clearest case for a sax-specific separator.
+- **Key timing matters**: on Resolution the same output scores 41.7% against the stem-timed key and 23.1% against the mix-timed one. The draft keys are themselves a source of error until their timing is checked.
+- **Walker's Theme bug**: the sax-span check (`sax_spans`, PR #35) keeps only stretches where the sax stem is louder than a fixed −6 dB share of the mix. Here the sax sits about 8 dB under the band (median share −8.2 dB), so every note was tagged `not_sax` and the sheet came out empty.
+- **Ranked gaps** (new-tunes thread): the `sax_spans` threshold; other instruments on the sax stem (guitar, vocals and keys on the pop and fusion records, where purity falls to 8%); fast runs; same-pitch splits; altissimo (Isn't She Lovely goes up to written F7).
+- **Reading**: all four sit below the Getz records (Pennies 50%, Blues for Mary Jane 56%). Resolution comes closest, with 85% pitch accuracy. These are the hardest test records so far and the clearest case for a sax-specific separator.
 - **Next** (build thread): a per-record (relative) loudness bar for `sax_spans` instead of the fixed −6 dB; then all four through the sax-specific separators (E51, E52) and the gated hybrid ([ADR-0036](../decisions/0036-gated-two-separator-hybrid.md)).
 - No `results.jsonl` line yet: it will be copied from the Mac's history with the next run that logs these sets.
 
