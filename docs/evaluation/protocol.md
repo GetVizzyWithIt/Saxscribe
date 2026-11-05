@@ -102,6 +102,8 @@ The app's Results page (PR #38, `/results`) merges the repo's
 A log entry without its `results.jsonl` line, or a table row without its
 `changes.json` object, is incomplete.
 
+For band records, PR #90 (open) adds two plain-language measures to the Results page: **Sax found**, the share of the answer key's sax notes the tool wrote (note recall), and **Sax purity**, the share of the tool's notes that are sax in the key (note precision). They separate the two failures that separators trade against each other: losing real sax passages, and letting piano or bass in (log E51, E52).
+
 ## Rhythm scorecard (Weimar, no audio)
 
 `python -m saxscribe rhythm` (PR #53) scores Layer 4 alone. It feeds the
