@@ -99,6 +99,33 @@ def test_one_line_keeps_the_louder_double_and_cuts_overlaps():
     assert out[0]["offset"] == 1.5
 
 
+def held_line(seconds=3.0, pitch=67.0):
+    t = np.arange(0, seconds, 0.01)
+    return {"time": t, "midi": np.full_like(t, pitch), "voiced": np.ones_like(t, bool),
+            "confidence": np.ones_like(t)}
+
+
+def test_a_note_under_a_held_note_does_not_cut_it_when_the_pitch_line_stays():
+    raw = [{"onset": 0.0, "offset": 2.0, "pitch": 67, "amp": 0.5},
+           {"onset": 1.0, "offset": 1.3, "pitch": 74, "amp": 0.9},  # a piano attack under the held G
+           {"onset": 2.0, "offset": 2.5, "pitch": 69, "amp": 0.5}]
+    line = held_line()
+    line["midi"][200:] = 69
+    out = notes.one_line(raw, line)
+    assert [(n["onset"], n["offset"], n["pitch"]) for n in out] == [(0.0, 2.0, 67), (1.0, 1.3, 74), (2.0, 2.5, 69)]
+    assert [bool(n.get(notes.UNDER_HELD)) for n in out] == [False, True, False]
+    assert notes.one_line(raw)[0]["offset"] == 1.0  # without the pitch line: cut as before
+
+
+def test_a_note_the_pitch_line_moves_to_still_cuts_the_held_note():
+    raw = [{"onset": 0.0, "offset": 2.0, "pitch": 67, "amp": 0.5},
+           {"onset": 1.0, "offset": 1.5, "pitch": 69, "amp": 0.5}]
+    line = held_line()
+    line["midi"][100:] = 69
+    out = notes.one_line(raw, line)
+    assert out[0]["offset"] == 1.0 and not any(n.get(notes.UNDER_HELD) for n in out)
+
+
 # ---------------------------------------------------------------- layer 4
 
 def test_midi_matches_the_notes(take):

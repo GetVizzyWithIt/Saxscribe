@@ -27,7 +27,7 @@ def test_other_settings_are_not_the_trend_line():
 def test_repo_and_local_runs_merge_once_each_in_time_order(tmp_path, monkeypatch):
     repo = tmp_path / "repo.jsonl"
     early = {"id": "a", "when": "2026-11-01T00:00:00Z", "set": "urmp", "metrics": {"note_f1": 0.5}}
-    late = {"id": "b", "when": "2026-11-05T00:00:00Z", "set": "urmp", "metrics": {"note_f1": 0.7}}
+    late = {"id": "b", "when": "2099-01-01T00:00:00Z", "set": "urmp", "metrics": {"note_f1": 0.7}}
     repo.write_text(json.dumps(late) + "\nnot json\n" + json.dumps(early) + "\n")
     monkeypatch.setattr(history, "REPO_RESULTS", repo)
     local = tmp_path / "runs"
