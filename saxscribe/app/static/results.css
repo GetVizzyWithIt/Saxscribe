@@ -82,7 +82,9 @@ table.compare td.cell:focus-visible { outline: 2px solid var(--accent); outline-
 table.compare td.cell .v { font-weight: 600; }
 table.compare td.cell .d { color: var(--ink2); font-size: 0.82em; margin-left: 6px; }
 table.compare td.cell .lost { color: var(--lost-ink); font-size: 0.78em; margin-top: 2px; white-space: normal; }
+table.compare td.cell .favour { color: var(--ink2); font-size: 0.78em; margin-top: 2px; white-space: normal; font-style: italic; }
 table.compare td.empty { color: var(--muted); cursor: default; }
+table.compare tr > td:first-child { min-width: 170px; }
 table.compare td.sub { padding-left: 24px; color: var(--ink2); }
 table.compare tr.tierrow td { color: var(--quiet); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; padding-top: 16px; border-top: 0; }
 table.compare tr.foot td { color: var(--quiet); font-size: 0.85em; }

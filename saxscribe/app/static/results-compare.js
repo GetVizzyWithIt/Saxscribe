@@ -21,7 +21,16 @@ const RECORDS = {
   'walkers-theme': ["Walker's Theme", 'pop'],
   'isnt-she-lovely': ["Isn't She Lovely (solo)", 'pop'],
   'bloody-well-right': ['Bloody Well Right (solo)', 'pop'],
+  'new-tunes': ['Four tenor tunes', 'pop'],
 };
+// Answer keys partly built with a model under test: its scores there are not a clean win.
+// The Omnibook's alignment used a Riley & Dixon transcription model (their paper, section 3.1).
+// A row can also carry key.favours: [note_finder, ...] itself.
+const KEY_FAVOURS = {'parker-band': ['rd-filosax', 'rd-filosax_25k'], 'omnibook': ['rd-filosax', 'rd-filosax_25k']};
+function keyFavours(r) {
+  const f = (r.key && r.key.favours) || KEY_FAVOURS[r.set] || [];
+  return f.includes(r.setup.note_finder) || f.includes(r.setup.separator);
+}
 const TIERS = [['clean', 'Clean sax (recorded alone or pre-separated)'], ['band', 'Jazz band records'],
                ['pop', 'Pop and fusion records']];
 const CLEAN_SETS = ['bach10', 'choralebricks', 'grfia-alto', 'grfia-tenor', 'urmp', 'omnibook'];
@@ -44,7 +53,11 @@ const FLAG_DROP = 0.03;   // sax found (or onset recall) this much under the def
 const cmp = {metric: 'note_f1', setup: null, record: null};
 let EXP = [];
 
-function setupKey(s) { return `${s.separator}|${s.spans_from || 'same'}|${s.note_finder || 'ours'}`; }
+// Names the Mac and the log use for the same thing.
+const ALIAS = {'demucs-6s': 'demucs', 'mega-local': 'mega', 'rd-filosax-demucs': 'rd-sax', 'own': 'same',
+               'rd-filosax_25k': 'rd-filosax'};
+function canon(v, d) { return ALIAS[v] || v || d; }
+function setupKey(s) { return `${canon(s.separator)}|${canon(s.spans_from, 'same')}|${canon(s.note_finder, 'ours')}`; }
 function setupName(s) {
   let n = SEPARATORS[s.separator] || s.separator;
   if (s.spans_from && !['same', 'own'].includes(s.spans_from)) n += `, rests from ${SEPARATORS[s.spans_from] || s.spans_from}`;
@@ -70,7 +83,7 @@ function latest() {
 function columns(rows) {
   const cols = new Map();
   for (const r of rows) cols.set(setupKey(r.setup), r.setup);
-  const order = s => { const i = SEP_ORDER.indexOf(s.separator); return (i < 0 ? 99 : i) * 10 + (s.spans_from !== 'same') + 2 * (s.note_finder !== 'ours'); };
+  const order = s => { const i = SEP_ORDER.indexOf(canon(s.separator)); return (i < 0 ? 99 : i) * 10 + (canon(s.spans_from, 'same') !== 'same') + 2 * (canon(s.note_finder, 'ours') !== 'ours'); };
   return [...cols.entries()].sort((a, b) => order(a[1]) - order(b[1])).map(([k, s]) => ({k, s}));
 }
 function recordRows(rows) {
@@ -190,6 +203,10 @@ function grid() {
         const w = Math.min(1, Math.abs(d) / 10) * 46;
         td.style.background = `color-mix(in oklab, var(${d >= 0 ? '--div-pos' : '--div-neg'}) ${w.toFixed(0)}%, var(--card))`;
         td.append(el('span', {class: 'd'}, `${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}`));
+      }
+      if (keyFavours(x)) {
+        td.classList.add('favoured');
+        td.append(el('div', {class: 'favour', title: 'This answer key was aligned partly with this model, so the score may flatter it'}, '† key may favour this model'));
       }
       const lost = x !== base ? lostSax(x, base) : null;
       if (lost) td.append(el('div', {class: 'lost', title: 'Loses real sax notes compared with the default'},
