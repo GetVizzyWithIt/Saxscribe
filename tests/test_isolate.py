@@ -263,3 +263,23 @@ def test_a_sax_split_across_two_stems_is_found_in_their_sum(tmp_path):
     _, alone = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
     _, summed = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [tmp_path / "vocals.wav"])
     assert alone and summed == []
+
+
+def test_a_bass_solo_is_cut_but_a_trios_loud_bass_is_not(tmp_path):
+    # Blues for Mary Jane 341-368 s: a bass solo. With drums and bass left out
+    # of the share, the sax stem's leftovers passed; the bass sitting far over
+    # every sax stem marks the rest. Under the sax, a trio's bass stays closer.
+    rate, seconds = 16000, 60
+    t = np.arange(rate * seconds) / rate
+    solo = (t >= 20) & (t < 40)
+    horn = long_horn(seconds, rate) * ~solo
+    bass_line = 0.6 * long_horn(seconds, rate, seed=7) * np.where(solo, 1.0, 0.5)
+    drums, _ = drums_and_bass(seconds, rate)
+    mix = horn + bass_line + 0.3 * drums
+    peak = np.abs(mix).max()
+    stems = {"stem": horn + 0.08 * bass_line * solo, "bass": bass_line, "drums": 0.3 * drums, "mix": mix}
+    for name, y in stems.items():
+        sf.write(str(tmp_path / f"{name}.wav"), y / peak, rate)
+    rhythm = [tmp_path / "drums.wav", tmp_path / "bass.wav"]
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [], rhythm, [tmp_path / "bass.wav"])
+    assert len(cuts) == 1 and 20 <= cuts[0][0] <= 25 and 35 <= cuts[0][1] <= 40

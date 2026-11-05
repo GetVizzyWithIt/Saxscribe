@@ -131,7 +131,7 @@ SPAN_CLARITY = 0.4     # ... and sound this clear, as a share of the take's typi
 SPAN_SMOOTH = 13       # windows (about 12 s) in the median that steadies the call
 SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
 SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last note is lost
-SPAN_RIVAL_DB = -10.0  # a piano stem holding this much of the whole mix (dB) can mark a rest
+SPAN_RIVAL_GAP = {"piano": 6.0, "bass": 12.0}  # dB a rival stem must sit over the sax to mark a rest
 SPAN_MAX_CUT = 0.8     # cutting more of the record than this means the check failed, not that the sax rests
 
 
@@ -158,10 +158,11 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
     across stems (Coltrane, Impressions: vocals + other), the other stems
     are added to the sax stem for a second try, not judged one by one.
     Without drums and bass the clean sax stem's piano bleed can pass in a
-    piano solo. So a window is still a rest when the piano stem (rivals)
-    holds -10 dB or more of the whole mix and the sax fails the old test
-    against the whole mix (Impressions 1963: piano -7 dB in its solo, below
-    -55 dB under the sax).
+    piano solo. So a window is still a rest when a rival stem (piano, bass)
+    sits well over every sax stem in the whole mix (piano 6 dB, bass 12 dB)
+    and the sax fails the old whole-mix test. In a piano solo the piano sits
+    15 dB over the sax stems, in a bass solo the bass 18 dB; under the sax,
+    comping piano sits below it and a trio's bass at most 8 dB over it.
     """
     y = frontend.load_mono(stem, sr=LEAD_RATE)
     m = frontend.load_mono(mix, sr=LEAD_RATE)
@@ -192,8 +193,9 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
             f_share = np.maximum(f_share, window_measures(o[:n], full, win, hop)[0])
         old = (f_share > share_bar(f_share)) & (clear > SPAN_CLARITY * typical)
         for path in rivals:
+            gap = SPAN_RIVAL_GAP.get(Path(path).stem, max(SPAN_RIVAL_GAP.values()))
             r_share = window_measures(frontend.load_mono(path, sr=LEAD_RATE)[:n], full, win, hop)[0]
-            sax &= ~((r_share > SPAN_RIVAL_DB) & ~old)
+            sax &= ~((r_share > f_share + gap) & ~old)
     from scipy.signal import medfilt
     sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
     end = n / LEAD_RATE

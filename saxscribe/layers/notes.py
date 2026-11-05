@@ -92,7 +92,8 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
                   if name not in used and (take.stems / f"{name}.wav").exists()]
         rhythm = [take.stems / f"{name}.wav" for name in ("drums", "bass")
                   if name not in used and (take.stems / f"{name}.wav").exists()]
-        rivals = [take.stems / "piano.wav"] if "piano" not in used and (take.stems / "piano.wav").exists() else []
+        rivals = [take.stems / f"{name}.wav" for name in ("piano", "bass")
+                  if name not in used and (take.stems / f"{name}.wav").exists()]
         extra["sax_spans"], cuts = sax_spans(take.stem, take.source, others, rhythm, rivals)
         extra["sax_cuts"] = cuts
         for n in notes:
