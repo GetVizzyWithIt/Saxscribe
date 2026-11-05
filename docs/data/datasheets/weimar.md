@@ -22,7 +22,7 @@ database's timing (check the offset per record).
 
 ## Distribution
 https://jazzomat.hfm-weimar.de/download/, open download, 44 MB. Licence:
-*to verify* (the dataset search recorded ODbL; the download page didn't state one). Folder `WeimarJazzDatabase/`.
+ODbL 1.0 (confirmed by the jazz sax research survey, 2026-11-05). The separate jazzomat `raw_data` repository states no licence. Folder `WeimarJazzDatabase/`.
 
 ## Maintenance
 Checksums in the manifest.
@@ -30,3 +30,5 @@ Checksums in the manifest.
 ## Saxscribe results
 - Rhythm scorecard baseline (444 solos): exact position 58.7%, right beat 89.3%, notes kept 100%; ballads 15.7%, slow tunes 18.5% ([log E24](../../evaluation/log.md)). Weimar writes swung off-beats at their played position, so exact position undercounts correct swing notation. On the swing-aware measure (`position_read`, PR #55): 63.1% overall, 57.6% saxes; ballads 16.9%, slow tunes 19.5% ([log E28](../../evaluation/log.md)). After PR #64 (finer grids): 65.9% overall, ballads 36.2% ([log E32](../../evaluation/log.md)). About 37% of ballad notes are in 5-, 7- or 9+-way divisions that no regular grid matches.
 - Key-finding test set: 429 solos with annotated keys, home note right 49% → 60% with the blues-aware finder ([log E15](../../evaluation/log.md)). Labels are the tune's key, so 100% isn't reachable.
+
+2026-11-05 ([survey](https://claude.ai/artifact/51xs3wjGscA9JLx9ZB4Wxu)): jazzomat `raw_data` has f0 tracks for 110 tenor and 50 alto solos, at a 5.805 ms hop, with times relative to the WJD solo cut; tuning ranges 428–453 Hz. Buy lists for the solos' audio are in the project files (`datasets/weimar-audio/`). JazzTube released no YouTube IDs and its site is down, so it is not a route to the audio.

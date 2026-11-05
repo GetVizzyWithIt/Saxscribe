@@ -30,5 +30,5 @@ From the requirements doc's "alternatives to benchmark":
 | Sax-vs-rest separation fine-tune | Demucs | Biggest potential win for full mixes |
 | PESTO | CREPE | Tiny and fast; the one for a future real-time mode |
 | MuScriptor | Basic Pitch on mixes | Instrument-conditioned transcription; check weight licence first |
-| Onset/articulation head on MuQ or MERT embeddings | Basic Pitch + rules | Articulation tags no off-the-shelf model gives |
+| Onset/articulation head on MuQ or MERT embeddings (weights CC BY-NC 4.0) | Basic Pitch + rules | Articulation tags no off-the-shelf model gives |
 | Essentia / madmom key detection | music21 key finder | Key from audio, not just notes |
