@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #97 (open) | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | pending merge | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-pending-merge) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
 | 2026-11-05 | #93 (was #84) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | yes | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-93-merged) |
 | 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook, omnibook-mix | Note F1 | 50.3% / 75.1% / 64.2% / 57.62% | +0.11 / +0.03 / ~0 / +0.21 points (4 / 8 / 3 / 27 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
@@ -109,6 +110,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E54 — 2026-11-05 — Sax-span loudness bar set per record (PR #97, pending merge)
+- **Change**: `sax_spans` (PR #35) decides where the sax lays out on a band record. Before, a window counted as sax only if the sax stem held at least −6 dB of the mix. Now the bar comes from the record itself: `max(min(−6, p90(share) − 3), −14)` dB. A record with a loud sax keeps −6 dB; on a quiet mix the bar drops to 3 dB under the record's loud windows, never below −14 dB (a piano solo sits 10–50 dB down). It only changes which notes get the `not_sax` tag; nothing is deleted.
+- **Setup**: branch `93791bd` vs main `addb947`, against the stem-timed keys (E53), within each key's span. 27 band takes: 10 Parker records, Pennies From Heaven, Blues for Mary Jane, the four new tenor tunes and 11 URMP mixes.
+- **Result**: only Walker's Theme changes. Its bar moves from −6.0 to −9.4 dB, and the cut goes from the whole track (0–241 s) to 0–20, 29–49 and 70–99 s. The other 26 takes keep −6 dB and identical cuts.
+
+| Walker's Theme | Note F1 | No offsets | Onset F1 | Sax found | Sax purity |
+| --- | --- | --- | --- | --- | --- |
+| main | 0 | 0 | 0 | 0 | 0 |
+| PR #97 | 28.3% | 46.9% | 57.2% | 46.8% | 47.0% |
+
+- **Fidelity**: no take gains notes inside a known piano solo (Pennies 3:42–4:21, Resolution's piano stretches). 162 Walker's Theme key notes are still hidden, in 29–49 and 70–99 s, where the sax dips below −9.4 dB; follow-up pending.
+- **Tests**: 160 pass, including two new ones in `tests/test_isolate.py` (a sax mixed about 8 dB low is not cut, which fails on main, and the bar's limits).
 
 ### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)
 - **Keys**: four tenor parts from Austin's PDFs, typed by eye (concert = written minus 14 semitones). Resolution (Coltrane, 939 notes, whole record; sax out in bars 1–16, a bass solo, and 84–175, a piano solo), Walker's Theme (Gerald Albright, 863 notes, whole record), Isn't She Lovely (Hornheads, Kenni Holmen's tenor solo only, 319 notes) and Bloody Well Right (Supertramp, John Helliwell, 174 notes: bars 17–18, 47–49 probably in unison with the band, and the solo in bars 69–87). Key timing is a draft, fitted by DTW to the sax stem's pitch line; 66–81% of key notes agree with the pitch heard on the stem. Report: https://claude.ai/artifact/AUNMwoXsCKudesizn1a1PY; files in the project files under `transcriptions/<tune>/`.
