@@ -187,3 +187,69 @@ def test_a_record_is_never_cut_almost_whole(tmp_path):
     sf.write(str(tmp_path / "mix.wav"), mix / peak, rate)
     keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
     assert cuts == [] and keep[0][0] == 0
+
+
+def drums_and_bass(seconds, rate, seed=1):
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(rate * seconds)) / rate
+    hits = np.zeros_like(t)
+    for start in np.arange(0, seconds, 0.25):
+        k = (t >= start) & (t < start + 0.08)
+        hits[k] = rng.standard_normal(k.sum()) * np.exp(-40 * (t[k] - start))
+    bass = np.sin(2 * np.pi * 55 * t) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.5 * t))
+    return hits, bass
+
+
+def test_loud_drums_and_bass_under_a_sax_trio_dont_cut_the_sax(tmp_path):
+    # Potter, Item 1: no piano; once the band digs in, bass and drums sit
+    # 3-7 dB over the sax, and the sax looked like it had stopped.
+    rate, seconds = 16000, 50
+    t = np.arange(rate * seconds) / rate
+    horn = long_horn(seconds, rate)
+    drums, bass = drums_and_bass(seconds, rate)
+    loud = 0.3 + 2.7 * (t >= 15)
+    drums, bass = loud * drums, 0.6 * loud * bass
+    mix = horn + drums + bass
+    peak = np.abs(mix).max()
+    for name, y in (("stem", horn), ("drums", drums), ("bass", bass), ("mix", mix)):
+        sf.write(str(tmp_path / f"{name}.wav"), y / peak, rate)
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert cuts                                       # judged against the whole mix, the sax looks gone
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [],
+                                [tmp_path / "drums.wav", tmp_path / "bass.wav"])
+    assert cuts == []
+
+
+def test_a_piano_solo_over_drums_and_bass_is_still_cut(tmp_path):
+    rate, seconds = 16000, 60
+    t = np.arange(rate * seconds) / rate
+    solo = (t >= 20) & (t < 40)
+    horn = long_horn(seconds, rate) * ~solo
+    piano = long_chords(seconds, rate) * (0.2 + 3 * solo)
+    drums, bass = drums_and_bass(seconds, rate)
+    mix = horn + piano + drums + 0.5 * bass
+    peak = np.abs(mix).max()
+    for name, y in (("stem", horn + 0.02 * piano), ("drums", drums), ("bass", 0.5 * bass), ("mix", mix)):
+        sf.write(str(tmp_path / f"{name}.wav"), y / peak, rate)
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [],
+                                [tmp_path / "drums.wav", tmp_path / "bass.wav"])
+    assert len(cuts) == 1 and 20 <= cuts[0][0] <= 25 and 35 <= cuts[0][1] <= 40
+
+
+def test_a_sax_split_across_two_stems_is_found_in_their_sum(tmp_path):
+    # Coltrane, Impressions: for a stretch the horn is shared between
+    # "vocals" and "other", neither loud enough alone.
+    rate, seconds = 16000, 50
+    t = np.arange(rate * seconds) / rate
+    horn = long_horn(seconds, rate)
+    split = (t >= 15) & (t < 40)
+    piano = long_chords(seconds, rate)
+    mix = horn + piano
+    peak = np.abs(mix).max()
+    stem = horn * np.where(split, 0.5, 1.0) + 0.02 * piano
+    vocals = horn * np.where(split, 0.5, 0.0)
+    for name, y in (("stem", stem), ("vocals", vocals), ("mix", mix)):
+        sf.write(str(tmp_path / f"{name}.wav"), y / peak, rate)
+    _, alone = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    _, summed = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [tmp_path / "vocals.wav"])
+    assert alone and summed == []

@@ -134,7 +134,8 @@ SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last
 SPAN_MAX_CUT = 0.8     # cutting more of the record than this means the check failed, not that the sax rests
 
 
-def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
+def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
+              rhythm: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
     """Where the horn plays in a band record: (spans with sax, spans cut).
 
     A full record has stretches where the sax lays out: piano and bass solos,
@@ -149,10 +150,19 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list
     take's own loud windows (90th percentile), never below -14 dB. A window is sax when both pass; a 12 s running median
     steadies the call. Only stretches of 8 s or more are cut, and each cut
     gives back 2 s at both ends, so a cut never takes the edge of a phrase.
+
+    Drums and bass (rhythm) don't count against the sax: on a sax trio they
+    are the loudest stems all through (Potter, Item 1: 3-7 dB over the sax),
+    so the share is taken of the mix without them. When the sax is split
+    across stems (Coltrane, Impressions: vocals + other), the other stems
+    are added to the sax stem for a second try, not judged one by one.
     """
     y = frontend.load_mono(stem, sr=LEAD_RATE)
     m = frontend.load_mono(mix, sr=LEAD_RATE)
-    n = min(len(y), len(m))
+    rest = [frontend.load_mono(p, sr=LEAD_RATE) for p in rhythm]
+    extra = [frontend.load_mono(p, sr=LEAD_RATE) for p in others]
+    n = min([len(y), len(m)] + [len(r) for r in rest + extra])
+    m = m[:n] - sum(r[:n] for r in rest) if rest else m
     win, hop = int(SPAN_WINDOW * LEAD_RATE), int(SPAN_HOP * LEAD_RATE)
     if n < win:
         return [[0.0, n / LEAD_RATE]], []
@@ -162,10 +172,13 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list
     held = share > bar
     typical = float(np.median(clear[held])) if held.any() else 0.0
     sax = held & (clear > SPAN_CLARITY * typical)
-    for other in others:
-        o_share, o_clear = window_measures(frontend.load_mono(other, sr=LEAD_RATE)[:n], m[:n], win, hop)
-        k = min(len(sax), len(o_share))
-        sax[:k] |= (o_share[:k] > bar) & (o_clear[:k] > SPAN_CLARITY * typical)
+    for o in extra:
+        o_share, o_clear = window_measures(o[:n], m[:n], win, hop)
+        sax |= (o_share > bar) & (o_clear > SPAN_CLARITY * typical)
+    if extra:
+        both = y[:n] + sum(o[:n] for o in extra)
+        b_share, b_clear = window_measures(both, m[:n], win, hop)
+        sax |= (b_share > bar) & (b_clear > SPAN_CLARITY * typical)
     from scipy.signal import medfilt
     sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
     end = n / LEAD_RATE

@@ -90,7 +90,9 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         used = (take.read_manifest().get("layers", {}).get("isolate", {}).get("stem") or "").split("+")
         others = [take.stems / f"{name}.wav" for name in ("other", "guitar", "vocals")
                   if name not in used and (take.stems / f"{name}.wav").exists()]
-        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, others)
+        rhythm = [take.stems / f"{name}.wav" for name in ("drums", "bass")
+                  if name not in used and (take.stems / f"{name}.wav").exists()]
+        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, others, rhythm)
         extra["sax_cuts"] = cuts
         for n in notes:
             if any(a <= n["onset"] < b for a, b in cuts):
