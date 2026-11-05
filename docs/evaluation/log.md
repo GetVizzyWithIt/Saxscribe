@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #112 (open) | Straight sixteenth runs kept straight in swung tunes | notation | weimar rhythm scorecard (444 solos), pfh-austin (Filosax take) | Position read / notes right | 67.26% / 578 of 734 | 67.85% / 589 of 734 | pending merge | [E66](#e66--2026-11-05--straight-sixteenth-runs-kept-straight-in-swung-tunes-pr-112-pending-merge) |
 | 2026-11-05 | #109 | Bar lines follow the beat tracker's downbeats; beat grid mended where it slips | notation | tuning records, held-out records, pfh-austin | Bars in the right place | 44.2 / 34.1 / 0.6% | 75.1 / 58.0 / 87.5% | yes | [E64](#e64--2026-11-05--bar-lines-kept-on-the-right-beat-pr-109-merged) |
 | 2026-11-05 | #103 | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-merged) |
 | 2026-11-05 | #102 | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | yes | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-merged) |
@@ -115,6 +116,33 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E66 — 2026-11-05 — Straight sixteenth runs kept straight in swung tunes (PR #112, pending merge)
+- **Change**: in a swung tune, a beat with at least 3 notes, each within 0.2 of a sixteenth slot as played, is now written straight instead of swung. This fixes the "swing bends straight 16ths" fault found on Pennies From Heaven (E61).
+- **Rejected first version**: a beat with more than 2 notes written straight. It also straightened swung eighths with a pickup: 168 of 444 solos got worse, and Walker's Theme lost 5 points.
+- **Tuning set**: the Weimar rhythm scorecard (444 solos).
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Position read | 67.26% | 67.85% |
+| Exact | 61.47% | 62.08% |
+| Solos better / worse | — | 183 / 20 (worst −1.6 points) |
+
+- **Held-out records, scored once** (notes in the right place):
+
+| Record | Before | After |
+| --- | --- | --- |
+| Pennies From Heaven, Filosax app take | 578 of 734 | 589 of 734 |
+| — bars 85–92 | 28 of 52 | 41 of 52 |
+| — misplacements caused by the quantizer | 78 | 67 |
+| Pennies From Heaven, standard take | 544 of 691 | 544 of 691 |
+| Resolution | 293 | 293 |
+| Walker's Theme | 274 | 277 |
+| Isn't She Lovely | 36 | 36 |
+| Bloody Well Right | 42 | 42 |
+
+- Note F1 is unchanged (notation only). No `experiments.jsonl` rows, since this is a rhythm-only measure.
+- **Next**: development pauses after each step until Austin says go.
 
 ### E65 — 2026-11-05 — Half-time beat grids: diagnosis and a doubling rule (not adopted)
 - **Setup**: Mac, main `2369603`, the E58 takes, with bar references from the barline keys (E63).
