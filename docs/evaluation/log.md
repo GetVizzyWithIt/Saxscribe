@@ -116,6 +116,22 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E65 — 2026-11-05 — Half-time beat grids: diagnosis and a doubling rule (not adopted)
+- **Setup**: Mac, main `2369603`, the E58 takes, with bar references from the barline keys (E63).
+- **Finding**: Beat This! follows long stretches at exactly half the tempo. Share of the take in half time: Calypso take 1 58%, Calypso take 2 55%, Item 1 27%, Impressions 1961 13%, Impressions 1963 13%. The true tempo there is 190–300 BPM. All of these beats come from the tracker itself, not from the grid mending added in #109, and the beat spacing is steady across the change, so the tracker gives no warning.
+- **Signal**: the gap between the notes' own beats divided by the grid spacing. Median 0.50 in half-time stretches, 0.97 where the grid is right.
+- **Rule tried**: double the grid where that ratio is 0.42–0.58 (signal strength at least 0.35) for 16 beats or more, and only if the doubled tempo is at most 330 BPM. Tuned on Calypso takes 1–2, Confirmation and 7XTyc.
+
+| Set | Bars right, before | After |
+| --- | --- | --- |
+| Tuning records | 44.5% | 58.0% |
+| Calypso take 1 | 52% | 87% |
+| Calypso take 2 | 52% | 72% |
+| Held-out records | 54.1% | 54.1% |
+
+- **Why rejected**: a line of straight eighths at the right tempo gives the same ratio. Synthetic straight-eighth lines at 90, 120 and 129 BPM, and the 120 BPM test fixture, were all doubled wrongly. From the notes alone, straight eighths can't be told apart from a half-time grid, so the rule would break pop and straight-feel tunes.
+- **Next**: a "double the tempo here" control in the editor, so the player marks the stretch by hand. Development paused on Austin's word (2026-11-05 18:39Z, 10:39 am Pacific).
+
 ### E64 — 2026-11-05 — Bar lines kept on the right beat (PR #109, merged)
 - **Status**: merged 2026-11-05 16:50Z (8:50 am Pacific); now the default for every take.
 - **Change**: bars now follow most of the beat tracker's downbeats rather than counting every 4th beat from the start, and the beat grid is mended where it slips (E63). Tuned on practice records, with Austin's tunes held out.
@@ -128,7 +144,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Pennies From Heaven | 0.6% | **87.5%** | — |
 
 - Fixed records: Parker 1p64c, 6Cbwc and 73bwc, Pennies From Heaven, Isn't She Lovely. No record gets worse by more than 5 points.
-- **Still open**: half-time beat grids (Calypso, Item 1, Impressions), and swing applied to straight 16ths.
+- **Still open**: half-time beat grids (Calypso, Item 1, Impressions; automatic fix rejected in E65), and swing applied to straight 16ths.
 - **Data**: the PR also brings the Mac's E57–E60 rows into `experiments.jsonl`. They replace the 33 overnight rows and the five E59 rows written from the log, and the set "tenor-tunes" becomes "new-tunes". Guard counts and rates (`extras_in_rests_per_min`, `rest_seconds`, `short_notes`, `ghost_notes`) sit in a separate `guards` field, so `metrics` holds shares only.
 
 ### E63 — 2026-11-05 — Barline check on 22 records (finding, no change yet)
