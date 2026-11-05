@@ -25,10 +25,12 @@ A row:
    "key_notes": {"right": .., "timing": .., "wrong_pitch": .., "merged": .., "hidden": .., "missed": ..},
    "our_notes": {"right": .., "timing": .., "wrong_pitch": .., "split": .., "in_rest": .., "extra": ..},
    "hidden_notes": {"in_key": .., "not_in_key": ..},
+   "guards": {"extras_in_rests_per_min": .., "rest_seconds": .., "short_notes": .., ...},   # optional
    "bars": [{"bar": 17, "t0": 20.9, "key": 4, "right": 3, "hidden": 0, "ours": 5, "extra": 1, "cut": 0.0}, ...],
    "note": "..."}
 
-Metrics are shares (0-1). Whole-set rows are note-count-weighted averages of
+Metrics are shares (0-1); the guard counts and rates (score/metrics.py)
+go in guards, beside the shares they explain (short_found, ghost_found). Whole-set rows are note-count-weighted averages of
 their records. key_notes, our_notes and bars come from classify(); a row
 without them still shows in the comparison grid.
 

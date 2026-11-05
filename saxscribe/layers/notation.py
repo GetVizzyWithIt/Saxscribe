@@ -502,8 +502,8 @@ def align_bars(beats: list[float], downbeats: list[float], window: int = BAR_WIN
     that stretch's beats nearer the usual length.
 
     Measured 2026-11-05 on 22 records with known bars (log E64; tuned on the
-    Weimar and Parker train records only): bars right 44 -> 77% on the
-    tuning records, 34 -> 61% held out, none worse. Pennies From Heaven went
+    Weimar and Parker train records only): bars right 44 -> 75% on the
+    tuning records, 34 -> 58% held out, none worse. Pennies From Heaven went
     from 0.6 to 87.5%: its first downbeat sat on beat 3 though 167 of 198 were
     right, and every bar used to follow the first.
     """
