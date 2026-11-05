@@ -1,7 +1,7 @@
 # ADR-0034: On band records, hide notes the sax's pitch line doesn't back up
 
 - **Date**: 2026-11-04
-- **Status**: Proposed; PR #84 closed without merging (2026-11-04), awaiting Austin's word on whether that was intended
+- **Status**: Proposed (PR #84 pending merge; an accidental close on 2026-11-04 is being undone)
 - **Decided by**: Claude (build thread), from the Pennies From Heaven piano-bleed review
 - **PR**: #84
 - **Relates to**: [ADR-0016](0016-notation-never-drops-notes.md), [ADR-0023](0023-write-only-where-the-sax-plays.md)
@@ -22,5 +22,5 @@ Notes stay in `notes.json` (never deleted). Solo takes are untouched.
 
 ## Consequences
 - Note F1 ([log E48](../evaluation/log.md)): Pennies From Heaven 49.2% → 49.8% (the 3:42–4:21 piano solo hidden), Parker band records 57.6% → 57.8%, Blues for Mary Jane 56.0% → 56.2%; solo sets unchanged.
-- At most one real sax note hidden per set; it can be restored in the editor.
+- At most one real sax note hidden per set; it can be restored in the editor. Austin checked the 93 suspect notes on Pennies From Heaven by eye and confirmed they are not sax (2026-11-04).
 - Piano notes under held sax notes are only partly caught; keeping the note the pitch line follows where two overlap is the next step.
