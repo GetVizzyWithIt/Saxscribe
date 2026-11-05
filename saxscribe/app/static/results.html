@@ -10,9 +10,62 @@
 <body>
 <div class="wrap wide">
   <div class="head"><h1>Results</h1><a class="button" href="/">Library</a></div>
-  <p class="quiet">How the transcriber scores on each test set, run by run. Each vertical line is a model or
-    pipeline change, labelled with its pull request. Lines join runs with the default settings; open
-    circles are runs that tried other settings.</p>
+  <p class="quiet">How well the transcriber does, and where it goes wrong. The first four sections compare
+    setups (which separator, where the sax-rest cuts come from, which note finder) on the same answer keys.
+    The charts below them follow the default pipeline over time.</p>
+
+  <section class="card">
+    <h2>Where each record stands</h2>
+    <p class="quiet small">Note F1 with today&rsquo;s default setup: a note counts when its start is within 50 ms, its
+      pitch within 50 cents and its end within 20% (mir_eval). The tick is the v1 target (80 alone, 60 in a band).
+      Sax found: share of the key&rsquo;s notes we wrote. Sax purity: share of our notes the key has. Key heard: share
+      of the answer key&rsquo;s notes whose pitch the recording confirms, so low means the key itself is less sure.</p>
+    <div class="scroll" id="stands"></div>
+  </section>
+
+  <section class="card">
+    <h2>Setups compared</h2>
+    <p class="quiet small">Each record on each setup, latest run. The shading is the difference from the
+      default setup on that record: blue better, red worse, full colour at 10 points. <b>▼ loses sax</b> marks a
+      setup that finds at least 3 points fewer of the key&rsquo;s notes than the default (or, where only that was
+      measured, 3 points less onset recall), whatever its F1: those are real notes gone. <b>† key may favour
+      this model</b> marks a score on an answer key that was built partly with that model, so it is not a clean win. Tap a cell to see its
+      errors below.</p>
+    <div class="filters">
+      <div class="seg" id="grid-metric" role="group" aria-label="Score shown">
+        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button>
+      </div>
+    </div>
+    <div class="scroll"><table class="grid compare" id="grid"></table></div>
+    <p class="quiet small" id="grid-empty" hidden>No experiment rows yet.</p>
+  </section>
+
+  <section class="card" id="where">
+    <h2>Where the notes go</h2>
+    <p class="quiet small">Top bar: every note in the answer key, sorted by what happened to it. Bottom bar: every
+      note on our sheet, sorted by where it came from. The two bars share colours where it is the same error seen
+      from each side: a merged repeat in the key is a split note on ours; a missed note in the key is an extra
+      one on ours. Hidden notes are still in notes.json, only off the sheet.</p>
+    <div class="filters"><div class="seg wrapseg" id="where-setup" role="group" aria-label="Setup"></div></div>
+    <div class="legend" id="where-legend"></div>
+    <div class="scroll" id="where-bars"></div>
+    <details><summary class="quiet small">Counts as a table</summary>
+      <div class="scroll"><table class="grid" id="where-table"></table></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Along the record</h2>
+    <p class="quiet small">One column per bar of the answer key. Found: share of the bar&rsquo;s key notes we wrote
+      (darker is more; grey is a rest in the key). Hidden: key notes tagged not sax, or a bar mostly inside a
+      sax-rest cut. Extra: notes of ours the key does not have. Quiet passages a setup throws away show as a run
+      of light Found cells with Hidden marks under them.</p>
+    <div class="filters"><div class="seg wrapseg" id="along-record" role="group" aria-label="Record"></div></div>
+    <div class="scroll" id="along"></div>
+  </section>
+
+  <h2 class="section">Default pipeline over time</h2>
+  <p class="quiet">Each vertical line is a model or pipeline change, labelled with its pull request. Lines join
+    runs with the default settings; open circles are runs that tried other settings.</p>
 
   <div class="filters">
     <div class="seg" id="range" role="group" aria-label="Time range">
@@ -24,7 +77,7 @@
   </div>
 
   <section class="card">
-    <h2>Where each set stands</h2>
+    <h2>Scorecard by test set</h2>
     <p class="quiet small">Latest run with the default settings. ✓ meets the v1 target (solo-recording targets for
       sets of the sax alone, full-mix targets for sets taken from band records). Sax found: share of the
       answer key's notes we wrote at the right time and pitch (what the tool lost). Sax purity: share of our notes
@@ -49,10 +102,16 @@
     <div class="scroll"><table class="grid" id="runs"></table></div>
   </details>
 
+  <details class="card">
+    <summary><h2 class="inline">Every experiment row</h2> <span class="quiet small">(the numbers behind the comparison)</span></summary>
+    <div class="scroll"><table class="grid" id="exp-rows"></table></div>
+  </details>
+
   <p class="quiet small" id="sources"></p>
 </div>
 <div class="tip" id="tip" role="status" hidden></div>
 <script src="/static/common.js"></script>
+<script src="/static/results-compare.js"></script>
 <script src="/static/results.js"></script>
 </body>
 </html>

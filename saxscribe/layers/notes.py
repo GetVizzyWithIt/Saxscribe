@@ -100,9 +100,11 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         isolated = take.read_manifest().get("layers", {}).get("isolate", {})
         used = (isolated.get("stem") or "").split("+")
         folder = take.folder / isolated["stems_folder"] if isolated.get("stems_folder") else take.stems
-        others = [folder / f"{name}.wav" for name in ("other", "guitar", "vocals")
-                  if name not in used and (folder / f"{name}.wav").exists()]
-        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, others)
+
+        def stems(*names):
+            return [folder / f"{name}.wav" for name in names if name not in used and (folder / f"{name}.wav").exists()]
+        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, stems("other", "guitar", "vocals"),
+                                             stems("drums", "bass"), stems("piano", "bass"))
         extra["sax_cuts"] = cuts
         for n in notes:
             if any(a <= n["onset"] < b for a, b in cuts):
