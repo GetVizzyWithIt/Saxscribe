@@ -51,6 +51,8 @@ Code and weights are MIT. Filosax itself is a research dataset; we only use the 
 - Blues for Mary Jane drops by about 4 points: the separator loses its quiet notes.
 - With the transcriber, the sax-rest and bleed checks are skipped because they cut real notes. On the Weimar solos they cost about 10 points.
 - The CLI path (this PR, commit 7708267) scores within about 1 point of the R&D run on every set except BFMJ: Weimar 76.9, Parker 67.5, PFH 56.8, tenor tunes 35.9. End-to-end it takes 40–74 s per minute of audio, because the pitch line and beats still run.
+- **Piano solos leak through** (log E61): on Pennies From Heaven the Filosax path writes 64 notes of the 3:42–4:21 piano solo. The stem keeps the piano near sax level, so the bleed check can't hide them. The standard path does. Use the standard path, or check the sheet by ear, on records with long piano solos until a rival-stem check exists.
+- **Quiet sax is lost** (E61): in bars 82–84 of Pennies the separator holds the sax 28.5 dB under the mix. In the four quiet stretches it finds 20 of 56 key notes, where Demucs finds 28.
 - Next step: an A/B on Austin's own takes.
 
 ## Change history
