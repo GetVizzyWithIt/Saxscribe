@@ -125,7 +125,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Finding**: the fallback windows are short (0–35 s) and are not where the losses are. The losses come from the sax-span check. A cleaner sax stem holds a smaller share of the mix, so the fixed −6 dB bar cuts real sax stretches. Mega's cuts are 6Cbwc 0–32, 44–53 and 99–174 s; BRfYc 0–8, 79–103, 120–138 and 177–187 s; Blues for Mary Jane 198–368 s (Demucs cuts 203–293 and 305–368 s there).
 - **Decision**: not adopted as is. The fallback rule is not the lever; the sax-span bar is.
-- **Next** (build thread): rerun Mega, the hybrid and the website takes with PR #97's per-record bar (E54).
+- **Follow-up** (same day): PR #97's per-record bar (E54) does not change the Mega or website takes. On these clean stems the loud windows sit at −0.4 to −2.8 dB, so the bar stays at −6 dB, and scores are unchanged (Parker Mega 60.5%, website 61.0%; Pennies 57.2 / 58.2%; Blues for Mary Jane 52.4 / 51.8%). The cut passages are quieter ones that the Demucs stem's bleed used to hold above the bar.
+- **Next** (build thread): decide the sax spans on the Demucs stem and transcribe from the Mega stem.
 
 ### E54 — 2026-11-05 — Sax-span loudness bar set per record (PR #97, merged)
 - **Change**: `sax_spans` (PR #35) decides where the sax lays out on a band record. Before, a window counted as sax only if the sax stem held at least −6 dB of the mix. Now the bar comes from the record itself: `max(min(−6, p90(share) − 3), −14)` dB. A record with a loud sax keeps −6 dB; on a quiet mix the bar drops to 3 dB under the record's loud windows, never below −14 dB (a piano solo sits 10–50 dB down). It only changes which notes get the `not_sax` tag; nothing is deleted.
