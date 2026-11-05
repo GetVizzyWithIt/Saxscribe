@@ -57,12 +57,14 @@ let EXP = [];
 const ALIAS = {'demucs-6s': 'demucs', 'mega-local': 'mega', 'rd-filosax-demucs': 'rd-sax', 'own': 'same',
                'rd-filosax_25k': 'rd-filosax'};
 function canon(v, d) { return ALIAS[v] || v || d; }
-function setupKey(s) { return `${canon(s.separator)}|${canon(s.spans_from, 'same')}|${canon(s.note_finder, 'ours')}`; }
+function setupKey(s) { return `${canon(s.separator)}|${canon(s.spans_from, 'same')}|${canon(s.note_finder, 'ours')}|${s.variant || ''}`; }
 function setupName(s) {
   let n = SEPARATORS[s.separator] || s.separator;
-  if (s.spans_from && !['same', 'own'].includes(s.spans_from)) n += `, rests from ${SEPARATORS[s.spans_from] || s.spans_from}`;
+  if (s.spans_from === 'none') n += ', no sax-rest cuts';
+  else if (s.spans_from && !['same', 'own'].includes(s.spans_from)) n += `, rests from ${SEPARATORS[s.spans_from] || s.spans_from}`;
   if (FINDERS[s.note_finder]) n += `, ${FINDERS[s.note_finder]}`;
   else if (s.note_finder && s.note_finder !== 'ours') n += `, ${s.note_finder}`;
+  if (s.variant) n += ` (${s.variant})`;  // e.g. an open PR's code on the same setup
   return n;
 }
 function rowKey(r) { return r.record ? `${r.set}/${r.record}` : r.set; }
@@ -83,7 +85,7 @@ function latest() {
 function columns(rows) {
   const cols = new Map();
   for (const r of rows) cols.set(setupKey(r.setup), r.setup);
-  const order = s => { const i = SEP_ORDER.indexOf(canon(s.separator)); return (i < 0 ? 99 : i) * 10 + (canon(s.spans_from, 'same') !== 'same') + 2 * (canon(s.note_finder, 'ours') !== 'ours'); };
+  const order = s => { const i = SEP_ORDER.indexOf(canon(s.separator)); return (i < 0 ? 99 : i) * 10 + (canon(s.spans_from, 'same') !== 'same') + 2 * (canon(s.note_finder, 'ours') !== 'ours') + 4 * !!s.variant; };
   return [...cols.entries()].sort((a, b) => order(a[1]) - order(b[1])).map(([k, s]) => ({k, s}));
 }
 function recordRows(rows) {
