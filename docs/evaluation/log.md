@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #109 (open) | Bar lines follow the beat tracker's downbeats; beat grid mended where it slips | notation | tuning records, held-out records, pfh-austin | Bars in the right place | 44.2 / 34.1 / 0.6% | 75.1 / 58.0 / 87.5% | pending merge | [E64](#e64--2026-11-05--bar-lines-kept-on-the-right-beat-pr-109-pending-merge) |
 | 2026-11-05 | #103 | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-merged) |
 | 2026-11-05 | #102 | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | yes | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-merged) |
 | 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
@@ -114,6 +115,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E64 — 2026-11-05 — Bar lines kept on the right beat (PR #109, pending merge)
+- **Change**: bars now follow most of the beat tracker's downbeats rather than counting every 4th beat from the start, and the beat grid is mended where it slips (E63). Tuned on practice records, with Austin's tunes held out.
+- **Result**, share of bars in the right place, measured on the Mac from the branch:
+
+| Set | Before | After | Offline simulation |
+| --- | --- | --- | --- |
+| Tuning records | 44.2% | 75.1% | 76.9% |
+| Held-out records (includes Austin's tunes) | 34.1% | 58.0% | 60.9% |
+| Pennies From Heaven | 0.6% | **87.5%** | — |
+
+- Fixed records: Parker 1p64c, 6Cbwc and 73bwc, Pennies From Heaven, Isn't She Lovely. No record gets worse by more than 5 points.
+- **Still open**: half-time beat grids (Calypso, Item 1, Impressions), and swing applied to straight 16ths.
+- **Data**: the PR also brings the Mac's E57–E60 rows into `experiments.jsonl`. They replace the 33 overnight rows and the five E59 rows written from the log, and the set "tenor-tunes" becomes "new-tunes". Guard counts and rates (`extras_in_rests_per_min`, `rest_seconds`, `short_notes`, `ghost_notes`) sit in a separate `guards` field, so `metrics` holds shares only.
 
 ### E63 — 2026-11-05 — Barline check on 22 records (finding, no change yet)
 - **Setup**: the bar positions written by the tool were compared with known bar positions on 22 records: the Parker records, the six Weimar solos and Austin's six keys.
