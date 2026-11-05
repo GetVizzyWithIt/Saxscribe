@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #97 (open) | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | pending merge | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-pending-merge) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
 | 2026-11-05 | #93 (was #84) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | yes | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-93-merged) |
 | 2026-11-04 | #81 | Notes below the horn's low note tagged `not_sax` and left off the sheet, on every take | notes + notation | pfh-austin, grfia-alto, omnibook, omnibook-mix | Note F1 | 50.3% / 75.1% / 64.2% / 57.62% | +0.11 / +0.03 / ~0 / +0.21 points (4 / 8 / 3 / 27 notes hidden) | yes | [E43](#e43--2026-11-04--no-notes-below-the-horns-low-note-on-the-sheet-pr-81-merged) |
@@ -55,6 +56,10 @@ onset and note F1 untouched, so they are measured on the written score.
 | grfia-tenor | 87.2% | 75.1% | 66.1%‡¶ | 73.8% | — | solo | E22, E29 |
 | bfmj-austin (Getz, 35 s, 136 notes) | — | 80% recall¶ | 56%¶ | 70% | — | mix | E19, E29 |
 | pfh-austin (Getz, tenor, 169 bars, 867 notes) | 69.3% | 75.1% | 50.3% | 66.5% | — | mix | E40 |
+| resolution-austin (Coltrane, tenor, 939 notes) | 85.4% | 63.1% | 41.7% | 55.8% | — | mix | E53 |
+| isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
+| bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
+| walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -64,6 +69,8 @@ onset and note F1 untouched, so they are measured on the written score.
 ‡ GRFIA with the final answer keys (PRs #46 and #47, E22).
 
 Omnibook now uses chorus-limited grading (PR #16, E6); the earlier 45% note F1 (E2) was understated.
+
+\* Walker's Theme with the sax-span cut ignored; the default hides every note (E53 bug).
 
 ✓ = meets the v1 target for that set. Speed meets the full-mix target (60 s/min)
 on every mix set and misses the solo target (15 s/min) on every solo set (21–24 s/min).
@@ -103,6 +110,65 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E55 — 2026-11-05 — Gated hybrid: Mega sax stem with Demucs fallback (no gain yet)
+- **Setup**: the [ADR-0036](../decisions/0036-gated-two-separator-hybrid.md) hybrid, first version. It uses the Mega 53-stem sax stem (E51) and falls back to Demucs where Mega's pitch line goes quiet but Demucs's is voiced. Same records as E51 and E52; sax-span check at the fixed −6 dB bar.
+- **Result**, note F1 / onset recall:
+
+| Set | Demucs | Mega | Hybrid |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.2 / 79.5% | 57.2 / 82.8% | 57.2 / 82.8% (no fallback used) |
+| Blues for Mary Jane | 56.0 / 80.2% | 52.4 / 75.7% | 52.4 / 75.7% |
+| Parker band records (10) | 57.8 / 81.8% | 60.4 / 79.6% | 60.3 / 79.8% (precision 86.9%, pitch 70.5%) |
+| Parker 6Cbwc (note F1) | 63.3% | 56.8% | 56.8% |
+| Parker BRfYc (note F1) | 41.3% | 38.1% | 37.9% |
+
+- **Finding**: the fallback windows are short (0–35 s) and are not where the losses are. The losses come from the sax-span check. A cleaner sax stem holds a smaller share of the mix, so the fixed −6 dB bar cuts real sax stretches. Mega's cuts are 6Cbwc 0–32, 44–53 and 99–174 s; BRfYc 0–8, 79–103, 120–138 and 177–187 s; Blues for Mary Jane 198–368 s (Demucs cuts 203–293 and 305–368 s there).
+- **Decision**: not adopted as is. The fallback rule is not the lever; the sax-span bar is.
+- **Next** (build thread): rerun Mega, the hybrid and the website takes with PR #97's per-record bar (E54).
+
+### E54 — 2026-11-05 — Sax-span loudness bar set per record (PR #97, pending merge)
+- **Change**: `sax_spans` (PR #35) decides where the sax lays out on a band record. Before, a window counted as sax only if the sax stem held at least −6 dB of the mix. Now the bar comes from the record itself: `max(min(−6, p90(share) − 3), −14)` dB. A record with a loud sax keeps −6 dB; on a quiet mix the bar drops to 3 dB under the record's loud windows, never below −14 dB (a piano solo sits 10–50 dB down). It only changes which notes get the `not_sax` tag; nothing is deleted.
+- **Setup**: branch `93791bd` vs main `addb947`, against the stem-timed keys (E53), within each key's span. 27 band takes: 10 Parker records, Pennies From Heaven, Blues for Mary Jane, the four new tenor tunes and 11 URMP mixes.
+- **Result**: only Walker's Theme changes. Its bar moves from −6.0 to −9.4 dB, and the cut goes from the whole track (0–241 s) to 0–20, 29–49 and 70–99 s. The other 26 takes keep −6 dB and identical cuts.
+
+| Walker's Theme | Note F1 | No offsets | Onset F1 | Sax found | Sax purity |
+| --- | --- | --- | --- | --- | --- |
+| main | 0 | 0 | 0 | 0 | 0 |
+| PR #97 | 28.3% | 46.9% | 57.2% | 46.8% | 47.0% |
+
+- **Fidelity**: no take gains notes inside a known piano solo (Pennies 3:42–4:21, Resolution's piano stretches). 162 Walker's Theme key notes are still hidden, in 29–49 and 70–99 s, where the sax dips below −9.4 dB; follow-up pending.
+- **Tests**: 160 pass, including two new ones in `tests/test_isolate.py` (a sax mixed about 8 dB low is not cut, which fails on main, and the bar's limits).
+
+### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)
+- **Keys**: four tenor parts from Austin's PDFs, typed by eye (concert = written minus 14 semitones). Resolution (Coltrane, 939 notes, whole record; sax out in bars 1–16, a bass solo, and 84–175, a piano solo), Walker's Theme (Gerald Albright, 863 notes, whole record), Isn't She Lovely (Hornheads, Kenni Holmen's tenor solo only, 319 notes) and Bloody Well Right (Supertramp, John Helliwell, 174 notes: bars 17–18, 47–49 probably in unison with the band, and the solo in bars 69–87). Key timing is a draft, fitted by DTW to the sax stem's pitch line; 66–81% of key notes agree with the pitch heard on the stem. Report: https://claude.ai/artifact/AUNMwoXsCKudesizn1a1PY; files in the project files under `transcriptions/<tune>/`.
+- **Setup**: main `0691a52`, default settings, scored within each key's span against the notes shown on the sheet. Two scorings exist. The new-tunes thread used the keys timed on the sax stem (the better timing). The build thread used an earlier version timed on the full mix, and also gives sax found (recall) and sax purity (precision) as on the Results page (PR #90).
+- **Result**, keys timed on the sax stem (headline):
+
+| Record | Note F1 | No offsets | Onset F1 | Pitch |
+| --- | --- | --- | --- | --- |
+| Resolution | 41.7% | 55.8% | 63.1% | 85.4% |
+| Isn't She Lovely (solo) | 24.6% | 36.3% | 62.7% | 52.1% |
+| Bloody Well Right (solo) | 21.0% | 34.8% | 50.4% | 67.3% |
+| Walker's Theme | 0 | 0 | 0 | 0 |
+| Walker's Theme, `not_sax` ignored | 28.2% | 47.6% | 61.7% | 70.4% |
+
+- **Result**, keys timed on the full mix (build thread):
+
+| Record | Span scored | Note F1 | No offsets | Sax found | Sax purity |
+| --- | --- | --- | --- | --- | --- |
+| Resolution | whole record | 23.1% | 41.0% | 44.3% | 38.1% |
+| Isn't She Lovely (solo) | 46–102 s | 21.4% | 33.6% | 40.4% | 28.8% |
+| Bloody Well Right | 64–272 s | 7.3% | 12.7% | 32.2% | 7.9% |
+| Walker's Theme | whole record | 0 | 0 | 0 | 0 |
+| Walker's Theme, span cut ignored | whole record | 11.0% | 22.3% | 23.9% | 20.9% |
+
+- **Key timing matters**: on Resolution the same output scores 41.7% against the stem-timed key and 23.1% against the mix-timed one. The draft keys are themselves a source of error until their timing is checked.
+- **Walker's Theme bug**: the sax-span check (`sax_spans`, PR #35) keeps only stretches where the sax stem is louder than a fixed −6 dB share of the mix. Here the sax sits about 8 dB under the band (median share −8.2 dB), so every note was tagged `not_sax` and the sheet came out empty.
+- **Ranked gaps** (new-tunes thread): the `sax_spans` threshold; other instruments on the sax stem (guitar, vocals and keys on the pop and fusion records, where purity falls to 8%); fast runs; same-pitch splits; altissimo (Isn't She Lovely goes up to written F7).
+- **Reading**: all four sit below the Getz records (Pennies 50%, Blues for Mary Jane 56%). Resolution comes closest, with 85% pitch accuracy. These are the hardest test records so far and the clearest case for a sax-specific separator.
+- **Next** (build thread): a per-record (relative) loudness bar for `sax_spans` instead of the fixed −6 dB; then all four through the sax-specific separators (E51, E52) and the gated hybrid ([ADR-0036](../decisions/0036-gated-two-separator-hybrid.md)).
+- No `results.jsonl` line yet: it will be copied from the Mac's history with the next run that logs these sets.
 
 ### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
 - **Setup**: the MVSep website's Saxophone model (sep_type 61, a BS-RoFormer, SDR 9.77; no public weights, so audio is uploaded to MVSep). With Austin's OK (00:41 UTC), 12 commercial records were uploaded 01:30–01:47 UTC; the upload log is `~/saxscribe-runs/exp/2026-11-05-sax-id/mvsep_web_uploads.txt` on the Mac. Compared with Demucs and the local Mega 53-stem model (E51).
