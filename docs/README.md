@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03, with PRs through #87 merged (#84 pending).
+Last full review: 2026-11-03. PR state 2026-11-05: everything through #91 merged except #84, which was closed without merging and has to be reopened before it can merge.
 
 **To run the tool**, see [Quick start](../README.md#quick-start-copy-and-paste) in the repo README.
 
