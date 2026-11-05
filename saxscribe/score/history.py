@@ -115,7 +115,8 @@ def changes() -> list[dict]:
 
 
 def dashboard_data(runs: str | Path | None = None) -> dict:
+    from . import experiments
     from .card import MIX_SETS, TARGETS
-    return {"runs": load(runs), "changes": changes(),
+    return {"runs": load(runs), "changes": changes(), "experiments": experiments.load(runs),
             "targets": {k: {"solo": v[0], "mix": v[1]} for k, v in TARGETS.items()},
             "mix_sets": sorted(MIX_SETS)}

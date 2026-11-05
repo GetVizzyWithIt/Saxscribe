@@ -48,3 +48,41 @@ details.card summary { cursor: pointer; list-style: none; }
 details.card summary::-webkit-details-marker { display: none; }
 h2.inline { display: inline; }
 code { font-size: 0.85em; }
+
+/* Comparison views (results-compare.js). Error kinds: categorical slots 1, 3, 2, 7, 8, 6 in this order,
+   validated as adjacent pairs on both surfaces. Diverging: blue better, red worse, grey midpoint. */
+:root {
+  --k-right: #2a78d6; --k-timing: #1baf7a; --k-pitch: #eb6834; --k-bound: #6250d6; --k-miss: #e34948; --k-rest: #008300;
+  --div-pos: #2a78d6; --div-neg: #e34948; --track: #f0efec; --lost-ink: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --k-right: #3987e5; --k-timing: #199e70; --k-pitch: #d95926; --k-bound: #9085e9; --k-miss: #e66767; --k-rest: #008300;
+          --div-pos: #3987e5; --div-neg: #e66767; --track: #383835; --lost-ink: #ffb4ab; }
+}
+h2.section { margin: 36px 4px 4px; }
+#stands svg, #where-bars svg, #along svg { display: block; max-width: none; }
+#stands svg { width: 100%; min-width: 640px; height: auto; }
+#where-bars svg { width: 100%; min-width: 640px; height: auto; }
+#stands text, #where-bars text, #along text { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--ink); }
+#stands text.tier { fill: var(--quiet); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+#stands text.val { font-weight: 600; font-variant-numeric: tabular-nums; }
+#stands text.side, #where-bars text.side-l, #along text.side-l { fill: var(--quiet); font-size: 12px; font-variant-numeric: tabular-nums; }
+#stands text.tick, #along text.tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+#stands .track { fill: var(--track); }
+#stands .target { stroke: var(--ink2); stroke-width: 2; }
+#where-bars text.rec, #along text.rec { font-weight: 600; }
+#where-bars text.rec.sel { fill: var(--accent); }
+#where-bars text.in { fill: #ffffff; font-size: 10px; font-weight: 600; pointer-events: none; }
+#where-bars .seg:hover, #along rect[data-tip]:hover { opacity: 0.8; }
+.wrapseg { flex-wrap: wrap; }
+#where-legend { margin: 16px 0 12px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+table.compare td.cell { cursor: pointer; min-width: 92px; }
+table.compare td.cell:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+table.compare td.cell .v { font-weight: 600; }
+table.compare td.cell .d { color: var(--ink2); font-size: 0.82em; margin-left: 6px; }
+table.compare td.cell .lost { color: var(--lost-ink); font-size: 0.78em; margin-top: 2px; white-space: normal; }
+table.compare td.empty { color: var(--muted); cursor: default; }
+table.compare td.sub { padding-left: 24px; color: var(--ink2); }
+table.compare tr.tierrow td { color: var(--quiet); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; padding-top: 16px; border-top: 0; }
+table.compare tr.foot td { color: var(--quiet); font-size: 0.85em; }

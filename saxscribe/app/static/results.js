@@ -307,7 +307,10 @@ function runTable() {
   }
 }
 
-function render() { standings(); legend(); charts(); changeTable(); runTable(); }
+function render() {
+  if (typeof renderCompare === 'function') renderCompare();
+  standings(); legend(); charts(); changeTable(); runTable();
+}
 
 segment($('#range'), v => { state.range = v; charts(); runTable(); });
 segment($('#marks'), v => { state.marks = v; charts(); });
