@@ -104,6 +104,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted alone)
+- **Setup**: the MVSep open 53-stem model (ZFTurbo Music-Source-Separation-Training, a BS-RoFormer with its own sax stem, MIT licence), run on CPU on the Mac. Its sax stem replaced Demucs's stem in the current main pipeline; Demucs scored alongside. Austin approved the test at 00:41 UTC.
+- **Result**, note F1 Demucs → MVSep sax stem:
+
+| Set | Demucs | MVSep sax stem | Notes |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.4% | **57.2%** | pitch accuracy 68% → 74% |
+| Parker band records (10) | 57.8% | **60.4%** | precision +6, pitch +4 points; far fewer bleed notes |
+| Blues for Mary Jane | 56.0% | 52.4% | thins parts of the solo |
+
+- **Fidelity problem**: it dropped part of one Parker solo. Losing real playing breaks the never-drop rule (ADR-0016), so it cannot replace Demucs outright.
+- **Piano stem as a bleed detector**: did not work; most notes it flagged were real sax.
+- **Reading**: the biggest jump yet on band records, but mixed. Next (build thread): combine the two separators, keeping Demucs's notes and using the cleaner stem where it helps.
+
 ### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
 - **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
 - **Model**: panns-inference 0.1.1, Cnn14_DecisionLevelMax weights (327,428,481 bytes, md5 starting 70539c43, CC BY 4.0), run on CPU. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/panns_out.txt` on the Mac.
