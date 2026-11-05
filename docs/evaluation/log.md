@@ -115,6 +115,25 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E61 — 2026-11-05 — Pennies From Heaven in the app with Filosax (test): notes better, rhythm shared, piano solo leaks
+- **Setup**: Austin's own app run of Pennies From Heaven with the "Filosax (test)" note finder after #103 merged (main `0d15200`). Read-only analysis by the build thread against his 867-note key. (E60 is reserved for the guard-metric comparison, still running.)
+- **Notes**:
+
+| Path | Note F1 | No offsets | Sax found | Sax purity |
+| --- | --- | --- | --- | --- |
+| App, Filosax (test) | 57.1% | 71.1% | 73.0% | 69.3% |
+| CLI, Filosax (E59) | 56.8% | — | — | — |
+| Standard (Demucs + ours) | 50.1% | — | — | — |
+
+- **Rhythm, shared by both paths**:
+  - Every barline is 2 beats off; this is a downbeat-finder problem, already seen in E40. Allowing for that shift, 78.7% of matched notes are placed right on both paths.
+  - Bars fully right: 62 of 166 with Filosax, 42 of 166 standard.
+  - Misplaced notes, Filosax / standard: wrong subdivision chosen by the quantizer 50% / 44%; onset more than 50 ms off 32% / 37%; beat grid 18% / 18%.
+  - Worst stretches: bars 85–92, a straight 16th run bent by swing 0.66; bars 1–8, where the grid starts one beat short; bars 126–133, triplets written as eighths.
+- **Quiet sax** (4 stretches, 56 key notes): Filosax finds 20, standard 28. Of Filosax's misses there, 21 are lost in the separator and 15 by the transcriber. In bars 82–84 the Filosax stem holds the sax at −28.5 dB of the mix; Demucs holds it at −3.6 dB.
+- **Fidelity problem, piano solo (3:42–4:21)**: Filosax writes 64 piano notes. The standard path hides them; the bleed check (ADR-0034) can't, because the Filosax stem keeps the piano near sax level and the pitch line stays voiced. A fix needs a rival-stem signal, such as running Demucs's stems alongside Filosax.
+- **Next** (build thread): fix the 2-beat barline shift, then stop swing bending straight 16ths, then test Demucs alongside Filosax for the piano solo and quiet spots.
+
 ### E59 — 2026-11-05 — Filosax separator and transcriber as opt-in settings (PR #103, merged)
 - **Change**: adds `--separator filosax` and `--notes-tool filosax` to the CLI, and a "Filosax (test)" note finder in the app. It is off by default and the default pipeline is unchanged. Model card: `docs/models/filosax.md` (in the PR).
 - **Setup**: the branch's own CLI path on the Mac, commit `7708267`, Filosax separator + Filosax transcriber.
