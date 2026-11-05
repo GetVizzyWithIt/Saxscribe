@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #103 (open) | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-pending-merge) |
 | 2026-11-05 | #102 (open) | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | pending merge | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-pending-merge) |
 | 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #97 | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
@@ -113,6 +114,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E59 — 2026-11-05 — Filosax separator and transcriber as opt-in settings (PR #103, pending merge)
+- **Change**: adds `--separator filosax` and `--notes-tool filosax` to the CLI, and a "Filosax (test)" note finder in the app. It is off by default and the default pipeline is unchanged. Model card: `docs/models/filosax.md` (in the PR).
+- **Setup**: the branch's own CLI path on the Mac, commit `7708267`, Filosax separator + Filosax transcriber.
+- **Result**, note F1:
+
+| Set | Branch | Riley & Dixon run (E58) |
+| --- | --- | --- |
+| Weimar solos (6) | 76.9% | 76.3% |
+| Parker band records (10) | 67.5%* | 67.2%* |
+| Pennies From Heaven | 56.8% | 57.7% |
+| Blues for Mary Jane | 48.6% | 52.0% |
+| Four tenor tunes | 35.9% | 36.1% |
+
+\* The Omnibook keys may favour this model (E58).
+
+- **Reading**: the in-app path matches the experiment within about 1 point. The exception is Blues for Mary Jane, where 3.4 points is separator run-to-run variation (about 2 of its 136 notes). The one-line rule moves any record by 0.5 points at most.
+- **Speed**: 40–74 s per minute of audio end to end. That is within the full-mix target of 60 s on some records and over it on others.
 
 ### E58 — 2026-11-05 — Riley & Dixon head-to-head: Filosax sax separator and their sax transcriber
 - **Setup**: Riley and Dixon's Filosax-trained models (arXiv 2405.16687; MIT): the sax separator `xavriley/demucs_v3_saxophone_separation` and the sax transcriber (`filosax_25k.pth`). Run locally in a separate environment on current main, with Demucs's sax-span cuts applied to every setup. 16 records outside Weimar, then the six Weimar solos. Full table on the Mac: `~/saxscribe-runs/exp/2026-11-06-rd/rd_scores.json`.
