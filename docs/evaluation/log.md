@@ -115,6 +115,13 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E62 — 2026-11-05 — "Filosax + Demucs check" hybrid, offline (not adopted)
+- **Setup**: offline simulation on the E58/E59 takes. Thresholds were tuned on Confirmation, Calypso 1–2 and the 7 Parker training records; the held-out records were scored once. It tried two ways to use Demucs as a check on Filosax (E61's piano-solo and quiet-sax problems).
+- **FILL** (add Demucs notes where the Filosax stem goes quiet): every setting lowers tuning F1; the best scores 76.7% against 77.0%. On Parker 7XTyc it adds 52–67 notes and none are key notes. **Not adopted.**
+- **AWAY** (tag Filosax notes where Demucs hears no sax): no effect on the tuning records. Every tagged note falls outside the key spans, because the keys cover solos only, so no setting could be chosen. Held-out score equals E59 (65.1% against E58's 48.7%). On Pennies, a setting of 12 dB for at least 8 s would tag all 70 piano-solo notes plus 3 others. That is descriptive only, since Pennies is a test record.
+- **Also tried, little or no effect**: tagging windows where both stems sound chord-like (0 notes tagged); disagreement between the two pitch lines (0–9 windows per record); energy at each note's own pitch, which was no better than overall loudness.
+- **Blocker**: tuning AWAY needs keys that mark where the sax rests across the whole record, not just the solo. The build thread has asked Austin for rest times on a few records.
+
 ### E61 — 2026-11-05 — Pennies From Heaven in the app with Filosax (test): notes better, rhythm shared, piano solo leaks
 - **Setup**: Austin's own app run of Pennies From Heaven with the "Filosax (test)" note finder after #103 merged (main `0d15200`). Read-only analysis by the build thread against his 867-note key. (E60 is reserved for the guard-metric comparison, still running.)
 - **Notes**:
