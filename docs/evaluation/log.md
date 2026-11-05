@@ -104,19 +104,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
-### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted alone)
-- **Setup**: the MVSep open 53-stem model (ZFTurbo Music-Source-Separation-Training, a BS-RoFormer with its own sax stem, MIT licence), run on CPU on the Mac. Its sax stem replaced Demucs's stem in the current main pipeline; Demucs scored alongside. Austin approved the test at 00:41 UTC.
-- **Result**, note F1 Demucs → MVSep sax stem:
+### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted as a swap)
+- **Setup**: the MVSep Mega 53-stem model (ZFTurbo Music-Source-Separation-Training v1.0.21, a BS-RoFormer with its own sax stem, MIT licence), run on CPU at about 210 s per minute of audio. Its sax stem replaced Demucs's stem; rerun on main `f64316b`. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/msst_out.txt` on the Mac. Austin approved the test at 00:41 UTC.
+- **Result**, note F1 Demucs → Mega sax stem:
 
-| Set | Demucs | MVSep sax stem | Notes |
+| Set | Demucs | Mega sax stem | Other measures |
 | --- | --- | --- | --- |
-| Pennies From Heaven | 49.4% | **57.2%** | pitch accuracy 68% → 74% |
-| Parker band records (10) | 57.8% | **60.4%** | precision +6, pitch +4 points; far fewer bleed notes |
-| Blues for Mary Jane | 56.0% | 52.4% | thins parts of the solo |
+| Pennies From Heaven | 49.4% | **57.2%** | pitch accuracy 68.0% → 73.8% |
+| Parker band records (10) | 57.8% | **60.4%** | precision +6.0, recall −2.1, pitch +4.0 points |
+| Blues for Mary Jane | 56.0% | 52.4% | recall 80.2% → 75.7% (thins parts of the solo) |
 
-- **Fidelity problem**: it dropped part of one Parker solo. Losing real playing breaks the never-drop rule (ADR-0016), so it cannot replace Demucs outright.
-- **Piano stem as a bleed detector**: did not work; most notes it flagged were real sax.
-- **Reading**: the biggest jump yet on band records, but mixed. Next (build thread): combine the two separators, keeping Demucs's notes and using the cleaner stem where it helps.
+- **Fidelity problem**: on the Parker record 6Cbwc it dropped part of the solo (recall 78.4% → 58.8%). Losing real playing breaks the never-drop rule (ADR-0016), so it is not adopted as a straight swap.
+- **Piano stem as a bleed check**: fails. Pennies flags 141 notes, 93 of them real sax; Parker flags 267, 190 real.
+- **Reading**: the biggest jump yet on band records, but mixed. Next (build thread): combine the two stems, either the union of their sax spans or a choice per phrase.
 
 ### E50 — 2026-11-05 — PANNs instrument tagger as a `not_sax` signal (not adopted)
 - **Setup**: PANNs Cnn14 (DecisionLevelMax) scores sax and piano frame by frame; rules hid notes where the piano score was high or the sax score low. Tested on Pennies From Heaven, Blues for Mary Jane and the Parker band records, against #84's pitch-line check (E48).
