@@ -82,7 +82,7 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Key for blues tunes (PR #34; Weimar 49% → 60%, blues 47% → 70%, log E15)
 - [x] Band records: write only where the sax plays (PR #35; 0 answer-key notes lost, 7XTyc 56% → 62%, log E16). One wrong 8 s cut on an older take is being fixed
 - [x] Copy finished sheet music to `~/Desktop/Saxscribe` with title and artist (PR #42)
-- [ ] Bar lines on the right beat: PR #109 (merged) puts bars on the beat tracker's downbeats and mends slips, bars right 44 → 75% tuning, 34 → 58% held out (log E64). Half-time grids (Calypso, Item 1, Impressions) stay open: an automatic doubling rule was rejected because it also doubles straight-eighth lines (log E65); next route is a "double the tempo here" control in the editor. Development paused 2026-11-05 on Austin's word
+- [ ] Bar lines on the right beat: PR #109 (merged) puts bars on the beat tracker's downbeats and mends slips, bars right 44 → 75% tuning, 34 → 58% held out (log E64). Half-time grids (Calypso, Item 1, Impressions) stay open: an automatic doubling rule was rejected because it also doubles straight-eighth lines (log E65); next route is a "double the tempo here" control in the editor. Swing no longer bends straight sixteenth runs: PR #112 (merged), Weimar position read 67.26 → 67.85%, Pennies bars 85–92 28 → 41 of 52 notes right (log E66). Development now goes one step at a time, each on Austin's go
 - [ ] Remove short ghost notes without losing real ones (55 extra notes on Blues for Mary Jane, log E19)
 - [ ] MusicXML title from the song metadata (was "Transcription"; fix to confirm)
 - [ ] Chromatic runs: sharps going up, flats going down (PR #44, open)
@@ -99,7 +99,7 @@ Goal: a score Austin would put on the stand, with few edits.
 Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQmSPDkKrB
 
 1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27: the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
-2. Results page (PR #38): scorecard history per set over time, a marker per model change, the change-by-change table.
+2. Results page (PR #38): scorecard history per set over time, a marker per model change, the change-by-change table. Sax found / Sax purity and setups side by side (PR #90, merged). Rhythm scores (PR #114, open; Austin wants to see what the model can and can't do on each dimension): a "What each score measures" card (hearing notes, not adding notes, short notes, timing and pitch, bar placement, rhythm writing, each with its current weak spots), and Short notes found / Bars right / Notes in the right spot buttons on the grid, which shows only the rows that measured the chosen score.
 3. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
 4. Developer compare view against an answer key.
 5. Editor; edits saved as diffs (training data).
