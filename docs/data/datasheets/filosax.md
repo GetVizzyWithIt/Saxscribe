@@ -22,3 +22,5 @@ Zenodo, on request. Manifest points to record 6335779; earlier notes used
 ## Status
 Requested by Austin, not granted as of 2026-11-02. Austin decided not to wait
 ([ADR-0009](../../decisions/0009-proceed-without-filosax.md)).
+
+2026-11-05: now the top data ask. The sax-trained note model plan ([ADR-0035](../../decisions/0035-sax-trained-note-model-plan.md)) trains on it first, following Riley and Dixon (2024), with train/dev/test split by player. Austin has to request access again or chase the earlier request. Licence is non-commercial, so trained weights are personal-use only; the Aebersold backings are sold separately.

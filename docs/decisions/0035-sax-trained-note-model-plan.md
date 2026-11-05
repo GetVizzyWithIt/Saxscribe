@@ -15,11 +15,11 @@ Settings and rule changes have stopped paying off (onset tests E44, E45 and E47;
 3. **Test YourMT3+ as it is**, in Colab (GPL-3, about 45M weights). It labels the instrument of each note.
 4. **Fallback**: our own small model on top of CREPE and onset model v2.
 
-Related: their sax separator is public (`xavriley/demucs_v3_saxophone_separation`, MIT, demucs 3.0.6, 14.22 dB SDR) and is the next separator test in the build thread.
+Related: their sax separator is public (`xavriley/demucs_v3_saxophone_separation`, MIT, demucs 3.0.6, 14.22 dB SDR) and is the next separator test in the build thread, pending Austin's written OK. The 2026-11-05 separator survey missed it. A separate research thread is surveying jazz sax datasets and approaches; its report will be logged here.
 
 ## Data
 - About 4 hours of real, labelled sax on hand, mostly solo.
-- **Filosax** moves to top priority: about 24 hours of jazz tenor, 5 players, restricted, non-commercial terms; the Aebersold backings are bought separately. Austin has to request it.
+- **Filosax** (Zenodo 6335779, [datasheet](../data/datasheets/filosax.md)) moves to top priority: about 24 hours of jazz tenor, 5 players, restricted, non-commercial terms; the Aebersold backings are bought separately. Austin has to request it.
 - Band training audio is built by mixing clean labelled sax over band audio with no sax.
 - Weimar's 271 sax solos, rendered with MIDI-DDSP sax, and ChoraleWind (Zenodo 21217248, CC BY 4.0, 97 hours of rendered wind chorales including alto sax) are used only for warm-up. Same-player, same-tune leakage is removed.
 - Austin's six answer keys (3,298 notes, about 11 minutes of sax, beat-level timing; pitch agreement with the mix 32–87%) stay test-only. A leave-one-out final tune may use them at the end.
