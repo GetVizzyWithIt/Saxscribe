@@ -104,6 +104,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
+- **Setup**: the MVSep website's Saxophone model (sep_type 61; no public weights, so audio is uploaded to MVSep). Austin approved the upload at 00:41 UTC. Compared with Demucs and the local Mega 53-stem model (E51).
+- **Result**, note F1:
+
+| Set | Demucs | Mega 53-stem (local) | MVSep website Saxophone |
+| --- | --- | --- | --- |
+| Pennies From Heaven | 49.2% | 57.2% | **58.1%** |
+| Parker band records (10) | 57.8% | 60.4% | **61.0%** |
+| Blues for Mary Jane | **56.0%** | 52.4% | 50.9% |
+
+- **Fidelity problem**: on one Parker record it lost over a third of the solo.
+- **Decision**: not adoptable in the app; it only runs on MVSep's site and it drops real playing.
+- **Reading**: both sax-specific models trade fewer bleed notes and better pitch for occasional missed sax passages. The deciding test is a hybrid that falls back to Demucs where the sax stem goes quiet (build thread, running).
+
 ### E51 — 2026-11-05 — Sax-specific separator: MVSep open 53-stem model (mixed; not adopted as a swap)
 - **Setup**: the MVSep Mega 53-stem model (ZFTurbo Music-Source-Separation-Training v1.0.21, a BS-RoFormer with its own sax stem, MIT licence), run on CPU at about 210 s per minute of audio. Its sax stem replaced Demucs's stem; rerun on main `f64316b`. Output `~/saxscribe-runs/exp/2026-11-05-sax-id/msst_out.txt` on the Mac. Austin approved the test at 00:41 UTC.
 - **Result**, note F1 Demucs → Mega sax stem:
