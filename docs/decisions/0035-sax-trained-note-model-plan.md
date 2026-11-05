@@ -41,3 +41,11 @@ Related: their sax separator is public (`xavriley/demucs_v3_saxophone_separation
 - The Riley and Dixon model is a large piano-derived network, so Mac speed has to be checked before it can be the default.
 - Filosax and GRFIA terms make any trained weights personal-use only.
 - Austin's own recordings remain out of training, as he decided on 2026-11-04.
+
+## First comparison (2026-11-05, log E58)
+Riley and Dixon's public transcriber, without retraining, was compared with our note layer on the same separated audio.
+- It wins on Parker's band records (67.2% against 62.6% note F1, both on the Filosax separator). That margin is overstated, because the Omnibook keys were refined with a transcription model.
+- It is about even on the four tenor tunes (36.1% against 37.3%).
+- It loses on Blues for Mary Jane and is about level on Pennies From Heaven.
+
+The Weimar rows decide whether retraining it (the main line here) is worth the cost.

@@ -114,6 +114,46 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E58 — 2026-11-05 — Riley & Dixon head-to-head: Filosax sax separator and their sax transcriber
+- **Setup**: Riley and Dixon's Filosax-trained models (arXiv 2405.16687; MIT): the sax separator `xavriley/demucs_v3_saxophone_separation` and the sax transcriber (`filosax_25k.pth`). Run locally in a separate environment on current main, with Demucs's sax-span cuts applied to every setup. 16 records outside Weimar; Weimar rows to follow. Full table on the Mac: `~/saxscribe-runs/exp/2026-11-06-rd/rd_scores.json`.
+- **Parker band records (10)**, note F1 (no offsets / sax found / sax purity):
+
+| Separator + note finder | Note F1 | No offsets | Sax found | Sax purity |
+| --- | --- | --- | --- | --- |
+| Demucs + ours (app today) | 58.2% | 73.3% | 73.4% | 73.4% |
+| Mega + ours | 61.3% | 75.6% | 73.4% | 77.9% |
+| MVSep website + ours | 62.1% | 76.0% | 74.6% | 77.7% |
+| Filosax separator + ours | 62.6% | 77.1% | 76.5% | 77.9% |
+| Filosax separator + their transcriber | 67.2%* | 79.9% | 79.7% | 80.3% |
+| Demucs + their transcriber | 62.4% | 76.8% | 74.8% | 80.1% |
+
+\* Inflated by an unknown amount: the paper (section 3.1) says the Omnibook keys' onsets were refined against a transcription model's frame activations, so their transcriber is partly graded on its own kind of output. Judge it on the records below and on Weimar.
+
+- **Other records**, note F1:
+
+| Setup | Pennies From Heaven | Blues for Mary Jane | Four tenor tunes (note-weighted) |
+| --- | --- | --- | --- |
+| Demucs + ours | 50.1% | **56.2%** | 32.5% |
+| Mega + ours | 57.2% | 52.4% | — |
+| MVSep website + ours | **58.2%** | 51.8% | — |
+| Filosax separator + ours | 54.7% | 52.2% | **37.3%** (pitch 57.0 → 62.3%) |
+| Filosax separator + theirs | 57.7% | 52.0% | 36.1% |
+| Demucs + theirs | 53.9% | 48.8% | 34.6% |
+
+| Tenor tune | Demucs + ours | Filosax sep + ours | Filosax sep + theirs |
+| --- | --- | --- | --- |
+| Resolution | 42.5% | 46.2% | **47.9%** |
+| Isn't She Lovely | 25.7% | **35.9%** | 34.5% |
+| Bloody Well Right | 11.6% | 18.6% | **19.0%** |
+| Walker's Theme | 28.3% | 31.9% | 27.4% (Mega 34.0%, website 34.1% best) |
+
+- **Reading**:
+  - The Filosax separator beats Demucs on 15 of 16 records with our note finder; Blues for Mary Jane is the exception.
+  - It is fast: about 7 s per minute of audio on the Mac, against about 210 s for Mega. That makes it the strongest separator candidate so far.
+  - Their transcriber wins on clean jazz sax and is about even on pop and fusion.
+  - The sax-span cuts barely change it.
+- **Decision**: none yet; waiting for the Weimar rows, which are free of the Omnibook caveat.
+
 ### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, pending merge)
 - **Change** (`sax_spans`): (1) the sax's share is measured against the mix without the drums and bass stems; (2) when Demucs splits the lead across stems, they are summed before the "is the sax playing" rescue; (3) a rest is still marked when another instrument takes over and the old whole-mix test also fails: piano at −10 dB or more of the mix and louder than every sax stem, or bass 16 dB over them. Tuned over four rounds on 33 band takes. Tags only; nothing is deleted.
 - **Result**, note F1:
