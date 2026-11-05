@@ -22,6 +22,7 @@ Related: their sax separator is public (`xavriley/demucs_v3_saxophone_separation
 - **Filosax** (Zenodo 6335779, [datasheet](../data/datasheets/filosax.md)) moves to top priority: about 24 hours of jazz tenor, 5 players, restricted, non-commercial terms; the Aebersold backings are bought separately. Austin has to request it.
 - Band training audio is built by mixing clean labelled sax over band audio with no sax.
 - Weimar's 271 sax solos, rendered with MIDI-DDSP sax, and ChoraleWind (Zenodo 21217248, CC BY 4.0, 97 hours of rendered wind chorales including alto sax) are used only for warm-up. Same-player, same-tune leakage is removed.
+- How many more hand transcriptions are needed (survey estimate): 4–9 more test keys, and 10–20 pop/soul training keys. No jazz training keys are needed if the Weimar records are bought.
 - Austin's six answer keys (3,298 notes, about 11 minutes of sax, beat-level timing; pitch agreement with the mix 32–87%) stay test-only. A leave-one-out final tune may use them at the end.
 
 ## Validation
