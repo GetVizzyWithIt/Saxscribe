@@ -74,6 +74,9 @@ COLLIDE = 0.25          # beats of cost when a grid puts two onsets on one spot
 OFFSET_WEIGHT = 0.5     # note ends matter less than starts when choosing a grid
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
+SWING_PAIR = 2          # notes in a beat that swing applies to; a busier beat is read as played
+RUN_NOTES = 3           # notes in a beat that make it a run of sixteenths (sixteenth_run)
+RUN_SLOP = 0.2          # ... each within this share of a sixteenth of its slot, as played
 BEATS_PER_BAR = 4       # 4/4 for now
 BAR_WINDOW = 16         # downbeats in the majority that says the bars have slipped (align_bars)
 BAR_HOLD = 4            # ... and how many in a row must agree before the grid is mended
@@ -274,12 +277,22 @@ def detect_swing(positions: np.ndarray) -> float | None:
     """
     whole = np.floor(positions)
     _, where, count = np.unique(whole, return_inverse=True, return_counts=True)
-    positions = positions[count[where] <= 2]
+    positions = positions[count[where] <= SWING_PAIR]
     frac = positions - np.floor(positions)
     off = frac[(frac > 0.4) & (frac < 0.8)]
     if len(off) < SWING_MIN_NOTES:
         return None
     return float(np.median(off))
+
+
+def sixteenth_run(onsets: list[float]) -> bool:
+    """A beat of straight sixteenths, as played: at least RUN_NOTES notes,
+    each near a sixteenth slot. A swung pair with a pickup (the off-beat
+    late) is not one, so it keeps its swing. Tuned on the 444 WJD solos
+    (log E66): position read 67.3 -> 67.9%, no solo worse by 2 points."""
+    if len(onsets) < RUN_NOTES:
+        return False
+    return all(abs(f * 4 - round(f * 4)) <= RUN_SLOP for f in onsets)
 
 
 def unswing(pos: float, s: float) -> float:
@@ -434,6 +447,13 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
         for kind, pos, played in (("on", on[i], on_played[i]), ("off", off[i], off_played[i])):
             beat = int(np.floor(pos))
             events.setdefault(beat, []).append((i, kind, float(pos - beat), float(played - beat)))
+    # Swing is how a pair of eighths is split. A beat of sixteenths is read
+    # as played, so swing doesn't bend it. PFH bars 85-92: straight
+    # sixteenths in a swung tune were written as dotted figures.
+    if s != 0.5:
+        for evs in events.values():
+            if sixteenth_run([played for _, kind, _, played in evs if kind == "on"]):
+                evs[:] = [(i, kind, played, played) for i, kind, _, played in evs]
     q_on, q_off = [Fraction(0)] * len(notes), [Fraction(0)] * len(notes)
     step: dict[int, Fraction] = {}  # each beat's grid step: 1/2, 1/3 or 1/4
     options, fees = {}, {}

@@ -474,3 +474,26 @@ def test_a_steady_grid_with_a_stray_downbeat_is_left_alone():
     downs = DOWN[:10] + [DOWN[10] + SPB] + DOWN[11:]  # one downbeat a beat late
     fixed, phase, fixes = notation.align_bars(TRUE, downs)
     assert fixed == TRUE and phase == 0 and fixes == []
+
+
+def test_swing_does_not_bend_a_run_of_straight_sixteenths():
+    spb = 0.5
+    grid = [i * spb for i in range(20)]
+    notes, t = [], 0.0
+    for b in range(8):  # swung eighths: long-short, 2:1
+        for f in (0, 2 / 3):
+            notes.append({"onset": (b + f) * spb, "offset": (b + f + 0.3) * spb, "pitch": 70})
+    for k in range(8):  # then two beats of straight sixteenths
+        notes.append({"onset": (8 + k / 4) * spb, "offset": (8 + k / 4 + 0.2) * spb, "pitch": 72})
+    out = notation.quantize(notes, grid, grid[::4], 120.0, "auto")
+    assert out["swing"] > 0.6
+    starts = [p["start"] for p in out["notes"]][-8:]
+    assert [x - starts[0] for x in starts] == [F(k, 4) for k in range(8)]
+    swung = [p["start"] for p in out["notes"]][:16]
+    assert all(x % F(1, 2) == 0 for x in swung)  # the swung pairs still read as eighths
+
+
+def test_a_swung_pair_with_a_pickup_keeps_its_swing():
+    assert not notation.sixteenth_run([0.0, 0.66, 0.9])
+    assert not notation.sixteenth_run([0.0, 0.12, 0.66, 0.9])  # late off-beat: still swung
+    assert notation.sixteenth_run([0.0, 0.26, 0.5, 0.76])
