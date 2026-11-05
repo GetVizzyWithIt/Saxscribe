@@ -14,3 +14,10 @@ concert pitch.
 
 LAYOUT_VERSION = 1
 LAYERS = ("isolate", "contour", "notes", "notation")
+
+import warnings
+
+# resampy (used by CREPE) imports pkg_resources, and setuptools warns about that
+# on every run. requirements.txt pins setuptools<81 so it keeps working; this
+# just keeps the warning out of the progress log.
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
