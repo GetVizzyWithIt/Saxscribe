@@ -37,7 +37,7 @@ Filosax, which is tenor sax only. The transcriber's ±5 semitone pitch shifts co
 | Weimar, 6 solos, human keys (11,729 notes) | 57.3 | 60.2 | **76.3** (no sax-rest checks; 66.4 with them) |
 | 4 tenor pop/fusion tunes | 32.5 | **37.3** | 36.1 |
 | Pennies From Heaven | 50.1 | 54.7 | 57.7 (MVSep web + ours: 58.2) |
-| Blues for Mary Jane | **56.2** | 52.2 | 52.0 |
+| Blues for Mary Jane | **56.2** | 52.2 | 52.0 (48.6 through the CLI; separator run-to-run variation, about 2 of 136 notes) |
 | Parker, 10 band records | 58.2 | 62.6 | 67.2 † |
 
 † The Omnibook keys' onsets were refined against a transcription model's frame activations (paper, section 3.1), so this key may favour their transcriber.
@@ -50,7 +50,8 @@ Code and weights are MIT. Filosax itself is a research dataset; we only use the 
 ## Caveats and recommendations
 - Blues for Mary Jane drops by about 4 points: the separator loses its quiet notes.
 - With the transcriber, the sax-rest and bleed checks are skipped because they cut real notes. On the Weimar solos they cost about 10 points.
-- Next steps: an A/B on Austin's own takes, and a scorecard of the CLI path on the same records.
+- The CLI path (this PR, commit 7708267) scores within about 1 point of the R&D run on every set except BFMJ: Weimar 76.9, Parker 67.5, PFH 56.8, tenor tunes 35.9. End-to-end it takes 40–74 s per minute of audio, because the pitch line and beats still run.
+- Next step: an A/B on Austin's own takes.
 
 ## Change history
 | Date | Change | PR |
