@@ -27,6 +27,9 @@ from . import history, metrics, refs
 TARGETS = {"pitch_accuracy": (0.97, 0.90), "onset_f1": (0.90, 0.75), "note_f1": (0.80, 0.60),
            "beat_f1": (0.95, 0.95), "seconds_per_minute": (15.0, 60.0)}
 COLUMNS = ("pitch_accuracy", "chroma_accuracy", "octave_errors", "onset_f1", "note_f1", "note_f1_no_offset", "sax_found", "sax_purity", "beat_f1", "seconds_per_minute")
+# Guard metrics (metrics.guard_scores): shown in their own table, and they must
+# not fall when note F1 rises, or the rise came from leaving notes out.
+GUARDS = ("short_found", "ghost_found", "extras_in_rests_per_min", "onset_f1_100ms", "note_f1_100ms")
 # The Omnibook's audio is already separated from the records, so it is held to the full-mix targets.
 MIX_SETS = {"omnibook", "omnibook-mix", "urmp-mix", "bach10-mix"}
 
@@ -80,7 +83,7 @@ def run(set_name: str, data: str | None = None, split: str = "all", limit: int |
 
 def means(rows: list[dict]) -> dict:
     out = {}
-    for col in COLUMNS:
+    for col in COLUMNS + GUARDS:
         vals = [r[col] for r in rows if r.get(col) is not None]
         if vals:
             out[col] = round(float(np.mean(vals)), 4)
@@ -105,6 +108,7 @@ def markdown(card: dict, is_mix: bool) -> str:
             continue
         ok = v <= target if col == "seconds_per_minute" else v >= target
         lines.append(f"| {col} | {fmt(col, v)} | {fmt(col, target)} | {'met' if ok else 'not yet'} |")
+    lines += guard_lines(card["mean"])
     lines += ["", "| Recording | Pitch | Octave errors | Onset F1 | Note F1 | Notes (ours / key) |",
               "| --- | --- | --- | --- | --- | --- |"]
     flagged = []
@@ -128,9 +132,30 @@ def markdown(card: dict, is_mix: bool) -> str:
     return "\n".join(lines) + "\n"
 
 
+GUARD_NAMES = {"short_found": "Short notes found (under 0.12 s: fast runs)",
+               "ghost_found": "Ghost notes found (key-marked)",
+               "extras_in_rests_per_min": "Extra notes in the key's rests, per minute of rest",
+               "onset_f1_100ms": "Onset F1 at 100 ms",
+               "note_f1_100ms": "Note F1 at 100 ms (ends ignored)"}
+
+
+def guard_lines(mean: dict) -> list[str]:
+    """The guard table: notes the tool must not lose, and notes it must not add in rests."""
+    rows = [c for c in GUARDS if c in mean]
+    if not rows:
+        return []
+    out = ["", "Guards: these must not fall (or, for extras in rests, rise) when note F1 goes up; "
+           "if they do, the gain came from dropping or merging notes.", "",
+           "| Guard | Mean |", "| --- | --- |"]
+    out += [f"| {GUARD_NAMES[c]} | {fmt(c, mean[c])} |" for c in rows]
+    return out
+
+
 def fmt(col: str, v) -> str:
     if v is None:
         return "-"
+    if col == "extras_in_rests_per_min":
+        return f"{v:.1f}"
     if col == "seconds_per_minute":
         return f"{v:.0f} s"
     return f"{100 * v:.1f}%"
