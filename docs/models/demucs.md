@@ -53,6 +53,9 @@ Weights are likely non-commercial (CC-NC-BY, per the author); no limit for Austi
 - MVSep open 53-stem sax stem instead of Demucs (2026-11-05, [log E51](../evaluation/log.md)): Pennies 49.4% → 57.2%, Parker 57.8% → 60.4%, but Blues for Mary Jane 56.0% → 52.4% and part of one Parker solo lost (6Cbwc recall 78.4% → 58.8%); about 210 s per minute on CPU. Not a replacement. The MVSep website Saxophone model scored a little higher still (Pennies 58.1%, Parker 61.0%) but lost over a third of one Parker solo and only runs on MVSep's site ([log E52](../evaluation/log.md)). Next: a sax stem with Demucs as the fallback.
 - Next: a sax-vs-rest fine-tune using JazzSAMBA's stems and mixes (Phase 2).
 
+## Head-to-head with sax-specific separators (2026-11-05, log E58)
+With our note finder, Riley and Dixon's Filosax-trained sax separator beats this model on 15 of 16 band records (Parker 58.2 → 62.6% note F1; four tenor tunes 32.5 → 37.3%). The exception is Blues for Mary Jane (56.2 → 52.2%). It runs at about 7 s per minute on the Mac. On the six Weimar solos it also helps (57.3 → 60.2% with our notes; 76.3% with their transcriber and no sax cuts). Demucs is still the default until a decision is made.
+
 ## Change history
 | Date | Change | PR |
 | --- | --- | --- |

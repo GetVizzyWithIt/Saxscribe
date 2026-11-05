@@ -14,6 +14,9 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #103 (open) | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-pending-merge) |
+| 2026-11-05 | #102 (open) | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | pending merge | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-pending-merge) |
+| 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #97 | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
 | 2026-11-05 | #93 (was #84) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | yes | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-93-merged) |
@@ -60,6 +63,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
 | bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
+| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 57.3% (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -111,6 +115,124 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E59 — 2026-11-05 — Filosax separator and transcriber as opt-in settings (PR #103, pending merge)
+- **Change**: adds `--separator filosax` and `--notes-tool filosax` to the CLI, and a "Filosax (test)" note finder in the app. It is off by default and the default pipeline is unchanged. Model card: `docs/models/filosax.md` (in the PR).
+- **Setup**: the branch's own CLI path on the Mac, commit `7708267`, Filosax separator + Filosax transcriber.
+- **Result**, note F1:
+
+| Set | Branch | Riley & Dixon run (E58) |
+| --- | --- | --- |
+| Weimar solos (6) | 76.9% | 76.3% |
+| Parker band records (10) | 67.5%* | 67.2%* |
+| Pennies From Heaven | 56.8% | 57.7% |
+| Blues for Mary Jane | 48.6% | 52.0% |
+| Four tenor tunes | 35.9% | 36.1% |
+
+\* The Omnibook keys may favour this model (E58).
+
+- **Reading**: the in-app path matches the experiment within about 1 point. The exception is Blues for Mary Jane, where 3.4 points is separator run-to-run variation (about 2 of its 136 notes). The one-line rule moves any record by 0.5 points at most.
+- **Speed**: 40–74 s per minute of audio end to end. That is within the full-mix target of 60 s on some records and over it on others.
+
+### E58 — 2026-11-05 — Riley & Dixon head-to-head: Filosax sax separator and their sax transcriber
+- **Setup**: Riley and Dixon's Filosax-trained models (arXiv 2405.16687; MIT): the sax separator `xavriley/demucs_v3_saxophone_separation` and the sax transcriber (`filosax_25k.pth`). Run locally in a separate environment on current main, with Demucs's sax-span cuts applied to every setup. 16 records outside Weimar, then the six Weimar solos. Full table on the Mac: `~/saxscribe-runs/exp/2026-11-06-rd/rd_scores.json`.
+- **Parker band records (10)**, note F1 (no offsets / sax found / sax purity):
+
+| Separator + note finder | Note F1 | No offsets | Sax found | Sax purity |
+| --- | --- | --- | --- | --- |
+| Demucs + ours (app today) | 58.2% | 73.3% | 73.4% | 73.4% |
+| Mega + ours | 61.3% | 75.6% | 73.4% | 77.9% |
+| MVSep website + ours | 62.1% | 76.0% | 74.6% | 77.7% |
+| Filosax separator + ours | 62.6% | 77.1% | 76.5% | 77.9% |
+| Filosax separator + their transcriber | 67.2%* | 79.9% | 79.7% | 80.3% |
+| Demucs + their transcriber | 62.4% | 76.8% | 74.8% | 80.1% |
+
+\* Inflated by an unknown amount: the paper (section 3.1) says the Omnibook keys' onsets were refined against a transcription model's frame activations, so their transcriber is partly graded on its own kind of output. Judge it on the records below and on Weimar.
+
+- **Other records**, note F1:
+
+| Setup | Pennies From Heaven | Blues for Mary Jane | Four tenor tunes (note-weighted) |
+| --- | --- | --- | --- |
+| Demucs + ours | 50.1% | **56.2%** | 32.5% |
+| Mega + ours | 57.2% | 52.4% | — |
+| MVSep website + ours | **58.2%** | 51.8% | — |
+| Filosax separator + ours | 54.7% | 52.2% | **37.3%** (pitch 57.0 → 62.3%) |
+| Filosax separator + theirs | 57.7% | 52.0% | 36.1% |
+| Demucs + theirs | 53.9% | 48.8% | 34.6% |
+
+| Tenor tune | Demucs + ours | Filosax sep + ours | Filosax sep + theirs |
+| --- | --- | --- | --- |
+| Resolution | 42.5% | 46.2% | **47.9%** |
+| Isn't She Lovely | 25.7% | **35.9%** | 34.5% |
+| Bloody Well Right | 11.6% | 18.6% | **19.0%** |
+| Walker's Theme | 28.3% | 31.9% | 27.4% (Mega 34.0%, website 34.1% best) |
+
+- **Reading**:
+  - The Filosax separator beats Demucs on 15 of 16 records with our note finder; Blues for Mary Jane is the exception.
+  - It is fast: about 7 s per minute of audio on the Mac, against about 210 s for Mega. That makes it the strongest separator candidate so far.
+  - Their transcriber wins on clean jazz sax and is about even on pop and fusion.
+  - The sax-span cuts barely change it.
+- **Weimar rows** (added 10:03 UTC): six solos, 11,729 notes, note-weighted. The Weimar keys are human transcriptions with no Riley & Dixon involvement, so these are free of the Omnibook caveat.
+
+| Setup | Note F1 |
+| --- | --- |
+| Demucs + ours, main sax cuts | 57.3% (pitch 72.2%) |
+| Demucs + ours, #102 sax cuts | 65.6% |
+| Filosax separator + ours, main cuts | 60.2% (pitch 77.9%) |
+| Demucs + their transcriber, main cuts | 61.7% |
+| Filosax separator + theirs, main cuts | 66.4% (purity 87.7%) |
+| Filosax separator + theirs, no sax cuts | **76.3%** (no offsets 82.4%, found 78.2%, purity 87.5%) |
+
+| Solo | Demucs + ours (main) | Filosax sep + theirs (no cuts) |
+| --- | --- | --- |
+| Confirmation | 78.4% | 88.6% |
+| The Everywhere Calypso 1 | 67.9% | 83.0% |
+| The Everywhere Calypso 2 | 64.4% | 81.8% |
+| Impressions 1961 | 54.8% | 73.1% |
+| Impressions 1963 | 50.2% | 66.6% |
+| Item 1 | 43.8% | 79.5% |
+
+- **Reading (with Weimar)**:
+  - Their transcriber beats ours on every Weimar solo, on the same stem with the same cuts.
+  - Their separator helps both note finders.
+  - On clean jazz band records their full pipeline is the best measured so far, about 10 points over #102.
+  - On pop and fusion it is about even with ours. Mega or the MVSep website wins Walker's Theme, and Blues for Mary Jane still favours Demucs.
+  - Mega and the website were not run on Weimar: uploads were approved only for the 13 earlier records.
+- **Decision**: not yet; it is Austin's call whether to adopt their pipeline for jazz band records.
+
+### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, pending merge)
+- **Change** (`sax_spans`): (1) the sax's share is measured against the mix without the drums and bass stems; (2) when Demucs splits the lead across stems, they are summed before the "is the sax playing" rescue; (3) a rest is still marked when another instrument takes over and the old whole-mix test also fails: piano at −10 dB or more of the mix and louder than every sax stem, or bass 16 dB over them. Tuned over four rounds on 33 band takes. Tags only; nothing is deleted.
+- **Result**, note F1:
+
+| Set | Before | After |
+| --- | --- | --- |
+| Weimar solos (6) | 57.3% | **65.6%** |
+| Item 1 (Potter) | 43.8% | 67.4% |
+| Impressions 1961 (Coltrane) | 54.8% | 64.7% |
+| Impressions 1963 (Coltrane) | 50.2% | 55.5% |
+| Parker band records (10) | 60.6% | 60.6% |
+| Resolution | 42.5% | 42.0% |
+| Walker's Theme | 28.3% | 28.3% |
+| Bloody Well Right | 11.6% | 11.4% |
+
+- **Fidelity**: fixes most of E56's wrong cuts on split-stem records. Known sax rests stay mostly cut, with two small leaks: Resolution 154–165 s (about 11 notes) and the end of the Blues for Mary Jane bass solo, 357–368 s (14 notes).
+- Details in the PR body.
+
+### E56 — 2026-11-05 — First Weimar solos with bought audio (main `c06b298`)
+- **Setup**: six tenor solos from the five records Austin bought (Weimar datasheet), main `c06b298` (includes #97 and #99), Demucs, default settings. Keys are the Weimar Jazz Database notes aligned to the bought audio; scored inside the alignment spans and weighted by notes, over 11,729 key notes.
+- **Result**, all six: note F1 **57.3%**, no offsets 66.4%, onset recall 62.7% / precision 88.7%, sax found 58.0%, sax purity 81.3%, pitch 72.2%.
+
+| Solo | Note F1 | No offsets |
+| --- | --- | --- |
+| Confirmation (Michael Brecker) | **78.5%** | 87.9% |
+| The Everywhere Calypso, solo 1 (Sonny Rollins) | 68.0% | 87.2% |
+| The Everywhere Calypso, solo 2 (Sonny Rollins) | 64.4% | 83.7% |
+| Impressions, 1961 (John Coltrane) | 54.9% | 62.0% |
+| Impressions, 1963 (John Coltrane) | 50.1% | 59.4% |
+| Item 1, D.I.T. (Chris Potter) | 43.8% | 48.8% |
+
+- **Fidelity problem**: wrong "sax lays out" cuts (`sax_spans`) hide 2,593 key notes, 22% of the total, all on the three records where the lead was split across two Demucs stems (for example vocals + other on Impressions 1961, guitar + other on Item 1). That is why sax found (58%) is far below purity (81%). Diagnosis running in the build thread.
+- **Reading**: Confirmation at 78.5% is the best real band record so far. Without the wrong cuts these solos would likely sit well above the Getz records. The Weimar keys are machine-aligned, not hand-checked, so treat single-solo numbers as approximate.
+
 ### E55 — 2026-11-05 — Gated hybrid: Mega sax stem with Demucs fallback (no gain yet)
 - **Setup**: the [ADR-0036](../decisions/0036-gated-two-separator-hybrid.md) hybrid, first version. It uses the Mega 53-stem sax stem (E51) and falls back to Demucs where Mega's pitch line goes quiet but Demucs's is voiced. Same records as E51 and E52; sax-span check at the fixed −6 dB bar.
 - **Result**, note F1 / onset recall:
@@ -139,7 +261,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | PR #97 | 28.3% | 46.9% | 57.2% | 46.8% | 47.0% |
 
 - **Fidelity**: no take gains notes inside a known piano solo (Pennies 3:42–4:21, Resolution's piano stretches). 162 Walker's Theme key notes are still hidden, in 29–49 and 70–99 s, where the sax dips below −9.4 dB; follow-up pending.
-- **Status**: merged as PR #97 (2026-11-05 06:23 UTC).
+- **Status**: merged as PR #97 (2026-11-05 06:23 UTC). A guard added afterwards, PR #99 (merged 06:38 UTC), stops the check from ever tagging more than 80% of a record; it changes none of the 27 takes.
 - **Tests**: 160 pass, including two new ones in `tests/test_isolate.py` (a sax mixed about 8 dB low is not cut, which fails on main, and the bar's limits).
 
 ### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)

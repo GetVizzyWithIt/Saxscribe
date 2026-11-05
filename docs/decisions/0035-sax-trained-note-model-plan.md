@@ -41,3 +41,22 @@ Related: their sax separator is public (`xavriley/demucs_v3_saxophone_separation
 - The Riley and Dixon model is a large piano-derived network, so Mac speed has to be checked before it can be the default.
 - Filosax and GRFIA terms make any trained weights personal-use only.
 - Austin's own recordings remain out of training, as he decided on 2026-11-04.
+
+## First comparison (2026-11-05, log E58)
+Riley and Dixon's public transcriber, without retraining, was compared with our note layer on the same separated audio.
+- It wins on Parker's band records (67.2% against 62.6% note F1, both on the Filosax separator). That margin is overstated, because the Omnibook keys were refined with a transcription model.
+- It is about even on the four tenor tunes (36.1% against 37.3%).
+- It loses on Blues for Mary Jane and is about level on Pennies From Heaven.
+
+On the six Weimar solos, whose human keys have no tie to the model, it beats our note layer on every solo. With their separator and no sax cuts it reaches 76.3% note F1, against 65.6% for our best pipeline (#102). Next is whether to adopt it as is for jazz band records, which is Austin's call, before any retraining.
+
+## Plan revision (2026-11-05, plan doc rev 39)
+After E58 the plan changes:
+- **Base model**: Riley and Dixon's checkpoint, not Basic Pitch. The bar to beat is its own score as is, run with their separator: Weimar 76.3% note F1.
+- **Stage 1**: fine-tune it on the Weimar training records plus band mixes with guitar, vocals and keys, aimed at the pop and fusion gap (four tunes 36.1%).
+- **Basic Pitch**: the fine-tune becomes optional.
+- **Separator**: theirs goes into the app first, behind a setting. It beats Demucs on 21 of 22 records at about 7 s per minute of audio.
+- **Weimar test lock**: Impressions 1961, Impressions 1963 and Item 1 (D.I.T.) are held out by record, with about 1 in 5 new records held out going forward. They are never trained on.
+- **Weimar alignment**: passed the go/no-go check, with a residual of 2–15 ms.
+
+Plan doc: https://claude.ai/artifact/9oPaB15bENmCzL49qAnb1Q
