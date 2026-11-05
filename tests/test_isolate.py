@@ -153,3 +153,23 @@ def test_no_cut_where_the_horn_moved_into_another_stem(tmp_path):
     assert cuts                                       # the sax stem alone would lose him
     _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [tmp_path / "guitar.wav"])
     assert cuts == []
+
+
+def test_a_sax_mixed_low_all_through_is_not_cut(tmp_path):
+    # Walker's Theme: the sax sits about 8 dB under the band for the whole
+    # record, so a fixed -6 dB bar called the whole track "sax rests".
+    rate, seconds = 16000, 40
+    horn = long_horn(seconds, rate)
+    band = 8 * long_chords(seconds, rate)           # the sax stem holds about -8 dB of the mix
+    stem, mix = horn + 0.02 * band, horn + band
+    peak = np.abs(mix).max()
+    sf.write(str(tmp_path / "stem.wav"), stem / peak, rate)
+    sf.write(str(tmp_path / "mix.wav"), mix / peak, rate)
+    keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert cuts == []
+
+
+def test_the_share_bar_follows_the_take_but_never_drops_too_far():
+    assert isolate.share_bar(np.full(50, -1.0)) == isolate.SPAN_SHARE_DB      # a loud sax: the usual bar
+    assert isolate.share_bar(np.full(50, -8.0)) == -11.0                      # mixed low: 3 dB under its loud windows
+    assert isolate.share_bar(np.full(50, -30.0)) == isolate.SPAN_SHARE_FLOOR  # never below the floor

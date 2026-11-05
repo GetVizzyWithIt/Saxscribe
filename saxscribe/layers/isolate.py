@@ -125,6 +125,8 @@ def write_accompaniment(dst: Path, paths: list[Path]) -> None:
 SPAN_WINDOW = 2.0      # seconds per window
 SPAN_HOP = 1.0         # seconds between windows
 SPAN_SHARE_DB = -6.0   # the sax stem must hold this much of the mix (dB) ...
+SPAN_SHARE_MARGIN = 3.0  # ... or, on a mix where the sax sits low, this far under its loud windows (dB)
+SPAN_SHARE_FLOOR = -14.0  # never lower than this: a piano solo sits 10-50 dB down
 SPAN_CLARITY = 0.4     # ... and sound this clear, as a share of the take's typical sax clarity
 SPAN_SMOOTH = 13       # windows (about 12 s) in the median that steadies the call
 SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
@@ -141,7 +143,9 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list
     holds (a piano solo sits 10-50 dB down in it; the sax 0-3 dB) and how
     clearly it holds one pitch (a drum break is near 0; on an old noisy
     record the sax is only 0.3-0.5, so this is judged against the take's own
-    sax windows). A window is sax when both pass; a 12 s running median
+    sax windows). Some mixes keep the sax well under the band all through
+    (Walker's Theme: -8 dB median), so the share bar drops to 3 dB under the
+    take's own loud windows (90th percentile), never below -14 dB. A window is sax when both pass; a 12 s running median
     steadies the call. Only stretches of 8 s or more are cut, and each cut
     gives back 2 s at both ends, so a cut never takes the edge of a phrase.
     """
@@ -153,13 +157,14 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list
         return [[0.0, n / LEAD_RATE]], []
     share, clear = window_measures(y[:n], m[:n], win, hop)
     share, clear = np.array(share), np.array(clear)
-    held = share > SPAN_SHARE_DB
+    bar = share_bar(share)
+    held = share > bar
     typical = float(np.median(clear[held])) if held.any() else 0.0
     sax = held & (clear > SPAN_CLARITY * typical)
     for other in others:
         o_share, o_clear = window_measures(frontend.load_mono(other, sr=LEAD_RATE)[:n], m[:n], win, hop)
         k = min(len(sax), len(o_share))
-        sax[:k] |= (o_share[:k] > SPAN_SHARE_DB) & (o_clear[:k] > SPAN_CLARITY * typical)
+        sax[:k] |= (o_share[:k] > bar) & (o_clear[:k] > SPAN_CLARITY * typical)
     from scipy.signal import medfilt
     sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
     end = n / LEAD_RATE
@@ -209,6 +214,14 @@ def runs(mask: np.ndarray) -> list[tuple[int, int]]:
     if start is not None:
         out.append((start, len(mask)))
     return out
+
+
+def share_bar(share) -> float:
+    """The share (dB) a window needs to count as sax, set from the take itself."""
+    if not len(share):
+        return SPAN_SHARE_DB
+    loud = float(np.percentile(share, 90))
+    return max(min(SPAN_SHARE_DB, loud - SPAN_SHARE_MARGIN), SPAN_SHARE_FLOOR)
 
 
 def frame_clarity(y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
