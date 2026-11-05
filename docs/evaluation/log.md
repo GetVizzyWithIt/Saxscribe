@@ -62,7 +62,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
 | bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
-| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 57.3% | 66.4% | — | mix | E56 |
+| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 57.3% (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -115,7 +115,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E58 — 2026-11-05 — Riley & Dixon head-to-head: Filosax sax separator and their sax transcriber
-- **Setup**: Riley and Dixon's Filosax-trained models (arXiv 2405.16687; MIT): the sax separator `xavriley/demucs_v3_saxophone_separation` and the sax transcriber (`filosax_25k.pth`). Run locally in a separate environment on current main, with Demucs's sax-span cuts applied to every setup. 16 records outside Weimar; Weimar rows to follow. Full table on the Mac: `~/saxscribe-runs/exp/2026-11-06-rd/rd_scores.json`.
+- **Setup**: Riley and Dixon's Filosax-trained models (arXiv 2405.16687; MIT): the sax separator `xavriley/demucs_v3_saxophone_separation` and the sax transcriber (`filosax_25k.pth`). Run locally in a separate environment on current main, with Demucs's sax-span cuts applied to every setup. 16 records outside Weimar, then the six Weimar solos. Full table on the Mac: `~/saxscribe-runs/exp/2026-11-06-rd/rd_scores.json`.
 - **Parker band records (10)**, note F1 (no offsets / sax found / sax purity):
 
 | Separator + note finder | Note F1 | No offsets | Sax found | Sax purity |
@@ -152,7 +152,33 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - It is fast: about 7 s per minute of audio on the Mac, against about 210 s for Mega. That makes it the strongest separator candidate so far.
   - Their transcriber wins on clean jazz sax and is about even on pop and fusion.
   - The sax-span cuts barely change it.
-- **Decision**: none yet; waiting for the Weimar rows, which are free of the Omnibook caveat.
+- **Weimar rows** (added 10:03 UTC): six solos, 11,729 notes, note-weighted. The Weimar keys are human transcriptions with no Riley & Dixon involvement, so these are free of the Omnibook caveat.
+
+| Setup | Note F1 |
+| --- | --- |
+| Demucs + ours, main sax cuts | 57.3% (pitch 72.2%) |
+| Demucs + ours, #102 sax cuts | 65.6% |
+| Filosax separator + ours, main cuts | 60.2% (pitch 77.9%) |
+| Demucs + their transcriber, main cuts | 61.7% |
+| Filosax separator + theirs, main cuts | 66.4% (purity 87.7%) |
+| Filosax separator + theirs, no sax cuts | **76.3%** (no offsets 82.4%, found 78.2%, purity 87.5%) |
+
+| Solo | Demucs + ours (main) | Filosax sep + theirs (no cuts) |
+| --- | --- | --- |
+| Confirmation | 78.4% | 88.6% |
+| The Everywhere Calypso 1 | 67.9% | 83.0% |
+| The Everywhere Calypso 2 | 64.4% | 81.8% |
+| Impressions 1961 | 54.8% | 73.1% |
+| Impressions 1963 | 50.2% | 66.6% |
+| Item 1 | 43.8% | 79.5% |
+
+- **Reading (with Weimar)**:
+  - Their transcriber beats ours on every Weimar solo, on the same stem with the same cuts.
+  - Their separator helps both note finders.
+  - On clean jazz band records their full pipeline is the best measured so far, about 10 points over #102.
+  - On pop and fusion it is about even with ours. Mega or the MVSep website wins Walker's Theme, and Blues for Mary Jane still favours Demucs.
+  - Mega and the website were not run on Weimar: uploads were approved only for the 13 earlier records.
+- **Decision**: not yet; it is Austin's call whether to adopt their pipeline for jazz band records.
 
 ### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, pending merge)
 - **Change** (`sax_spans`): (1) the sax's share is measured against the mix without the drums and bass stems; (2) when Demucs splits the lead across stems, they are summed before the "is the sax playing" rescue; (3) a rest is still marked when another instrument takes over and the old whole-mix test also fails: piano at −10 dB or more of the mix and louder than every sax stem, or bass 16 dB over them. Tuned over four rounds on 33 band takes. Tags only; nothing is deleted.

@@ -48,4 +48,4 @@ Riley and Dixon's public transcriber, without retraining, was compared with our 
 - It is about even on the four tenor tunes (36.1% against 37.3%).
 - It loses on Blues for Mary Jane and is about level on Pennies From Heaven.
 
-The Weimar rows decide whether retraining it (the main line here) is worth the cost.
+On the six Weimar solos, whose human keys have no tie to the model, it beats our note layer on every solo. With their separator and no sax cuts it reaches 76.3% note F1, against 65.6% for our best pipeline (#102). Next is whether to adopt it as is for jazz band records, which is Austin's call, before any retraining.

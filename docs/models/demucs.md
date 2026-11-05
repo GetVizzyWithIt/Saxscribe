@@ -54,7 +54,7 @@ Weights are likely non-commercial (CC-NC-BY, per the author); no limit for Austi
 - Next: a sax-vs-rest fine-tune using JazzSAMBA's stems and mixes (Phase 2).
 
 ## Head-to-head with sax-specific separators (2026-11-05, log E58)
-With our note finder, Riley and Dixon's Filosax-trained sax separator beats this model on 15 of 16 band records (Parker 58.2 → 62.6% note F1; four tenor tunes 32.5 → 37.3%). The exception is Blues for Mary Jane (56.2 → 52.2%). It runs at about 7 s per minute on the Mac. Demucs stays the default until the Weimar rows are in.
+With our note finder, Riley and Dixon's Filosax-trained sax separator beats this model on 15 of 16 band records (Parker 58.2 → 62.6% note F1; four tenor tunes 32.5 → 37.3%). The exception is Blues for Mary Jane (56.2 → 52.2%). It runs at about 7 s per minute on the Mac. On the six Weimar solos it also helps (57.3 → 60.2% with our notes; 76.3% with their transcriber and no sax cuts). Demucs is still the default until a decision is made.
 
 ## Change history
 | Date | Change | PR |
