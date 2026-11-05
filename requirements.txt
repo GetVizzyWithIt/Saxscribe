@@ -11,7 +11,8 @@ music21>=9.1                # notation: key finding, spelling, MusicXML
 torch>=2.2,<2.9
 torchaudio>=2.2,<2.9
 torchcrepe>=0.0.22          # pitch contour (CREPE); pYIN is the fallback
-demucs>=4.0.1               # stems for full-band recordings
+demucs>=4.0.1               # stems for full-band recordings (also runs the Filosax sax separator)
+torchlibrosa>=0.1           # spectrogram front end of the Filosax sax transcriber (saxscribe/vendor/kong.py)
 beat_this @ git+https://github.com/CPJKU/beat_this.git   # beats and downbeats
 
 # Note events. On a Mac Basic Pitch runs through Core ML; elsewhere through ONNX.

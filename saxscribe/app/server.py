@@ -12,7 +12,7 @@ API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
   GET  /api/takes                 every take, newest first
-  POST /api/takes                 upload (form: file, horn, mix, title, artist)
+  POST /api/takes                 upload (form: file, horn, mix, title, artist, engine)
   GET  /api/takes/<id>            one take's status
   POST /api/takes/<id>/stop       stop a running or waiting take
   POST /api/takes/<id>/retry      run it again
@@ -131,13 +131,14 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
 
     @app.post("/api/takes")
     async def upload(file: UploadFile = File(...), horn: str = Form("alto"),
-                     mix: bool = Form(False), title: str = Form(""), artist: str = Form("")):
+                     mix: bool = Form(False), title: str = Form(""), artist: str = Form(""),
+                     engine: str = Form("standard")):
         data = await file.read()
         if not data:
             raise HTTPException(400, "The file is empty")
         try:
             take_id = library.add(file.filename or "take.wav", data, horn=horn, mix=mix,
-                                  title=title.strip() or None, artist=artist.strip() or None)
+                                  title=title.strip() or None, artist=artist.strip() or None, engine=engine)
         except ValueError as exc:
             raise HTTPException(400, str(exc))
         return library.job(take_id)

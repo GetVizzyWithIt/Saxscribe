@@ -1,4 +1,5 @@
 const horn = segment($('#horn'));
+const engine = segment($('#engine'));
 const mix = segment($('#mix'), () => { $('#mixHint').hidden = true; ready(); });
 let chosen = null;
 
@@ -21,6 +22,7 @@ $('#go').addEventListener('click', () => {
   form.append('file', chosen);
   form.append('horn', horn());
   form.append('mix', mix());
+  form.append('engine', engine());
   form.append('title', $('#title').value);
   form.append('artist', $('#artist').value);
   const xhr = new XMLHttpRequest();
@@ -81,7 +83,7 @@ async function refresh() {
     <li>
       <div class="info">
         <div class="title">${esc(t.title)}${t.artist ? ` <span class="quiet">· ${esc(t.artist)}</span>` : ''}</div>
-        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
+        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'}${t.engine === 'filosax' ? ' · Filosax' : ''} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
         ${status(t)}
       </div>
       <div class="actions">${actions(t)}</div>

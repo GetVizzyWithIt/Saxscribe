@@ -36,6 +36,10 @@ Note tools (--notes-tool):
   segment      the pitch line cut into notes after the CREPE Notes method (segment.py)
   contour      a simpler cutter on the pitch line: a new note wherever the pitch
                settles somewhere new or the stem has a clear new attack
+  filosax      Riley and Dixon's sax transcriber (filosax.py), made one line
+               like Basic Pitch. It was trained to stay quiet where no sax
+               plays, so the sax-rest and bleed checks are skipped: on the
+               Weimar solos they cost it 10 points of note F1 (76.3 -> 66.4).
 """
 from __future__ import annotations
 
@@ -77,6 +81,10 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
             notes, extra["joined"] = segment.join_repeats(notes, *stem_envelopes())
     elif tool in basic:
         raise SystemExit("Basic Pitch is not installed; use --notes-tool segment or install it.")
+    elif tool == "filosax":
+        from .. import filosax
+        notes, name = one_line(filosax.transcribe(take.stem), line), "filosax"
+        extra["weights_sha256"] = filosax.WEIGHTS["transcriber"]["sha256"]
     elif tool == "segment":
         notes, name = segment.segment(line, *stem_envelopes()), "segment"
     else:
@@ -85,16 +93,18 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
     for n in notes:
         n["cents"] = cents_off(line, n)
         n["tags"] = [UNDER_HELD] if n.pop(UNDER_HELD, False) else []
-    if take.read_manifest().get("mix") and take.source.exists():
+    if take.read_manifest().get("mix") and name == "filosax":
+        extra["sax_spans"] = extra["bleed"] = "skipped: the Filosax transcriber decides where the sax plays"
+    elif take.read_manifest().get("mix") and take.source.exists():
         from .isolate import sax_spans
-        used = (take.read_manifest().get("layers", {}).get("isolate", {}).get("stem") or "").split("+")
-        others = [take.stems / f"{name}.wav" for name in ("other", "guitar", "vocals")
-                  if name not in used and (take.stems / f"{name}.wav").exists()]
-        rhythm = [take.stems / f"{name}.wav" for name in ("drums", "bass")
-                  if name not in used and (take.stems / f"{name}.wav").exists()]
-        rivals = [take.stems / f"{name}.wav" for name in ("piano", "bass")
-                  if name not in used and (take.stems / f"{name}.wav").exists()]
-        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, others, rhythm, rivals)
+        isolated = take.read_manifest().get("layers", {}).get("isolate", {})
+        used = (isolated.get("stem") or "").split("+")
+        folder = take.folder / isolated["stems_folder"] if isolated.get("stems_folder") else take.stems
+
+        def stems(*names):
+            return [folder / f"{name}.wav" for name in names if name not in used and (folder / f"{name}.wav").exists()]
+        extra["sax_spans"], cuts = sax_spans(take.stem, take.source, stems("other", "guitar", "vocals"),
+                                             stems("drums", "bass"), stems("piano", "bass"))
         extra["sax_cuts"] = cuts
         for n in notes:
             if any(a <= n["onset"] < b for a, b in cuts):

@@ -91,7 +91,8 @@ def check() -> int:
                      ("music21", "notation and MusicXML (required)"),
                      ("torch", "runs the neural models"), ("torchcrepe", "pitch contour (else pYIN)"),
                      ("basic_pitch", "note events (else cut from the contour)"),
-                     ("beat_this", "beats (else librosa)"), ("demucs", "stems for full mixes")):
+                     ("beat_this", "beats (else librosa)"), ("demucs", "stems for full mixes"),
+                     ("torchlibrosa", "the Filosax transcriber (--notes-tool filosax)")):
         rows.append((mod, importlib.util.find_spec(mod) is not None, use))
     from .layers.engrave import find_musescore
     rows.append(("musescore", find_musescore() is not None, "PDF sheet music (else MusicXML only)"))
@@ -124,6 +125,11 @@ def run_app(args) -> int:
     return 0
 
 
+SEPARATORS = ("demucs", "filosax")
+SEPARATOR_HELP = ("band records only: demucs (default, htdemucs_6s, six stems) or filosax "
+                  "(Riley and Dixon's sax separator: a sax stem and a backing stem)")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="saxscribe", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -133,10 +139,12 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("-o", "--out", help="output folder (one file only); default: <file>.saxscribe/ next to it")
     t.add_argument("--mix", action="store_true", help="the sax is inside a full band: separate stems first")
     t.add_argument("--stem", help="which Demucs stem holds the sax: auto (default) picks by lead score; or a name such as other or guitar, or a sum such as other+guitar")
+    t.add_argument("--separator", choices=SEPARATORS, default="demucs", help=SEPARATOR_HELP)
     t.add_argument("--horn", choices=sorted(HORNS), default="alto")
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
-    t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour"), default="auto")
+    t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour", "filosax"), default="auto",
+                   help="filosax: Riley and Dixon's sax transcriber (see saxscribe/filosax.py)")
     t.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
     t.add_argument("--swing", default="auto", type=swing_arg,
                    help="auto (detect), straight, or a long:short ratio such as 2 or 1.5")
@@ -158,9 +166,11 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--limit", type=int, help="only the first N recordings")
     sc.add_argument("--runs", help="where take folders and the scorecard go (default ~/saxscribe-runs)")
     sc.add_argument("--redo", choices=LAYERS)
+    sc.add_argument("--separator", choices=SEPARATORS, default="demucs", help=SEPARATOR_HELP)
     sc.add_argument("--note", help="a few words saved with the run and shown on the Results page, e.g. \"CREPE fine-tuned on GRFIA, v1\"")
     sc.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
-    sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour"), default="auto")
+    sc.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour", "filosax"), default="auto",
+                   help="filosax: Riley and Dixon's sax transcriber (see saxscribe/filosax.py)")
     sc.add_argument("--range-rules", choices=RANGE_MODES, default="out", help=RANGE_HELP)
     sc.add_argument("--tag", help="only recordings with this technique tag (GRFIA: altissimo, bend, growl, trill...)")
 
@@ -201,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "score":
         from .score import card
         card.run(args.set, args.data, args.split, args.limit, args.runs, args.contour_tool,
-                 args.notes_tool, args.redo, args.note, args.range_rules, args.tag)
+                 args.notes_tool, args.redo, args.note, args.range_rules, args.tag, args.separator)
         return 0
     if args.cmd == "rhythm":
         from .score import rhythm
@@ -222,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             transcribe(f, args.out, mix=args.mix, stem=args.stem, horn=args.horn, redo=args.redo,
                        contour_tool=args.contour_tool, notes_tool=args.notes_tool,
-                       swing=args.swing, range_rules=args.range_rules)
+                       swing=args.swing, range_rules=args.range_rules, separator=args.separator)
         except (Exception, SystemExit) as exc:  # keep going through a batch
             if len(files) == 1:
                 raise
