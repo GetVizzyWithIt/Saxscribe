@@ -15,6 +15,14 @@
     <div class="seg" id="audioSel" hidden>
       <button type="button" data-v="source" class="on">Record</button><button type="button" data-v="stem">Sax only</button><button type="button" data-v="accompaniment">Band only</button>
     </div>
+    <details class="menu" id="flagMenu">
+      <summary class="button" id="flagCount">Flags</summary>
+      <div class="list">
+        <div id="flagItems" class="flag-items"><div class="quiet small">No bars flagged yet. Turn on Flag, then tap a bar.</div></div>
+        <button id="copyFlags">Copy for Claude</button>
+        <button id="dlFlags">Download flags.json</button>
+      </div>
+    </details>
     <details class="menu" id="dl">
       <summary class="button">Download</summary>
       <div class="list">
@@ -38,8 +46,26 @@
     </select>
     <div class="seg zoom"><button type="button" id="smaller" aria-label="Smaller notes">A−</button><button type="button" id="bigger" aria-label="Bigger notes">A+</button></div>
     <button id="follow" class="on" aria-pressed="true">Follow</button>
+    <button id="flagMode" aria-pressed="false">⚑ Flag</button>
   </div>
 </footer>
+<section class="sheet" id="sheet" hidden aria-label="Flag this bar">
+  <div class="sheet-in">
+    <div class="head"><h2 id="sheetTitle">Bar</h2><span class="quiet small" id="sheetTime"></span></div>
+    <div class="chips" id="cats"></div>
+    <div class="field">
+      <div class="seg" id="scope"><button type="button" data-v="bar" class="on">Whole bar</button><button type="button" data-v="notes">Just these notes</button></div>
+      <span class="quiet small" id="pickHint" hidden>Tap notes in the bar to pick them.</span>
+    </div>
+    <textarea id="flagText" rows="2" placeholder="Note (optional)"></textarea>
+    <div class="actions">
+      <button class="primary" id="saveFlag">Save</button>
+      <button id="cancelFlag">Cancel</button>
+      <button id="deleteFlag" class="danger" hidden>Delete flag</button>
+    </div>
+  </div>
+</section>
+<textarea id="clip" aria-hidden="true" tabindex="-1" readonly></textarea>
 <audio id="audio" preload="auto"></audio>
 <div class="toast" id="toast"></div>
 <script src="/static/common.js"></script>

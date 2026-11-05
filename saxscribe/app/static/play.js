@@ -6,6 +6,7 @@ const audio = $('#audio');
 let size = 1;
 try { size = parseInt(localStorage.getItem('saxscribe-size') ?? '1', 10); } catch (e) {}
 if (!(size >= 0 && size <= 3)) size = 1;
+let barOf = {};
 let job, view, sync = [], starts = [], measures = [], qOf = {}, lit = [], litMeasure = null, follow = true;
 
 // ---- time <-> score position, straight lines between sync points, extended past both ends
@@ -62,14 +63,15 @@ async function loadScore(v) {
   const data = await r.json();
   box.innerHTML = data.svg;
   Q = data.sync.map(p => p[0]); T = data.sync.map(p => p[1]);
-  starts = []; measures = []; qOf = {}; lit = []; litMeasure = null;
+  starts = []; measures = []; qOf = {}; barOf = {}; lit = []; litMeasure = null;
   for (const e of data.timemap) {
-    if (e.measureOn) measures.push({q: e.qstamp, id: e.measureOn});
+    if (e.measureOn) { measures.push({q: e.qstamp, id: e.measureOn}); barOf[e.measureOn] = Math.floor(e.qstamp / 4 + 1e-6) + 1; }
     const ids = (e.on || []).filter(id => { const el = document.getElementById(id); return el && el.classList.contains('note'); });
     for (const id of (e.on || [])) qOf[id] = e.qstamp;
     if (ids.length) starts.push({q: e.qstamp, ids});
   }
   update(true);
+  drawFlags();
 }
 
 // ---- drawing the playhead
@@ -122,8 +124,9 @@ $('#follow').addEventListener('click', () => {
   if (follow) update(true);
 });
 $('#follow').classList.add('primary');
-// Tap a note to jump there.
+// Tap a note to jump there (or, in flag mode, tap a bar to flag it: see below).
 $('#score').addEventListener('click', e => {
+  if (flagMode) { flagClick(e); return; }
   const g = e.target.closest('g.note, g.rest, g.chord');
   if (!g || qOf[g.id] === undefined) return;
   audio.currentTime = Math.max(0, qToT(qOf[g.id]) - 0.05);
@@ -147,4 +150,195 @@ $('#pdf').addEventListener('click', () => { location.href = `/take/${takeId}/pdf
 $('#xml').addEventListener('click', () => download(`/api/takes/${takeId}/file/musicxml?view=${view}`));
 $('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/midi`));
 
+// ---- flags: mark bars for review. They never change the transcription; they go to
+// flags.json next to the take (server: flags.py), with a copy on the Desktop.
+let flagMode = false, flags = [], categories = {}, flagsText = '', editing = null;
+const getScope = segment($('#scope'), v => { $('#pickHint').hidden = v !== 'notes'; markPicked(); });
+
+async function loadFlags() {
+  const r = await fetch(`/api/takes/${takeId}/flags`);
+  if (r.ok) gotFlags(await r.json());
+}
+function gotFlags(data) {
+  flags = data.flags; categories = data.categories; flagsText = data.text;
+  $('#cats').innerHTML = Object.entries(categories).map(([k, v]) => `<button type="button" data-c="${k}">${esc(v)}</button>`).join('');
+  $('#flagCount').textContent = flags.length ? `Flags (${flags.length})` : 'Flags';
+  $('#flagItems').innerHTML = flags.length ? flags.map(f =>
+    `<button type="button" data-id="${f.id}">Bar ${f.bar} · ${esc(f.categories.map(c => categories[c] || c).join(', '))}` +
+    `<small>${f.scope === 'notes' ? `${f.picked.length} note${f.picked.length === 1 ? '' : 's'}` : 'whole bar'}${f.text ? ' · ' + esc(f.text) : ''}</small></button>`).join('')
+    : '<div class="quiet small">No bars flagged yet. Turn on Flag, then tap a bar.</div>';
+  drawFlags();
+}
+function measureEl(bar) {
+  const m = measures.find(x => barOf[x.id] === bar);
+  return m ? document.getElementById(m.id) : null;
+}
+// Boxes over flagged bars (and the one being edited), drawn on top of the score.
+function drawFlags() {
+  const box = $('#score');
+  box.querySelectorAll('.flagbox').forEach(el => el.remove());
+  const outer = box.getBoundingClientRect();
+  const shown = flags.map(f => ({bar: f.bar, label: f.categories.map(c => categories[c] || c).join(', '), id: f.id}));
+  if (editing && !editing.id) shown.push({bar: editing.bar, label: 'New flag', id: null});
+  for (const f of shown) {
+    const el = measureEl(f.bar);
+    if (!el) continue;
+    const staff = el.querySelector('g.staff') || el;
+    const r = staff.getBoundingClientRect();
+    const d = document.createElement('div');
+    d.className = 'flagbox' + (editing && editing.bar === f.bar && editing.id === f.id ? ' editing' : '');
+    Object.assign(d.style, {left: `${r.left - outer.left - 4}px`, top: `${r.top - outer.top - 6}px`,
+                            width: `${r.width + 8}px`, height: `${r.height + 12}px`});
+    d.innerHTML = `<span>⚑ ${esc(f.label)}</span>`;
+    box.appendChild(d);
+  }
+  markPicked();
+}
+function markPicked() {
+  document.querySelectorAll('#score g.picked').forEach(g => g.classList.remove('picked'));
+  if (!editing || getScope() !== 'notes') return;
+  for (const [id, q] of Object.entries(qOf)) {
+    if (editing.picked.some(p => Math.abs(p - q) < 1e-3)) {
+      const g = document.getElementById(id);
+      if (g && g.classList.contains('note')) g.classList.add('picked');
+    }
+  }
+}
+function setFlagMode(on) {
+  flagMode = on;
+  $('#flagMode').classList.toggle('on', on); $('#flagMode').setAttribute('aria-pressed', on);
+  $('#score').classList.toggle('flagging', on);
+  if (on) toast('Flag mode: tap a bar to flag it.'); else closeSheet();
+}
+$('#flagMode').addEventListener('click', () => setFlagMode(!flagMode));
+
+function flagClick(e) {
+  const m = e.target.closest('g.measure') || measureAt(e.clientX, e.clientY);
+  if (!m || barOf[m.id] === undefined) return;
+  const note = e.target.closest('g.note') || noteAt(m, e.clientX, e.clientY);
+  const bar = barOf[m.id];
+  if (editing && editing.bar === bar && getScope() === 'notes') {
+    if (note && qOf[note.id] !== undefined) {  // pick or unpick this note
+      const q = qOf[note.id], i = editing.picked.findIndex(p => Math.abs(p - q) < 1e-3);
+      if (i >= 0) editing.picked.splice(i, 1); else editing.picked.push(q);
+      markPicked();
+    }
+    return;
+  }
+  const old = flags.find(f => f.bar === bar);
+  openSheet(old || {bar, categories: [], scope: 'bar', picked: [], text: ''});
+  if (!old && note && qOf[note.id] !== undefined) {
+    // Tapped right on a note: offer it as the first picked note, but keep "Whole bar" until asked.
+    editing.firstNote = qOf[note.id];
+  }
+}
+// Fingers are wide: the note in this bar nearest the tap, within about a note's width.
+function noteAt(m, x, y) {
+  let best = null, bestD = 30;
+  for (const g of m.querySelectorAll('g.note')) {
+    if (qOf[g.id] === undefined) continue;
+    const r = (g.querySelector('.notehead') || g).getBoundingClientRect();
+    const d = Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom) / 3);
+    if (d < bestD) { best = g; bestD = d; }
+  }
+  return best;
+}
+// A tap on the paper between notes lands on the page, not the bar: find the bar under it.
+function measureAt(x, y) {
+  let best = null, bestD = Infinity;
+  for (const {id} of measures) {
+    const el = document.getElementById(id); if (!el) continue;
+    const r = el.getBoundingClientRect();
+    if (x < r.left || x > r.right) continue;
+    const d = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+    if (d < bestD && d < 40) { best = el; bestD = d; }
+  }
+  return best;
+}
+function openSheet(f) {
+  editing = {id: f.id || null, bar: f.bar, picked: [...(f.picked || [])]};
+  $('#sheetTitle').textContent = `Bar ${f.bar}`;
+  const t0 = f.start !== undefined ? f.start : qToT((f.bar - 1) * 4), t1 = f.end !== undefined ? f.end : qToT(f.bar * 4);
+  $('#sheetTime').textContent = `${clock(t0)} to ${clock(t1)}`;
+  $('#cats').querySelectorAll('button').forEach(b => b.classList.toggle('on', f.categories.includes(b.dataset.c)));
+  $('#scope').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === (f.scope || 'bar')));
+  $('#pickHint').hidden = (f.scope || 'bar') !== 'notes';
+  $('#flagText').value = f.text || '';
+  $('#deleteFlag').hidden = !f.id;
+  $('#sheet').hidden = false;
+  document.body.style.paddingBottom = `${$('#sheet').offsetHeight}px`;
+  drawFlags();
+  const el = measureEl(f.bar);
+  if (el) {
+    const r = el.getBoundingClientRect(), head = $('.top').getBoundingClientRect().bottom;
+    if (r.bottom > $('#sheet').getBoundingClientRect().top - 8 || r.top < head)
+      window.scrollTo({top: window.scrollY + r.top - head - 24, behavior: 'smooth'});
+  }
+}
+function closeSheet() {
+  editing = null; $('#sheet').hidden = true; document.body.style.paddingBottom = '';
+  drawFlags();
+}
+$('#cats').addEventListener('click', e => { const b = e.target.closest('button'); if (b) b.classList.toggle('on'); });
+$('#scope').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b && b.dataset.v === 'notes' && editing && !editing.picked.length && editing.firstNote !== undefined) {
+    editing.picked.push(editing.firstNote); markPicked();
+  }
+});
+$('#cancelFlag').addEventListener('click', closeSheet);
+$('#saveFlag').addEventListener('click', async () => {
+  const cats = [...$('#cats').querySelectorAll('button.on')].map(b => b.dataset.c);
+  if (!cats.length) { toast('Pick at least one category.'); return; }
+  const scope = getScope();
+  if (scope === 'notes' && !editing.picked.length) { toast('Tap the notes in the bar, or choose Whole bar.'); return; }
+  const body = {bar: editing.bar, categories: cats, scope, picked: scope === 'notes' ? editing.picked : [],
+                text: $('#flagText').value.trim(), view};
+  const r = await fetch(editing.id ? `/api/takes/${takeId}/flags/${editing.id}` : `/api/takes/${takeId}/flags`,
+                        {method: editing.id ? 'PUT' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+  if (!r.ok) { let msg = 'Could not save the flag.'; try { msg = (await r.json()).detail || msg; } catch (e) {} toast(msg); return; }
+  const bar = editing.bar;
+  editing = null; gotFlags(await r.json()); closeSheet();
+  toast(`Bar ${bar} flagged.`);
+});
+$('#deleteFlag').addEventListener('click', async () => {
+  if (!editing || !editing.id || !confirm(`Delete the flag on bar ${editing.bar}?`)) return;
+  const r = await fetch(`/api/takes/${takeId}/flags/${editing.id}`, {method: 'DELETE'});
+  if (!r.ok) { toast('Could not delete the flag.'); return; }
+  editing = null; gotFlags(await r.json()); closeSheet();
+});
+// The Flags list: tap one to go there and edit it.
+$('#flagItems').addEventListener('click', e => {
+  const b = e.target.closest('button[data-id]'); if (!b) return;
+  const f = flags.find(x => x.id === b.dataset.id); if (!f) return;
+  $('#flagMenu').open = false;
+  audio.currentTime = Math.max(0, f.start - 0.05); update(true);
+  if (!flagMode) setFlagMode(true);
+  openSheet(f);
+});
+// Copy for Claude. Over the home network the page isn't "secure", so Safari has no
+// navigator.clipboard; select a hidden text box and copy that instead.
+$('#copyFlags').addEventListener('click', () => {
+  $('#flagMenu').open = false;
+  const clip = $('#clip'); clip.value = flagsText;
+  let ok = false;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(flagsText).then(() => toast('Flags copied. Paste them into a thread.'), showText);
+    return;
+  }
+  clip.removeAttribute('readonly'); clip.focus(); clip.select(); clip.setSelectionRange(0, flagsText.length);
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  clip.setAttribute('readonly', ''); clip.blur();
+  if (ok) toast('Flags copied. Paste them into a thread.'); else showText();
+});
+// When the browser won't copy: open the summary as plain text to select and copy by hand.
+function showText() {
+  toast('Select all and copy the text that opened.');
+  window.open(`/api/takes/${takeId}/flags.txt`, '_blank');
+}
+$('#dlFlags').addEventListener('click', () => { $('#flagMenu').open = false; download(`/api/takes/${takeId}/flags.json`); });
+document.addEventListener('click', e => { if (!e.target.closest('#flagMenu')) $('#flagMenu').open = false; });
+window.addEventListener('resize', () => drawFlags());
+
+loadFlags();
 loadJob().catch(err => { $('#score').innerHTML = `<div class="loading">Could not load this take: ${esc(err.message)}</div>`; });

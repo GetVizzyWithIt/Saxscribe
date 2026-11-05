@@ -7,6 +7,7 @@ is also copied to ~/Desktop/Saxscribe/<title - artist>/:
   <name> (concert).musicxml   concert pitch
   <name> (<horn>).pdf         when MuseScore made one
   <name>.mid                  the notes as played
+  <name> flags.json / .txt    bars flagged for review in the play-along (flags.py)
 
 The folder is set in config.local.toml ([app] desktop = "~/somewhere"), and
 desktop = "off" turns the copy off. A failed copy never fails the upload.
@@ -33,6 +34,27 @@ def folder_setting() -> Path | None:
 
 def safe(name: str) -> str:
     return re.sub(r'[\\/:*?"<>|]+', "", name).strip() or "score"
+
+
+def song_folder(job: dict) -> tuple[Path, str] | None:
+    """(the Desktop folder for this song, its file name stem), or None when copying is off."""
+    base = folder_setting()
+    if base is None:
+        return None
+    name = safe(job.get("title", "") + (f" - {job['artist']}" if job.get("artist") else ""))
+    return base / name, name
+
+
+def copy_flags(flags_file: Path, summary: str, job: dict) -> Path | None:
+    """Copy flags.json, and its text summary, to the song's Desktop folder."""
+    where = song_folder(job)
+    if where is None:
+        return None
+    dst, name = where
+    dst.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(flags_file, dst / f"{name} flags.json")
+    (dst / f"{name} flags.txt").write_text(summary)
+    return dst
 
 
 def copy_out(take: Take, job: dict) -> Path | None:
