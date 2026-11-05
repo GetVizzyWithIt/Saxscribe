@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #97 | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
 | 2026-11-05 | #93 (was #84) | Hide piano and bass notes the sax's pitch line doesn't back up (band records) | isolate + notes | pfh-austin, omnibook-mix, bfmj-austin | Note F1 | 49.2 / 57.6 / 56.0% | 49.8 / 57.8 / 56.2% | yes | [E48](#e48--2026-11-04--hide-piano-and-bass-notes-the-saxs-pitch-line-doesnt-back-up-pr-93-merged) |
@@ -60,6 +61,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | isnt-she-lovely-austin (solo, 319 notes) | 52.1% | 62.7% | 24.6% | 36.3% | — | mix | E53 |
 | bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
+| weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 57.3% | 66.4% | — | mix | E56 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -111,6 +113,22 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E56 — 2026-11-05 — First Weimar solos with bought audio (main `c06b298`)
+- **Setup**: six tenor solos from the five records Austin bought (Weimar datasheet), main `c06b298` (includes #97 and #99), Demucs, default settings. Keys are the Weimar Jazz Database notes aligned to the bought audio; scored inside the alignment spans and weighted by notes, over 11,729 key notes.
+- **Result**, all six: note F1 **57.3%**, no offsets 66.4%, onset recall 62.7% / precision 88.7%, sax found 58.0%, sax purity 81.3%, pitch 72.2%.
+
+| Solo | Note F1 | No offsets |
+| --- | --- | --- |
+| Confirmation (Michael Brecker) | **78.5%** | 87.9% |
+| The Everywhere Calypso, solo 1 (Sonny Rollins) | 68.0% | 87.2% |
+| The Everywhere Calypso, solo 2 (Sonny Rollins) | 64.4% | 83.7% |
+| Impressions, 1961 (John Coltrane) | 54.9% | 62.0% |
+| Impressions, 1963 (John Coltrane) | 50.1% | 59.4% |
+| Item 1, D.I.T. (Chris Potter) | 43.8% | 48.8% |
+
+- **Fidelity problem**: wrong "sax lays out" cuts (`sax_spans`) hide 2,593 key notes, 22% of the total, all on the three records where the lead was split across two Demucs stems (for example vocals + other on Impressions 1961, guitar + other on Item 1). That is why sax found (58%) is far below purity (81%). Diagnosis running in the build thread.
+- **Reading**: Confirmation at 78.5% is the best real band record so far. Without the wrong cuts these solos would likely sit well above the Getz records. The Weimar keys are machine-aligned, not hand-checked, so treat single-solo numbers as approximate.
+
 ### E55 — 2026-11-05 — Gated hybrid: Mega sax stem with Demucs fallback (no gain yet)
 - **Setup**: the [ADR-0036](../decisions/0036-gated-two-separator-hybrid.md) hybrid, first version. It uses the Mega 53-stem sax stem (E51) and falls back to Demucs where Mega's pitch line goes quiet but Demucs's is voiced. Same records as E51 and E52; sax-span check at the fixed −6 dB bar.
 - **Result**, note F1 / onset recall:
@@ -139,7 +157,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | PR #97 | 28.3% | 46.9% | 57.2% | 46.8% | 47.0% |
 
 - **Fidelity**: no take gains notes inside a known piano solo (Pennies 3:42–4:21, Resolution's piano stretches). 162 Walker's Theme key notes are still hidden, in 29–49 and 70–99 s, where the sax dips below −9.4 dB; follow-up pending.
-- **Status**: merged as PR #97 (2026-11-05 06:23 UTC).
+- **Status**: merged as PR #97 (2026-11-05 06:23 UTC). A guard added afterwards, PR #99 (merged 06:38 UTC), stops the check from ever tagging more than 80% of a record; it changes none of the 27 takes.
 - **Tests**: 160 pass, including two new ones in `tests/test_isolate.py` (a sax mixed about 8 dB low is not cut, which fails on main, and the bar's limits).
 
 ### E53 — 2026-11-05 — Four new tenor answer keys, first scores (main `0691a52`)
