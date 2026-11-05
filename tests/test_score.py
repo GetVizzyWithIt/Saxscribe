@@ -64,6 +64,14 @@ def test_perfect_notes_score_perfectly():
     assert s["onset_f1"] == 1.0 and s["note_f1"] == 1.0
 
 
+def test_sax_found_and_purity_count_lost_and_extra_notes():
+    key = [{"onset": float(i), "offset": i + 0.5, "pitch": 60 + i} for i in range(4)]
+    ours = key[:3] + [{"onset": 10.0, "offset": 10.5, "pitch": 40}, {"onset": 11.0, "offset": 11.5, "pitch": 41}]
+    s = metrics.note_scores(key, ours)
+    assert s["sax_found"] == 0.75  # one key note lost
+    assert s["sax_purity"] == 0.6  # two of our five notes are not in the key
+
+
 def test_scorecard_on_a_pairs_folder(fixture_wav, tmp_path, monkeypatch):
     from saxscribe.layers import engrave
     asked = []
