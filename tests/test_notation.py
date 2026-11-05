@@ -491,3 +491,9 @@ def test_swing_does_not_bend_a_run_of_straight_sixteenths():
     assert [x - starts[0] for x in starts] == [F(k, 4) for k in range(8)]
     swung = [p["start"] for p in out["notes"]][:16]
     assert all(x % F(1, 2) == 0 for x in swung)  # the swung pairs still read as eighths
+
+
+def test_a_swung_pair_with_a_pickup_keeps_its_swing():
+    assert not notation.sixteenth_run([0.0, 0.66, 0.9])
+    assert not notation.sixteenth_run([0.0, 0.12, 0.66, 0.9])  # late off-beat: still swung
+    assert notation.sixteenth_run([0.0, 0.26, 0.5, 0.76])
