@@ -173,3 +173,17 @@ def test_the_share_bar_follows_the_take_but_never_drops_too_far():
     assert isolate.share_bar(np.full(50, -1.0)) == isolate.SPAN_SHARE_DB      # a loud sax: the usual bar
     assert isolate.share_bar(np.full(50, -8.0)) == -11.0                      # mixed low: 3 dB under its loud windows
     assert isolate.share_bar(np.full(50, -30.0)) == isolate.SPAN_SHARE_FLOOR  # never below the floor
+
+
+def test_a_record_is_never_cut_almost_whole(tmp_path):
+    # If the check finds "no sax" over nearly the whole record, the check failed:
+    # keep everything rather than hide every note.
+    rate, seconds = 16000, 40
+    horn = long_horn(seconds, rate)
+    band = 40 * long_chords(seconds, rate)          # far below even the lowest bar
+    stem, mix = horn + 0.02 * band, horn + band
+    peak = np.abs(mix).max()
+    sf.write(str(tmp_path / "stem.wav"), stem / peak, rate)
+    sf.write(str(tmp_path / "mix.wav"), mix / peak, rate)
+    keep, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav")
+    assert cuts == [] and keep[0][0] == 0

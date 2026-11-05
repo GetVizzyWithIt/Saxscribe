@@ -131,6 +131,7 @@ SPAN_CLARITY = 0.4     # ... and sound this clear, as a share of the take's typi
 SPAN_SMOOTH = 13       # windows (about 12 s) in the median that steadies the call
 SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
 SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last note is lost
+SPAN_MAX_CUT = 0.8     # cutting more of the record than this means the check failed, not that the sax rests
 
 
 def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
@@ -178,6 +179,8 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = ()) -> tuple[list[list
             t0 = 0.0
         if t1 - t0 >= SPAN_MIN_GAP:
             cuts.append([round(t0, 2), round(t1, 2)])
+    if sum(b - a for a, b in cuts) > SPAN_MAX_CUT * end:
+        cuts = []  # a record is a sax record: never tag nearly all of it "sax rests"
     keep, t = [], 0.0
     for a, b in cuts:
         if a > t:
