@@ -105,7 +105,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E52 — 2026-11-05 — MVSep website Saxophone model (not adoptable)
-- **Setup**: the MVSep website's Saxophone model (sep_type 61; no public weights, so audio is uploaded to MVSep). Austin approved the upload at 00:41 UTC. Compared with Demucs and the local Mega 53-stem model (E51).
+- **Setup**: the MVSep website's Saxophone model (sep_type 61, a BS-RoFormer, SDR 9.77; no public weights, so audio is uploaded to MVSep). With Austin's OK (00:41 UTC), 12 commercial records were uploaded 01:30–01:47 UTC; the upload log is `~/saxscribe-runs/exp/2026-11-05-sax-id/mvsep_web_uploads.txt` on the Mac. Compared with Demucs and the local Mega 53-stem model (E51).
 - **Result**, note F1:
 
 | Set | Demucs | Mega 53-stem (local) | MVSep website Saxophone |
@@ -114,7 +114,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Parker band records (10) | 57.8% | 60.4% | **61.0%** |
 | Blues for Mary Jane | **56.0%** | 52.4% | 50.9% |
 
-- **Fidelity problem**: on one Parker record it lost over a third of the solo.
+- **Parker onset recall / precision**, Demucs / Mega / website: recall 81.8 / 79.6 / 78.4%, precision 81.0 / 87.0 / 86.7%.
+- **Fidelity problem**: it loses real playing on two Parker records: BRfYc recall 80.5% → 45.2% (over a third of the solo gone) and 6Cbwc 78.4% → 65.6%.
 - **Decision**: not adoptable in the app; it only runs on MVSep's site and it drops real playing.
 - **Reading**: both sax-specific models trade fewer bleed notes and better pitch for occasional missed sax passages. The deciding test is a hybrid that falls back to Demucs where the sax stem goes quiet (build thread, running).
 
