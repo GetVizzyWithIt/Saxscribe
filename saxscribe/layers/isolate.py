@@ -131,11 +131,12 @@ SPAN_CLARITY = 0.4     # ... and sound this clear, as a share of the take's typi
 SPAN_SMOOTH = 13       # windows (about 12 s) in the median that steadies the call
 SPAN_MIN_GAP = 8.0     # seconds: a shorter stretch without sax is not cut
 SPAN_GUARD = 2.0       # seconds kept at each edge of a cut, so no entry or last note is lost
+SPAN_RIVAL_DB = -10.0  # a piano stem holding this much of the whole mix (dB) can mark a rest
 SPAN_MAX_CUT = 0.8     # cutting more of the record than this means the check failed, not that the sax rests
 
 
 def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
-              rhythm: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
+              rhythm: list[Path] = (), rivals: list[Path] = ()) -> tuple[list[list[float]], list[list[float]]]:
     """Where the horn plays in a band record: (spans with sax, spans cut).
 
     A full record has stretches where the sax lays out: piano and bass solos,
@@ -156,13 +157,19 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
     so the share is taken of the mix without them. When the sax is split
     across stems (Coltrane, Impressions: vocals + other), the other stems
     are added to the sax stem for a second try, not judged one by one.
+    Without drums and bass the clean sax stem's piano bleed can pass in a
+    piano solo. So a window is still a rest when the piano stem (rivals)
+    holds -10 dB or more of the whole mix and the sax fails the old test
+    against the whole mix (Impressions 1963: piano -7 dB in its solo, below
+    -55 dB under the sax).
     """
     y = frontend.load_mono(stem, sr=LEAD_RATE)
     m = frontend.load_mono(mix, sr=LEAD_RATE)
     rest = [frontend.load_mono(p, sr=LEAD_RATE) for p in rhythm]
     extra = [frontend.load_mono(p, sr=LEAD_RATE) for p in others]
     n = min([len(y), len(m)] + [len(r) for r in rest + extra])
-    m = m[:n] - sum(r[:n] for r in rest) if rest else m
+    full = m[:n]
+    m = full - sum(r[:n] for r in rest) if rest else full
     win, hop = int(SPAN_WINDOW * LEAD_RATE), int(SPAN_HOP * LEAD_RATE)
     if n < win:
         return [[0.0, n / LEAD_RATE]], []
@@ -179,6 +186,14 @@ def sax_spans(stem: Path, mix: Path, others: list[Path] = (),
         both = y[:n] + sum(o[:n] for o in extra)
         b_share, b_clear = window_measures(both, m[:n], win, hop)
         sax |= (b_share > bar) & (b_clear > SPAN_CLARITY * typical)
+    if rivals:
+        f_share = window_measures(y[:n], full, win, hop)[0]
+        for o in extra:  # as before: each stem judged alone against the whole mix
+            f_share = np.maximum(f_share, window_measures(o[:n], full, win, hop)[0])
+        old = (f_share > share_bar(f_share)) & (clear > SPAN_CLARITY * typical)
+        for path in rivals:
+            r_share = window_measures(frontend.load_mono(path, sr=LEAD_RATE)[:n], full, win, hop)[0]
+            sax &= ~((r_share > SPAN_RIVAL_DB) & ~old)
     from scipy.signal import medfilt
     sax = medfilt(sax.astype(float), SPAN_SMOOTH) > 0.5
     end = n / LEAD_RATE

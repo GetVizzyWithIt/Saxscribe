@@ -221,18 +221,28 @@ def test_loud_drums_and_bass_under_a_sax_trio_dont_cut_the_sax(tmp_path):
 
 
 def test_a_piano_solo_over_drums_and_bass_is_still_cut(tmp_path):
+    # Demucs spreads a piano solo over "piano", "guitar" and "other". Summed,
+    # those stems pass as a split sax once drums and bass are left out; the
+    # piano stem holding a fair part of the whole mix, while no stem passes
+    # the old whole-mix test, settles it.
     rate, seconds = 16000, 60
     t = np.arange(rate * seconds) / rate
     solo = (t >= 20) & (t < 40)
     horn = long_horn(seconds, rate) * ~solo
-    piano = long_chords(seconds, rate) * (0.2 + 3 * solo)
+    piano = long_horn(seconds, rate, seed=5) * solo + 0.2 * long_chords(seconds, rate)
     drums, bass = drums_and_bass(seconds, rate)
+    drums = 0.2 * drums
     mix = horn + piano + drums + 0.5 * bass
     peak = np.abs(mix).max()
-    for name, y in (("stem", horn + 0.02 * piano), ("drums", drums), ("bass", 0.5 * bass), ("mix", mix)):
+    stems = {"stem": horn + 0.05 * piano, "guitar": 0.25 * piano, "other": 0.25 * piano,
+             "piano": 0.6 * piano, "drums": drums, "bass": 0.5 * bass, "mix": mix}
+    for name, y in stems.items():
         sf.write(str(tmp_path / f"{name}.wav"), y / peak, rate)
-    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", [],
-                                [tmp_path / "drums.wav", tmp_path / "bass.wav"])
+    others = [tmp_path / "guitar.wav", tmp_path / "other.wav"]
+    rhythm = [tmp_path / "drums.wav", tmp_path / "bass.wav"]
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", others, rhythm)
+    assert cuts == []                                  # the summed piano passes as sax
+    _, cuts = isolate.sax_spans(tmp_path / "stem.wav", tmp_path / "mix.wav", others, rhythm, [tmp_path / "piano.wav"])
     assert len(cuts) == 1 and 20 <= cuts[0][0] <= 25 and 35 <= cuts[0][1] <= 40
 
 
