@@ -75,6 +75,8 @@ OFFSET_WEIGHT = 0.5     # note ends matter less than starts when choosing a grid
 CLOSE_GAP = 1 / 3       # beats: shorter gaps before the next note are closed
 SWING_MIN_NOTES = 6     # off-beat notes needed before trusting a swing estimate
 BEATS_PER_BAR = 4       # 4/4 for now
+BAR_WINDOW = 16         # downbeats in the majority that says the bars have slipped (align_bars)
+BAR_HOLD = 4            # ... and how many in a row must agree before the grid is mended
 GAP_FILL = 1.5          # a gap between tracked beats over this many beat spacings is filled
 NOTES_FOR_TEMPO = 16      # notes needed before the notes may set the beat
 PERIOD_STRENGTH = 0.25    # how clearly the notes must repeat once a beat (autocorrelation)
@@ -407,6 +409,9 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     start and length are in beats (Fractions) from the start of the first bar.
     """
     beats, grid_note = repair_grid(beats, notes, tempo_bpm)
+    beats, phase, bar_fixes = align_bars(beats, downbeats)
+    if bar_fixes:
+        grid_note += f"; {len(bar_fixes)} beats added or dropped to keep the bars in step"
     if len(beats) >= 2:
         tempo_bpm = round(60.0 / float(np.median(np.diff(beats))), 2)
     to_beat = beat_map(beats, tempo_bpm)
@@ -469,17 +474,115 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
         placed.append({"index": i, "start": start, "length": end - start, "pitch": notes[i]["pitch"]})
     placed = one_grid_per_beat(placed)
 
-    # Line the bars up with the first downbeat, and start at bar 1.
-    first_down = round(float(to_beat([downbeats[0]])[0])) if downbeats else 0
-    pad = (-first_down) % BEATS_PER_BAR
+    # Line the bars up with the downbeats, and start at bar 1.
+    pad = (-phase) % BEATS_PER_BAR
     earliest = min((p["start"] for p in placed), default=Fraction(0)) + pad
     shift = pad - BEATS_PER_BAR * (int(np.floor(float(earliest))) // BEATS_PER_BAR)
     for p in placed:
         p["start"] += shift
     return {"key": find_key([n["pitch"] for n in notes],
                                 [n["offset"] - n["onset"] for n in notes]), "swing": s, "swing_source": source,
-            "shift": shift, "tempo_bpm": tempo_bpm, "squeezed": squeezed, "grid": grid_note,
+            "shift": shift, "tempo_bpm": tempo_bpm, "squeezed": squeezed, "grid": grid_note, "bar_fixes": bar_fixes,
             "notes": placed}
+
+
+def align_bars(beats: list[float], downbeats: list[float], window: int = BAR_WINDOW,
+               hold: int = BAR_HOLD) -> tuple[list[float], int, list[dict]]:
+    """The beat grid with its slips mended, and the grid beat (0-3) the bars start on.
+
+    Bars are every 4th grid beat, so one beat too many or too few in the grid
+    puts every later barline in the wrong place. The tracker's own downbeats
+    show where that happens: their place in the bar (grid index mod 4) jumps
+    and stays jumped. Walking the downbeats in order, a jump counts once the
+    majority of the next `window` downbeats and each of the next `hold` agree
+    on the new place. Then the grid is mended in the stretch before it: a
+    beat too many (the bars jumped one beat late) is merged into its
+    neighbours where the beats sit closest; a missing beat is put back in the
+    middle of the longest gap; a two-beat jump is mended whichever way leaves
+    that stretch's beats nearer the usual length.
+
+    Measured 2026-11-05 on 22 records with known bars (log E64; tuned on the
+    Weimar and Parker train records only): bars right 44 -> 75% on the
+    tuning records, 34 -> 58% held out, none worse. Pennies From Heaven went
+    from 0.6 to 87.5%: its first downbeat sat on beat 3 though 167 of 198 were
+    right, and every bar used to follow the first.
+    """
+    b = [float(x) for x in beats]
+    if len(b) < 2 or not downbeats:
+        return b, 0, []
+    fixes: list[dict] = []
+    i = 0
+    phase = None
+    while True:
+        idx, keep = downbeat_places(b, downbeats)
+        if len(idx) == 0:
+            return b, 0, fixes
+        ph = [k % BEATS_PER_BAR for k in idx]
+        if phase is None:
+            phase = bar_phase(idx[:window])
+        while i < len(idx):
+            ahead = ph[i:i + window]
+            new = bar_phase(ahead)
+            if new != phase and ph[i] == new and all(p == new for p in ph[i:i + hold]) and len(ahead) >= hold:
+                break
+            i += 1
+        else:
+            return b, phase, fixes
+        last = max((idx[j] for j in range(i) if ph[j] == phase), default=idx[i] - BEATS_PER_BAR)
+        jump = (ph[i] - phase) % BEATS_PER_BAR
+        lo, hi = max(last, 0), min(idx[i], len(b) - 1)
+        typical = float(np.median(np.diff(b)))
+        stretch = np.diff(b[lo:hi + 1]) if hi > lo else np.array([typical])
+        if jump == 2:
+            count = -2 if float(np.mean(stretch)) < typical else 2
+        else:
+            count = -1 if jump == 1 else 1
+        for _ in range(abs(count)):
+            b = drop_beat(b, lo, hi) if count < 0 else add_beat(b, lo, hi)
+            hi += -1 if count < 0 else 1
+        fixes.append({"at": round(float(downbeats[keep[i]]), 2), "beats": count})
+        i += 1
+        if len(fixes) > len(downbeats):  # never loop on a grid that will not settle
+            return b, phase, fixes
+
+
+def downbeat_places(beats: list[float], downbeats: list[float]) -> tuple[list[int], list[int]]:
+    """Each downbeat inside the grid as its nearest grid index, with its place in the downbeat list."""
+    b = np.asarray(beats, dtype=float)
+    idx, keep = [], []
+    for j, d in enumerate(downbeats):
+        if b[0] - 0.25 * (b[1] - b[0]) <= d <= b[-1]:
+            idx.append(int(round(float(np.interp(d, b, np.arange(len(b)))))))
+            keep.append(j)
+    return idx, keep
+
+
+def drop_beat(b: list[float], lo: int, hi: int) -> list[float]:
+    """Remove the inner beat of lo..hi whose two neighbours sit closest together."""
+    inner = range(max(lo, 1), min(hi, len(b) - 1))
+    if not inner:
+        return b
+    k = min(inner, key=lambda k: b[k + 1] - b[k - 1])
+    return b[:k] + b[k + 1:]
+
+
+def add_beat(b: list[float], lo: int, hi: int) -> list[float]:
+    """Put a beat back in the middle of the longest gap in lo..hi."""
+    gaps = range(max(lo, 0), min(hi, len(b) - 1))
+    if not gaps:
+        return b
+    k = max(gaps, key=lambda k: b[k + 1] - b[k])
+    return b[:k + 1] + [(b[k] + b[k + 1]) / 2] + b[k + 1:]
+
+
+def bar_phase(downbeats_in_beats) -> int:
+    """The grid beat (0-3) most of these downbeats (in grid beats) land on; a tie goes to the first."""
+    d = [round(float(x)) for x in downbeats_in_beats]
+    if not d:
+        return 0
+    counts = np.bincount(np.mod(d, BEATS_PER_BAR), minlength=BEATS_PER_BAR)
+    first = d[0] % BEATS_PER_BAR
+    return first if counts[first] == counts.max() else int(np.argmax(counts))
 
 
 def is_triplet(x: Fraction) -> bool:

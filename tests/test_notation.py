@@ -429,3 +429,48 @@ def test_the_phrase_chooser_keeps_one_feel_through_a_phrase():
     phrased = notation.choose_grids(options, 0.4)
     assert phrased[1][1] is T          # inside the phrase: keeps the triplet feel
     assert phrased[4][1] is S          # after an empty beat: a new phrase
+
+
+def test_bars_follow_most_downbeats_not_a_wrong_first_one():
+    # The tracker's first downbeat lands on beat 2 of the bar; the rest are right (beats 4, 8, 12, ...).
+    downbeats = [GRID[2]] + GRID[4::4]
+    notes = at([(4, 1), (5, 1), (6, 2)])
+    r = notation.quantize(notes, GRID, downbeats, 120.0, "straight")
+    assert placed(r)[0][0] % 4 == 0  # the note on the downbeat starts a bar
+    assert notation.bar_phase([2, 4, 8, 12]) == 0
+
+
+def test_bar_phase_tie_keeps_the_first_downbeat():
+    assert notation.bar_phase([2, 4, 10, 12]) == 2
+    assert notation.bar_phase([]) == 0
+
+
+TRUE = [i * SPB for i in range(160)]  # 40 bars at 120 BPM
+DOWN = TRUE[::4]
+
+
+def bars_in_step(beats, phase):
+    idx, _ = notation.downbeat_places(beats, DOWN)
+    return all((k - phase) % 4 == 0 for k in idx)
+
+
+def test_an_extra_tracked_beat_is_merged_so_later_bars_stay_in_step():
+    tracked = TRUE[:81] + [TRUE[80] + 0.25] + TRUE[81:]  # one beat too many in bar 21
+    assert not bars_in_step(tracked, notation.bar_phase(notation.downbeat_places(tracked, DOWN)[0]))
+    fixed, phase, fixes = notation.align_bars(tracked, DOWN)
+    assert len(fixed) == len(TRUE) and bars_in_step(fixed, phase)
+    assert [f["beats"] for f in fixes] == [-1]
+
+
+def test_a_missing_beat_is_put_back():
+    tracked = TRUE[:101] + TRUE[102:]  # one beat lost in bar 26
+    fixed, phase, fixes = notation.align_bars(tracked, DOWN)
+    assert len(fixed) == len(TRUE) and bars_in_step(fixed, phase)
+    assert abs(fixed[101] - TRUE[101]) < 1e-9
+    assert [f["beats"] for f in fixes] == [1]
+
+
+def test_a_steady_grid_with_a_stray_downbeat_is_left_alone():
+    downs = DOWN[:10] + [DOWN[10] + SPB] + DOWN[11:]  # one downbeat a beat late
+    fixed, phase, fixes = notation.align_bars(TRUE, downs)
+    assert fixed == TRUE and phase == 0 and fixes == []
