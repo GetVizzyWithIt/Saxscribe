@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 | #102 (open) | Sax-span check measures against the mix without drums and bass and sums split stems | isolate | weimar-tenor, omnibook-mix, resolution-austin, walkers-theme-austin, bloody-well-right-austin | Note F1 | 57.3 / 60.6 / 42.5 / 28.3 / 11.6% | 65.6 / 60.6 / 42.0 / 28.3 / 11.4% | pending merge | [E57](#e57--2026-11-05--sax-span-check-ignores-drums-and-bass-sums-split-stems-pr-102-pending-merge) |
 | 2026-11-05 | #99 | Sax-span check never tags more than 80% of a record as "sax rests" | isolate | 27 band takes | Note F1 | — | unchanged on all 27 | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #97 | Sax-span loudness bar set per record, so a quietly mixed sax isn't cut | isolate | walkers-theme-austin (26 other band takes unchanged) | Note F1 | 0% | 28.3% | yes | [E54](#e54--2026-11-05--sax-span-loudness-bar-set-per-record-pr-97-merged) |
 | 2026-11-05 | #86 | Piano notes under a held sax note no longer cut it short | notes | pfh-austin, omnibook-mix, bach10, choralebricks, grfia-alto, grfia-tenor | Note F1 | 50.0 / 57.8 / 96.8 / 90.1 / 78.5 / 66.3% | 50.1 / 57.9 / 97.0 / 90.3 / 78.6 / 66.4% | yes | [E49](#e49--2026-11-04--piano-notes-no-longer-cut-held-sax-notes-short-pr-86-merged) |
@@ -112,6 +113,24 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E57 — 2026-11-05 — Sax-span check ignores drums and bass, sums split stems (PR #102, pending merge)
+- **Change** (`sax_spans`): (1) the sax's share is measured against the mix without the drums and bass stems; (2) when Demucs splits the lead across stems, they are summed before the "is the sax playing" rescue; (3) a rest is still marked when another instrument takes over and the old whole-mix test also fails: piano at −10 dB or more of the mix and louder than every sax stem, or bass 16 dB over them. Tuned over four rounds on 33 band takes. Tags only; nothing is deleted.
+- **Result**, note F1:
+
+| Set | Before | After |
+| --- | --- | --- |
+| Weimar solos (6) | 57.3% | **65.6%** |
+| Item 1 (Potter) | 43.8% | 67.4% |
+| Impressions 1961 (Coltrane) | 54.8% | 64.7% |
+| Impressions 1963 (Coltrane) | 50.2% | 55.5% |
+| Parker band records (10) | 60.6% | 60.6% |
+| Resolution | 42.5% | 42.0% |
+| Walker's Theme | 28.3% | 28.3% |
+| Bloody Well Right | 11.6% | 11.4% |
+
+- **Fidelity**: fixes most of E56's wrong cuts on split-stem records. Known sax rests stay mostly cut, with two small leaks: Resolution 154–165 s (about 11 notes) and the end of the Blues for Mary Jane bass solo, 357–368 s (14 notes).
+- Details in the PR body.
 
 ### E56 — 2026-11-05 — First Weimar solos with bought audio (main `c06b298`)
 - **Setup**: six tenor solos from the five records Austin bought (Weimar datasheet), main `c06b298` (includes #97 and #99), Demucs, default settings. Keys are the Weimar Jazz Database notes aligned to the bought audio; scored inside the alignment spans and weighted by notes, over 11,729 key notes.
