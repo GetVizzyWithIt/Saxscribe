@@ -16,7 +16,7 @@ faithful to it.
 the app is running, press Ctrl-C to stop it, then:
 
 ```bash
-cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.txt && python -m saxscribe app
+cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/activate && pip install -r requirements.lock && python -m saxscribe app
 ```
 
 **Start the app with no update:**
@@ -53,10 +53,12 @@ Sets: `omnibook`, `omnibook-mix`, `urmp`, `urmp-mix`, `bach10`, `bach10-mix`,
 ## Setup (Mac)
 
 ```bash
-bash setup_mac.sh
-source .venv/bin/activate
-python -m saxscribe check
+cd ~/Desktop/saxscribe && bash setup_mac.sh
 ```
+
+It installs Python (the version in `.python-version`) and ffmpeg, makes the
+environment, installs the exact package versions in `requirements.lock`, and
+ends with a health check: every line should start with `ok`.
 
 For PDF sheet music, also install MuseScore (free): `brew install --cask musescore`.
 Without it everything else works and you get MusicXML only.

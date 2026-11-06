@@ -35,7 +35,9 @@ it is not attached. Alto first; check transfer to tenor once alto works.
 
 ## Conventions
 - Python 3.11, same venv layout as the game analyzer (own environment, see
-  setup_mac.sh). Add dependencies to requirements.txt with a one-line reason.
+  setup_mac.sh). Python version lives in .python-version. Add dependencies to
+  requirements.txt with a one-line reason, then run `bash scripts/lock.sh` and
+  commit requirements.lock with it (installs always use the lock).
 - Concert pitch stored; display transposed (E-flat or B-flat) on request.
 - Tests for every layer on the 10-second synthetic fixture (tests/fixture.py).
   Run `python -m pytest` before opening a PR.
