@@ -128,8 +128,11 @@ def load_transcriber(path: Path | None = None, device: str = "cpu"):
         from numpy._core.multiarray import _reconstruct  # numpy 2 renamed numpy.core
     except ImportError:
         from numpy.core.multiarray import _reconstruct
+    # The weights file was saved under numpy 1 (numpy.core); files saved under
+    # numpy 2 name the same function numpy._core. Allow both spellings.
     torch.serialization.add_safe_globals([
-        (_reconstruct, "numpy.core.multiarray._reconstruct"), numpy.ndarray, numpy.dtype,
+        (_reconstruct, "numpy.core.multiarray._reconstruct"),
+        (_reconstruct, "numpy._core.multiarray._reconstruct"), numpy.ndarray, numpy.dtype,
         codecs.encode, type(numpy.dtype("float64")), type(numpy.dtype("int64"))])
     model = kong.Regress_onset_offset_frame_velocity_CRNN()
     state = torch.load(path or weights("transcriber"), map_location="cpu", weights_only=True)["model"]
