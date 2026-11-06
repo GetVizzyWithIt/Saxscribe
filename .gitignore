@@ -14,3 +14,21 @@ config.local.*
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Machine and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets: keep keys out of the repo (use config.local.* or a file outside it)
+.env
+.env.*
+*.pem
+*.key
+
+# Model weights are downloaded, never committed
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.mlpackage/

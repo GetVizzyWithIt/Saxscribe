@@ -1,14 +1,7 @@
 # saxscribe
 
-Turns a saxophone performance into notes you can read and fix, and keeps
-everything underneath them: the continuous pitch line, the note events, and
-the timing against the beat. Alto first.
-
-It is a sibling of Songs in the Key of Life, not part of it. The audio front
-end (decoding, Demucs, Beat This!, Basic Pitch) was copied from the game's
-analyzer and is kept as a private copy, because the two tools want opposite
-things: the game reduces a part into something playable, this tool stays
-faithful to it.
+Turns a saxophone performance into notes you can read and fix. Commands
+first; what it is and how it works are [further down](#what-it-is).
 
 ## Quick start (copy and paste)
 
@@ -183,3 +176,20 @@ vibrato, rests) and check each layer on it. No audio files live in the repo.
 
 Product requirements, architecture, model cards, datasheets, the evaluation
 log and the decision log are in [docs/](docs/README.md).
+
+## What it is
+
+Turns a saxophone performance into notes you can read and fix, and keeps
+everything underneath them: the continuous pitch line, the note events, and
+the timing against the beat. Alto first.
+
+It is a sibling of Songs in the Key of Life, not part of it. The audio front
+end (decoding, Demucs, Beat This!, Basic Pitch) was copied from the game's
+analyzer and is kept as a private copy, because the two tools want opposite
+things: the game reduces a part into something playable, this tool stays
+faithful to it.
+
+## How we work on it
+
+Development rules (branches, pull requests, CI, lockfile, decision log) are
+in [CLAUDE.md](CLAUDE.md) and [docs/development-standards.md](docs/development-standards.md).

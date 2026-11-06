@@ -39,11 +39,41 @@ it is not attached. Alto first; check transfer to tenor once alto works.
 - Concert pitch stored; display transposed (E-flat or B-flat) on request.
 - Tests for every layer on the 10-second synthetic fixture (tests/fixture.py).
   Run `python -m pytest` before opening a PR.
-- Branches named claude/..., one PR per change, with the scorecard in the PR
-  description.
+- Branches named claude/<type>-<what>, one PR per change, with the scorecard in
+  the PR description (see "Branches, pull requests and CI" below).
 - No audio files or datasets in the repo. Paths to them live in a local
   config (config.local.*, ignored by git).
 
 ## When unsure
 Draft the smallest version, run it on the fixture, and show the result. Ask
 one question at a time. Prefer a working rough cut to a plan.
+
+## Branches, pull requests and CI
+- Nothing goes straight to main. Every change is a pull request from its own
+  branch, and Austin merges it.
+- Branch names: claude/<type>-<what>, e.g. claude/fix-numpy2-safe-loader.
+  Types: feat, fix, exp (experiment), docs, chore (setup, deps), ci, refactor.
+  If a session was handed a claude/project-thread-xxxx branch, make a
+  claude/<type>-<what> branch for the PR anyway: this rule is Austin's standing
+  permission to do so.
+- CI (.github/workflows/tests.yml) runs the health check and `python -m pytest`
+  on every PR. Don't ask Austin to merge a PR whose checks are red.
+- Lasting choices get an ADR in docs/decisions/; new terms go in
+  docs/glossary.md. The docs thread owns docs/, so tell it what you add.
+- Secrets (API keys such as MVSep's) and machine files live outside the repo or
+  in config.local.* (git-ignored). Never commit audio, datasets or weights.
+
+## Current state (2026-11-06; update when it changes)
+- Standard path on band records: Demucs (2 shifts) -> Basic Pitch + CREPE pitch
+  line -> per-horn range rules -> bleed hide -> held notes follow the pitch
+  line -> sax-playing check -> bar lines -> swing. Riley & Dixon's Filosax
+  separator and transcriber are an opt-in (`--separator filosax`,
+  `--notes-tool filosax`; app "Note finder").
+- Latest feature: notes that may be another instrument are tagged
+  `maybe_not_sax` and asked about in the play-along, never hidden (PR #121).
+  The play-along also has review flags (flags.json, PR #116).
+- Pipeline development is paused, step by step: no change to the transcription
+  pipeline without Austin's typed go in the build thread.
+- Biggest open weakness: sax purity on pop/fusion band records (other
+  instruments leaking into the sax stem). Scores per test set are in
+  docs/evaluation/log.md; decisions in docs/decisions/.
