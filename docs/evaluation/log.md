@@ -117,6 +117,31 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E67 — 2026-11-06 — Not-sax detection baseline (finding, not adopted)
+- **Goal**: mark stretches where another instrument takes the solo (piano, bass, drums) so the Filosax path stops writing their notes as sax (E61: 64 piano notes in the Pennies piano solo).
+- **Setup**: Mac, read-only, outside the repo. Tuned on the Parker training records plus Confirmation and Calypso. Held out: Austin's tunes, Parker 2RfYc, 73bwc and 9RfYc, Impressions 1961 and 1963, Item 1.
+- **Truth**:
+  - Not sax: the Pennies piano solo (3:42–4:21), the Resolution piano solo, the 7XTyc drum solo and the Bloody Well Right bass solo.
+  - Sax: the answer keys' spans.
+- **Window rules on stem loudness** (A: the Demucs sax stem drops below a level; B: another stem is louder than the sax stem; C: the Filosax stem is louder than the Demucs one; D: combinations):
+  - They all catch the Pennies solo.
+  - With settings chosen on the tuning records, they hide large shares of real sax on held-out records: Walker's Theme 98%, Item 1 94%, 35% overall on the Filosax path.
+- **Rule E, per note**: hide a note when, for at least 4 s and with pitch evidence:
+  - the Demucs sax stem is more than 20 dB below the mix;
+  - a piano, guitar or bass stem is within 6 dB of the mix.
+
+  Held out, Filosax path:
+
+| Measure | Result |
+| --- | --- |
+| Pennies piano-solo notes hidden | 70 of 70 |
+| Real sax notes hidden | 1.59% (Impressions 1961 2.5%, Item 1 2.3%) |
+| Bloody Well Right bass-solo notes hidden | 0 of 29 |
+| Drum solo | can't be caught (no pitched notes to test) |
+
+- **Why it can't be tuned fairly**: on the tuning records the Demucs sax stem never drops below −19 dB. On held-out records real sax goes down to −66 dB (Resolution) and −77 dB (Impressions 1963), lower than the Pennies piano solo at −56 dB. So no level separates piano solos from quiet real sax.
+- **Decision**: with Austin. The options are a review mark only (the build thread's recommendation), hiding on the Filosax path only, or neither. No `flags.json` existed yet for the Pennies solo; flags from the play-along (PR #116) can add truth for more records.
+
 ### E66 — 2026-11-05 — Straight sixteenth runs kept straight in swung tunes (PR #112, merged)
 - **Status**: merged 2026-11-05 19:20Z (11:20 am Pacific); on by default.
 - **Change**: in a swung tune, a beat with at least 3 notes, each within 0.2 of a sixteenth slot as played, is now written straight instead of swung. This fixes the "swing bends straight 16ths" fault found on Pennies From Heaven (E61).
