@@ -86,14 +86,24 @@ def swing_arg(text: str) -> str:
     raise argparse.ArgumentTypeError("use auto, straight, or a ratio from 1 to 4 (2 = triplet swing)")
 
 
+def python_pinned() -> str | None:
+    """The Python version in .python-version (None when running outside the repo)."""
+    pin = Path(__file__).resolve().parent.parent / ".python-version"
+    return pin.read_text().strip() if pin.exists() else None
+
+
 def check() -> int:
-    rows = [("ffmpeg", shutil.which("ffmpeg") is not None, "decoding (required)")]
+    want, have = python_pinned(), f"{sys.version_info.major}.{sys.version_info.minor}"
+    rows = [("python", want is None or have == want,
+             f"Python {have}" + (f", project uses {want} (required)" if want else "")),
+            ("ffmpeg", shutil.which("ffmpeg") is not None, "decoding (required)")]
     for mod, use in (("librosa", "audio analysis (required)"), ("mido", "MIDI out (required)"),
                      ("music21", "notation and MusicXML (required)"),
                      ("torch", "runs the neural models"), ("torchcrepe", "pitch contour (else pYIN)"),
                      ("basic_pitch", "note events (else cut from the contour)"),
                      ("beat_this", "beats (else librosa)"), ("demucs", "stems for full mixes"),
-                     ("torchlibrosa", "the Filosax transcriber (--notes-tool filosax)")):
+                     ("torchlibrosa", "the Filosax transcriber (--notes-tool filosax)"),
+                     ("fastapi", "the app (python -m saxscribe app)"), ("verovio", "scores in the app")):
         rows.append((mod, importlib.util.find_spec(mod) is not None, use))
     from .layers.engrave import find_musescore
     rows.append(("musescore", find_musescore() is not None, "PDF sheet music (else MusicXML only)"))
