@@ -100,7 +100,7 @@ Runs alongside the phases. Design doc: https://claude.ai/artifact/WDFJbXxU1WtLeQ
 
 1. **v1**: upload a file, get a PDF; optional scrolling play-along. iPad Safari over home Wi-Fi, served by the Mac. Built in PR #14 (`python -m saxscribe app`); PR #19 added live progress and step timers, Stop / Run again / Remove per take, and a required solo-or-band choice. PR #27: the PDF button falls back to printable pages when no PDF was made. First real test: Austin's band recording "Blues for Mary Jane".
 2. Results page (PR #38): scorecard history per set over time, a marker per model change, the change-by-change table. Sax found / Sax purity and setups side by side (PR #90, merged). Rhythm scores (PR #114, merged; Austin wants to see what the model can and can't do on each dimension): a "What each score measures" card (hearing notes, not adding notes, short notes, timing and pitch, bar placement, rhythm writing, each with its current weak spots), and Short notes found / Bars right / Notes in the right spot buttons on the grid, which shows only the rows that measured the chosen score.
-3. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom).
+3. Viewer and looper (stacked lanes: audio, pitch line, notes, notation at the bottom). Review flags in the play-along (PR #116, merged): flag a bar or notes by error type, saved to `flags.json` without changing the transcription.
 4. Developer compare view against an answer key.
 5. Editor; edits saved as diffs (training data).
 6. Library and review queue.
