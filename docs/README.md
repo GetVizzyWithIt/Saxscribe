@@ -6,7 +6,7 @@ it uses, how well it does, and why it was built this way. The requirements doc
 stays the source of truth for intent; these pages turn it into something that
 can be checked against the code and the scorecards.
 
-Last full review: 2026-11-03. PR state 2026-11-05: everything through #122 merged. #84 stays closed; its change merged as #93.
+Last full review: 2026-11-03. PR state 2026-11-06: everything through #127 merged. #124–#127 are tooling, not model changes: numpy 2 safe-loader test fix, pinned Python and `requirements.lock`, CI running pytest on every PR, and development standards ([development-standards.md](development-standards.md), ADR-0038). #84 stays closed; its change merged as #93.
 
 **To run the tool**, see [Quick start](../README.md#quick-start-copy-and-paste) in the repo README.
 

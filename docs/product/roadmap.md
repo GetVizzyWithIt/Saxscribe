@@ -84,6 +84,7 @@ Goal: a score Austin would put on the stand, with few edits.
 - [x] Band records: write only where the sax plays (PR #35; 0 answer-key notes lost, 7XTyc 56% → 62%, log E16). One wrong 8 s cut on an older take is being fixed
 - [x] Copy finished sheet music to `~/Desktop/Saxscribe` with title and artist (PR #42)
 - [ ] Bar lines on the right beat: PR #109 (merged) puts bars on the beat tracker's downbeats and mends slips, bars right 44 → 75% tuning, 34 → 58% held out (log E64). Half-time grids (Calypso, Item 1, Impressions) stay open: an automatic doubling rule was rejected because it also doubles straight-eighth lines (log E65); next route is a "double the tempo here" control in the editor. Swing no longer bends straight sixteenth runs: PR #112 (merged), Weimar position read 67.26 → 67.85%, Pennies bars 85–92 28 → 41 of 52 notes right (log E66). Development now goes one step at a time, each on Austin's go
+- [ ] Bar numbers in the app run one higher than the answer keys' (off-by-one after #109, found in E69)
 - [ ] Remove short ghost notes without losing real ones (55 extra notes on Blues for Mary Jane, log E19)
 - [ ] MusicXML title from the song metadata (was "Transcription"; fix to confirm)
 - [ ] Chromatic runs: sharps going up, flats going down (PR #44, open)

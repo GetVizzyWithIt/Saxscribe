@@ -118,6 +118,21 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E69 — 2026-11-06 — Austin's first review flags on Pennies From Heaven, checked against the key (finding, no change)
+- **Take**: Austin's Pennies take, made in the app on 2026-11-05 at 3:11 pm Pacific (commit `0c55073`, Filosax separator and Filosax note finder). It includes #109 and #112 but not #121, so it has no `maybe_not_sax` marks.
+- **Flags** (play-along, PR #116): 17 in all, and all 17 were confirmed against the key (read-only check on the Mac).
+
+| Flag | Bars | What the key shows |
+| --- | --- | --- |
+| Missing note (9) | 47–48, 63–64, 71, 84–85, 114, 130 | 41 missed key notes, all quiet low sax. The Filosax separator turns the sax down 15–50 dB there (E61: Demucs kept 28 of 56 in the quiet stretches, Filosax 20) |
+| Extra note (5) | 38, 68, 102, 109, 124 | All 5 tapped notes are wrong. Most extras across the take are real notes a semitone off or 50–150 ms late, not bleed from other instruments |
+| Rhythm written wrong (3) | 86–88 | Every pitch found except one B4; 22 of 30 notes placed right. The errors are in how the rhythm is written: eighths and dotted notes instead of straight 16ths, some 32nds off |
+
+- **Scores on the stretch the key covers** (head and first solo): note F1 58%, onset F1 80%, pitch accuracy 71%. The worst bars Austin didn't flag: 13, 46, 72, 92, 94, 99, 103, 131, 149, 159.
+- After the piano solo the key has no coverage. A second transcription of the same audio agreed with ours about as well as the first solo did.
+- **Known issue**: the app's bar numbers are one higher than the key's (app bar = key bar + 1). This is an off-by-one from the bar-line fix (#109). The bar numbers above are the app's.
+- **Next** (build thread's recommendation): fix the quiet notes the Filosax separator loses.
+
 ### E68 — 2026-11-06 — Notes that may be another instrument marked for review (PR #121, merged)
 - **Status**: merged 2026-11-06 10:10Z (2:10 am Pacific); on by default on both paths.
 - **Change**: E67's rule E ships as a review mark only. Notes it catches get the tag `maybe_not_sax` and stay on the sheet, so nothing is ever hidden. When the stems are missing, the notes step runs Demucs itself, and it uses the Demucs stems on both the standard and Filosax paths. The play-along shows "Possibly not sax?" stretches with Not sax / It's sax buttons; answers are saved under `reviewed` in `flags.json` (PR #116).
