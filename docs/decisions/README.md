@@ -44,3 +44,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0035](0035-sax-trained-note-model-plan.md) | Plan for a sax-trained note model: retrain Riley and Dixon's sax model first | 2026-11-05 | Proposed |
 | [0036](0036-gated-two-separator-hybrid.md) | Gated two-separator hybrid on band records; genre only a hint | 2026-11-05 | Proposed |
 | [0037](0037-head-to-head-experiments-file.md) | Head-to-head tests kept in their own data file (`experiments.jsonl`) | 2026-11-05 | Accepted (PR #100) |
+| [0038](0038-development-standards.md) | Adopt Austin's development standards: lockfile, CI on every PR, claude/<type>-<what> branches | 2026-11-06 | Accepted |
