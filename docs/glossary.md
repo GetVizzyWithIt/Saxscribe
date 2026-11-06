@@ -71,3 +71,5 @@ Plain-language meanings of terms used in the code and these docs.
 | Fixture | The synthetic 10-second alto phrase the tests run on |
 | Tier A–E | Label quality levels in [data/README.md](data/README.md) |
 | The game | Songs in the Key of Life, the sibling project whose front end was copied |
+| `not_sax` / `maybe_not_sax` | Note tags. `not_sax`: kept in notes.json but off the sheet (e.g. below the horn's low note, PR #81). `maybe_not_sax`: may be another instrument's solo; stays on the sheet and is asked about in the play-along (PR #121) |
+| Review flags | Bars or notes Austin marks in the play-along by error type, saved to `flags.json`; never change the transcription (PR #116) |
