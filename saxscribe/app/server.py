@@ -26,6 +26,7 @@ API (JSON unless noted):
   DELETE /api/takes/<id>/flags/<fid>   remove a flag
   GET  /api/takes/<id>/flags.json      flags.json as a download
   GET  /api/takes/<id>/flags.txt       the flags as a short text summary (Copy for Claude)
+  POST /api/takes/<id>/suggestions     answer a "possibly not sax" stretch: {bars: [a, b], answer: not_sax|sax}
 """
 from __future__ import annotations
 
@@ -211,7 +212,8 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     # ---- flags: bars marked for review in the play-along (flags.py)
     def flags_out(take_id: str, job: dict) -> dict:
         data = flag_store.load(library.folder(take_id))
-        return {"flags": data["flags"], "categories": flag_store.CATEGORIES,
+        suggested = flag_store.suggestions(library.take(take_id), data)
+        return {"flags": data["flags"], "categories": flag_store.CATEGORIES, "suggested": suggested,
                 "text": flag_store.text({**data, "title": job.get("title", ""),
                                          "artist": job.get("artist", ""), "horn": job.get("horn", ""),
                                          "engine": job.get("engine", "standard"), "take": take_id})}
@@ -250,6 +252,15 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
         try:
             flag_store.save(library.folder(take_id), take, job, body)
         except ValueError as e:
+            raise HTTPException(400, str(e))
+        return flags_saved(take_id, job)
+
+    @app.post("/api/takes/{take_id}/suggestions")
+    def answer_suggestion(take_id: str, body: dict = Body(...)):
+        job, take = done_or_409(take_id)
+        try:
+            flag_store.review(library.folder(take_id), take, job, body.get("bars", []), body.get("answer", ""))
+        except (ValueError, IndexError, TypeError) as e:
             raise HTTPException(400, str(e))
         return flags_saved(take_id, job)
 

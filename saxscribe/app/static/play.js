@@ -154,7 +154,7 @@ $('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/m
 
 // ---- flags: mark bars for review. They never change the transcription; they go to
 // flags.json next to the take (server: flags.py), with a copy on the Desktop.
-let flagMode = false, flags = [], categories = {}, flagsText = '', editing = null;
+let flagMode = false, flags = [], categories = {}, flagsText = '', editing = null, suggested = [];
 const getScope = segment($('#scope'), v => { $('#pickHint').hidden = v !== 'notes'; markPicked(); });
 
 async function loadFlags() {
@@ -164,7 +164,19 @@ async function loadFlags() {
 function gotFlags(data) {
   flags = data.flags; categories = data.categories; flagsText = data.text;
   $('#cats').innerHTML = Object.entries(categories).map(([k, v]) => `<button type="button" data-c="${k}">${esc(v)}</button>`).join('');
-  $('#flagCount').textContent = flags.length ? `Flags (${flags.length})` : 'Flags';
+  suggested = data.suggested || [];
+  const open = suggested.filter(x => !x.answer).length;
+  $('#flagCount').textContent = (flags.length ? `Flags (${flags.length})` : 'Flags') + (open ? ` · ${open} to check` : '');
+  // Stretches the tool thinks may be another instrument: the notes stay on the score; Austin's
+  // answer is stored with the flags (flags.py review) and becomes the test set for hiding them.
+  $('#suggestItems').hidden = !suggested.length;
+  $('#suggestItems').innerHTML = suggested.length ? '<div class="quiet small">Possibly not sax: the sax track is near-silent while another instrument plays these notes. Listen and answer.</div>' +
+    suggested.map((x, i) => {
+      const bars = x.bars[0] === x.bars[1] ? `Bar ${x.bars[0]}` : `Bars ${x.bars[0]}–${x.bars[1]}`;
+      return `<div class="suggest-item"><button type="button" class="what" data-go="${x.bars[0]}">${bars} · ${x.notes} note${x.notes === 1 ? '' : 's'}</button>` +
+        `<button type="button" data-i="${i}" data-a="not_sax" class="${x.answer === 'not_sax' ? 'on' : ''}">Not sax</button>` +
+        `<button type="button" data-i="${i}" data-a="sax" class="${x.answer === 'sax' ? 'on' : ''}">It’s sax</button></div>`;
+    }).join('') : '';
   $('#flagItems').innerHTML = flags.length ? flags.map(f =>
     `<button type="button" data-id="${f.id}">Bar ${f.bar} · ${esc(f.categories.map(c => categories[c] || c).join(', '))}` +
     `<small>${f.scope === 'notes' ? `${f.picked.length} note${f.picked.length === 1 ? '' : 's'}` : 'whole bar'}${f.text ? ' · ' + esc(f.text) : ''}</small></button>`).join('')
@@ -182,16 +194,24 @@ function drawFlags() {
   const outer = box.getBoundingClientRect();
   const shown = flags.map(f => ({bar: f.bar, label: f.categories.map(c => categories[c] || c).join(', '), id: f.id}));
   if (editing && !editing.id) shown.push({bar: editing.bar, label: 'New flag', id: null});
+  for (const x of suggested) {
+    for (let b = x.bars[0]; b <= x.bars[1]; b++) {
+      if (shown.some(f => f.bar === b)) continue;
+      const label = b !== x.bars[0] ? '' : x.answer === 'not_sax' ? 'Not sax (you said)' : x.answer === 'sax' ? 'Sax (you said)' : 'Possibly not sax?';
+      shown.push({bar: b, label, id: null, suggest: true, answered: !!x.answer});
+    }
+  }
   for (const f of shown) {
     const el = measureEl(f.bar);
     if (!el) continue;
     const staff = el.querySelector('g.staff') || el;
     const r = staff.getBoundingClientRect();
     const d = document.createElement('div');
-    d.className = 'flagbox' + (editing && editing.bar === f.bar && editing.id === f.id ? ' editing' : '');
+    d.className = 'flagbox' + (f.suggest ? ' suggest' + (f.answered ? ' answered' : '') : '') +
+      (!f.suggest && editing && editing.bar === f.bar && editing.id === f.id ? ' editing' : '');
     Object.assign(d.style, {left: `${r.left - outer.left - 4}px`, top: `${r.top - outer.top - 6}px`,
                             width: `${r.width + 8}px`, height: `${r.height + 12}px`});
-    d.innerHTML = `<span>⚑ ${esc(f.label)}</span>`;
+    d.innerHTML = f.label ? `<span>${f.suggest ? '' : '⚑ '}${esc(f.label)}</span>` : '';
     box.appendChild(d);
   }
   markPicked();
@@ -213,6 +233,16 @@ function setFlagMode(on) {
   if (on) toast('Flag mode: tap a bar to flag it.'); else closeSheet();
 }
 $('#flagMode').addEventListener('click', () => setFlagMode(!flagMode));
+$('#suggestItems').addEventListener('click', async e => {
+  const go = e.target.closest('[data-go]');
+  if (go) { const el = measureEl(+go.dataset.go); if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); $('#flagMenu').open = false; return; }
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const x = suggested[+b.dataset.i];
+  const r = await fetch(`/api/takes/${takeId}/suggestions`, {method: 'POST', headers: {'Content-Type': 'application/json'},
+                                                             body: JSON.stringify({bars: x.bars, answer: b.dataset.a})});
+  if (r.ok) { gotFlags(await r.json()); toast('Saved. Thanks, that answer trains the check.'); }
+  else toast('Could not save that answer.');
+});
 
 function flagClick(e) {
   const m = e.target.closest('g.measure') || measureAt(e.clientX, e.clientY);
