@@ -99,12 +99,15 @@ take.saxscribe/
   score-alto.musicxml     layer 4, written for the horn
   score.pdf, score-alto.pdf   layer 4, when MuseScore is installed
   notation.json           layer 4 decisions
+  flags.json              review flags from the play-along (PR #116); never changes the layers
 ```
 
 Pitch is stored at concert pitch everywhere; transposition happens only at
 display ([ADR-0003](../decisions/0003-concert-pitch-storage.md)). Planned: an
 `edits/` folder holding the editor's operations as a diff against the model's
 `notes.json`, which stays untouched.
+
+Review flags (PR #116): in the play-along, the Flag button marks a bar, or picked notes in it, with one or more categories: Missing note, Extra note, Wrong pitch, Wrong octave, Held note split in two, Notes merged into one, Timing off, Rhythm written wrong, Bar line off / half time, Swing or feel wrong, Not sax, Other. An optional note can be added. Each flag saves the bar's start and end time in the recording, the notes written there and the tool version to `flags.json` beside the take's files, so a review can line it up with an answer key by time. A copy goes in `Desktop/Saxscribe/<song>/` with a text summary, which "Copy for Claude" in the Flags menu puts on the clipboard. Flags never change the transcription. Space types in the flag note box and plays or pauses everywhere else (PR #117). Planned uses: bar-line flags for a "double the tempo here" fix (log E65), and Not sax flags for the sax-out list.
 
 ## 4. Instrument profiles (`saxscribe/horns.py`)
 
