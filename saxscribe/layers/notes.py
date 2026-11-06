@@ -152,16 +152,25 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
 def review_marks(take: Take, notes: list[dict]) -> dict:
     """Marks notes that may be another instrument for review (notsax.py); never hides them.
     Uses Demucs' six stems, which the Filosax path also keeps in stems/."""
-    from . import notsax
+    from . import isolate, notsax
     isolated = take.read_manifest().get("layers", {}).get("isolate", {})
     filosax_path = isolated.get("separator") == "filosax"
-    used = set() if filosax_path else set((isolated.get("stem") or "").split("+"))
-    sax = take.stems / "other.wav" if filosax_path else take.stem
-    rivals = {n: take.stems / f"{n}.wav" for n in notsax.RIVALS
-              if n not in used and (take.stems / f"{n}.wav").exists()}
-    if not sax.exists() or not rivals:
-        return {"marked": 0, "why": "no Demucs stems"}
-    out = notsax.mark(notes, take.source, sax, rivals, "filosax" if filosax_path else "demucs")
+    if not (take.stems / f"{isolate.DEFAULT_STEM}.wav").exists():
+        if not frontend.demucs_available():
+            return {"marked": 0, "why": "no Demucs stems"}
+        frontend.log("Separating Demucs' six stems too, to check for other instruments' solos...")
+        frontend.separate_stems(take.source, take.stems)
+    stems = {p.stem: p for p in take.stems.glob("*.wav")}
+    if filosax_path:  # the stems Demucs puts the sax in, chosen as the Demucs path would
+        lead = isolate.choose({n: isolate.lead_score(stems[n]) for n in isolate.MELODIC if n in stems})
+        lead = lead or [isolate.DEFAULT_STEM]
+    else:
+        lead = [n for n in (isolated.get("stem") or isolate.DEFAULT_STEM).split("+") if n in stems]
+    rivals = {n: stems[n] for n in notsax.RIVALS if n in stems and n not in lead}
+    if not lead or not rivals:
+        return {"marked": 0, "why": "no rival stems"}
+    out = notsax.mark(notes, take.source, [stems[n] for n in lead], rivals, "filosax" if filosax_path else "demucs")
+    out["sax_stems"] = lead
     if out["marked"]:
         frontend.log(f"  {out['marked']} notes may be another instrument (the sax track is near-silent while "
                      f"{', '.join(rivals)} plays): kept on the score, marked for review in the play-along")

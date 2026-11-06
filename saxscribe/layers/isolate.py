@@ -99,10 +99,6 @@ def run_filosax(take: Take, src: Path, stem: str | None) -> None:
                 source=str(src), stems=sorted(stems), stems_folder=FILOSAX_STEMS,
                 weights_sha256=filosax.WEIGHTS["separator"]["sha256"])
     frontend.log(f"Using the {name!r} stem from the Filosax separator. Both stems are in {folder}.")
-    # Demucs' six stems as well: the review check for other instruments (notsax.py) reads them.
-    if not (take.stems / "other.wav").exists() and frontend.demucs_available():
-        frontend.log("Separating Demucs' six stems too, to check for other instruments' solos...")
-        frontend.separate_stems(take.source, take.stems)
 
 
 def lead_score(path: Path) -> float:
