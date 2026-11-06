@@ -1,0 +1,11 @@
+# Model and scoring versions the scorecards were run with. scripts/lock.sh holds
+# these fixed so a relock never moves them by accident. Change one on purpose,
+# in its own PR, with a before/after scorecard.
+basic-pitch==0.4.0
+torchcrepe==0.0.24
+torch==2.8.0
+torchaudio==2.8.0
+demucs==4.1.0
+librosa==0.11.0
+music21==10.5.2
+mir_eval==0.8.2

@@ -1,25 +1,12 @@
 #!/bin/bash
 # Regenerate requirements.lock from requirements.txt (needs uv: brew install uv).
-# Known-good versions of the models the scorecards were run with are held
-# fixed here, so a relock never moves them by accident. Change them on purpose,
-# in their own PR, with a scorecard.
+# Versions in scripts/scorecard-versions.txt are held fixed.
 set -e
 cd "$(dirname "$0")/.."
-KNOWN=$(mktemp)
-cat > "$KNOWN" <<'PINS'
-basic-pitch==0.4.0
-torchcrepe==0.0.24
-torch==2.8.0
-torchaudio==2.8.0
-demucs==4.1.0
-librosa==0.11.0
-music21==10.5.2
-mir_eval==0.8.2
-PINS
 BODY=$(mktemp)
-uv pip compile --python-version 3.11 --python-platform aarch64-apple-darwin \
-  --no-header requirements.txt -c "$KNOWN" -o "$BODY"
+uv pip compile --python-version "$(cat .python-version)" --python-platform aarch64-apple-darwin \
+  --no-header requirements.txt -c scripts/scorecard-versions.txt -o "$BODY"
 { sed -n '1,/^$/p' requirements.lock; cat "$BODY"; } > requirements.lock.new
 mv requirements.lock.new requirements.lock
-rm -f "$KNOWN" "$BODY"
+rm -f "$BODY"
 echo "requirements.lock updated. Commit it with requirements.txt."
