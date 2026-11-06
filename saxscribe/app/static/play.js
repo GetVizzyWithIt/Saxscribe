@@ -133,7 +133,9 @@ $('#score').addEventListener('click', e => {
   update(true);
 });
 document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') { e.preventDefault(); toggle(); }
+  // Space plays and pauses, except while typing (the flag note box) or in the flag panel.
+  const typing = e.target.closest && e.target.closest('input, textarea, select, [contenteditable], #sheet');
+  if (e.code === 'Space' && !typing) { e.preventDefault(); toggle(); }
 });
 function resize(by) {
   const next = Math.max(0, Math.min(3, size + by));
