@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 | #121 (open) | Notes that may be another instrument marked for review (`maybe_not_sax`), never hidden | notes | pfh-austin (Filosax app take), 22 records | Piano-solo notes marked / real sax marked / notes hidden | — | 64 of 64 / about 1.6% / 0 | pending merge | [E68](#e68--2026-11-06--notes-that-may-be-another-instrument-marked-for-review-pr-121-pending-merge) |
 | 2026-11-05 | #112 | Straight sixteenth runs kept straight in swung tunes | notation | weimar rhythm scorecard (444 solos), pfh-austin (Filosax take) | Position read / notes right | 67.26% / 578 of 734 | 67.85% / 589 of 734 | yes | [E66](#e66--2026-11-05--straight-sixteenth-runs-kept-straight-in-swung-tunes-pr-112-merged) |
 | 2026-11-05 | #109 | Bar lines follow the beat tracker's downbeats; beat grid mended where it slips | notation | tuning records, held-out records, pfh-austin | Bars in the right place | 44.2 / 34.1 / 0.6% | 75.1 / 58.0 / 87.5% | yes | [E64](#e64--2026-11-05--bar-lines-kept-on-the-right-beat-pr-109-merged) |
 | 2026-11-05 | #103 | Filosax separator and transcriber as opt-in settings (`--separator filosax`, `--notes-tool filosax`) | isolate + notes | weimar-tenor, omnibook-mix, pfh-austin, bfmj-austin | Note F1 (opt-in vs default) | 57.3 / 58.2 / 50.1 / 56.2% | 76.9 / 67.5 / 56.8 / 48.6% | opt-in | [E59](#e59--2026-11-05--filosax-separator-and-transcriber-as-opt-in-settings-pr-103-merged) |
@@ -117,6 +118,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E68 — 2026-11-06 — Notes that may be another instrument marked for review (PR #121, pending merge)
+- **Change**: E67's rule E ships as a review mark only. Notes it catches get the tag `maybe_not_sax` and stay on the sheet, so nothing is ever hidden. When the stems are missing, the notes step runs Demucs itself, and it uses the Demucs stems on both the standard and Filosax paths. The play-along shows "Possibly not sax?" stretches with Not sax / It's sax buttons; answers are saved under `reviewed` in `flags.json` (PR #116).
+- **Mac check**:
+  - The shipped code marks exactly the same notes as the E67 experiment on all 44 take/path pairs (22 takes × 2 paths). For example, Pennies Filosax 89 = 89, Impressions 1961 117 = 117, Item 1 23 = 23, Resolution standard 161 = 161.
+  - Austin's Pennies Filosax app take, rerun from the notes step without a stems folder:
+    - Demucs ran inside the notes step.
+    - 96 notes were marked: all 64 in the piano solo (3:42–4:21), plus 22 real sax notes from the key.
+    - 0 notes were hidden; there are 1,158 notes before and after.
+  - On the earlier E59 take, all 70 piano-solo notes were marked, plus 16 real sax notes. Across the 22 records, about 1.6% of real sax notes get marked.
+  - Note F1 is unchanged, since no notes are removed.
+- **Second opinions tried (not adopted)**: Filosax stem pitch share, MVSep Mega sax vs piano stems, and PANNs. If all three had to agree before hiding, only 2 of 12,993 real sax notes would be hidden, but most band notes would stay review-only. PANNs is the weak vote.
+- **Side note**: on the Mac, `test_transcriber_weights_load_with_the_safe_loader` fails on main too. numpy 2 pickles under the name `numpy._core.multiarray._reconstruct`, which is missing from the safe-loader allowlist.
+
 ### E67 — 2026-11-06 — Not-sax detection baseline (finding, not adopted)
 - **Goal**: mark stretches where another instrument takes the solo (piano, bass, drums) so the Filosax path stops writing their notes as sax (E61: 64 piano notes in the Pennies piano solo).
 - **Setup**: Mac, read-only, outside the repo. Tuned on the Parker training records plus Confirmation and Calypso. Held out: Austin's tunes, Parker 2RfYc, 73bwc and 9RfYc, Impressions 1961 and 1963, Item 1.
@@ -140,7 +154,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Drum solo | can't be caught (no pitched notes to test) |
 
 - **Why it can't be tuned fairly**: on the tuning records the Demucs sax stem never drops below −19 dB. On held-out records real sax goes down to −66 dB (Resolution) and −77 dB (Impressions 1963), lower than the Pennies piano solo at −56 dB. So no level separates piano solos from quiet real sax.
-- **Decision**: with Austin. The options are a review mark only (the build thread's recommendation), hiding on the Filosax path only, or neither. No `flags.json` existed yet for the Pennies solo; flags from the play-along (PR #116) can add truth for more records.
+- **Decision**: review mark only, never hidden (shipped as PR #121, E68). The other options were hiding on the Filosax path only, or neither. No `flags.json` existed yet for the Pennies solo; flags from the play-along (PR #116) can add truth for more records.
 
 ### E66 — 2026-11-05 — Straight sixteenth runs kept straight in swung tunes (PR #112, merged)
 - **Status**: merged 2026-11-05 19:20Z (11:20 am Pacific); on by default.
