@@ -137,7 +137,9 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - The standard path (Demucs + Basic Pitch) finds only 10.
   - About 6 are slurs: the pitch is sounding but there's no attack to detect.
   - So the notes are lost at the separation step, and changing the note finder can't bring them back.
-- **Next**: any fix has to come from separation (a better sax stem in quiet passages), not from the note finder.
+- **Next**: any fix has to come from separation (a better sax stem in quiet passages), not from the note finder. Proposed, waiting on Austin's go in the build thread:
+  - a layered separator test (mix → other → wind → sax) on these bars, plus Parker and Walker's Theme;
+  - a cheap rule that starts a new note on a pitch change even without an attack, for the slurs.
 
 ### E69 — 2026-11-06 — Austin's first review flags on Pennies From Heaven, checked against the key (finding, no change)
 - **Take**: Austin's Pennies take, made in the app on 2026-11-05 at 3:11 pm Pacific (take `20261105-151104`, commit `0c55073`, tenor, Filosax separator and Filosax note finder). It includes #109 and #112 but not #121, so it has no `maybe_not_sax` marks.
