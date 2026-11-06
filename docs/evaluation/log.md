@@ -118,8 +118,29 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E70 — 2026-11-06 — Recovering the quiet low notes on the Filosax path (not adopted)
+- **Goal**: find the quiet low sax notes that Austin flagged as missing (E69). Austin said "go both" (20:47Z), so two fixes were tried.
+- **Setup**: Filosax path. Tuned on the Parker training records, Confirmation and Calypso takes 1–2; the test set was scored once. Full report on the Mac: `~/saxscribe-runs/exp/lownotes/report.md`.
+- **Fix B**: make the note finder more sensitive below written D5. The best setting that passed the guards (onset 0.2, frame 0.1) scored on the test set:
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Note F1 | 65.1% | 64.9% |
+| Low notes found | 63.2% | 63.7% |
+| Extra notes | 3,002 | 3,102 |
+| Notes in rests per minute | 39.6 | 41.6 |
+
+- **Fix A**: borrow the standard path's notes (Demucs + Basic Pitch) where the Filosax stem drops by 10, 15 or 20 dB, with 4 guards. With the guards on, it adds only 11–46 notes on the training records and gives no F1 gain. With the guards off, notes in rests rise from 7.2 to 9–10 per minute.
+- **Austin's Pennies take**: in his 9 flagged quiet low bars, every variant finds the same 18 of 59 key notes. His 5 tapped extras remain.
+- **Why it fails**, looking at the 41 missed notes:
+  - 31 of them get almost no note-start signal from the Filosax transcriber.
+  - The standard path (Demucs + Basic Pitch) finds only 10.
+  - About 6 are slurs: the pitch is sounding but there's no attack to detect.
+  - So the notes are lost at the separation step, and changing the note finder can't bring them back.
+- **Next**: any fix has to come from separation (a better sax stem in quiet passages), not from the note finder.
+
 ### E69 — 2026-11-06 — Austin's first review flags on Pennies From Heaven, checked against the key (finding, no change)
-- **Take**: Austin's Pennies take, made in the app on 2026-11-05 at 3:11 pm Pacific (commit `0c55073`, Filosax separator and Filosax note finder). It includes #109 and #112 but not #121, so it has no `maybe_not_sax` marks.
+- **Take**: Austin's Pennies take, made in the app on 2026-11-05 at 3:11 pm Pacific (take `20261105-151104`, commit `0c55073`, tenor, Filosax separator and Filosax note finder). It includes #109 and #112 but not #121, so it has no `maybe_not_sax` marks.
 - **Flags** (play-along, PR #116): 17 in all, and all 17 were confirmed against the key (read-only check on the Mac).
 
 | Flag | Bars | What the key shows |
@@ -128,7 +149,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | Extra note (5) | 38, 68, 102, 109, 124 | All 5 tapped notes are wrong. Most extras across the take are real notes a semitone off or 50–150 ms late, not bleed from other instruments |
 | Rhythm written wrong (3) | 86–88 | Every pitch found except one B4; 22 of 30 notes placed right. The errors are in how the rhythm is written: eighths and dotted notes instead of straight 16ths, some 32nds off |
 
-- **Scores on the stretch the key covers** (head and first solo): note F1 58%, onset F1 80%, pitch accuracy 71%. The worst bars Austin didn't flag: 13, 46, 72, 92, 94, 99, 103, 131, 149, 159.
+- **Scores on the stretch the key covers** (head and first solo): note F1 58.4%, onset F1 80.5%, pitch accuracy 70.6%. The worst bars Austin didn't flag: 13, 46, 72, 92, 94, 99, 103, 131, 149, 159.
 - After the piano solo the key has no coverage. A second transcription of the same audio agreed with ours about as well as the first solo did.
 - **Known issue**: the app's bar numbers are one higher than the key's (app bar = key bar + 1). This is an off-by-one from the bar-line fix (#109). The bar numbers above are the app's.
 - **Next** (build thread's recommendation): fix the quiet notes the Filosax separator loses.
