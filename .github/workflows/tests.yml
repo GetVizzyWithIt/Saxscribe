@@ -28,7 +28,12 @@ jobs:
           cache-dependency-path: requirements.lock
 
       - name: Install ffmpeg
-        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+        # Use the runner's ffmpeg if it has one; otherwise a static build from
+        # GitHub (apt's package refresh once took 7 minutes here).
+        run: |
+          if command -v ffmpeg >/dev/null; then ffmpeg -version | head -1; exit 0; fi
+          curl -sSL https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz | tar -xJ -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/ffmpeg-master-latest-linux64-gpl/bin" >> "$GITHUB_PATH"
 
       - name: Install the locked packages
         # requirements.lock is locked for the Mac. On Linux: take the CPU build
