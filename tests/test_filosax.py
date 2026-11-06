@@ -96,9 +96,21 @@ def fake_models(monkeypatch, fixture_wav, notes):
     monkeypatch.setattr(frontend, "demucs_available", lambda: True)
 
 
+def fake_six(wav, out_dir, fixture_wav):
+    """Demucs' six stems: the sax in other, silence elsewhere."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    y, rate = sf.read(str(fixture_wav))
+    stems = {}
+    for name in ("drums", "bass", "other", "vocals", "guitar", "piano"):
+        stems[name] = out_dir / f"{name}.wav"
+        sf.write(str(stems[name]), y if name == "other" else np.zeros_like(y), rate)
+    return stems
+
+
 def test_band_record_through_both_filosax_models(tmp_path, monkeypatch, fixture_wav):
     truth = [dict(n, amp=0.6) for n in fixture.truth()]
     fake_models(monkeypatch, fixture_wav, truth)
+    monkeypatch.setattr(frontend, "separate_stems", lambda wav, out: fake_six(wav, out, fixture_wav))
     take = transcribe(fixture_wav, tmp_path / "take", mix=True, separator="filosax", notes_tool="filosax")
     manifest = take.read_manifest()
     iso, nl = manifest["layers"]["isolate"], manifest["layers"]["notes"]
@@ -109,18 +121,21 @@ def test_band_record_through_both_filosax_models(tmp_path, monkeypatch, fixture_
     assert len(data["notes"]) == len(truth)  # every note the transcriber found is kept
     assert [n["pitch"] for n in data["notes"]] == [n["pitch"] for n in truth]
     assert not any("not_sax" in n["tags"] for n in data["notes"])
+    assert nl["maybe_not_sax"]["marked"] == 0  # the sax is loud in Demucs' sax stem: nothing to review
     assert take.has("notation")
 
 
 def test_switching_separator_remakes_every_layer(tmp_path, monkeypatch, fixture_wav):
     fake_models(monkeypatch, fixture_wav, [dict(n, amp=0.6) for n in fixture.truth()])
-    monkeypatch.setattr(frontend, "separate_stems", lambda wav, out: pytest.fail("Demucs should not run"))
+    six = []
+    monkeypatch.setattr(frontend, "separate_stems", lambda wav, out: six.append(fake_six(wav, out, fixture_wav)))
     out = tmp_path / "take"
     transcribe(fixture_wav, out, mix=True, separator="filosax", notes_tool="filosax")
+    assert len(six) == 1  # Demucs' six stems too, for the other-instrument review check
     calls = []
     monkeypatch.setattr(filosax, "separate", lambda *a, **k: calls.append(a))
     transcribe(fixture_wav, out, mix=True, separator="filosax", notes_tool="filosax")
-    assert calls == []  # same separator: nothing remade
+    assert calls == [] and len(six) == 1  # same separator: nothing remade
 
     def demucs(wav, out_dir):
         out_dir.mkdir(parents=True, exist_ok=True)

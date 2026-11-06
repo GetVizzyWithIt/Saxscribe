@@ -161,6 +161,58 @@ def remove(folder: Path, flag_id: str) -> None:
     _write(folder, data)
 
 
+# ---- suggested stretches: notes the notes layer marked "maybe_not_sax" (layers/notsax.py)
+
+ANSWERS = ("not_sax", "sax")
+
+
+def suggestions(take: Take, data: dict) -> list[dict]:
+    """Runs of bars holding notes marked maybe_not_sax, with Austin's answer if he gave one.
+    The notes stay on the score; the answers become the test set for a rule that hides them."""
+    try:
+        played = json.loads(take.notes.read_text())["notes"]
+        nota = json.loads(take.notation.read_text())["notes"]
+    except (OSError, ValueError, KeyError):
+        return []
+    from ..layers.notsax import MAYBE_NOT_SAX
+    count: dict[int, int] = {}
+    for n in nota:
+        if MAYBE_NOT_SAX in (played[n["index"]].get("tags") or []):
+            count[n["bar"]] = count.get(n["bar"], 0) + 1
+    out: list[dict] = []
+    for bar in sorted(count):
+        if out and bar - out[-1]["bars"][1] <= 2:  # one empty bar between still reads as one stretch
+            out[-1]["bars"][1] = bar
+            out[-1]["notes"] += count[bar]
+        else:
+            out.append({"bars": [bar, bar], "notes": count[bar]})
+    answers = {tuple(r["bars"]): r["answer"] for r in data.get("reviewed", [])}
+    for s in out:
+        s["answer"] = answers.get(tuple(s["bars"]))
+    return out
+
+
+def review(folder: Path, take: Take, job: dict, bars: list[int], answer: str) -> dict:
+    """Store Austin's answer for a suggested stretch: "not_sax" (he hears another instrument)
+    or "sax". Replaces an earlier answer for the same bars."""
+    if answer not in ANSWERS:
+        raise ValueError("answer must be not_sax or sax")
+    a, b = int(bars[0]), int(bars[1])
+    if a < 1 or b < a:
+        raise ValueError("bars must be [first, last]")
+    data = load(folder)
+    data.update({"title": job.get("title", ""), "artist": job.get("artist", ""),
+                 "horn": job.get("horn", ""), "engine": job.get("engine", "standard"),
+                 "take": folder.name, "made_by": made_by(take)})
+    first, last = bar_context(take, a, []), bar_context(take, b, [])
+    entry = {"bars": [a, b], "answer": answer, "start": first["start"], "end": last["end"],
+             "at": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+    data["reviewed"] = [r for r in data.get("reviewed", []) if r["bars"] != [a, b]] + [entry]
+    data.setdefault("flags", [])
+    _write(folder, data)
+    return entry
+
+
 def clock(s: float) -> str:
     return f"{int(s // 60)}:{s % 60:04.1f}"
 
@@ -180,4 +232,8 @@ def text(data: dict) -> str:
         written = " ".join(n["name"] for n in f["notes"]) or "(rest)"
         lines.append(line)
         lines.append(f"  written (concert): {written}")
+    for r in data.get("reviewed", []):
+        said = "not sax" if r["answer"] == "not_sax" else "sax"
+        lines.append(f"- Bars {r['bars'][0]}-{r['bars'][1]} ({clock(r['start'])}-{clock(r['end'])}): "
+                     f"suggested 'possibly not sax'; Austin says {said}")
     return "\n".join(lines) + "\n"

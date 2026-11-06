@@ -118,6 +118,8 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         if extra["bleed"]["no_pitch_line"] or extra["bleed"]["off_line"]:
             frontend.log(f"  {extra['bleed']['no_pitch_line']} notes where the sax's pitch line is silent and "
                          f"{extra['bleed']['off_line']} off the line (other instruments): kept, left off the score")
+    if take.read_manifest().get("mix") and take.source.exists():
+        extra["maybe_not_sax"] = review_marks(take, notes)
     from . import ranges
     stem = frontend.load_mono(take.stem, sr=ranges.RATE) if range_rules != "off" else None
     extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules)
@@ -145,6 +147,25 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
     take.record("notes", tool=name, beats=beat_tool, **extra)
     joined = f" ({extra['joined']} split notes joined)" if "joined" in extra else ""
     frontend.log(f"  {name}: {len(notes)} notes{joined}; {beat_tool}: {len(beats)} beats")
+
+
+def review_marks(take: Take, notes: list[dict]) -> dict:
+    """Marks notes that may be another instrument for review (notsax.py); never hides them.
+    Uses Demucs' six stems, which the Filosax path also keeps in stems/."""
+    from . import notsax
+    isolated = take.read_manifest().get("layers", {}).get("isolate", {})
+    filosax_path = isolated.get("separator") == "filosax"
+    used = set() if filosax_path else set((isolated.get("stem") or "").split("+"))
+    sax = take.stems / "other.wav" if filosax_path else take.stem
+    rivals = {n: take.stems / f"{n}.wav" for n in notsax.RIVALS
+              if n not in used and (take.stems / f"{n}.wav").exists()}
+    if not sax.exists() or not rivals:
+        return {"marked": 0, "why": "no Demucs stems"}
+    out = notsax.mark(notes, take.source, sax, rivals, "filosax" if filosax_path else "demucs")
+    if out["marked"]:
+        frontend.log(f"  {out['marked']} notes may be another instrument (the sax track is near-silent while "
+                     f"{', '.join(rivals)} plays): kept on the score, marked for review in the play-along")
+    return out
 
 
 def report_range(c: dict, horn: Horn) -> None:

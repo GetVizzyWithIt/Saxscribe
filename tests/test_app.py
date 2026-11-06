@@ -274,3 +274,34 @@ def test_flag_a_bar_for_review(client):
     assert client.delete(f"{url}/{f['id']}").json()["flags"] == []
     assert client.delete(f"{url}/{f['id']}").status_code == 404
     assert (take.notes.read_text(), take.notation.read_text()) == before
+
+
+def test_possibly_not_sax_stretches_are_offered_for_an_answer(client):
+    """Notes marked maybe_not_sax show as a suggested stretch; Austin's answer is stored with
+    the flags, and the notes themselves stay as they were."""
+    import json
+    take = client.library.take(client.take_id)
+    original = take.notes.read_text()
+    try:
+        data = json.loads(original)
+        written = json.loads(take.notation.read_text())["notes"]
+        bar = written[-1]["bar"]
+        for n in written:
+            if n["bar"] == bar:
+                data["notes"][n["index"]]["tags"].append("maybe_not_sax")
+        take.notes.write_text(json.dumps(data))
+        url = f"/api/takes/{client.take_id}"
+        s = client.get(f"{url}/flags").json()["suggested"]
+        assert s == [{"bars": [bar, bar], "notes": sum(n["bar"] == bar for n in written), "answer": None}]
+        r = client.post(f"{url}/suggestions", json={"bars": [bar, bar], "answer": "not_sax"})
+        assert r.status_code == 200, r.text
+        assert r.json()["suggested"][0]["answer"] == "not_sax"
+        r = client.post(f"{url}/suggestions", json={"bars": [bar, bar], "answer": "sax"})  # changed his mind
+        saved = json.loads((client.library.folder(client.take_id) / "flags.json").read_text())
+        assert [x["answer"] for x in saved["reviewed"]] == ["sax"] and saved["reviewed"][0]["end"] > 0
+        assert "Austin says sax" in client.get(f"{url}/flags.txt").text
+        assert client.post(f"{url}/suggestions", json={"bars": [bar, bar], "answer": "maybe"}).status_code == 400
+        assert take.notes.read_text() == json.dumps(data)  # an answer never changes the notes
+    finally:
+        take.notes.write_text(original)
+        (client.library.folder(client.take_id) / "flags.json").unlink(missing_ok=True)
