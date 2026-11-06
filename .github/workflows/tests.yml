@@ -1,0 +1,54 @@
+# Runs the test suite on every pull request and on every push to main,
+# so nothing merges without the tests passing.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements.lock
+
+      - name: Install ffmpeg
+        # Use the runner's ffmpeg if it has one; otherwise a static build from
+        # GitHub (apt's package refresh once took 7 minutes here).
+        run: |
+          if command -v ffmpeg >/dev/null; then ffmpeg -version | head -1; exit 0; fi
+          curl -sSL https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz | tar -xJ -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/ffmpeg-master-latest-linux64-gpl/bin" >> "$GITHUB_PATH"
+
+      - name: Install the locked packages
+        # requirements.lock is locked for the Mac. On Linux: take the CPU build
+        # of the same torch version, skip Core ML (Mac only; Basic Pitch then
+        # uses ONNX), and install the rest at the locked versions.
+        run: |
+          python -m pip install --upgrade pip
+          TORCH=$(grep -E '^torch==' requirements.lock | cut -d= -f3)
+          AUDIO=$(grep -E '^torchaudio==' requirements.lock | cut -d= -f3)
+          pip install "torch==$TORCH" "torchaudio==$AUDIO" --index-url https://download.pytorch.org/whl/cpu
+          grep -vE '^coremltools==' requirements.lock > /tmp/ci.lock
+          pip install --no-deps -r /tmp/ci.lock
+
+      - name: Health check
+        run: python -m saxscribe check
+
+      - name: Tests
+        run: python -m pytest -q
