@@ -118,6 +118,15 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E72 — 2026-11-07 — Start a note on a pitch change without an attack, for slurs (not adopted)
+- **Goal**: catch slurred notes that E70 suggested were being missed: the pitch changes, but there is no new attack to trigger a note.
+- **Rule tried**: start a new note wherever the Filosax transcriber's frame output switches pitch without an attack. Settings were chosen on the training records: frame threshold 0.7, at least 60 ms.
+- **Result**: on the test set, note F1 stayed at 65.1, with 43 notes added across 13 records. In Austin's flagged bars on Pennies, notes found stayed at 18 of 59.
+- **Finding**: the misses that looked like slurs are notes written at the right pitch but placed 100–190 ms away from the key (for example 82.59 s against 82.76 s). In Austin's flagged bars, a third of the bars have a median timing error over 50 ms, against 5% elsewhere, with notes both early and late. 31 of the 41 misses are missing from the stem entirely (E70).
+- **Possible next step** (not approved): snap note starts to the stem's attack points when they are 50–200 ms off.
+- **Data**: report and 60 E72 rows on the Mac (`~/saxscribe-runs/exp/slurs/report.md`), not yet in `experiments.jsonl`.
+- E71 (layered separator test, mix → Demucs other → Mega wind → Mega sax) started at 02:13Z and takes about 4 hours. Its entry will be added when it finishes.
+
 ### E70 — 2026-11-06 — Recovering the quiet low notes on the Filosax path (not adopted)
 - **Goal**: find the quiet low sax notes that Austin flagged as missing (E69). Austin said "go both" (20:47Z), so two fixes were tried.
 - **Setup**: Filosax path. Tuned on the Parker training records, Confirmation and Calypso takes 1–2; the test set was scored once. Full report on the Mac: `~/saxscribe-runs/exp/lownotes/report.md`.
