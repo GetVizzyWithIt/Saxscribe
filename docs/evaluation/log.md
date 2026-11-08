@@ -67,6 +67,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | bloody-well-right-austin (174 notes) | 67.3% | 50.4% | 21.0% | 34.8% | — | mix | E53 |
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
 | weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 65.6% default after #102 (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
+| etudes-alto (Ferling 48 + Luft No. 2, 52 takes, 14,443 notes) | 92.3% | 73.5% | 57.5% (fast 70.0, slow 39.1) | 69.2% | — | solo | E75 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -117,6 +118,23 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E75 — 2026-11-08 — New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 (baseline)
+- **Why**: Austin asked for alto etude answer keys. They give a written-music test on real alto takes, which the jazz records can't.
+- **Keys**: Ferling's 48 Studies Op. 31 (IMSLP #16933, Spehr 1837) and Luft Op. 1 No. 2 (IMSLP #94059, Bleuzet 1926), both public-domain scans. The homr score reader turned them into MusicXML. Each key was lined up with its recording (concert = written − 9 semitones) and onsets snapped to heard attacks. Where a player took a passage an octave away from the page, the key follows the ear.
+- **Takes**: 52 alto recordings, mostly Wonki Lee, plus Voxman, Nabb and UT studio takes; 14,443 key notes. On average 92% of key notes agree with the pitch heard. The rest are score-reader slips, ornaments and trills, or edition differences. The keys have not been checked by ear.
+- **Run**: standard solo path (no separation), `--horn alto`, main at 52d3cda, in the cloud container. Beat This! couldn't download there, so beats came from librosa; that doesn't change the notes.
+- **Scores**, means over the 52 takes:
+
+| Takes | Note F1 | Note F1 no offset | Onset F1 (P / R) | Pitch | Octave errors |
+| --- | --- | --- | --- | --- | --- |
+| All 52 | 57.5 | 69.2 | 73.5 (67.8 / 83.4) | 92.3% | 0.8% |
+| Fast studies (31) | 70.0 | — | — | — | — |
+| Slow studies (21) | 39.1 | — | — | — | — |
+
+- **Finding**: slow studies lose mostly to held notes split by vibrato: 1,617 extra notes inside held notes plus 1,150 splits. Onset recall is high (83%), so the notes are found; the trouble is that one held note gets written as several. Fast studies score close to the jazz solo sets.
+- **Not changed**: no repo or pipeline change. A vibrato-aware held-note fix would be a pipeline step and needs Austin's go in Build.
+- **Data**: `/mnt/project-files/datasets/etude-keys/` (README, keys, aligned keys, `scorecard.csv` with one row per take); Mac copy `~/saxscribe-runs/keys/etudes/`. Not yet in `experiments.jsonl`. Audio stays off the repo.
 
 ### E74 — 2026-11-08 — Note-finder settings on Mega sax stems (not adopted)
 - **Question**: E73 showed MVSep Mega's sax stem holds almost every key note, yet the note finders write far fewer. Do the note finders just need different thresholds on Mega stems?

@@ -41,6 +41,7 @@ Last updated 2026-11-03.
 | TinySOL, Iowa MIS, Philharmonia, OrchideaSOL, GoodSounds | Single alto/tenor/soprano/bari notes, techniques | C | none | Range and technique checks, augmentation | various | [single-note-sets](datasheets/single-note-sets.md) |
 | SaxTimbre, Vibrato Dataset, Register Control, Medley-solos-DB | Technique and register clips | C | none | Articulation/technique classifiers | various | [technique-sets](datasheets/technique-sets.md) |
 | GRFIA audio-to-score | 1,026 short alto and tenor takes (~3 h), written score per take, technique tags | B (machine-aligned, not spot-checked); C (techniques) | `grfia-alto`, `grfia-tenor` | Notation and rhythm answer key; technique tags; tenor | Non-commercial | [grfia-audio-to-score](datasheets/grfia-audio-to-score.md) |
+| Alto etude keys (Ferling Op. 31, Luft Op. 1 No. 2) | 52 alto takes of written studies, keys read from public-domain scores | B (score-reader keys, machine-aligned; 92% agree with heard pitch) | `etudes-alto` | Written-music test on real alto; held-note and vibrato checks | Scores public domain; recordings *to verify* | [etude-keys](datasheets/etude-keys.md) |
 | Austin's recordings and answer keys | Etude takes; records paired with his paper transcriptions | A (once aligned and checked) | `pairs` | Frozen 20-take test set; fine-tuning; personal answer keys | Private | [austin-recordings](datasheets/austin-recordings.md) |
 | FiloBass | Jazz bass, no sax | — | none | Future bass instrument | CC BY 4.0 | listed in manifest only |
 
