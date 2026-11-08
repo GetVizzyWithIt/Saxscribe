@@ -151,6 +151,27 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Decision**: with Austin.
 - **Data**: report and 128 E71 rows on the Mac (`~/saxscribe-runs/exp/layers/report.md`), not yet in `experiments.jsonl`.
 
+### E73 — 2026-11-08 — How many key notes each separator's stem still holds (finding)
+- **Question**: is the missing quiet sax lost in separation, or in note finding? This check measures the stems alone, before any note finder runs. Austin's go: 2026-11-08 07:24Z.
+- **Measure**: a key note counts as *held* when the stem's energy at its pitch is within 20 dB of the mix and above the stem's noise floor. Tuned on the Parker training records.
+- **Recall**, share of key notes held:
+
+| Set | Filosax | Mega sax on mix | Demucs → Mega sax | Demucs → wind → sax | Demucs |
+| --- | --- | --- | --- | --- | --- |
+| Pennies, all notes | 94% | **99%** | 88% | 88% | 92% |
+| Pennies, low notes | 85% | **98%** | 78% | 78% | 88% |
+| Pennies, quiet notes | 87% | **98%** | 82% | 82% | 88% |
+| Austin's 9 flagged bars (59 notes) | 40 | **57** | about 49 (83%) | about 49 (83%) | 53 (90%) |
+| Walker's Theme, all / quiet | 91 / 79% | 91 / 81% | 84 / 73% | 84 / 73% | 91 / **84%** |
+| Parker, 10 records | about 98% | about 98% | about 98% | about 98% | about 98% |
+| Weimar | 94% | — | — | — | 94% |
+
+- **Leakage**, how loud the stem is during the Pennies piano solo (lower is cleaner): Filosax −16 dB, Mega −77 dB, layered −94 to −98 dB, Demucs −44 dB. On the Parker test records: Filosax −16 dB, Mega −76 dB.
+- **Combining stems**: picking the better of Filosax and Mega with perfect hindsight gives 99% on Pennies, the same as Mega alone. A pick every 2 seconds using only the audio gets 95–99%.
+- **Finding**: MVSep Mega's sax stem on the full mix holds the most notes and leaks least. The gap left on Pennies is in the note finder: Mega's stem holds 57 of the 59 flagged notes, but the Filosax transcriber writes only 28 of them (E71).
+- **Proposed next** (needs Austin's go): use Mega as the separator for testing, and fine-tune the note finder on Weimar records separated with Mega. The training labels would be the aligned WJD transcriptions, and the training would run on Colab.
+- **Data**: 35 E73 rows on the Mac, not yet in `experiments.jsonl`.
+
 ### E72 — 2026-11-07 — Start a note on a pitch change without an attack, for slurs (not adopted)
 - **Goal**: catch slurred notes that E70 suggested were being missed: the pitch changes, but there is no new attack to trigger a note.
 - **Rule tried**: start a new note wherever the Filosax transcriber's frame output switches pitch without an attack. Settings were chosen on the training records: frame threshold 0.7, at least 60 ms.
