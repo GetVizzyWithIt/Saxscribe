@@ -118,6 +118,32 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E74 — 2026-11-08 — Note-finder settings on Mega sax stems (not adopted)
+- **Question**: E73 showed MVSep Mega's sax stem holds almost every key note, yet the note finders write far fewer. Do the note finders just need different thresholds on Mega stems?
+- **Tuning**: thresholds picked on the Parker training records, with Mega sax on the mix as the separator.
+  - Filosax transcriber: best is onset 0.3 / frame 0.05, note F1 65.8 against 65.6 for the shipped settings.
+  - Basic Pitch: the shipped 0.5 / 0.3 is already best. Lower thresholds collapse: notes in rests go from 32 to 114 per minute.
+- **Test set**, chosen vs shipped (note F1 / note F1 ignoring note ends / onset F1):
+
+| Note finder | Shipped | Tuned |
+| --- | --- | --- |
+| Filosax transcriber | 54.4 / 71.8 / 80.0 | 54.6 / 71.8 / 80.0 |
+| Basic Pitch | 52.3 | 52.3 (shipped is best) |
+
+- **Pennies**: in Austin's 9 flagged bars, Mega holds 57 of 59 key notes; the Filosax transcriber writes 28 and Basic Pitch 30. In the first half, 676 of the 861 key notes the stem holds get written. The 185 held but unwritten notes:
+
+| Why the note is missing | Notes |
+| --- | --- |
+| Written 50–200 ms off | 60 |
+| Written at another pitch (mostly a semitone low, from scooped attacks; never an octave) | 53 |
+| Repeated note merged into the one before | 46 |
+| No onset found | 24 |
+| Found but below threshold | 2 |
+
+- **Finding**: the shipped settings are already the best; threshold tuning can't close the gap. The misses are timing, scooped pitch and merged repeats, which need a note finder trained on this kind of stem.
+- **Next**: a plan for our own note finder ([plan](https://claude.ai/artifact/D8h6ys4nWNZZqhswB5iCpM)). Fine-tune the Filosax transcriber (`filosax_25k`) on Mega-separated Weimar records (119 aligned, about 14 hours) plus Parker train. Training runs on the Mac (Austin's OK 2026-11-08 08:46Z); Colab only for capped runs he approves. Answer keys, flags and his own playing stay test-only.
+- **Data**: 48 E74 rows on the Mac, not yet in `experiments.jsonl`.
+
 ### E71 — 2026-11-08 — Layered separation: stacking separators to get a cleaner sax stem (not adopted yet)
 - **Goal**: get back the quiet sax that the Filosax separator loses (E69, E70) by feeding the audio through more than one separator in turn. Austin's go: 2026-11-07 02:09Z.
 - **Variants**:
