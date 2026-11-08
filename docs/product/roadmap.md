@@ -116,3 +116,10 @@ Not now (Austin, 2026-11-04): an Auto horn-detect button. The horn stays a user 
 - Any-instrument transcription: separate every instrument, one profile, answer-key set and model per instrument.
 - Real-time mode (PESTO pitch tracker is the candidate).
 - MIDI wind controller as a source of perfectly labelled practice data.
+
+Ideas from the advisor thread (2026-11-08). Each needs Austin's go in the build thread before anyone builds it:
+
+- Multi-step re-separation: run the sax separator (MVSep Mega) again on its own output, blending a little of the mix back in on each pass. Zang, Li and Kong (2025), [Training-Free Multi-Step Audio Source Separation](https://arxiv.org/abs/2505.19534), report steady gains over a single pass on music, with no retraining. Not yet tested on sax, and it adds separation time.
+- Tone-tagged scoring: tag each test note as bright or dark, breathy, subtone or growled, then report note F1 for each group. Brightness is measured relative to pitch, breathiness comes from torchcrepe's periodicity, and growl is loudness flutter at 20–80 Hz. The aim is the quiet subtoned low notes in Pennies From Heaven.
+- Separator dull-tone check: alongside bleed, measure how much top end (above about 4 kHz) and overall spectral shape the sax stem keeps compared with a clean reference.
+- Subtract-then-listen as a second opinion only: a note found both in Mega's direct sax stem and in the mix minus the other stems counts as more trustworthy. A note found in only one gets a review flag and is never hidden. E71 showed subtraction loses as the main path. This overlaps the not-sax second-opinion votes (log E67) and the layer check proposed on 11-06.
