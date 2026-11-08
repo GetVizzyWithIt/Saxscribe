@@ -118,6 +118,39 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E71 — 2026-11-08 — Layered separation: stacking separators to get a cleaner sax stem (not adopted yet)
+- **Goal**: get back the quiet sax that the Filosax separator loses (E69, E70) by feeding the audio through more than one separator in turn. Austin's go: 2026-11-07 02:09Z.
+- **Variants**:
+  - a: Filosax separator (today's opt-in).
+  - b: MVSep Mega sax stem straight from the full mix.
+  - c: Demucs stem, then Mega sax.
+  - d: Demucs stem, then Mega wind, then Mega sax.
+- **Sets**: tuned on 7 Parker records. The test set is 3 Parker records, Pennies From Heaven and Walker's Theme, scored once.
+- **With the Filosax note finder** (note F1 / F1 ignoring note ends / onset F1 / low notes found / extra notes / notes in rests per minute):
+
+| Variant | Train | Test |
+| --- | --- | --- |
+| a Filosax | 66.7 / 78.3 / 88.1 / 80% / 530 / 9.4 | 53.3 / 69.4 / 77.8 / 65% / 926 / 33.6 |
+| b Mega sax on mix | 65.6 / 77.7 / 88.2 / 83% / 603 / 5.5 | **54.4 / 71.8 / 80.0 / 71% / 859 / 22.1** |
+| c Demucs → Mega sax | 65.0 / 77.5 / 87.7 / 80% / 565 / 6.5 | 54.0 / 71.1 / 78.8 / 65% / 777 / 14.9 |
+| d Demucs → wind → sax | 64.7 / 77.3 / 87.6 / 80% / 572 / 6.5 | 54.0 / 71.1 / 78.7 / 65% / 796 / 16.3 |
+
+- **With the standard note finder** (note F1, train / test): a 63.0 / 51.0, b 60.7 / 53.0, c 59.9 / 50.4, d 60.4 / 50.9.
+- **Pennies From Heaven**:
+  - In Austin's 9 flagged quiet bars, key notes found out of 59: a 18, b **28**, c 24, d 24.
+  - First half: note F1 goes from 56.8 (a) to 61.0 (b), and low notes found from 189 to 223 of 329.
+- **Walker's Theme**, note F1: a 29.1, b 30.2, c 32.7, d 32.9.
+- **Per record, variant b is mixed**:
+  - Better: Pennies +4.2, 9RfYc +4.4, 6Cbwc, 7XTyc.
+  - Worse: BRfYc −7.0, 73bwc −3.6, 1p64c −3.4, 2RfYc −2.2.
+- **As a not-sax vote** (Demucs stem → Mega sax, sax energy at the note's pitch against the mix, flag below −25 dB, set on the training records):
+  - Training records: catches 91% of other instruments' solo notes and flags 0.47% of real sax.
+  - Pennies: all 70 piano-solo notes caught, but 49 of 628 real sax notes flagged (7.8%).
+  - Impressions and Item 1 not run (optional one-hour pass).
+- **Build thread's recommendation**: keep Filosax as the default and offer Mega sax-on-mix as an opt-in. It's slow, about 3 minutes per minute of audio. Drop the layered variants (c, d).
+- **Decision**: with Austin.
+- **Data**: report and 128 E71 rows on the Mac (`~/saxscribe-runs/exp/layers/report.md`), not yet in `experiments.jsonl`.
+
 ### E72 — 2026-11-07 — Start a note on a pitch change without an attack, for slurs (not adopted)
 - **Goal**: catch slurred notes that E70 suggested were being missed: the pitch changes, but there is no new attack to trigger a note.
 - **Rule tried**: start a new note wherever the Filosax transcriber's frame output switches pitch without an attack. Settings were chosen on the training records: frame threshold 0.7, at least 60 ms.
@@ -125,7 +158,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Finding**: the misses that looked like slurs are notes written at the right pitch but placed 100–190 ms away from the key (for example 82.59 s against 82.76 s). In Austin's flagged bars, a third of the bars have a median timing error over 50 ms, against 5% elsewhere, with notes both early and late. 31 of the 41 misses are missing from the stem entirely (E70).
 - **Possible next step** (not approved): snap note starts to the stem's attack points when they are 50–200 ms off.
 - **Data**: report and 60 E72 rows on the Mac (`~/saxscribe-runs/exp/slurs/report.md`), not yet in `experiments.jsonl`.
-- E71 (layered separator test, mix → Demucs other → Mega wind → Mega sax) started at 02:13Z and takes about 4 hours. Its entry will be added when it finishes.
+- E71 (layered separator test) is logged above.
 
 ### E70 — 2026-11-06 — Recovering the quiet low notes on the Filosax path (not adopted)
 - **Goal**: find the quiet low sax notes that Austin flagged as missing (E69). Austin said "go both" (20:47Z), so two fixes were tried.
