@@ -65,17 +65,24 @@ one question at a time. Prefer a working rough cut to a plan.
 - Secrets (API keys such as MVSep's) and machine files live outside the repo or
   in config.local.* (git-ignored). Never commit audio, datasets or weights.
 
-## Current state (2026-11-06; update when it changes)
+## Current state (2026-11-09; update when it changes)
 - Standard path on band records: Demucs (2 shifts) -> Basic Pitch + CREPE pitch
   line -> per-horn range rules -> bleed hide -> held notes follow the pitch
   line -> sax-playing check -> bar lines -> swing. Riley & Dixon's Filosax
   separator and transcriber are an opt-in (`--separator filosax`,
-  `--notes-tool filosax`; app "Note finder").
-- Latest feature: notes that may be another instrument are tagged
-  `maybe_not_sax` and asked about in the play-along, never hidden (PR #121).
-  The play-along also has review flags (flags.json, PR #116).
-- Pipeline development is paused, step by step: no change to the transcription
-  pipeline without Austin's typed go in the build thread.
-- Biggest open weakness: sax purity on pop/fusion band records (other
-  instruments leaking into the sax stem). Scores per test set are in
+  `--notes-tool filosax`; app "Note finder"). No model picker in the main UI:
+  model choices are for testing; the app should pick automatically.
+- Separators: MVSep Mega's sax stem on the full mix holds the most key notes
+  (E71, E73); the remaining gap is the note finder. A Filosax transcriber
+  fine-tuned on Mega stems (E77, checkpoint on the Mac) gains about 5 points
+  of note F1 but is not the default yet. MERT probes judge sax presence and
+  type best (E79); not wired in.
+- Latest features: `maybe_not_sax` review marks (PR #121, never hidden);
+  play-along review flags (flags.json, PR #116) and the feedback reviewer
+  (PR #138; flags kept across runs, ADR-0039).
+- Pipeline development is step by step: no change to the transcription
+  pipeline without Austin's typed go in the build thread. `main` is protected
+  (PR plus green pytest).
+- Biggest open weaknesses: quiet low sax and other instruments (including
+  vocals) leaking into the sax stem on band records. Scores per test set are in
   docs/evaluation/log.md; decisions in docs/decisions/.
