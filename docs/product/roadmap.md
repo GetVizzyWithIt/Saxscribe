@@ -124,3 +124,8 @@ Ideas from the advisor thread (2026-11-08). Each needs Austin's go in the build 
 - Tone-tagged scoring: tag each test note as bright or dark, breathy, subtone or growled, then report note F1 for each group. Brightness is measured relative to pitch, breathiness comes from torchcrepe's periodicity, and growl is loudness flutter at 20–80 Hz. The aim is the quiet subtoned low notes in Pennies From Heaven.
 - Separator dull-tone check: alongside bleed, measure how much top end (above about 4 kHz) and overall spectral shape the sax stem keeps compared with a clean reference.
 - Subtract-then-listen as a second opinion only: a note found both in Mega's direct sax stem and in the mix minus the other stems counts as more trustworthy. A note found in only one gets a review flag and is never hidden. E71 showed subtraction loses as the main path. This overlaps the not-sax second-opinion votes (log E67) and the layer check proposed on 11-06.
+
+Austin's ideas (2026-11-09):
+
+- Several saxes at once, such as a sax quartet: one written part per player. This is a long-term goal, and Austin isn't ready to plan it yet. Until then, the single-player rule stands: one sax plays one note at a time, so chords in a clean sax part mean another instrument has leaked into the stem.
+- Test case, vocals taken for sax: on "Just the Two of Us" (Grover Washington Jr. with Bill Withers) the app transcribed Bill Withers' vocals as sax. Add it to the not-sax checks, with voice as a known source of leakage alongside piano and bass.
