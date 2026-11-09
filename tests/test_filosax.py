@@ -175,3 +175,19 @@ def test_separator_loads_a_demucs_package_safely_and_writes_two_stems(tmp_path, 
     assert set(stems) == {"saxophone", "backing"}
     y, rate = sf.read(str(stems["saxophone"]))
     assert rate == model.samplerate and y.ndim == 2 and abs(len(y) / rate - fixture.SECONDS) < 0.1
+
+
+def test_our_fine_tuned_finder_is_used_when_installed(tmp_path, monkeypatch):
+    """E77's weights can't be downloaded: without the file the original is used; with it, ours,
+    after its fingerprint is checked. SAXSCRIBE_FINDER=original keeps the original."""
+    monkeypatch.setenv("SAXSCRIBE_MODELS", str(tmp_path))
+    monkeypatch.delenv("SAXSCRIBE_FINDER", raising=False)
+    assert filosax.finder() == "transcriber"
+    with pytest.raises(FileNotFoundError):
+        filosax.weights("transcriber_ft")
+    (tmp_path / filosax.WEIGHTS["transcriber_ft"]["file"]).write_bytes(b"not the weights")
+    assert filosax.finder() == "transcriber_ft"
+    with pytest.raises(SystemExit):  # a file that isn't the tested one is refused
+        filosax.weights("transcriber_ft")
+    monkeypatch.setenv("SAXSCRIBE_FINDER", "original")
+    assert filosax.finder() == "transcriber"
