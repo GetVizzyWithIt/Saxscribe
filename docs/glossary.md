@@ -73,3 +73,6 @@ Plain-language meanings of terms used in the code and these docs.
 | The game | Songs in the Key of Life, the sibling project whose front end was copied |
 | `not_sax` / `maybe_not_sax` | Note tags. `not_sax`: kept in notes.json but off the sheet (e.g. below the horn's low note, PR #81). `maybe_not_sax`: may be another instrument's solo; stays on the sheet and is asked about in the play-along (PR #121) |
 | Review flags | Bars or notes Austin marks in the play-along by error type, saved to `flags.json`; never change the transcription (PR #116) |
+| Quick flag | A flag made with the Flag button while the music plays, with no reason picked yet; shows as "to sort" (PR #138) |
+| Looks right | A bar Austin played through with no flag, stored per run in `flags.json` (PR #138) |
+| Changed now / Still the same | Status of a flag from an earlier run against the current run's notes in its bars. Deliberately not "fixed" ([ADR-0039](decisions/0039-flags-kept-across-runs.md), PR #138) |
