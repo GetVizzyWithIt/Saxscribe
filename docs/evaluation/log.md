@@ -94,7 +94,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Done, see E11 |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
-| P7 | Note-finder fine-tune (E77): Filosax transcriber from `filosax_25k`, trained on the E76 set (110 Mega-separated Weimar/Parker spans plus 20% Filosax stems), checked on held-out Coltrane, Potter and Getz | Mac, MPS/CPU, 24 h cap, pauses while Austin's analyzer runs | Stopped early 2026-11-09 ~11:15Z after levelling off: best held-out note F1 78.5 at step 2,488 (of 16,800 planned). Full entry to follow as E77. A second fine-tune on cleaner sax tracks is on the roadmap |
+| P7 | Note-finder fine-tune | — | Done, see E77 (stopped early; best held-out note F1 78.5) |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
@@ -121,6 +121,45 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E79 — 2026-11-09 — Sax judge: is a sax playing, and which one? (MuQ vs MERT probes; finding)
+- **Question**: can a large pretrained music model tell, window by window, whether a sax is playing and which sax it is? This would be a second opinion for the not-sax checks and for picking clean training tracks. Austin's go: 2026-11-09 11:06Z, after the advisor's check.
+- **Setup**: small probes trained on top of two frozen music models: MuQ (`OpenMuQ/MuQ-large-msd-iter`) and MERT (`MERT-v1-95M`). Both are under CC BY-NC 4.0, which is fine for Austin's non-commercial use. Trained on the keyed training records plus OrchideaSOL and GoodSounds single notes, then scored once on held-out data.
+
+| Measure | MERT | MuQ |
+| --- | --- | --- |
+| Sax playing, AUC, all held-out windows | **0.93** | 0.80 |
+| Sax playing, AUC, six test tunes | **0.93** | 0.78 |
+| Sax type, per record (correct of 64) | **63** | 61 |
+
+- **Alto and tenor**: every record right for both.
+- **Soprano fails**: "Just the Two of Us" was called tenor. The only soprano training data is single studio notes.
+- **Weak spots**: not-sax windows are only about 3% of the data, so that side is thinly tested. Bloody Well Right was hard for both models, since the sax plays only about 25% of the span.
+- **Finding**: MERT is the better judge. It is good enough to try as a vote in the not-sax checks and to screen training tracks for the second fine-tune. It needs more not-sax and soprano examples first. Nothing changes in the pipeline.
+- **Data**: E79 row on the Mac (`~/saxscribe-runs/experiments.jsonl`), not yet in the repo copy.
+
+### E77 — 2026-11-09 — Fine-tuning the Filosax note finder on Mega sax stems (not adopted yet)
+- **What**: the Filosax transcriber, starting from `filosax_25k`, fine-tuned on the E76 training set on the Mac (MPS/CPU). Stopped early at about step 3,300 of 16,800 after it levelled off. The kept checkpoint is `best.pt` from step 2,488 (99 MB): held-out note F1 78.5 against 70.5 at the start. Scored once against the original weights, same thresholds.
+
+| Test | Original | Fine-tuned |
+| --- | --- | --- |
+| Six tunes, Mega stems, note F1 | 43.3 | **48.0** |
+| Six tunes, Mega stems, note F1 no offset | 60.6 | **66.0** |
+| Six tunes, Filosax stems, note F1 | — | +3.1 |
+| Parker test, note F1 | 63.7 | **69.3** |
+| Held-out players, note F1 ¹ | — | Coltrane +7.1, Getz +8.1, Potter +10.2 |
+| Notes written per key note | 1.07 | 0.98 |
+
+¹ These players also chose the checkpoint, so their gains are slightly optimistic.
+
+- **Per tune** (Mega stems): BFMJ +8.5, Resolution +9.7, Bloody Well Right +10.4, Walker's Theme flat at about 30.
+- **Finding**: a clear gain everywhere except Walker's Theme, and the tool now writes slightly fewer notes than the key rather than more. Not switched on: making it the default is a pipeline change and needs Austin's go. A second fine-tune on cleaner sax tracks is planned once the sax judge (E79) and a better separator are ready (roadmap).
+- **Data**: E77 row on the Mac; checkpoint on the Mac only (weights never go in the repo).
+
+### E76 — 2026-11-09 — Training set for the note finder: Mega-separated Weimar and Parker solos (data)
+- **What**: 134 solo spans from the keyed Weimar records and Parker records (about 300 minutes), separated with MVSep Mega's sax model. 110 spans for training; Coltrane, Potter and Getz held out as unseen players for checking.
+- **Checks**: every stem is present and not silent. Labels line up with the stems: the median key note sits 25 dB above its neighbours.
+- **Data**: stems and labels on the Mac only. Commercial records stay on the Mac.
 
 ### E78 — 2026-11-09 — Answer keys from Austin's 8 transcription PDFs (baseline)
 - **Keys**: Austin's 8 printed transcriptions, read with the homr score reader, the same method as the etude keys (E75). Hand fixes from the page: multi-bar rests, and Gossip's repeats written out in play order. Each key was lined up with the record and scored with compare.py. 8va passages were read at the printed octave and moved to the heard octave when scoring. Tenor written − 14 = concert; alto written − 9. For Hodges and St. Louis Blues, the transposition that best matches the playing was kept.
