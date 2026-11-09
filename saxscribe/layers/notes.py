@@ -83,8 +83,10 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         raise SystemExit("Basic Pitch is not installed; use --notes-tool segment or install it.")
     elif tool == "filosax":
         from .. import filosax
+        which = filosax.finder()
         notes, name = one_line(filosax.transcribe(take.stem), line), "filosax"
-        extra["weights_sha256"] = filosax.WEIGHTS["transcriber"]["sha256"]
+        extra["weights"] = filosax.WEIGHTS[which].get("name", "filosax_25k")
+        extra["weights_sha256"] = filosax.WEIGHTS[which]["sha256"]
     elif tool == "segment":
         notes, name = segment.segment(line, *stem_envelopes()), "segment"
     else:
