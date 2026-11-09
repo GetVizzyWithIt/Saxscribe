@@ -129,3 +129,4 @@ Austin's ideas (2026-11-09):
 
 - Several saxes at once, such as a sax quartet: one written part per player. This is a long-term goal, and Austin isn't ready to plan it yet. Until then, the single-player rule stands: one sax plays one note at a time, so chords in a clean sax part mean another instrument has leaked into the stem.
 - Test case, vocals taken for sax: on "Just the Two of Us" (Grover Washington Jr. with Bill Withers) the app transcribed Bill Withers' vocals as sax. Add it to the not-sax checks, with voice as a known source of leakage alongside piano and bass.
+- Second note-finder fine-tune: run it again on cleaner sax tracks once the sax judge (MuQ/MERT voter, log E79) and a better separator are in place. Then we can be more confident each training track is the sax part. The first fine-tune (E77) levelled off at held-out note F1 78.5 and was stopped early (Austin, 2026-11-09).
