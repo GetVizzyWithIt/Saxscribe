@@ -94,7 +94,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Done, see E11 |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
-| P7 | Note-finder fine-tune (E77): Filosax transcriber from `filosax_25k`, trained on the E76 set (110 Mega-separated Weimar/Parker spans plus 20% Filosax stems), checked on held-out Coltrane, Potter and Getz | Mac, MPS/CPU, 24 h cap, pauses while Austin's analyzer runs | Running. 2026-11-09 ~10:20Z: step 2,850 of 16,800; best held-out note F1 78.5 at step 2,488, levelling off around 77–78.5 (about 5.9 s per step) |
+| P7 | Note-finder fine-tune (E77): Filosax transcriber from `filosax_25k`, trained on the E76 set (110 Mega-separated Weimar/Parker spans plus 20% Filosax stems), checked on held-out Coltrane, Potter and Getz | Mac, MPS/CPU, 24 h cap, pauses while Austin's analyzer runs | Stopped early 2026-11-09 ~11:15Z after levelling off: best held-out note F1 78.5 at step 2,488 (of 16,800 planned). Full entry to follow as E77. A second fine-tune on cleaner sax tracks is on the roadmap |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
