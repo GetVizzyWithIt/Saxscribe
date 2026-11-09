@@ -59,3 +59,6 @@ Code and weights are MIT. Filosax itself is a research dataset; we only use the 
 | Date | Change | PR |
 | --- | --- | --- |
 | 2026-11-05 | Added as opt-in separator and note finder | this PR |
+
+## Fine-tuned version (E77, not the default)
+Fine-tuned from `filosax_25k` on 110 Mega-separated Weimar and Parker solo spans (E76) on the Mac. The kept checkpoint is step 2,488. On Mega stems the six-tune note F1 goes from 43.3 to 48.0, and the Parker test from 63.7 to 69.3. Walker's Theme is flat. The weights stay on the Mac. Training data comes from commercial records Austin owns, so the weights are for his own use only. Using this checkpoint as the default needs Austin's go.
