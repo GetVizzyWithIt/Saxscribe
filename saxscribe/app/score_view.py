@@ -95,25 +95,36 @@ def pages(take: Take, view: str, song: dict | None = None) -> list[str]:
         raise ValueError(f"Verovio could not read the {view} score")
     out = [tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1)]
     if out and song and song.get("title"):
-        # Verovio draws header lines at one text size; make the title stand out.
-        import re
-        from xml.sax.saxutils import escape
-        out[0] = re.sub(r'<tspan font-size="(\d+)px">' + re.escape(escape(song["title"])) + "</tspan>",
-                        lambda m: f'<tspan font-size="{int(m.group(1)) * 3 // 2}px" font-weight="bold">'
-                                  f'{escape(song["title"])}</tspan>', out[0], count=1)
+        out[0] = bold_title(out[0], song["title"])
     return out
+
+
+def bold_title(svg: str, title: str) -> str:
+    """Verovio draws header lines at one text size; make the title stand out."""
+    import re
+    from xml.sax.saxutils import escape
+    return re.sub(r'<tspan font-size="(\d+)px">' + re.escape(escape(title)) + "</tspan>",
+                  lambda m: f'<tspan font-size="{int(m.group(1)) * 3 // 2}px" font-weight="bold">'
+                            f'{escape(title)}</tspan>', svg, count=1)
 
 
 def render(take: Take, view: str, size: int = 1, song: dict | None = None) -> dict:
     tk = toolkit()
     tk.setOptions({
         "pageWidth": SIZES[max(0, min(len(SIZES) - 1, size))], "pageHeight": 60000, "adjustPageHeight": True, "scale": 40,
-        "svgViewBox": True, "header": "none", "footer": "none", "breaks": "auto",
+        "svgViewBox": True, "header": "auto" if song else "none", "footer": "none", "breaks": "auto",
         "pageMarginTop": 40, "pageMarginBottom": 40, "spacingSystem": 12,
     })
-    if not tk.loadFile(str(musicxml(take, view, song))):
+    # The title and "As played by" are printed on the chart itself, as on paper.
+    from .meta import stamp
+    xml = musicxml(take, view, song).read_text(encoding="utf-8")
+    if song:
+        xml = stamp(xml, song.get("title", ""), song.get("artist", ""), credits=True)
+    if not tk.loadData(xml):
         raise ValueError(f"Verovio could not read the {view} score")
     svg = "".join(tk.renderToSVG(p) for p in range(1, tk.getPageCount() + 1))
+    if song and song.get("title"):
+        svg = bold_title(svg, song["title"])
     timemap = tk.renderToTimemap({"includeMeasures": True, "includeRests": True})
     return {"view": view, "svg": svg, "timemap": timemap, "sync": sync(take)}
 

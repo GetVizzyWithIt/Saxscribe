@@ -1,13 +1,16 @@
 // The play-along: the score scrolls and lights up each note as the recording plays.
 // Timing comes from the server's sync pairs (score position in quarter notes <-> seconds),
 // built from the exact onsets in notes.json and the beat grid.
+// Below the scroller: feedback. Flag bars while it plays, sort the flags afterwards, and
+// keep a tracker of what was flagged on which run (server: flags.py).
 const takeId = location.pathname.split('/').pop();
 const audio = $('#audio');
 let size = 1;
 try { size = parseInt(localStorage.getItem('saxscribe-size') ?? '1', 10); } catch (e) {}
 if (!(size >= 0 && size <= 3)) size = 1;
 let barOf = {};
-let job, view, sync = [], starts = [], measures = [], qOf = {}, lit = [], litMeasure = null, follow = true;
+let job, view, starts = [], measures = [], qOf = {}, lit = [], litMeasure = null, follow = true, nBars = 1;
+const BEATS = 4;  // quarter notes per bar (layers/notation.py BEATS_PER_BAR)
 
 // ---- time <-> score position, straight lines between sync points, extended past both ends
 function interp(x, xs, ys) {
@@ -22,6 +25,8 @@ function interp(x, xs, ys) {
 let Q = [], T = [];
 const qToT = q => interp(q, Q, T);
 const tToQ = t => interp(t, T, Q);
+const barStart = b => Math.max(0, qToT((b - 1) * BEATS));
+const barEnd = b => qToT(b * BEATS);
 
 function lastAtOrBefore(list, q) {
   let lo = 0, hi = list.length - 1, best = -1;
@@ -29,14 +34,10 @@ function lastAtOrBefore(list, q) {
   return best;
 }
 
-// ---- loading
+// ---- loading. The chart is always the horn it was made for; transposing will live in the library.
 async function loadJob() {
   job = await (await fetch(`/api/takes/${takeId}`)).json();
-  $('#name').textContent = job.artist ? `${job.title} · ${job.artist}` : job.title;
   document.title = `${job.title} · Saxscribe`;
-  const views = [job.horn, ...['alto', 'tenor', 'concert'].filter(v => v !== job.horn)];
-  $('#view').innerHTML = views.map((v, i) => `<button type="button" data-v="${v}" class="${i ? '' : 'on'}">${HORN_NAMES[v] || v}</button>`).join('');
-  segment($('#view'), v => loadScore(v));
   if (job.mix) {
     $('#audioSel').hidden = false;
     segment($('#audioSel'), which => setAudio(which));
@@ -50,7 +51,7 @@ function setAudio(which) {
   audio.src = `/api/takes/${takeId}/audio/${which}`;
   audio.addEventListener('loadedmetadata', () => {
     audio.currentTime = at; setSpeed();
-    if (playing) audio.play();
+    if (playing) playAudio();
   }, {once: true});
 }
 
@@ -65,13 +66,14 @@ async function loadScore(v) {
   Q = data.sync.map(p => p[0]); T = data.sync.map(p => p[1]);
   starts = []; measures = []; qOf = {}; barOf = {}; lit = []; litMeasure = null;
   for (const e of data.timemap) {
-    if (e.measureOn) { measures.push({q: e.qstamp, id: e.measureOn}); barOf[e.measureOn] = Math.floor(e.qstamp / 4 + 1e-6) + 1; }
+    if (e.measureOn) { measures.push({q: e.qstamp, id: e.measureOn}); barOf[e.measureOn] = Math.floor(e.qstamp / BEATS + 1e-6) + 1; }
     const ids = (e.on || []).filter(id => { const el = document.getElementById(id); return el && el.classList.contains('note'); });
     for (const id of (e.on || [])) qOf[id] = e.qstamp;
     if (ids.length) starts.push({q: e.qstamp, ids});
   }
+  nBars = Math.max(1, ...Object.values(barOf));
   update(true);
-  drawFlags();
+  drawFlags(); drawStrip();
 }
 
 // ---- drawing the playhead
@@ -89,29 +91,40 @@ function update(force) {
   }
   const m = lastAtOrBefore(measures, q);
   const mid = m >= 0 ? measures[m].id : null;
-  if (mid !== litMeasure || force) { litMeasure = mid; if (follow && mid) keepInView(document.getElementById(mid)); }
+  if (mid !== litMeasure || force) { litMeasure = mid; if (follow && mid && !selecting) keepInView(document.getElementById(mid)); }
+  tickReview();
 }
 function keepInView(measure) {
   if (!measure) return;
   const system = measure.closest('g.system') || measure;
   const r = system.getBoundingClientRect();
-  const head = $('.top').getBoundingClientRect().bottom, foot = $('.transport').getBoundingClientRect().top;
+  const head = $('.top').getBoundingClientRect().bottom, foot = bottomEdge();
   if (r.top < head + 8 || r.bottom > foot - 8 || r.top > head + (foot - head) * 0.55) {
     window.scrollTo({top: window.scrollY + r.top - head - 16, behavior: 'smooth'});
   }
 }
+// The top of whatever covers the bottom of the page: the flag screen when open, else the transport.
+function bottomEdge() { return (!$('#sheet').hidden ? $('#sheet') : $('.transport')).getBoundingClientRect().top; }
 function clock(s) { s = Math.max(0, s || 0); return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; }
-function loop() { update(false); if (!audio.paused) requestAnimationFrame(loop); }
+function loop() {
+  // A loop over the flag's bars while its flag screen is open.
+  if (loopRange && audio.currentTime >= loopRange[1]) audio.currentTime = loopRange[0];
+  update(false);
+  if (!audio.paused) requestAnimationFrame(loop);
+}
 
 // ---- controls
 function setSpeed() {
   audio.playbackRate = parseFloat($('#speed').value);
   audio.preservesPitch = true; audio.webkitPreservesPitch = true; audio.mozPreservesPitch = true;
 }
-function toggle() { if (audio.paused) audio.play(); else audio.pause(); }
+// play() can be cut short by a pause (or refused before a tap); that's fine, not an error.
+function playAudio() { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+function toggle() { if (audio.paused) playAudio(); else audio.pause(); }
+function seekTo(t) { audio.currentTime = Math.max(0, t); update(true); }
 $('#play').addEventListener('click', toggle);
-audio.addEventListener('play', () => { $('#play').textContent = '❚❚'; $('#play').setAttribute('aria-label', 'Pause'); requestAnimationFrame(loop); });
-audio.addEventListener('pause', () => { $('#play').textContent = '▶'; $('#play').setAttribute('aria-label', 'Play'); update(false); });
+audio.addEventListener('play', () => { $('#play').textContent = '❚❚'; $('#play').setAttribute('aria-label', 'Pause'); syncPlay(); requestAnimationFrame(loop); });
+audio.addEventListener('pause', () => { $('#play').textContent = '▶'; $('#play').setAttribute('aria-label', 'Play'); syncPlay(); update(false); sendHeard(); });
 audio.addEventListener('timeupdate', () => { if (audio.paused) update(false); });
 audio.addEventListener('loadedmetadata', () => update(false));
 $('#speed').addEventListener('change', setSpeed);
@@ -124,19 +137,6 @@ $('#follow').addEventListener('click', () => {
   if (follow) update(true);
 });
 $('#follow').classList.add('primary');
-// Tap a note to jump there (or, in flag mode, tap a bar to flag it: see below).
-$('#score').addEventListener('click', e => {
-  if (flagMode) { flagClick(e); return; }
-  const g = e.target.closest('g.note, g.rest, g.chord');
-  if (!g || qOf[g.id] === undefined) return;
-  audio.currentTime = Math.max(0, qToT(qOf[g.id]) - 0.05);
-  update(true);
-});
-document.addEventListener('keydown', e => {
-  // Space plays and pauses, except while typing (the flag note box) or in the flag panel.
-  const typing = e.target.closest && e.target.closest('input, textarea, select, [contenteditable], #sheet');
-  if (e.code === 'Space' && !typing) { e.preventDefault(); toggle(); }
-});
 function resize(by) {
   const next = Math.max(0, Math.min(3, size + by));
   if (next === size) return;
@@ -152,120 +152,132 @@ $('#pdf').addEventListener('click', () => { location.href = `/take/${takeId}/pdf
 $('#xml').addEventListener('click', () => download(`/api/takes/${takeId}/file/musicxml?view=${view}`));
 $('#midi').addEventListener('click', () => download(`/api/takes/${takeId}/file/midi`));
 
-// ---- flags: mark bars for review. They never change the transcription; they go to
-// flags.json next to the take (server: flags.py), with a copy on the Desktop.
-let flagMode = false, flags = [], categories = {}, flagsText = '', editing = null, suggested = [];
-const getScope = segment($('#scope'), v => { $('#pickHint').hidden = v !== 'notes'; markPicked(); });
+// ---- feedback. Flags never change the transcription; they go to flags.json next to the take,
+// with a copy on the Desktop. Each one is saved against the run of the song it was made on.
+let flags = [], past = [], categories = {}, GROUPS = {}, suggested = [], run = {}, flagsText = '';
+let editing = null, heard = new Set(), heardSent = new Set(), lastUndo = null, loopRange = null, sortSpeed = null;
+const groupOf = c => Object.keys(GROUPS).find(g => g === c || GROUPS[g].keys.includes(c));
+const barAtTime = t => Math.max(1, Math.min(nBars, Math.floor(tToQ(t) / BEATS + 1e-6) + 1));
+const nowBar = () => barAtTime(audio.currentTime || 0);
+const flagFor = b => flags.find(f => b >= f.bar && b <= (f.to || f.bar));
+const isSorted = f => !!((f.categories && f.categories.length) || f.text);
+const rangeName = f => (f.to || f.bar) === f.bar ? `Bar ${f.bar}` : `Bars ${f.bar}–${f.to}`;
+const toSort = () => flags.filter(f => !isSorted(f)).sort((a, b) => a.bar - b.bar);
+const post = (url, body, method = 'POST') => fetch(url, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
 
-async function loadFlags() {
-  const r = await fetch(`/api/takes/${takeId}/flags`);
-  if (r.ok) gotFlags(await r.json());
-}
+async function loadFlags() { const r = await fetch(`/api/takes/${takeId}/flags`); if (r.ok) gotFlags(await r.json()); }
 function gotFlags(data) {
-  flags = data.flags; categories = data.categories; flagsText = data.text;
-  $('#cats').innerHTML = Object.entries(categories).map(([k, v]) => `<button type="button" data-c="${k}">${esc(v)}</button>`).join('');
-  suggested = data.suggested || [];
-  const open = suggested.filter(x => !x.answer).length;
-  $('#flagCount').textContent = (flags.length ? `Flags (${flags.length})` : 'Flags') + (open ? ` · ${open} to check` : '');
-  // Stretches the tool thinks may be another instrument: the notes stay on the score; Austin's
-  // answer is stored with the flags (flags.py review) and becomes the test set for hiding them.
-  $('#suggestItems').hidden = !suggested.length;
-  $('#suggestItems').innerHTML = suggested.length ? '<div class="quiet small">Possibly not sax: the sax track is near-silent while another instrument plays these notes. Listen and answer.</div>' +
-    suggested.map((x, i) => {
-      const bars = x.bars[0] === x.bars[1] ? `Bar ${x.bars[0]}` : `Bars ${x.bars[0]}–${x.bars[1]}`;
-      return `<div class="suggest-item"><button type="button" class="what" data-go="${x.bars[0]}">${bars} · ${x.notes} note${x.notes === 1 ? '' : 's'}</button>` +
-        `<button type="button" data-i="${i}" data-a="not_sax" class="${x.answer === 'not_sax' ? 'on' : ''}">Not sax</button>` +
-        `<button type="button" data-i="${i}" data-a="sax" class="${x.answer === 'sax' ? 'on' : ''}">It’s sax</button></div>`;
-    }).join('') : '';
-  $('#flagItems').innerHTML = flags.length ? flags.map(f =>
-    `<button type="button" data-id="${f.id}">Bar ${f.bar} · ${esc(f.categories.map(c => categories[c] || c).join(', '))}` +
-    `<small>${f.scope === 'notes' ? `${f.picked.length} note${f.picked.length === 1 ? '' : 's'}` : 'whole bar'}${f.text ? ' · ' + esc(f.text) : ''}</small></button>`).join('')
-    : '<div class="quiet small">No bars flagged yet. Turn on Flag, then tap a bar.</div>';
-  drawFlags();
+  flags = data.flags; past = data.past || []; categories = data.categories; GROUPS = data.groups || GROUPS;
+  suggested = data.suggested || []; run = data.run || {}; flagsText = data.text;
+  for (const b of (data.heard || [])) { heard.add(b); heardSent.add(b); }
+  $('#runName').textContent = run.label || '…';
+  const todo = toSort().length;
+  $('#sortBtn').hidden = !todo; $('#sortBtn').textContent = `Sort ${todo} flag${todo === 1 ? '' : 's'}`;
+  drawTracker(data.looks_right || []);
+  drawFlags(); drawStrip();
+  if (editing && editing.sorting) $('#saveFlag').textContent = saveLabel();
 }
-function measureEl(bar) {
-  const m = measures.find(x => barOf[x.id] === bar);
-  return m ? document.getElementById(m.id) : null;
+function label(f) {
+  const gs = [...new Set(f.categories.map(groupOf).filter(Boolean))];
+  const detail = f.categories.filter(c => !GROUPS[c] && GROUPS[groupOf(c)] && GROUPS[groupOf(c)].keys.length > 1).map(c => categories[c] || c);
+  return gs.map(g => GROUPS[g].label).join(', ') + (detail.length ? ' · ' + detail.join(', ') : '');
 }
-// Boxes over flagged bars (and the one being edited), drawn on top of the score.
+
+// ---- the tracker: this run's flags, then earlier runs' flags and whether this run changed them
+function drawTracker(okBars) {
+  const row = f => `<tr data-id="${f.id}"><td class="b">${rangeName(f)}</td>` +
+    `<td>${isSorted(f) ? esc(label(f) || 'Note only') : '<span class="quiet">not sorted yet</span>'}</td>` +
+    `<td>${f.text ? esc(f.text) : '<span class="quiet">—</span>'}</td><td class="r">${esc(f.run_name || run.label || '')}</td>` +
+    `<td>${isSorted(f) ? '<span class="st ok">Saved</span>' : '<span class="st todo">To sort</span>'}</td></tr>`;
+  const old = f => `<tr data-t="${f.start}"><td class="b">${rangeName(f)}</td>` +
+    `<td>${isSorted(f) ? esc(label(f) || 'Note only') : '<span class="quiet">not sorted</span>'}</td>` +
+    `<td>${f.text ? esc(f.text) : '<span class="quiet">—</span>'}</td><td class="r">${esc(f.run_name || '')}</td>` +
+    `<td>${f.status === 'changed' ? '<span class="st changed" title="The notes there are different on this run. Listen to check it is fixed.">Changed now</span>'
+                                   : '<span class="st same" title="This run wrote the same notes there.">Still the same</span>'}</td></tr>`;
+  const asks = suggested.map(x => `<tr data-t="${barStart(x.bars[0])}"><td class="b">${rangeName({bar: x.bars[0], to: x.bars[1]})}</td>` +
+    `<td>${x.answer === 'sax' ? 'It’s sax' : x.answer === 'not_sax' ? 'Not sax' : '<span class="quiet">Sax? not answered</span>'}</td>` +
+    `<td class="quiet">“Sax?” question</td><td class="r">${esc(run.label || '')}</td>` +
+    `<td>${x.answer ? '<span class="st ok">Saved</span>' : '<span class="st ask">Sax?</span>'}</td></tr>`).join('');
+  const changed = past.filter(p => p.status === 'changed').length;
+  $('#flagItems').innerHTML = `<table><thead><tr><th>Bars</th><th>What’s wrong</th><th>Your note</th><th>Model run</th><th></th></tr></thead><tbody>` +
+    `<tr class="grp"><td colspan="5">This run · ${esc(run.label || '')}</td></tr>` +
+    ((flags.map(row).join('') + asks) || '<tr><td colspan="5" class="quiet">No flags yet. Tap ⚑ Flag while it plays.</td></tr>') +
+    (past.length ? `<tr class="grp"><td colspan="5">Earlier runs · this run changed the notes in ${changed} of ${past.length}</td></tr>${past.map(old).join('')}` : '') +
+    `</tbody></table>`;
+  const todo = toSort().length;
+  $('#trackSum').innerHTML = `<b>Feedback</b> · ${flags.length} flag${flags.length === 1 ? '' : 's'} on ${esc(run.label || 'this run')}` +
+    (todo ? ` · <span class="todo">${todo} to sort</span>` : '') +
+    (okBars.length ? ` · ${okBars.length} bar${okBars.length === 1 ? '' : 's'} look right` : '') +
+    (past.length ? ` · earlier runs: ${changed} of ${past.length} changed` : '');
+}
+$('#flagItems').addEventListener('click', e => {
+  const go = e.target.closest('tr[data-t]');
+  if (go) { seekTo(parseFloat(go.dataset.t) - 0.05); const el = measureEl(nowBar()); if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); return; }
+  const r = e.target.closest('tr[data-id]'); if (!r) return;
+  const f = flags.find(x => x.id === r.dataset.id); if (f) openSheet(f, !isSorted(f));
+});
+
+function measureEl(bar) { const m = measures.find(x => barOf[x.id] === bar); return m ? document.getElementById(m.id) : null; }
+
+// ---- boxes on the score: one per bar, the label on the first bar of each flag.
+// The box is the tap target: tapping anywhere in a flagged bar opens its flag screen.
 function drawFlags() {
   const box = $('#score');
   box.querySelectorAll('.flagbox').forEach(el => el.remove());
   const outer = box.getBoundingClientRect();
-  const shown = flags.map(f => ({bar: f.bar, label: f.categories.map(c => categories[c] || c).join(', '), id: f.id}));
-  if (editing && !editing.id) shown.push({bar: editing.bar, label: 'New flag', id: null});
-  for (const x of suggested) {
-    for (let b = x.bars[0]; b <= x.bars[1]; b++) {
-      if (shown.some(f => f.bar === b)) continue;
-      const label = b !== x.bars[0] ? '' : x.answer === 'not_sax' ? 'Not sax (you said)' : x.answer === 'sax' ? 'Sax (you said)' : 'Possibly not sax?';
-      shown.push({bar: b, label, id: null, suggest: true, answered: !!x.answer});
-    }
-  }
-  for (const f of shown) {
-    const el = measureEl(f.bar);
-    if (!el) continue;
-    const staff = el.querySelector('g.staff') || el;
-    const r = staff.getBoundingClientRect();
-    const d = document.createElement('div');
-    d.className = 'flagbox' + (f.suggest ? ' suggest' + (f.answered ? ' answered' : '') : '') +
-      (!f.suggest && editing && editing.bar === f.bar && editing.id === f.id ? ' editing' : '');
-    Object.assign(d.style, {left: `${r.left - outer.left - 4}px`, top: `${r.top - outer.top - 6}px`,
-                            width: `${r.width + 8}px`, height: `${r.height + 12}px`});
-    d.innerHTML = f.label ? `<span>${f.suggest ? '' : '⚑ '}${esc(f.label)}</span>` : '';
+  const put = (bar, cls, text, data) => {
+    const el = measureEl(bar); if (!el) return;
+    const r = (el.querySelector('g.staff') || el).getBoundingClientRect();
+    const d = document.createElement('div'); d.className = 'flagbox ' + cls;
+    Object.assign(d.style, {left: `${r.left - outer.left - 4}px`, top: `${r.top - outer.top - 6}px`, width: `${r.width + 8}px`, height: `${r.height + 12}px`});
+    Object.assign(d.dataset, data || {});
+    if (text) d.innerHTML = `<span>${text}</span>`;
     box.appendChild(d);
-  }
+  };
+  for (const f of flags) for (let b = f.bar; b <= (f.to || f.bar); b++)
+    put(b, (isSorted(f) ? '' : 'todo') + (editing && editing.id === f.id ? ' editing' : ''),
+        b === f.bar ? (isSorted(f) ? '⚑ ' + esc(label(f) || 'Note') : '⚑ To sort') : '', {id: f.id});
+  if (editing && !editing.id) for (let b = editing.bar; b <= editing.to; b++) put(b, 'editing', b === editing.bar ? 'New flag' : '', {editing: '1'});
+  if (sel) for (let b = Math.min(sel.a, sel.b); b <= Math.max(sel.a, sel.b); b++)
+    put(b, 'selection', b === Math.min(sel.a, sel.b) ? (sel.a === sel.b ? `Bar ${sel.a}` : `Bars ${Math.min(sel.a, sel.b)}–${Math.max(sel.a, sel.b)}`) : '');
+  suggested.forEach((x, i) => { for (let b = x.bars[0]; b <= x.bars[1]; b++) if (!flagFor(b))
+    put(b, 'suggest' + (x.answer ? ' answered' : ''), b !== x.bars[0] ? '' : x.answer === 'not_sax' ? 'Not sax (you said)' : x.answer === 'sax' ? 'Sax (you said)' : 'Sax?', {ask: i}); });
   markPicked();
 }
 function markPicked() {
   document.querySelectorAll('#score g.picked').forEach(g => g.classList.remove('picked'));
-  if (!editing || getScope() !== 'notes') return;
-  for (const [id, q] of Object.entries(qOf)) {
-    if (editing.picked.some(p => Math.abs(p - q) < 1e-3)) {
-      const g = document.getElementById(id);
-      if (g && g.classList.contains('note')) g.classList.add('picked');
-    }
+  $('#score').classList.toggle('picking', !!(editing && editing.scope === 'notes'));
+  if (!editing || editing.scope !== 'notes') return;
+  for (const [id, q] of Object.entries(qOf)) if (editing.picked.some(p => Math.abs(p - q) < 1e-3)) {
+    const g = document.getElementById(id); if (g && g.classList.contains('note')) g.classList.add('picked');
   }
 }
-function setFlagMode(on) {
-  flagMode = on;
-  $('#flagMode').classList.toggle('on', on); $('#flagMode').setAttribute('aria-pressed', on);
-  $('#score').classList.toggle('flagging', on);
-  if (on) toast('Flag mode: tap a bar to flag it.'); else closeSheet();
-}
-$('#flagMode').addEventListener('click', () => setFlagMode(!flagMode));
-$('#suggestItems').addEventListener('click', async e => {
-  const go = e.target.closest('[data-go]');
-  if (go) { const el = measureEl(+go.dataset.go); if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); $('#flagMenu').open = false; return; }
-  const b = e.target.closest('button[data-a]'); if (!b) return;
-  const x = suggested[+b.dataset.i];
-  const r = await fetch(`/api/takes/${takeId}/suggestions`, {method: 'POST', headers: {'Content-Type': 'application/json'},
-                                                             body: JSON.stringify({bars: x.bars, answer: b.dataset.a})});
-  if (r.ok) { gotFlags(await r.json()); toast('Saved. Thanks, that answer trains the check.'); }
-  else toast('Could not save that answer.');
-});
-
-function flagClick(e) {
+$('#score').addEventListener('click', e => {
+  const fb = e.target.closest('.flagbox');
+  if (fb) {
+    if (fb.dataset.id) { const f = flags.find(x => x.id === fb.dataset.id); if (f) openSheet(f, !isSorted(f)); }
+    else if (fb.dataset.ask !== undefined) { seekTo(barStart(suggested[+fb.dataset.ask].bars[0]) - 0.05); showAsk(+fb.dataset.ask); }
+    return;
+  }
   const m = e.target.closest('g.measure') || measureAt(e.clientX, e.clientY);
-  if (!m || barOf[m.id] === undefined) return;
-  const note = e.target.closest('g.note') || noteAt(m, e.clientX, e.clientY);
-  const bar = barOf[m.id];
-  if (editing && editing.bar === bar && getScope() === 'notes') {
-    if (note && qOf[note.id] !== undefined) {  // pick or unpick this note
-      const q = qOf[note.id], i = editing.picked.findIndex(p => Math.abs(p - q) < 1e-3);
+  const bar = m ? barOf[m.id] : undefined;
+  // Picking notes for "Just these notes".
+  if (editing && editing.scope === 'notes' && bar !== undefined && bar >= editing.bar && bar <= editing.to) {
+    const n = e.target.closest('g.note') || noteAt(m, e.clientX, e.clientY);
+    if (n && qOf[n.id] !== undefined) {
+      const q = qOf[n.id], i = editing.picked.findIndex(p => Math.abs(p - q) < 1e-3);
       if (i >= 0) editing.picked.splice(i, 1); else editing.picked.push(q);
       markPicked();
     }
     return;
   }
-  const old = flags.find(f => f.bar === bar);
-  openSheet(old || {bar, categories: [], scope: 'bar', picked: [], text: ''});
-  if (!old && note && qOf[note.id] !== undefined) {
-    // Tapped right on a note: offer it as the first picked note, but keep "Whole bar" until asked.
-    editing.firstNote = qOf[note.id];
-  }
-}
+  // Otherwise a tap on a note jumps there, as before.
+  const g = e.target.closest('g.note, g.rest, g.chord');
+  if (g && qOf[g.id] !== undefined) seekTo(qToT(qOf[g.id]) - 0.05);
+});
 // Fingers are wide: the note in this bar nearest the tap, within about a note's width.
 function noteAt(m, x, y) {
+  if (!m) return null;
   let best = null, bestD = 30;
   for (const g of m.querySelectorAll('g.note')) {
     if (qOf[g.id] === undefined) continue;
@@ -275,7 +287,7 @@ function noteAt(m, x, y) {
   }
   return best;
 }
-// A tap on the paper between notes lands on the page, not the bar: find the bar under it.
+// A point on the paper between notes lands on the page, not the bar: find the bar under it.
 function measureAt(x, y) {
   let best = null, bestD = Infinity;
   for (const {id} of measures) {
@@ -287,71 +299,310 @@ function measureAt(x, y) {
   }
   return best;
 }
-function openSheet(f) {
-  editing = {id: f.id || null, bar: f.bar, picked: [...(f.picked || [])]};
-  $('#sheetTitle').textContent = `Bar ${f.bar}`;
-  const t0 = f.start !== undefined ? f.start : qToT((f.bar - 1) * 4), t1 = f.end !== undefined ? f.end : qToT(f.bar * 4);
-  $('#sheetTime').textContent = `${clock(t0)} to ${clock(t1)}`;
-  $('#cats').querySelectorAll('button').forEach(b => b.classList.toggle('on', f.categories.includes(b.dataset.c)));
-  $('#scope').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === (f.scope || 'bar')));
-  $('#pickHint').hidden = (f.scope || 'bar') !== 'notes';
-  $('#flagText').value = f.text || '';
-  $('#deleteFlag').hidden = !f.id;
+
+// ---- press and drag across bars on the score to flag a stretch.
+// Mouse: press and drag. Finger: press and hold for a moment, then drag (a quick swipe still scrolls).
+let sel = null, selecting = false, selTimer = null, selStart = null;
+function barAtPoint(x, y) { const m = measureAt(x, y); return m ? barOf[m.id] : undefined; }
+function selBegin(x, y) {
+  const b = barAtPoint(x, y); if (b === undefined) return false;
+  sel = {a: b, b}; selecting = true; $('#score').classList.add('selecting'); drawFlags();
+  return true;
+}
+function selMove(x, y) { const b = barAtPoint(x, y); if (b !== undefined && b !== sel.b) { sel.b = b; drawFlags(); } }
+function selEnd() {
+  clearTimeout(selTimer); selStart = null;
+  if (!selecting) return;
+  const a = Math.min(sel.a, sel.b), b = Math.max(sel.a, sel.b);
+  selecting = false; sel = null; $('#score').classList.remove('selecting'); suppressClick = true; setTimeout(() => { suppressClick = false; }, 400);
+  const f = flags.find(x => !(b < x.bar || a > (x.to || x.bar)));
+  if (f) openSheet({...f, bar: Math.min(f.bar, a), to: Math.max(f.to || f.bar, b)}, false, f);
+  else openSheet({bar: a, to: b, categories: [], scope: 'bar', picked: [], text: ''});
+}
+let suppressClick = false;
+$('#score').addEventListener('click', e => { if (suppressClick) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+$('#score').addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'mouse' || e.button !== 0 || (editing && editing.scope === 'notes')) return;
+  selStart = {x: e.clientX, y: e.clientY};
+});
+window.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse' || !selStart) return;
+  if (!selecting && Math.hypot(e.clientX - selStart.x, e.clientY - selStart.y) > 12) {
+    if (!selBegin(selStart.x, selStart.y)) { selStart = null; return; }
+  }
+  if (selecting) { e.preventDefault(); selMove(e.clientX, e.clientY); }
+});
+window.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') selEnd(); });
+// Touch (iPad): touch events, so the hold can stop the page from scrolling once it starts.
+$('#score').addEventListener('touchstart', e => {
+  if (e.touches.length !== 1 || (editing && editing.scope === 'notes')) { clearTimeout(selTimer); return; }
+  const t = e.touches[0]; selStart = {x: t.clientX, y: t.clientY};
+  clearTimeout(selTimer);
+  selTimer = setTimeout(() => { if (selStart && selBegin(selStart.x, selStart.y) && navigator.vibrate) navigator.vibrate(10); }, 400);
+}, {passive: true});
+$('#score').addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  if (selecting) { e.preventDefault(); selMove(t.clientX, t.clientY); return; }
+  if (selStart && Math.hypot(t.clientX - selStart.x, t.clientY - selStart.y) > 10) { clearTimeout(selTimer); selStart = null; }
+}, {passive: false});
+$('#score').addEventListener('touchend', e => { if (selecting) e.preventDefault(); selEnd(); });
+$('#score').addEventListener('touchcancel', () => { clearTimeout(selTimer); selStart = null; if (selecting) { selecting = false; sel = null; $('#score').classList.remove('selecting'); drawFlags(); } });
+$('#score').addEventListener('contextmenu', e => { if (selecting || selTimer) e.preventDefault(); });
+
+// ---- the bar strip over the transport: every bar, coloured by what you've done with it
+function drawStrip() {
+  const strip = $('#strip'); let h = '';
+  strip.style.gridTemplateColumns = `repeat(${nBars}, minmax(0, 1fr))`;
+  const now = nowBar();
+  for (let b = 1; b <= nBars; b++) {
+    const f = flagFor(b), s = suggested.find(x => b >= x.bars[0] && b <= x.bars[1]);
+    const c = f ? (isSorted(f) ? 'flag' : 'todo') : s && !s.answer ? 'ask' : heard.has(b) ? 'ok' : '';
+    h += `<button type="button" class="${c}${b === now ? ' now' : ''}" data-b="${b}" aria-label="Bar ${b}"></button>`;
+  }
+  strip.innerHTML = h;
+  const ok = [...heard].filter(b => !flagFor(b)).length;
+  $('#stripNote').textContent = `${ok} bar${ok === 1 ? '' : 's'} heard with no flag (saved as “looks right”)`;
+}
+$('#strip').addEventListener('click', e => { const b = e.target.closest('button[data-b]'); if (b) seekTo(barStart(+b.dataset.b) - 0.05); });
+let lastBar = null;
+function tickReview() {
+  const b = nowBar();
+  if (b !== lastBar) {
+    // Played straight through a bar, at any speed: it counts as heard.
+    if (!audio.paused && lastBar !== null && b === lastBar + 1 && !loopRange) heard.add(lastBar);
+    lastBar = b; drawStrip(); askIfUnsure(b);
+    if (heard.size - heardSent.size >= 8) sendHeard();
+  }
+  if (holdFrom !== null && holding) $('#flag').querySelector('b').textContent = `Bars ${holdFrom}–${Math.max(holdFrom, b)}`;
+}
+async function sendHeard() {
+  const bars = [...heard].filter(b => !heardSent.has(b));
+  if (!bars.length) return;
+  bars.forEach(b => heardSent.add(b));
+  try { const r = await post(`/api/takes/${takeId}/heard`, {bars}); if (r.ok) drawTracker((await r.json()).looks_right || []); }
+  catch (e) { bars.forEach(b => heardSent.delete(b)); }
+}
+window.addEventListener('pagehide', () => {
+  const bars = [...heard].filter(b => !heardSent.has(b));
+  if (bars.length && navigator.sendBeacon) navigator.sendBeacon(`/api/takes/${takeId}/heard`, new Blob([JSON.stringify({bars})], {type: 'application/json'}));
+});
+
+// ---- "Sax?" questions pop up as those bars go by; one tap answers without stopping the music
+let askShown = null;
+function askIfUnsure(b) {
+  const i = suggested.findIndex(x => !x.answer && b >= x.bars[0] && b <= x.bars[1]);
+  if (i >= 0 && !audio.paused) { if (askShown !== i) showAsk(i); }  // don't redraw it under a finger
+  else if (askShown !== null && !(suggested[askShown] && !suggested[askShown].answer && b >= suggested[askShown].bars[0] && b <= suggested[askShown].bars[1] + 1)) hideAsk();
+}
+function showAsk(i) {
+  const x = suggested[i]; if (!x) return;
+  askShown = i;
+  const el = $('#ask');
+  el.innerHTML = `<span>${x.bars[0] === x.bars[1] ? `Bar ${x.bars[0]}` : `Bars ${x.bars[0]}–${x.bars[1]}`}: is this the sax?</span>` +
+    `<button type="button" data-a="sax" data-i="${i}" class="${x.answer === 'sax' ? 'on' : ''}">It’s sax</button>` +
+    `<button type="button" data-a="not_sax" data-i="${i}" class="${x.answer === 'not_sax' ? 'on' : ''}">Not sax</button>` +
+    `<button type="button" data-a="" aria-label="Close">✕</button>`;
+  el.hidden = false;
+}
+function hideAsk() { askShown = null; $('#ask').hidden = true; }
+$('#ask').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  if (!b.dataset.a) { hideAsk(); return; }
+  const x = suggested[+b.dataset.i];
+  const r = await post(`/api/takes/${takeId}/suggestions`, {bars: x.bars, answer: b.dataset.a});
+  if (r.ok) { gotFlags(await r.json()); hideAsk(); toast(b.dataset.a === 'sax' ? 'Saved: it’s sax.' : 'Saved: not sax.'); }
+  else toast('Could not save that answer.');
+});
+
+// ---- ⚑ Flag: tap = the bar heard about a second ago (you hear it before your thumb moves);
+// press and hold = every bar from the press to the release. Paused: opens the flag screen.
+// Pointer capture keeps the hold alive while a finger drifts; touch-action: none stops the
+// iPad from treating the press as a scroll or a text selection.
+let holding = false, holdFrom = null, holdTimer = null, holdPointer = null;
+function flagDown() {
+  if (holdFrom !== null) return;
+  holdFrom = barAtTime((audio.currentTime || 0) - (audio.paused ? 0 : 1 * (audio.playbackRate || 1)));
+  holdTimer = setTimeout(() => {
+    holding = true; $('#flag').classList.add('holding');
+    $('#flag').querySelector('b').textContent = `Bars ${holdFrom}–${Math.max(holdFrom, nowBar())}`;
+  }, 350);
+}
+async function flagUp() {
+  if (holdFrom === null) return;
+  clearTimeout(holdTimer);
+  const from = holdFrom, to = holding ? Math.max(holdFrom, nowBar()) : holdFrom;
+  holding = false; holdFrom = null; $('#flag').classList.remove('holding'); $('#flag').querySelector('b').textContent = '⚑ Flag';
+  if (audio.paused) {
+    const f = flagFor(from);
+    if (f) openSheet(f, !isSorted(f)); else openSheet({bar: from, to, categories: [], scope: 'bar', picked: [], text: ''});
+    return;
+  }
+  const r = await post(`/api/takes/${takeId}/flags`, {bar: from, to, categories: [], scope: 'bar', picked: [], text: '', view, merge: true});
+  if (!r.ok) { toast('Could not save the flag.'); return; }
+  const data = await r.json(); gotFlags(data);
+  lastUndo = data.last ? data.last.undo : null;
+  const merged = lastUndo && lastUndo.put;
+  const msg = merged ? `⚑ Added to the flag on ${rangeName(data.last).toLowerCase()}.` : `⚑ ${rangeName(data.last)} flagged. Sort it later.`;
+  toast(msg);
+  if (lastUndo) $('#toast').innerHTML = `${esc(msg)} <button type="button" id="undo">Undo</button>`;
+}
+const fb = $('#flag');
+fb.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault(); holdPointer = e.pointerId;
+  try { fb.setPointerCapture(e.pointerId); } catch (err) {}
+  flagDown();
+});
+fb.addEventListener('pointerup', e => { if (e.pointerId === holdPointer) { holdPointer = null; flagUp(); } });
+fb.addEventListener('pointercancel', e => { if (e.pointerId === holdPointer) { holdPointer = null; flagUp(); } });
+fb.addEventListener('lostpointercapture', e => { if (e.pointerId === holdPointer) { holdPointer = null; flagUp(); } });
+fb.addEventListener('contextmenu', e => e.preventDefault());
+fb.addEventListener('click', e => e.preventDefault());
+document.addEventListener('click', async e => {
+  if (!e.target.closest('#undo') || !lastUndo) return;
+  const u = lastUndo; lastUndo = null;
+  const r = u.delete ? await fetch(`/api/takes/${takeId}/flags/${u.delete}`, {method: 'DELETE'})
+                     : await post(`/api/takes/${takeId}/flags/${u.put}`, u.body, 'PUT');
+  if (r.ok) { gotFlags(await r.json()); toast('Undone.'); } else toast('Could not undo that.');
+});
+
+// ---- the flag screen. While it is open the flag's bars loop.
+function openSheet(f, sorting, existing) {
+  const base = existing || f;
+  editing = {id: base.id || null, bar: f.bar, to: f.to || f.bar, picked: [...(base.picked || [])], scope: base.scope || 'bar',
+             categories: [...(base.categories || [])], sorting: !!sorting};
+  editing.group = groupOf(editing.categories[0]) || null;
+  $('#flagText').value = base.text || '';
+  $('#deleteFlag').hidden = !editing.id;
+  $('#saveFlag').textContent = saveLabel();
+  drawRange(); drawSheet();
   $('#sheet').hidden = false;
+  if (sheetH) { $('#sheet').style.height = sheetH + 'px'; $('#sheet').style.maxHeight = 'none'; }
   document.body.style.paddingBottom = `${$('#sheet').offsetHeight}px`;
+  setLoop(true); syncPlay();
+  seekTo(barStart(editing.bar) - 0.05);
+  showBar(editing.bar);
   drawFlags();
-  const el = measureEl(f.bar);
-  if (el) {
-    const r = el.getBoundingClientRect(), head = $('.top').getBoundingClientRect().bottom;
-    if (r.bottom > $('#sheet').getBoundingClientRect().top - 8 || r.top < head)
-      window.scrollTo({top: window.scrollY + r.top - head - 24, behavior: 'smooth'});
-  }
 }
+function saveLabel() {
+  if (!editing || !editing.sorting) return 'Save';
+  const left = toSort().filter(x => x.id !== editing.id).length;
+  return left ? `Save, next (${left} left)` : 'Save';
+}
+// Keep the flag's first bar in the part of the page the sheet doesn't cover.
+function showBar(bar) {
+  const el = measureEl(bar); if (!el) return;
+  const r = el.getBoundingClientRect(), head = $('.top').getBoundingClientRect().bottom, foot = bottomEdge();
+  if (r.top < head + 8 || r.bottom > foot - 8) window.scrollTo({top: window.scrollY + r.top - head - 24, behavior: 'smooth'});
+}
+function drawSheet() {
+  const g = editing.group;
+  $('#groups').innerHTML = Object.entries(GROUPS).map(([k, v], i) =>
+    `<button type="button" data-g="${k}" class="${g === k ? 'on' : ''}"><b>${esc(v.label)}</b><span>${esc(v.hint)}</span><kbd>${i + 1}</kbd></button>`).join('');
+  const keys = g && GROUPS[g].keys.length > 1 ? GROUPS[g].keys : [];
+  $('#detail').hidden = !keys.length;
+  $('#cats').innerHTML = keys.map(k => `<button type="button" data-c="${k}" class="${editing.categories.includes(k) ? 'on' : ''}">${esc(categories[k] || k)}</button>`).join('');
+  $('#scope').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === editing.scope));
+  $('#pickHint').hidden = editing.scope !== 'notes';
+  markPicked();
+}
+function setLoop(on) {
+  loopRange = on && editing ? [Math.max(0, barStart(editing.bar) - 0.05), barEnd(editing.to)] : null;
+  $('#loopBtn').classList.toggle('on', !!loopRange);
+  $('#loopBtn').textContent = loopRange ? '⟲ Looping' : '⟲ Loop';
+}
+$('#loopBtn').addEventListener('click', () => setLoop(!loopRange));
+function pickGroup(g) {
+  editing.group = editing.group === g ? null : g;
+  editing.categories = editing.categories.filter(c => groupOf(c) === editing.group && GROUPS[editing.group].keys.length > 1);
+  drawSheet();
+}
+$('#groups').addEventListener('click', e => { const b = e.target.closest('button[data-g]'); if (b) pickGroup(b.dataset.g); });
+$('#cats').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if (!b) return; const c = b.dataset.c;
+  editing.categories = editing.categories.includes(c) ? editing.categories.filter(x => x !== c) : [...editing.categories, c];
+  drawSheet();
+});
+$('#scope').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; editing.scope = b.dataset.v; drawSheet(); });
+// Bar range: − and + on each end, like a number picker.
+function drawRange() {
+  $('#fromBar').textContent = editing.bar; $('#toBar').textContent = editing.to; $('#sheetTitle').textContent = rangeName(editing);
+  $('#sheetTime').textContent = `${clock(barStart(editing.bar))} to ${clock(barEnd(editing.to))}`;
+}
+$('#range').addEventListener('click', e => {
+  const b = e.target.closest('button[data-r]'); if (!b || !editing) return;
+  const [end, by] = b.dataset.r.split(':'); const n = +by;
+  if (end === 'from') editing.bar = Math.max(1, Math.min(editing.to, editing.bar + n));
+  else editing.to = Math.max(editing.bar, Math.min(nBars, editing.to + n));
+  editing.picked = editing.picked.filter(q => q >= (editing.bar - 1) * BEATS && q < editing.to * BEATS);
+  drawRange(); if (loopRange) setLoop(true); drawFlags();
+});
+// Play controls inside the flag screen.
+$('#sRestart').addEventListener('click', () => { if (editing) seekTo(barStart(editing.bar) - 0.05); });
+$('#sBack').addEventListener('click', () => seekTo((audio.currentTime || 0) - 2));
+$('#sPlay').addEventListener('click', toggle);
+function syncPlay() { $('#sPlay').textContent = audio.paused ? '▶' : '❚❚'; $('#sPlay').setAttribute('aria-label', audio.paused ? 'Play' : 'Pause'); }
+// Pull the flag screen up or down by its handle to see more of the chart. Double-tap shrinks it.
+let sheetH = null;
+(() => {
+  const h = $('#grab'); let y0, h0, id = null, lastTap = 0;
+  const set = nh => {
+    sheetH = nh;
+    $('#sheet').style.height = nh ? nh + 'px' : ''; $('#sheet').style.maxHeight = nh ? 'none' : '';
+    document.body.style.paddingBottom = $('#sheet').offsetHeight + 'px';
+  };
+  h.addEventListener('pointerdown', e => {
+    e.preventDefault(); y0 = e.clientY; h0 = $('#sheet').offsetHeight; id = e.pointerId; h.classList.add('dragging');
+    try { h.setPointerCapture(e.pointerId); } catch (err) {}
+    const now = Date.now(); if (now - lastTap < 350) { set(sheetH && sheetH < 260 ? null : 190); id = null; } lastTap = now;
+  });
+  h.addEventListener('pointermove', e => { if (e.pointerId === id) set(Math.round(Math.max(150, Math.min(innerHeight * 0.85, h0 + (y0 - e.clientY))))); });
+  const up = e => { if (e.pointerId === id) { id = null; h.classList.remove('dragging'); } else h.classList.remove('dragging'); };
+  h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+})();
 function closeSheet() {
-  editing = null; $('#sheet').hidden = true; document.body.style.paddingBottom = '';
+  editing = null; setLoop(false); $('#sheet').hidden = true; document.body.style.paddingBottom = '';
+  if (sortSpeed !== null) { $('#speed').value = sortSpeed; setSpeed(); sortSpeed = null; }
   drawFlags();
 }
-$('#cats').addEventListener('click', e => { const b = e.target.closest('button'); if (b) b.classList.toggle('on'); });
-$('#scope').addEventListener('click', e => {
-  const b = e.target.closest('button');
-  if (b && b.dataset.v === 'notes' && editing && !editing.picked.length && editing.firstNote !== undefined) {
-    editing.picked.push(editing.firstNote); markPicked();
-  }
-});
-$('#cancelFlag').addEventListener('click', closeSheet);
-$('#saveFlag').addEventListener('click', async () => {
-  const cats = [...$('#cats').querySelectorAll('button.on')].map(b => b.dataset.c);
-  if (!cats.length) { toast('Pick at least one category.'); return; }
-  const scope = getScope();
-  if (scope === 'notes' && !editing.picked.length) { toast('Tap the notes in the bar, or choose Whole bar.'); return; }
-  const body = {bar: editing.bar, categories: cats, scope, picked: scope === 'notes' ? editing.picked : [],
-                text: $('#flagText').value.trim(), view};
-  const r = await fetch(editing.id ? `/api/takes/${takeId}/flags/${editing.id}` : `/api/takes/${takeId}/flags`,
-                        {method: editing.id ? 'PUT' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+$('#cancelFlag').addEventListener('click', () => { audio.pause(); closeSheet(); });
+$('#saveFlag').addEventListener('click', saveFlag);
+async function saveFlag() {
+  if (!editing) return;
+  const text = $('#flagText').value.trim();
+  // A big reason with no detail picked is saved as the big reason itself.
+  const finalCats = editing.categories.length ? editing.categories
+    : editing.group ? (GROUPS[editing.group].keys.length === 1 ? GROUPS[editing.group].keys : [editing.group]) : [];
+  if (!finalCats.length && !text) { toast('Pick a reason, or say it in a few words.'); return; }
+  if (editing.scope === 'notes' && !editing.picked.length) { toast('Tap the notes, or choose Whole bar.'); return; }
+  const body = {bar: editing.bar, to: editing.to, categories: finalCats, scope: editing.scope,
+                picked: editing.scope === 'notes' ? editing.picked : [], text, view};
+  const r = await post(editing.id ? `/api/takes/${takeId}/flags/${editing.id}` : `/api/takes/${takeId}/flags`, body, editing.id ? 'PUT' : 'POST');
   if (!r.ok) { let msg = 'Could not save the flag.'; try { msg = (await r.json()).detail || msg; } catch (e) {} toast(msg); return; }
-  const bar = editing.bar;
-  editing = null; gotFlags(await r.json()); closeSheet();
-  toast(`Bar ${bar} flagged.`);
-});
+  const was = editing; gotFlags(await r.json());
+  const next = was.sorting && toSort()[0];
+  if (next) { openSheet(next, true); toast(`Saved. Next: ${rangeName(next).toLowerCase()}.`); if (audio.paused) playAudio(); }
+  else { audio.pause(); closeSheet(); toast(was.sorting ? `All flags sorted. Saved to ${run.label || 'this run'}.` : `${rangeName(was)} saved.`); }
+}
 $('#deleteFlag').addEventListener('click', async () => {
-  if (!editing || !editing.id || !confirm(`Delete the flag on bar ${editing.bar}?`)) return;
+  if (!editing || !editing.id) return;
   const r = await fetch(`/api/takes/${takeId}/flags/${editing.id}`, {method: 'DELETE'});
   if (!r.ok) { toast('Could not delete the flag.'); return; }
-  editing = null; gotFlags(await r.json()); closeSheet();
+  gotFlags(await r.json()); closeSheet(); toast('Flag deleted.');
 });
-// The Flags list: tap one to go there and edit it.
-$('#flagItems').addEventListener('click', e => {
-  const b = e.target.closest('button[data-id]'); if (!b) return;
-  const f = flags.find(x => x.id === b.dataset.id); if (!f) return;
-  $('#flagMenu').open = false;
-  audio.currentTime = Math.max(0, f.start - 0.05); update(true);
-  if (!flagMode) setFlagMode(true);
-  openSheet(f);
-});
-// Copy for Claude. Over the home network the page isn't "secure", so Safari has no
-// navigator.clipboard; select a hidden text box and copy that instead.
+function startSorting() {
+  const next = toSort()[0]; if (!next) return false;
+  if (sortSpeed === null) sortSpeed = $('#speed').value;
+  $('#speed').value = '0.75'; setSpeed();
+  openSheet(next, true); playAudio();
+  return true;
+}
+$('#sortBtn').addEventListener('click', startSorting);
+
+// ---- copy and download, in the tracker
+// Over the home network the page isn't "secure", so Safari has no navigator.clipboard;
+// select a hidden text box and copy that instead.
 $('#copyFlags').addEventListener('click', () => {
-  $('#flagMenu').open = false;
   const clip = $('#clip'); clip.value = flagsText;
   let ok = false;
   if (navigator.clipboard && window.isSecureContext) {
@@ -363,14 +614,38 @@ $('#copyFlags').addEventListener('click', () => {
   clip.setAttribute('readonly', ''); clip.blur();
   if (ok) toast('Flags copied. Paste them into a thread.'); else showText();
 });
-// When the browser won't copy: open the summary as plain text to select and copy by hand.
 function showText() {
   toast('Select all and copy the text that opened.');
   window.open(`/api/takes/${takeId}/flags.txt`, '_blank');
 }
-$('#dlFlags').addEventListener('click', () => { $('#flagMenu').open = false; download(`/api/takes/${takeId}/flags.json`); });
-document.addEventListener('click', e => { if (!e.target.closest('#flagMenu')) $('#flagMenu').open = false; });
+$('#dlFlags').addEventListener('click', () => download(`/api/takes/${takeId}/flags.json`));
+
+// ---- keys (Mac): F flag (hold for a stretch), S open the flag screen (next to sort, else this bar),
+// space play/pause (also in the flag screen), ← back 2 s, 1–4 pick a reason, Enter save, Esc close.
+const typing = e => e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'Escape') { if (editing) { e.preventDefault(); closeSheet(); } return; }
+  if (typing(e)) return;
+  if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) toggle(); return; }
+  const k = e.key.toLowerCase();
+  if (k === 'f') { e.preventDefault(); if (!e.repeat) flagDown(); return; }
+  if (k === 's' && !e.repeat) {
+    e.preventDefault();
+    if (editing) return;
+    if (!startSorting()) { const b = nowBar(), f = flagFor(b); openSheet(f || {bar: b, to: b, categories: [], scope: 'bar', picked: [], text: ''}, false); }
+    return;
+  }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); seekTo((audio.currentTime || 0) - 2); return; }
+  if (editing && /^[1-4]$/.test(e.key)) { e.preventDefault(); pickGroup(Object.keys(GROUPS)[+e.key - 1]); return; }
+  if (editing && e.key === 'Enter') { e.preventDefault(); saveFlag(); }
+});
+document.addEventListener('keyup', e => {
+  if (e.code === 'Space' && !typing(e)) e.preventDefault();  // a focused button would click again on keyup
+  if (e.key.toLowerCase() === 'f') flagUp();
+});
 window.addEventListener('resize', () => drawFlags());
+window.addEventListener('blur', () => { if (holdFrom !== null) flagUp(); });
 
 loadFlags();
 loadJob().catch(err => { $('#score').innerHTML = `<div class="loading">Could not load this take: ${esc(err.message)}</div>`; });
