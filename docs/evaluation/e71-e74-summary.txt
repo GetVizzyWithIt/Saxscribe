@@ -1,0 +1,69 @@
+E71-E74 set-level rows, one summary line each (93 rows; 178 per-record rows left out).
+Full JSON is on the Mac in ~/saxscribe-runs/experiments.jsonl (filter on "entry"); this text is also in ~/saxscribe-runs/exp/e71-e79_rows_for_docs.txt.
+There are no rows for E75, E76 or E78. In each parker pair, train comes first, then test.
+Format: entry | set | separator+note_finder [variant] | metrics | note
+
+E72 | parker | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.668, no_off 0.783, onset 0.881 | 7 records (train)
+E72 | weimar | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.857, no_off 0.912, onset 0.949 | 3 records (train)
+E72 | pfh | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.568, no_off 0.706, onset 0.795 | 1 record (test)
+E72 | bfmj | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.485, no_off 0.667, onset 0.739 | 1 record (test)
+E72 | tenor-tunes | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.359, no_off 0.526, onset 0.631 | 4 records (test)
+E72 | parker | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.682, no_off 0.815, onset 0.878 | 3 records (test)
+E72 | weimar | rd-filosax-demucs+rd-filosax_25k [base] | note_f1 0.737, no_off 0.791, onset 0.873 | 3 records (test)
+E72 | parker | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.668, no_off 0.784, onset 0.881 | 7 (train)
+E72 | weimar | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.857, no_off 0.912, onset 0.949 | 3 (train)
+E72 | pfh | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.567, no_off 0.706, onset 0.794 | 1 (test)
+E72 | bfmj | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.485, no_off 0.667, onset 0.739 | 1 (test)
+E72 | tenor-tunes | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.359, no_off 0.525, onset 0.631 | 4 (test)
+E72 | parker | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.683, no_off 0.815, onset 0.879 | 3 (test)
+E72 | weimar | rd-filosax-demucs+rd-filosax_25k [slur onsets F0.7 MIN6] | note_f1 0.737, no_off 0.792, onset 0.874 | 3 (test)
+E71 | pfh | rd-filosax-demucs+rd-filosax_25k [layered a] | note_f1 0.568, no_off 0.706, onset 0.795 | test
+E71 | pfh | rd-filosax-demucs+ours [layered a] | note_f1 0.550, no_off 0.708, onset 0.785 | test
+E71 | tenor-tunes | rd-filosax-demucs+rd-filosax_25k [layered a] | note_f1 0.291, no_off 0.512, onset 0.621 | 1 record (test)
+E71 | tenor-tunes | rd-filosax-demucs+ours [layered a] | note_f1 0.327, no_off 0.519, onset 0.635 | 1 record (test)
+E71 | parker | rd-filosax-demucs+rd-filosax_25k [layered a] | note_f1 0.667, no_off 0.783, onset 0.881 | 7 (train)
+E71 | parker | rd-filosax-demucs+ours [layered a] | note_f1 0.630, no_off 0.758, onset 0.854 | 7 (train)
+E71 | parker | rd-filosax-demucs+rd-filosax_25k [layered a] | note_f1 0.682, no_off 0.815, onset 0.878 | 3 (test)
+E71 | parker | rd-filosax-demucs+ours [layered a] | note_f1 0.612, no_off 0.787, onset 0.839 | 3 (test)
+E71 | pfh | mvsep-mega53-sax-on-mix+rd-filosax_25k [layered b] | note_f1 0.610, no_off 0.746, onset 0.837 | test
+E71 | pfh | mvsep-mega53-sax-on-mix+ours [layered b] | note_f1 0.576, no_off 0.736, onset 0.811 | test
+E71 | tenor-tunes | mvsep-mega53-sax-on-mix+rd-filosax_25k [layered b] | note_f1 0.302, no_off 0.537, onset 0.637 | 1 (test)
+E71 | tenor-tunes | mvsep-mega53-sax-on-mix+ours [layered b] | note_f1 0.357, no_off 0.556, onset 0.668 | 1 (test)
+E71 | parker | mvsep-mega53-sax-on-mix+rd-filosax_25k [layered b] | note_f1 0.656, no_off 0.777, onset 0.882 | 7 (train)
+E71 | parker | mvsep-mega53-sax-on-mix+ours [layered b] | note_f1 0.607, no_off 0.731, onset 0.841 | 7 (train)
+E71 | parker | mvsep-mega53-sax-on-mix+rd-filosax_25k [layered b] | note_f1 0.671, no_off 0.829, onset 0.890 | 3 (test)
+E71 | parker | mvsep-mega53-sax-on-mix+ours [layered b] | note_f1 0.621, no_off 0.797, onset 0.850 | 3 (test)
+E71 | pfh | demucs-lead->mega53-sax+rd-filosax_25k [layered c] | note_f1 0.572, no_off 0.710, onset 0.794 | test
+E71 | pfh | demucs-lead->mega53-sax+ours [layered c] | note_f1 0.518, no_off 0.684, onset 0.762 | test
+E71 | tenor-tunes | demucs-lead->mega53-sax+rd-filosax_25k [layered c] | note_f1 0.327, no_off 0.562, onset 0.657 | 1 (test)
+E71 | tenor-tunes | demucs-lead->mega53-sax+ours [layered c] | note_f1 0.362, no_off 0.560, onset 0.657 | 1 (test)
+E71 | parker | demucs-lead->mega53-sax+rd-filosax_25k [layered c] | note_f1 0.650, no_off 0.775, onset 0.876 | 7 (train)
+E71 | parker | demucs-lead->mega53-sax+ours [layered c] | note_f1 0.599, no_off 0.726, onset 0.833 | 7 (train)
+E71 | parker | demucs-lead->mega53-sax+rd-filosax_25k [layered c] | note_f1 0.669, no_off 0.819, onset 0.878 | 3 (test)
+E71 | parker | demucs-lead->mega53-sax+ours [layered c] | note_f1 0.597, no_off 0.778, onset 0.832 | 3 (test)
+E71 | pfh | demucs-lead->mega53-wind->mega53-sax+rd-filosax_25k [layered d] | note_f1 0.582, no_off 0.712, onset 0.796 | test
+E71 | pfh | demucs-lead->mega53-wind->mega53-sax+ours [layered d] | note_f1 0.525, no_off 0.687, onset 0.762 | test
+E71 | tenor-tunes | demucs-lead->mega53-wind->mega53-sax+rd-filosax_25k [layered d] | note_f1 0.329, no_off 0.564, onset 0.655 | 1 (test)
+E71 | tenor-tunes | demucs-lead->mega53-wind->mega53-sax+ours [layered d] | note_f1 0.366, no_off 0.561, onset 0.661 | 1 (test)
+E71 | parker | demucs-lead->mega53-wind->mega53-sax+rd-filosax_25k [layered d] | note_f1 0.646, no_off 0.773, onset 0.876 | 7 (train)
+E71 | parker | demucs-lead->mega53-wind->mega53-sax+ours [layered d] | note_f1 0.604, no_off 0.730, onset 0.836 | 7 (train)
+E71 | parker | demucs-lead->mega53-wind->mega53-sax+rd-filosax_25k [layered d] | note_f1 0.662, no_off 0.816, onset 0.876 | 3 (test)
+E71 | parker | demucs-lead->mega53-wind->mega53-sax+ours [layered d] | note_f1 0.600, no_off 0.775, onset 0.832 | 3 (test)
+E73 (separator-only stem check; a note counts as held when it is within 20 dB of the mix and 3 dB over the floor). Metrics: stem_recall / second / third:
+E73 | parker (train) | filosax 0.98 / high 1.00 / loud 0.99 ; mega53 0.98/0.98/0.98 ; demucs-lead->mega 0.98/0.99/0.98 ; demucs-lead->wind->mega 0.98/0.99/0.98 ; demucs-6s-lead 0.98/0.99/0.99 ; oracle a|b 0.99/1.00/1.00 ; oracle all 1.00/1.00/1.00 ; 2s chooser 0.98/0.99/0.99
+E73 | parker (test) | filosax 0.98/0.99/1.00 ; mega53 0.99/0.99/1.00 ; demucs-lead->mega 0.98/0.99/1.00 ; demucs-lead->wind->mega 0.99/0.99/1.00 ; demucs-6s-lead 0.99/0.99/1.00 ; oracle a|b 0.99/0.99/1.00 ; oracle all 1.00/1.00/1.00 ; 2s chooser 0.99/0.99/1.00
+E73 | pfh | stem_recall / first_half / flagged_bars: filosax 0.94/0.94/0.68 ; mega53 0.99/0.99/0.97 ; demucs-lead->mega 0.88/0.88/0.83 ; demucs-lead->wind->mega 0.88/0.88/0.83 ; demucs-6s-lead 0.92/0.92/0.90 ; oracle a|b 0.99/0.99/0.97 ; oracle all 1.00/1.00/0.98 ; 2s chooser 0.99/0.99/0.95
+E73 | tenor-tunes | filosax 0.91/high 0.91/loud 0.97 ; mega53 0.91/0.91/0.96 ; demucs-lead->mega 0.84/0.85/0.90 ; demucs-lead->wind->mega 0.84/0.85/0.90 ; demucs-6s-lead 0.91/0.91/0.94 ; oracle a|b 0.94/0.94/0.98 ; oracle all 0.97/0.97/0.99 ; 2s chooser 0.91/0.91/0.97
+E73 | weimar | filosax 0.94/high 0.96/loud 0.96 ; demucs-6s-lead 0.94/0.95/0.93 ; 2s chooser 0.94/0.95/0.96
+E74 | pfh | mega53+rd-filosax_25k shipped (0.3,0.1) | note_f1 0.610, no_off 0.746, onset 0.837 | test
+E74 | pfh | mega53+rd-filosax_25k chosen (0.3,0.05) | note_f1 0.611, no_off 0.746, onset 0.837 | test
+E74 | pfh | mega53+basic_pitch shipped=chosen (0.5,0.3) | note_f1 0.565, no_off 0.725, onset 0.802 | test
+E74 | tenor-tunes | mega53+rd-filosax_25k shipped | note_f1 0.302, no_off 0.537, onset 0.637 | 1 (test)
+E74 | tenor-tunes | mega53+rd-filosax_25k chosen | note_f1 0.301, no_off 0.537, onset 0.637 | 1 (test)
+E74 | tenor-tunes | mega53+basic_pitch | note_f1 0.328, no_off 0.541, onset 0.660 | 1 (test)
+E74 | parker | mega53+rd-filosax_25k shipped | note_f1 0.656, no_off 0.777, onset 0.882 | 7 (train)
+E74 | parker | mega53+rd-filosax_25k chosen | note_f1 0.658, no_off 0.777, onset 0.882 | 7 (train)
+E74 | parker | mega53+basic_pitch | note_f1 0.599, no_off 0.723, onset 0.837 | 7 (train)
+E74 | parker | mega53+rd-filosax_25k shipped | note_f1 0.671, no_off 0.829, onset 0.890 | 3 (test)
+E74 | parker | mega53+rd-filosax_25k chosen | note_f1 0.675, no_off 0.829, onset 0.890 | 3 (test)
+E74 | parker | mega53+basic_pitch | note_f1 0.632, no_off 0.800, onset 0.858 | 3 (test)
