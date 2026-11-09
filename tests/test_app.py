@@ -268,7 +268,8 @@ def test_flag_a_bar_for_review(client):
     assert list(Path(DESKTOP).glob("Fixture phrase/* flags.json"))
     assert list(Path(DESKTOP).glob("Fixture phrase/* flags.txt"))
 
-    assert client.post(url, json={"bar": bar, "categories": []}).status_code == 400
+    assert client.post(url, json={"bar": bar, "categories": ["bogus"]}).status_code == 400
+    assert client.post(url, json={"bar": bar + 1, "to": bar}).status_code == 400
     assert client.post(url, json={"bar": 0, "categories": ["pitch"]}).status_code == 400
     assert client.put(f"{url}/nope", json={"bar": bar, "categories": ["pitch"]}).status_code == 404
     assert client.delete(f"{url}/{f['id']}").json()["flags"] == []
@@ -305,3 +306,129 @@ def test_possibly_not_sax_stretches_are_offered_for_an_answer(client):
     finally:
         take.notes.write_text(original)
         (client.library.folder(client.take_id) / "flags.json").unlink(missing_ok=True)
+
+
+def test_feedback_flags_ranges_merge_undo_and_runs(client):
+    """The play-along feedback: quick flags with no reason yet (to sort), ranges of bars,
+    overlapping quick flags merging, undo, bars that look right, and flags kept across a re-run."""
+    import json
+    take = client.library.take(client.take_id)
+    folder = client.library.folder(client.take_id)
+    url = f"/api/takes/{client.take_id}"
+    written = json.loads(take.notation.read_text())["notes"]
+    last = max(n["bar"] for n in written)
+    manifest = take.manifest.read_text()
+    try:
+        # A quick flag over two bars: no reason yet, so it is "to sort".
+        r = client.post(f"{url}/flags", json={"bar": 1, "to": 2, "merge": True})
+        assert r.status_code == 200, r.text
+        out = r.json()
+        f = out["flags"][0]
+        assert (f["bar"], f["to"], f["categories"], f["sorted"]) == (1, 2, [], False)
+        assert {n["bar"] for n in f["notes"]} <= {1, 2} and f["end"] > f["start"]
+        assert out["last"]["undo"] == {"delete": f["id"]}
+        assert out["run"]["id"] and f["run"] == out["run"]["id"] and out["run"]["label"].startswith("Standard")
+        assert set(out["groups"]) == {"wrong_notes", "rhythm_feel", "not_sax", "other"}
+        assert "not sorted yet" in out["text"]
+
+        # Another quick flag overlapping it grows it; undo puts the old range back.
+        r = client.post(f"{url}/flags", json={"bar": 2, "to": 3, "merge": True}).json()
+        assert len(r["flags"]) == 1 and (r["flags"][0]["bar"], r["flags"][0]["to"]) == (1, 3)
+        assert r["last"]["undo"] == {"put": f["id"], "body": {"bar": 1, "to": 2}}
+        r = client.put(f"{url}/flags/{f['id']}", json=r["last"]["undo"]["body"]).json()
+        assert (r["flags"][0]["bar"], r["flags"][0]["to"]) == (1, 2)
+
+        # Sorting it: a big reason with no detail, and a note. Fields not sent stay.
+        r = client.put(f"{url}/flags/{f['id']}", json={"categories": ["wrong_notes"], "text": "a scoop"}).json()
+        g = r["flags"][0]
+        assert g["sorted"] and (g["bar"], g["to"], g["categories"]) == (1, 2, ["wrong_notes"])
+        assert "Bars 1-2" in r["text"] and "Wrong notes" in r["text"] and '"a scoop"' in r["text"]
+
+        # A separate quick flag, then undo deletes it.
+        r = client.post(f"{url}/flags", json={"bar": last, "merge": True}).json()
+        assert len(r["flags"]) == 2
+        r = client.delete(f"{url}/flags/{r['last']['undo']['delete']}").json()
+        assert len(r["flags"]) == 1
+
+        # Bars played through: "looks right" unless flagged.
+        r = client.post(f"{url}/heard", json={"bars": [1, 2, 3]}).json()
+        assert r["looks_right"] == [3] and r["heard"] == [1, 2, 3]
+        assert client.post(f"{url}/heard", json={"bars": ["x"]}).status_code == 400
+
+        # Run it again (here: the notes layer says it was made later). The flag moves to the
+        # earlier runs, with whether this run's notes changed there; nothing is lost.
+        data = json.loads(manifest)
+        data["layers"]["notes"]["made"] = "2099-01-02T03:04:05"
+        take.manifest.write_text(json.dumps(data))
+        r = client.get(f"{url}/flags").json()
+        assert r["flags"] == [] and len(r["past"]) == 1 and r["past"][0]["id"] == f["id"]
+        assert r["past"][0]["status"] == "same"  # the notes there are the same
+        notes_before = take.notes.read_text()
+        try:  # the new run places one of its notes 0.2 s later: "changed"
+            nd = json.loads(notes_before)
+            idx = next(n["index"] for n in written if n["bar"] == 1)
+            nd["notes"][idx]["onset"] = float(nd["notes"][idx]["onset"]) + 0.2
+            take.notes.write_text(json.dumps(nd))
+            assert client.get(f"{url}/flags").json()["past"][0]["status"] == "changed"
+        finally:
+            take.notes.write_text(notes_before)
+        assert r["looks_right"] == [] and r["run"]["date"].startswith("2 Jan")
+        assert "Earlier runs:" in r["text"] and "unchanged" in r["text"]
+        # A quick flag on the new run doesn't merge into the earlier run's flag.
+        r = client.post(f"{url}/flags", json={"bar": 1, "merge": True}).json()
+        assert len(r["flags"]) == 1 and len(r["past"]) == 1
+
+        saved = json.loads((folder / "flags.json").read_text())
+        assert len(saved["flags"]) == 2 and set(saved["looks_right"]) == {json.loads(manifest)["layers"]["notes"]["made"]}
+    finally:
+        take.manifest.write_text(manifest)
+        (folder / "flags.json").unlink(missing_ok=True)
+
+
+def test_flags_saved_before_runs_were_tracked_still_load(client):
+    """flags.json from before ranges and runs (PR #116): read as one-bar flags on the run that
+    made the file."""
+    import json
+    take = client.library.take(client.take_id)
+    folder = client.library.folder(client.take_id)
+    made_by = json.loads(take.manifest.read_text())["layers"]
+    (folder / "flags.json").write_text(json.dumps({"made_by": made_by, "flags": [
+        {"id": "old1", "bar": 1, "categories": ["pitch"], "scope": "bar", "picked": [], "text": "",
+         "start": 0.0, "end": 1.0, "notes": [], "created": "x", "updated": "x"}]}))
+    try:
+        r = client.get(f"/api/takes/{client.take_id}/flags").json()
+        assert [(f["id"], f["to"], f["sorted"]) for f in r["flags"]] == [("old1", 1, True)]
+    finally:
+        (folder / "flags.json").unlink(missing_ok=True)
+
+
+def test_play_page_has_no_horn_switch_and_the_chart_carries_the_title(client):
+    page = client.get(f"/take/{client.take_id}").text
+    assert 'id="view"' not in page and "Flags go to" in page and 'id="tracker"' in page
+    svg = client.get(f"/api/takes/{client.take_id}/score").json()["svg"]
+    assert "Fixture phrase" in svg and 'font-weight="bold"' in svg
+
+
+def test_flags_json_survives_saves_at_the_same_moment(client):
+    """The page can save a flag and the bars heard at once; flags.json must stay whole."""
+    import json
+    import threading
+    from saxscribe.app import flags as store
+    take = client.library.take(client.take_id)
+    folder = client.library.folder(client.take_id)
+    job = client.library.job(client.take_id)
+    try:
+        def flag(i):
+            store.save(folder, take, job, {"bar": 1 + i % 3, "merge": False})
+
+        def heard(i):
+            store.heard(folder, take, job, [i % 5 + 1])
+        threads = [threading.Thread(target=(flag if i % 2 else heard), args=(i,)) for i in range(24)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        data = json.loads((folder / "flags.json").read_text())
+        assert len(data["flags"]) == 12 and not list(folder.glob("flags*.tmp"))
+    finally:
+        (folder / "flags.json").unlink(missing_ok=True)

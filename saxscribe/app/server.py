@@ -20,9 +20,12 @@ API (JSON unless noted):
   GET  /api/takes/<id>/score      ?view=alto|tenor|concert&size=0..3: SVG, timemap, sync
   GET  /api/takes/<id>/audio/<which>   source, stem or accompaniment (WAV, seekable)
   GET  /api/takes/<id>/file/<kind>     pdf, musicxml or midi, as a download (?view=)
-  GET  /api/takes/<id>/flags           bars flagged for review, with the category list
-  POST /api/takes/<id>/flags           add a flag (bar, categories, scope, picked, text, view)
-  PUT  /api/takes/<id>/flags/<fid>     change a flag
+  GET  /api/takes/<id>/flags           this run's flags, earlier runs' flags (changed or not),
+                                       the reasons, "Sax?" stretches and bars that look right
+  POST /api/takes/<id>/flags           add a flag (bar, to, categories, scope, picked, text, view;
+                                       merge: true grows an overlapping flag); "last" says how to undo
+  PUT  /api/takes/<id>/flags/<fid>     change a flag (fields not sent stay)
+  POST /api/takes/<id>/heard           bars played through: {bars: [..]} ("looks right" unless flagged)
   DELETE /api/takes/<id>/flags/<fid>   remove a flag
   GET  /api/takes/<id>/flags.json      flags.json as a download
   GET  /api/takes/<id>/flags.txt       the flags as a short text summary (Copy for Claude)
@@ -211,15 +214,12 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
 
     # ---- flags: bars marked for review in the play-along (flags.py)
     def flags_out(take_id: str, job: dict) -> dict:
-        data = flag_store.load(library.folder(take_id))
-        suggested = flag_store.suggestions(library.take(take_id), data)
-        return {"flags": data["flags"], "categories": flag_store.CATEGORIES, "suggested": suggested,
-                "text": flag_store.text({**data, "title": job.get("title", ""),
-                                         "artist": job.get("artist", ""), "horn": job.get("horn", ""),
-                                         "engine": job.get("engine", "standard"), "take": take_id})}
+        return flag_store.page(library.folder(take_id), library.take(take_id), job)
 
-    def flags_saved(take_id: str, job: dict) -> dict:
+    def flags_saved(take_id: str, job: dict, last: dict | None = None) -> dict:
         out = flags_out(take_id, job)
+        if last is not None:
+            out["last"] = last
         try:  # a failed Desktop copy never loses a flag
             from .export import copy_flags
             copy_flags(flag_store.path(library.folder(take_id)), out["text"], job)
@@ -250,10 +250,20 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     def add_flag(take_id: str, body: dict = Body(...)):
         job, take = done_or_409(take_id)
         try:
-            flag_store.save(library.folder(take_id), take, job, body)
-        except ValueError as e:
+            flag = flag_store.save(library.folder(take_id), take, job, body)
+        except (ValueError, TypeError) as e:
             raise HTTPException(400, str(e))
-        return flags_saved(take_id, job)
+        return flags_saved(take_id, job, {"id": flag["id"], "bar": flag["bar"], "to": flag["to"],
+                                          "undo": flag["undo"]})
+
+    @app.post("/api/takes/{take_id}/heard")
+    def bars_heard(take_id: str, body: dict = Body(...)):
+        job, take = done_or_409(take_id)
+        try:
+            flag_store.heard(library.folder(take_id), take, job, list(body.get("bars", [])))
+        except (ValueError, TypeError) as e:
+            raise HTTPException(400, str(e))
+        return flags_out(take_id, job)
 
     @app.post("/api/takes/{take_id}/suggestions")
     def answer_suggestion(take_id: str, body: dict = Body(...)):
@@ -269,7 +279,7 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
         job, take = done_or_409(take_id)
         try:
             flag_store.save(library.folder(take_id), take, job, body, flag_id)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             raise HTTPException(400, str(e))
         except KeyError:
             raise HTTPException(404, "No such flag")
