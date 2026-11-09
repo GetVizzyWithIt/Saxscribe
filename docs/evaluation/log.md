@@ -68,6 +68,7 @@ onset and note F1 untouched, so they are measured on the written score.
 | walkers-theme-austin (863 notes) | 0 (70.4%*) | 0 (61.7%*) | 0 (28.2%*) | 0 (47.6%*) | — | mix | E53 |
 | weimar-tenor (6 solos, 11,729 notes) | 72.2% | — | 65.6% default after #102 (76.3% on Riley & Dixon's pipeline, E58) | 66.4% | — | mix | E56, E58 |
 | etudes-alto (Ferling 48 + Luft No. 2, 52 takes, 14,443 notes) | 92.3% | 73.5% | 57.5% (fast 70.0, slow 39.1) | 69.2% | — | solo | E75 |
+| transcribed-austin (7 records from Austin's PDFs) | 76.2% | 46.0% | 21.5% | 37.3% | — | mix | E78 |
 | bach10-mix | 21.4% | 39.5% | 3.9% | 29.2% | 31 | mix | E4 |
 
 † Understated by octave errors in some Omnibook answer keys (E10); about 87% on solos with sound keys.
@@ -93,6 +94,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P3 | 10 full Parker records | `omnibook-mix --limit 10` | Done, see E11 |
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
+| P7 | Note-finder fine-tune (E77): Filosax transcriber from `filosax_25k`, trained on the E76 set (110 Mega-separated Weimar/Parker spans plus 20% Filosax stems), checked on held-out Coltrane, Potter and Getz | Mac, MPS/CPU, 24 h cap, pauses while Austin's analyzer runs | Running. 2026-11-09 ~10:20Z: step 2,850 of 16,800; best held-out note F1 78.5 at step 2,488, levelling off around 77–78.5 (about 5.9 s per step) |
+| P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
 
@@ -118,6 +121,29 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E78 — 2026-11-09 — Answer keys from Austin's 8 transcription PDFs (baseline)
+- **Keys**: Austin's 8 printed transcriptions, read with the homr score reader, the same method as the etude keys (E75). Hand fixes from the page: multi-bar rests, and Gossip's repeats written out in play order. Each key was lined up with the record and scored with compare.py. 8va passages were read at the printed octave and moved to the heard octave when scoring. Tenor written − 14 = concert; alto written − 9. For Hodges and St. Louis Blues, the transposition that best matches the playing was kept.
+- **Not proofread note by note**: expect score-reader slips such as missed ties and some wrong rhythms. Tier B.
+- **Run**: takes made with `make_takes.sh` on main after E77, standard path on the full records.
+- **Scores**: "Agree" is the share of key notes that match the heard pitch, so it shows how well the key fits the record.
+
+| Record | Horn | Agree | Note F1 | Note F1 no offset | Onset F1 | Pitch |
+| --- | --- | --- | --- | --- | --- | --- |
+| Coltrane, Acknowledgement | tenor | 84.7% | 37.3 | 57.1 | 65.0 | 82.9% |
+| Coltrane, Pursuance | tenor | 71.8% | 27.6 | 39.6 | 49.6 | 71.3% |
+| Coltrane, Psalm (free time) | tenor | 87.2% | 8.7 | 25.2 | 34.9 | 68.9% |
+| Hodges, I Got It Bad | alto | 69.4% | 12.6 | 26.6 | 36.3 | 70.3% |
+| Shorter, Infant Eyes | tenor | 98.6% | 21.1 | 40.8 | 49.7 | 80.8% |
+| Brecker, Gossip (Mike Stern) | tenor | 61.6% | 17.2 | 27.9 | 41.9 | 62.3% |
+| St. Louis Blues ¹ | alto chart, take made as tenor | 93.8% | 26.1 | 44.0 | 44.7 | 96.9% |
+| **Mean of 7** | | | **21.5** | **37.3** | **46.0** | **76.2%** |
+
+¹ The PDF is an 8notes.com alto + piano arrangement rather than a transcription, but it matches the recording. The take was made as tenor by mistake.
+
+- **Excluded**: The Motet, "The Truth": the PDF is a horn-section chart and doesn't line up with the record.
+- **Finding**: these records are far harder than the earlier sets. Mean note F1 is 21.5, about where Isn't She Lovely and Bloody Well Right sit (E53). Free-time playing (Psalm) and ballads (Hodges, Infant Eyes) score lowest on note F1, even where the key fits the record well (Infant Eyes agree 98.6%). Note ends and onsets are the weak part, not pitch.
+- **Data**: `/mnt/project-files/datasets/transcribed/` (README, keys, `links.csv` with IDs and SHA-256 of each PDF and recording); Mac master copy `~/saxscribe-runs/keys/transcribed/<ID>/`. Austin's keys stay test-only. Not yet in `experiments.jsonl`.
 
 ### E75 — 2026-11-08 — New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 (baseline)
 - **Why**: Austin asked for alto etude answer keys. They give a written-music test on real alto takes, which the jazz records can't.

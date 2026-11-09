@@ -43,6 +43,7 @@ Last updated 2026-11-03.
 | GRFIA audio-to-score | 1,026 short alto and tenor takes (~3 h), written score per take, technique tags | B (machine-aligned, not spot-checked); C (techniques) | `grfia-alto`, `grfia-tenor` | Notation and rhythm answer key; technique tags; tenor | Non-commercial | [grfia-audio-to-score](datasheets/grfia-audio-to-score.md) |
 | Alto etude keys (Ferling Op. 31, Luft Op. 1 No. 2) | 52 alto takes of written studies, keys read from public-domain scores | B (score-reader keys, machine-aligned; 92% agree with heard pitch) | `etudes-alto` | Written-music test on real alto; held-note and vibrato checks | Scores public domain; recordings *to verify* | [etude-keys](datasheets/etude-keys.md) |
 | Austin's recordings and answer keys | Etude takes; records paired with his paper transcriptions | A (once aligned and checked) | `pairs` | Frozen 20-take test set; fine-tuning; personal answer keys | Private | [austin-recordings](datasheets/austin-recordings.md) |
+| Freesound sax instrument samples | 495 single-note and phrase clips by sax type (originals, all downloaded 2026-11-09) | C | none | Range and technique checks, not-sax negatives later | CC0 and CC-BY (9 CC-BY-NC alto-with-band clips kept apart) | Mac `~/saxscribe-runs/sample-clips/`; manifest and credits in the project files (`datasets/freesound/`) |
 | FiloBass | Jazz bass, no sax | — | none | Future bass instrument | CC BY 4.0 | listed in manifest only |
 
 ## Splits and leakage
