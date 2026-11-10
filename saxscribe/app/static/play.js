@@ -65,11 +65,20 @@ async function loadScore(v) {
   box.innerHTML = data.svg;
   Q = data.sync.map(p => p[0]); T = data.sync.map(p => p[1]);
   starts = []; measures = []; qOf = {}; barOf = {}; lit = []; litMeasure = null;
+  // Verovio's clock can slip by a tuplet note (a tie inside a 16th triplet loses 1/6 beat), which
+  // put later bars one number low. Every bar starts on a whole bar in notation.json, so re-anchor
+  // each bar to the nearest bar line and carry that correction to the notes inside it.
+  let shift = 0;
   for (const e of data.timemap) {
-    if (e.measureOn) { measures.push({q: e.qstamp, id: e.measureOn}); barOf[e.measureOn] = Math.floor(e.qstamp / BEATS + 1e-6) + 1; }
+    if (e.measureOn) {
+      const at = Math.round(e.qstamp / BEATS) * BEATS;
+      shift = at - e.qstamp;
+      measures.push({q: at, id: e.measureOn}); barOf[e.measureOn] = at / BEATS + 1;
+    }
+    const q = e.qstamp + shift;
     const ids = (e.on || []).filter(id => { const el = document.getElementById(id); return el && el.classList.contains('note'); });
-    for (const id of (e.on || [])) qOf[id] = e.qstamp;
-    if (ids.length) starts.push({q: e.qstamp, ids});
+    for (const id of (e.on || [])) qOf[id] = q;
+    if (ids.length) starts.push({q, ids});
   }
   nBars = Math.max(1, ...Object.values(barOf));
   update(true);
