@@ -60,7 +60,10 @@ def last_lines(path: Path, n: int = 3) -> list[str]:
 # How notes are found. standard: Demucs + Basic Pitch with the sax-rest and
 # bleed checks. filosax: Riley and Dixon's sax separator and transcriber
 # (saxscribe/filosax.py), an opt-in test while it is compared on more records.
-ENGINES = ("standard", "filosax")
+# "auto" (the default) picks for the recording: on a band record, the Filosax sax separator plus our
+# fine-tuned note finder (E80: best on all 9 test songs); a solo take keeps the standard path, which
+# E80 did not test. "standard" and "filosax" force one path, for comparing.
+ENGINES = ("auto", "standard", "filosax")
 
 class Library:
     def __init__(self, root: Path | None = None, inline: bool = False):
@@ -130,7 +133,7 @@ class Library:
     # ---------------------------------------------------------------- adding
 
     def add(self, filename: str, data: bytes, *, horn: str = "alto", mix: bool = False,
-            title: str | None = None, artist: str | None = None, engine: str = "standard",
+            title: str | None = None, artist: str | None = None, engine: str = "auto",
             sections: list[list[float]] | None = None) -> str:
         name = Path(filename).name
         if Path(name).suffix.lower() not in AUDIO:
@@ -186,7 +189,8 @@ class Library:
         cmd = [sys.executable, "-m", "saxscribe", "transcribe", str(f / job["filename"]),
                "-o", str(f / "take"), "--horn", job["horn"]]
         cmd += ["--mix"] if job["mix"] else []
-        if job.get("engine") == "filosax":
+        engine = job.get("engine", "standard")  # jobs from before "auto" ran the standard path
+        if engine == "filosax" or (engine == "auto" and job["mix"]):
             cmd += ["--notes-tool", "filosax"] + (["--separator", "filosax"] if job["mix"] else [])
         if job.get("sections"):
             from .. import sections

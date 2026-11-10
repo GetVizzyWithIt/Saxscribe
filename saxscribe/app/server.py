@@ -143,7 +143,7 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     @app.post("/api/takes")
     async def upload(file: UploadFile = File(...), horn: str = Form("alto"),
                      mix: bool = Form(False), title: str = Form(""), artist: str = Form(""),
-                     engine: str = Form("standard"), sections: str = Form("")):
+                     engine: str = Form("auto"), sections: str = Form("")):
         from .. import sections as sax_sections
         try:
             chosen = sax_sections.parse(sections)

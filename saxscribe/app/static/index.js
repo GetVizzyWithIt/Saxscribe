@@ -114,7 +114,7 @@ async function refresh() {
     <li>
       <div class="info">
         <div class="title">${esc(t.title)}${t.artist ? ` <span class="quiet">· ${esc(t.artist)}</span>` : ''}</div>
-        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'}${t.engine === 'filosax' ? ' · our sax model' : ''}${(t.sections || []).length ? ` · sax ${t.sections.map(([a, b]) => `${clockOf(a)}–${clockOf(b)}`).join(', ')}` : ''} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
+        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'}${t.engine === 'filosax' || (t.engine === 'auto' && t.mix) ? ' · our sax model' : t.engine === 'standard' && t.mix ? ' · old standard' : ''}${(t.sections || []).length ? ` · sax ${t.sections.map(([a, b]) => `${clockOf(a)}–${clockOf(b)}`).join(', ')}` : ''} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
         ${status(t)}
       </div>
       <div class="actions">${actions(t)}</div>
