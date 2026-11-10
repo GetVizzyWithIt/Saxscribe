@@ -60,8 +60,8 @@
       <button type="button" id="loopBtn">⟲ Loop</button>
     </div>
     <div id="range">
-      <span>From bar <span class="stepper"><button type="button" data-r="from:-1" aria-label="Start one bar earlier">−</button><output id="fromBar">1</output><button type="button" data-r="from:1" aria-label="Start one bar later">+</button></span></span>
-      <span>to bar <span class="stepper"><button type="button" data-r="to:-1" aria-label="End one bar earlier">−</button><output id="toBar">1</output><button type="button" data-r="to:1" aria-label="End one bar later">+</button></span></span>
+      <span>From bar <span class="stepper"><button type="button" data-r="from:-1" aria-label="Start one bar earlier">−</button><input type="number" id="fromBar" inputmode="numeric" min="1" value="1" aria-label="First bar"><button type="button" data-r="from:1" aria-label="Start one bar later">+</button></span></span>
+      <span>to bar <span class="stepper"><button type="button" data-r="to:-1" aria-label="End one bar earlier">−</button><input type="number" id="toBar" inputmode="numeric" min="1" value="1" aria-label="Last bar"><button type="button" data-r="to:1" aria-label="End one bar later">+</button></span></span>
     </div>
     <div id="groups"></div>
     <div id="detail" class="field"><span class="quiet small">More detail (optional)</span><div class="chips" id="cats"></div></div>

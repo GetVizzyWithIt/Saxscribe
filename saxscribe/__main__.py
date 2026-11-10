@@ -152,6 +152,9 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--stem", help="which Demucs stem holds the sax: auto (default) picks by lead score; or a name such as other or guitar, or a sum such as other+guitar")
     t.add_argument("--separator", choices=SEPARATORS, default="demucs", help=SEPARATOR_HELP)
     t.add_argument("--horn", choices=sorted(HORNS), default="alto")
+    t.add_argument("--sections", help="where the sax plays, e.g. \"3:45-4:21, 5:10-5:40\": notes outside them are kept "
+                                      "in notes.json but left off the score (bars still come from the whole recording); "
+                                      "\"\" clears them")
     t.add_argument("--redo", choices=LAYERS, help="remake this layer and the ones above it")
     t.add_argument("--contour-tool", choices=("auto", "crepe", "pyin"), default="auto")
     t.add_argument("--notes-tool", choices=("auto", "basic_pitch", "basic_pitch_raw", "basic_pitch_join", "basic_pitch_fixed", "segment", "contour", "filosax"), default="auto",
@@ -250,6 +253,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     from .pipeline import transcribe
     files = inputs(args.paths)
+    from . import sections as sax_sections
+    try:
+        chosen = None if args.sections is None else sax_sections.parse(args.sections)
+    except ValueError as exc:
+        ap.error(f"--sections: {exc}")
     if args.out and len(files) != 1:
         ap.error("--out works with one file only")
     failed = 0
@@ -257,7 +265,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             transcribe(f, args.out, mix=args.mix, stem=args.stem, horn=args.horn, redo=args.redo,
                        contour_tool=args.contour_tool, notes_tool=args.notes_tool,
-                       swing=args.swing, range_rules=args.range_rules, separator=args.separator)
+                       swing=args.swing, range_rules=args.range_rules, separator=args.separator,
+                       sections=chosen)
         except (Exception, SystemExit) as exc:  # keep going through a batch
             if len(files) == 1:
                 raise

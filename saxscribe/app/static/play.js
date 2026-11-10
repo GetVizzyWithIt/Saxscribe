@@ -254,7 +254,10 @@ function markPicked() {
 }
 $('#score').addEventListener('click', e => {
   const fb = e.target.closest('.flagbox');
-  if (fb) {
+  // A flag's shading covers its bars, but a tap right on a note still means that note:
+  // only the flag's label or the space between notes opens the flag.
+  const onNote = fb && !e.target.closest('.flagbox span') && noteAt(measureAt(e.clientX, e.clientY), e.clientX, e.clientY, 12);
+  if (fb && !onNote) {
     if (fb.dataset.id) { const f = flags.find(x => x.id === fb.dataset.id); if (f) openSheet(f, !isSorted(f)); }
     else if (fb.dataset.ask !== undefined) { seekTo(barStart(suggested[+fb.dataset.ask].bars[0]) - 0.05); showAsk(+fb.dataset.ask); }
     return;
@@ -271,14 +274,19 @@ $('#score').addEventListener('click', e => {
     }
     return;
   }
-  // Otherwise a tap on a note jumps there, as before.
-  const g = e.target.closest('g.note, g.rest, g.chord');
-  if (g && qOf[g.id] !== undefined) seekTo(qToT(qOf[g.id]) - 0.05);
+  // Otherwise a tap on a note jumps there. The notehead nearest the tap wins over whatever
+  // SVG shape is on top (a neighbour's stem or beam), and when paused the jump lands just
+  // inside the note, so the note lit up is the one tapped, not the one before it.
+  const g = noteAt(m, e.clientX, e.clientY) || e.target.closest('g.note, g.rest, g.chord');
+  if (g && qOf[g.id] !== undefined) {
+    const t = qToT(qOf[g.id]);
+    seekTo(audio.paused ? t + 0.01 : t - 0.05);
+  }
 });
 // Fingers are wide: the note in this bar nearest the tap, within about a note's width.
-function noteAt(m, x, y) {
+function noteAt(m, x, y, within = 30) {
   if (!m) return null;
-  let best = null, bestD = 30;
+  let best = null, bestD = within;
   for (const g of m.querySelectorAll('g.note')) {
     if (qOf[g.id] === undefined) continue;
     const r = (g.querySelector('.notehead') || g).getBoundingClientRect();
@@ -471,7 +479,8 @@ function openSheet(f, sorting, existing) {
   const base = existing || f;
   editing = {id: base.id || null, bar: f.bar, to: f.to || f.bar, picked: [...(base.picked || [])], scope: base.scope || 'bar',
              categories: [...(base.categories || [])], sorting: !!sorting};
-  editing.group = groupOf(editing.categories[0]) || null;
+  // Several big reasons can apply at once (wrong notes and another horn bleeding in).
+  editing.groups = [...new Set(editing.categories.map(groupOf).filter(Boolean))];
   $('#flagText').value = base.text || '';
   $('#deleteFlag').hidden = !editing.id;
   $('#saveFlag').textContent = saveLabel();
@@ -496,10 +505,10 @@ function showBar(bar) {
   if (r.top < head + 8 || r.bottom > foot - 8) window.scrollTo({top: window.scrollY + r.top - head - 24, behavior: 'smooth'});
 }
 function drawSheet() {
-  const g = editing.group;
+  const gs = editing.groups;
   $('#groups').innerHTML = Object.entries(GROUPS).map(([k, v], i) =>
-    `<button type="button" data-g="${k}" class="${g === k ? 'on' : ''}"><b>${esc(v.label)}</b><span>${esc(v.hint)}</span><kbd>${i + 1}</kbd></button>`).join('');
-  const keys = g && GROUPS[g].keys.length > 1 ? GROUPS[g].keys : [];
+    `<button type="button" data-g="${k}" aria-pressed="${gs.includes(k)}" class="${gs.includes(k) ? 'on' : ''}"><b>${esc(v.label)}</b><span>${esc(v.hint)}</span><kbd>${i + 1}</kbd></button>`).join('');
+  const keys = gs.flatMap(g => GROUPS[g].keys.length > 1 ? GROUPS[g].keys : []);
   $('#detail').hidden = !keys.length;
   $('#cats').innerHTML = keys.map(k => `<button type="button" data-c="${k}" class="${editing.categories.includes(k) ? 'on' : ''}">${esc(categories[k] || k)}</button>`).join('');
   $('#scope').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === editing.scope));
@@ -513,8 +522,8 @@ function setLoop(on) {
 }
 $('#loopBtn').addEventListener('click', () => setLoop(!loopRange));
 function pickGroup(g) {
-  editing.group = editing.group === g ? null : g;
-  editing.categories = editing.categories.filter(c => groupOf(c) === editing.group && GROUPS[editing.group].keys.length > 1);
+  editing.groups = editing.groups.includes(g) ? editing.groups.filter(x => x !== g) : [...editing.groups, g];
+  editing.categories = editing.categories.filter(c => !GROUPS[c] && editing.groups.includes(groupOf(c)) && GROUPS[groupOf(c)].keys.length > 1);
   drawSheet();
 }
 $('#groups').addEventListener('click', e => { const b = e.target.closest('button[data-g]'); if (b) pickGroup(b.dataset.g); });
@@ -526,7 +535,8 @@ $('#cats').addEventListener('click', e => {
 $('#scope').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; editing.scope = b.dataset.v; drawSheet(); });
 // Bar range: − and + on each end, like a number picker.
 function drawRange() {
-  $('#fromBar').textContent = editing.bar; $('#toBar').textContent = editing.to; $('#sheetTitle').textContent = rangeName(editing);
+  $('#fromBar').value = editing.bar; $('#toBar').value = editing.to; $('#fromBar').max = $('#toBar').max = nBars;
+  $('#sheetTitle').textContent = rangeName(editing);
   $('#sheetTime').textContent = `${clock(barStart(editing.bar))} to ${clock(barEnd(editing.to))}`;
 }
 $('#range').addEventListener('click', e => {
@@ -537,6 +547,24 @@ $('#range').addEventListener('click', e => {
   editing.picked = editing.picked.filter(q => q >= (editing.bar - 1) * BEATS && q < editing.to * BEATS);
   drawRange(); if (loopRange) setLoop(true); drawFlags();
 });
+// Or type the bar numbers. The other end follows if needed, so 1 then 32 just works.
+function typedBar(which) {
+  const el = $(which === 'from' ? '#fromBar' : '#toBar'); if (!editing) return;
+  const n = Math.round(Number(el.value));
+  if (!Number.isFinite(n) || el.value === '') { drawRange(); return; }
+  const b = Math.max(1, Math.min(nBars, n));
+  if (which === 'from') { editing.bar = b; editing.to = Math.max(editing.to, b); }
+  else { editing.to = b; editing.bar = Math.min(editing.bar, b); }
+  editing.picked = editing.picked.filter(q => q >= (editing.bar - 1) * BEATS && q < editing.to * BEATS);
+  drawRange(); if (loopRange) setLoop(true); drawFlags();
+  if (which === 'from') { seekTo(barStart(editing.bar) - 0.05); showBar(editing.bar); }
+}
+for (const which of ['from', 'to']) {
+  const el = $(which === 'from' ? '#fromBar' : '#toBar');
+  el.addEventListener('change', () => typedBar(which));
+  el.addEventListener('keydown', e => { if (e.key !== 'Escape') e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+  el.addEventListener('focus', () => el.select());
+}
 // Play controls inside the flag screen.
 $('#sRestart').addEventListener('click', () => { if (editing) seekTo(barStart(editing.bar) - 0.05); });
 $('#sBack').addEventListener('click', () => seekTo((audio.currentTime || 0) - 2));
@@ -571,8 +599,11 @@ async function saveFlag() {
   if (!editing) return;
   const text = $('#flagText').value.trim();
   // A big reason with no detail picked is saved as the big reason itself.
-  const finalCats = editing.categories.length ? editing.categories
-    : editing.group ? (GROUPS[editing.group].keys.length === 1 ? GROUPS[editing.group].keys : [editing.group]) : [];
+  // Each big reason picked: its details if any were picked, else the big reason itself.
+  const finalCats = editing.groups.flatMap(g => {
+    const picked = editing.categories.filter(c => !GROUPS[c] && groupOf(c) === g);
+    return picked.length ? picked : GROUPS[g].keys.length === 1 ? GROUPS[g].keys : [g];
+  });
   if (!finalCats.length && !text) { toast('Pick a reason, or say it in a few words.'); return; }
   if (editing.scope === 'notes' && !editing.picked.length) { toast('Tap the notes, or choose Whole bar.'); return; }
   const body = {bar: editing.bar, to: editing.to, categories: finalCats, scope: editing.scope,
