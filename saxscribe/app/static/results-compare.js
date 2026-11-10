@@ -9,9 +9,21 @@ const SEPARATORS = {
   'hybrid': 'Mega + Demucs fallback',
   'mvsep-web': 'MVSep website sax',
   'rd-sax': 'Riley & Dixon sax Demucs',
+  'filosax': 'Riley & Dixon sax Demucs',
+  'mvsep-mega53-sax-on-mix': 'MVSep Mega 53-stem',
+  'demucs-lead->mega53-sax': 'Demucs lead, then Mega sax',
+  'demucs-lead->mega53-wind->mega53-sax': 'Demucs lead, then Mega wind, then Mega sax',
+  'demucs-6s-lead': 'Demucs 6-stem lead',
+  'oracle a|b': 'Best of Filosax or Mega, per note (ceiling)',
+  'oracle all': 'Best of all stems, per note (ceiling)',
+  'audio-only 2s chooser': 'Pick a stem every 2 s by sound',
 };
-const SEP_ORDER = ['demucs', 'demucs-6s', 'mega', 'mega-local', 'hybrid', 'mvsep-web', 'rd-sax', 'rd-filosax-demucs'];
-const FINDERS = {'ours': '', 'rd-filosax': 'R&D note model', 'rd-filosax_25k': 'R&D note model'};
+const SEP_ORDER = ['demucs', 'demucs-6s', 'mega', 'mega-local', 'hybrid', 'mvsep-web', 'rd-sax', 'rd-filosax-demucs',
+                   'demucs-lead->mega53-sax', 'demucs-lead->mega53-wind->mega53-sax'];
+// 'ours' = the standard path (Basic Pitch + CREPE). 'rd-filosax-ft' = our fine-tune of R&D's model (E77),
+// shown in the app as "Our sax model".
+const FINDERS = {'ours': '', 'rd-filosax': 'R&D note model', 'rd-filosax_25k': 'R&D note model',
+                 'rd-filosax-ft': 'our sax model (E77 fine-tune)', 'basic_pitch-plain': 'plain Basic Pitch'};
 const RECORDS = {
   'parker-band': ['Parker band records', 'band'],
   'pfh': ['Pennies From Heaven', 'band'],
@@ -24,14 +36,21 @@ const RECORDS = {
   'new-tunes': ['Four tenor tunes', 'pop'],
   'tenor-tunes': ['Four tenor tunes', 'pop'],  // the Mac's name for the same set
   'wjd': ['Weimar database solos (written rhythm only)', 'band'],
+  'austin-6': ["Austin's six tunes", 'band'],
+  'parker-test': ['Parker test records', 'band'],
+  'parker-train': ['Parker records used for tuning', 'band'],
+  'weimar-test': ['Weimar solos (test)', 'band'],
+  'weimar-train': ['Weimar solos used for tuning', 'band'],
+  'heldout-players': ['Coltrane, Getz, Potter (picked the E77 checkpoint)', 'band'],
 };
 // Answer keys partly built with a model under test: its scores there are not a clean win.
 // The Omnibook's alignment used a Riley & Dixon transcription model (their paper, section 3.1).
 // A row can also carry key.favours: [note_finder, ...] itself.
-const KEY_FAVOURS = {'parker-band': ['rd-filosax', 'rd-filosax_25k'], 'omnibook': ['rd-filosax', 'rd-filosax_25k']};
+const RD = ['rd-filosax', 'rd-filosax_25k', 'rd-filosax-ft'];
+const KEY_FAVOURS = {'parker-band': RD, 'omnibook': RD, 'parker-test': RD, 'parker-train': RD};
 function keyFavours(r) {
   const f = (r.key && r.key.favours) || KEY_FAVOURS[r.set] || [];
-  return f.includes(r.setup.note_finder) || f.includes(r.setup.separator);
+  return f.includes(r.setup.note_finder) || f.includes(canon(r.setup.note_finder)) || f.includes(r.setup.separator);
 }
 const TIERS = [['clean', 'Clean sax (recorded alone or pre-separated)'], ['band', 'Jazz band records'],
                ['pop', 'Pop and fusion records']];
@@ -57,16 +76,22 @@ const cmp = {metric: 'note_f1', setup: null, record: null};
 let EXP = [];
 
 // Names the Mac and the log use for the same thing.
-const ALIAS = {'demucs-6s': 'demucs', 'mega-local': 'mega', 'rd-filosax-demucs': 'rd-sax', 'own': 'same',
-               'rd-filosax_25k': 'rd-filosax'};
-function canon(v, d) { return ALIAS[v] || v || d; }
+const ALIAS = {'demucs-6s': 'demucs', 'mega-local': 'mega', 'rd-filosax-demucs': 'rd-sax', 'filosax': 'rd-sax',
+               'mvsep-mega53-sax-on-mix': 'mega', 'own': 'same', 'rd-filosax_25k': 'rd-filosax',
+               'basic_pitch': 'ours', 'basic-pitch': 'ours'};
+// Fine-tuned checkpoints are named after their base plus "-ft<step>" (E77: rd-filosax_25k-ft2488).
+function canon(v, d) {
+  if (v && /^rd-filosax(_25k)?-ft/.test(v)) return 'rd-filosax-ft';
+  return ALIAS[v] || v || d;
+}
 function setupKey(s) { return `${canon(s.separator)}|${canon(s.spans_from, 'same')}|${canon(s.note_finder, 'ours')}|${s.variant || ''}`; }
 function setupName(s) {
-  let n = SEPARATORS[s.separator] || s.separator;
+  let n = SEPARATORS[s.separator] || SEPARATORS[canon(s.separator)] || s.separator;
   if (s.spans_from === 'none') n += ', no sax-rest cuts';
   else if (s.spans_from && !['same', 'own'].includes(s.spans_from)) n += `, rests from ${SEPARATORS[s.spans_from] || s.spans_from}`;
-  if (FINDERS[s.note_finder]) n += `, ${FINDERS[s.note_finder]}`;
-  else if (s.note_finder && s.note_finder !== 'ours') n += `, ${s.note_finder}`;
+  const f = canon(s.note_finder, 'ours');
+  if (FINDERS[f]) n += `, ${FINDERS[f]}`;
+  else if (f !== 'ours') n += `, ${s.note_finder}`;
   if (s.variant) n += ` (${s.variant})`;  // e.g. an open PR's code on the same setup
   return n;
 }
@@ -165,7 +190,11 @@ function grid() {
   const table = $('#grid'); table.replaceChildren();
   const L = latest();
   // Only the records and setups that measured this score (rhythm rows carry no note F1, and the reverse).
-  const has = [...L.values()].filter(r => r.metrics[cmp.metric] != null);
+  // Settings tweaks and PR before/after runs stay hidden unless asked for, or unless they are all
+  // this score has (the bar-line rows are all before/after pairs).
+  const measured = [...L.values()].filter(r => r.metrics[cmp.metric] != null);
+  const plain = measured.filter(r => !r.setup.variant || r.default);
+  const has = cmp.tweaks || !plain.length ? measured : plain;
   const rows = recordRows(has);
   const cols = columns(has);
   $('#grid-empty').hidden = !!rows.length;
@@ -387,10 +416,76 @@ function expTable() {
   }
 }
 
+// ---------- 5. separators on their own, and the sax judge ----------
+// E73-style rows: how many key notes each separator's stem still holds (no note finder involved).
+const STEM_SETS = ['parker-train', 'parker-test', 'pfh', 'walkers-theme', 'weimar'];
+const CEILING = ['oracle a|b', 'oracle all'];
+function stemGrid() {
+  const table = $('#stem-grid'); table.replaceChildren();
+  const m = cmp.stemMetric || 'stem_recall';
+  const rows = EXP.filter(r => r.metrics.stem_recall != null);
+  $('#stem-empty').hidden = !!rows.length;
+  if (!rows.length) return;
+  const sets = STEM_SETS.filter(s => rows.some(r => r.set === s && r.metrics[m] != null))
+    .concat([...new Set(rows.map(r => r.set))].filter(s => !STEM_SETS.includes(s) && rows.some(r => r.set === s && r.metrics[m] != null)));
+  const seps = [...new Set(rows.map(r => r.setup.separator))]
+    .sort((a, b) => CEILING.includes(a) - CEILING.includes(b));
+  const head = el('tr'); head.append(el('th', {}, 'Separator'));
+  for (const s of sets) head.append(el('th', {class: 'num'}, (RECORDS[s] || [s])[0]));
+  table.append(head);
+  const val = (sep, set) => { const r = rows.filter(x => x.setup.separator === sep && x.set === set).pop(); return r ? r.metrics[m] : null; };
+  const best = {};
+  for (const s of sets) best[s] = Math.max(...seps.filter(x => !CEILING.includes(x)).map(x => val(x, s) ?? -1));
+  for (const sep of seps) {
+    const tr = el('tr', {class: CEILING.includes(sep) ? 'quiet' : ''});
+    tr.append(el('td', {}, SEPARATORS[sep] || sep));
+    for (const s of sets) {
+      const v = val(sep, s);
+      const td = el('td', {class: 'num'}, pts(v));
+      if (v != null && !CEILING.includes(sep) && v === best[s]) td.style.fontWeight = '700';
+      tr.append(td);
+    }
+    table.append(tr);
+  }
+}
+const JUDGE_ROWS = [
+  ['sax present vs not', [['test_all_auc', 'All test windows (AUC)'], ['Austins_tunes_auc', 'Your six tunes (AUC)'],
+    ['bloody-well-right_auc', 'Bloody Well Right (AUC)'], ['test_all_bal_acc', 'All test windows (balanced accuracy)']]],
+  ['sax type', [['recordings_right', 'Recordings called right'], ['alto_acc', 'Alto windows right'],
+    ['tenor_acc', 'Tenor windows right'], ['soprano_acc', 'Soprano windows right']]],
+];
+function judgeGrid() {
+  const table = $('#judge-grid'); table.replaceChildren();
+  const rows = EXP.filter(r => r.scope === '2s-windows' && r.setup && r.setup.encoder);
+  $('#judge-empty').hidden = !!rows.length;
+  if (!rows.length) return;
+  const encs = [...new Set(rows.map(r => r.setup.encoder))];
+  const head = el('tr'); head.append(el('th', {}, ''));
+  const ENC = {mert: 'MERT (m-a-p/MERT-v1-95M)', muq: 'MuQ (OpenMuQ/MuQ-large)'};
+  for (const e of encs) head.append(el('th', {class: 'num'}, ENC[e] || rows.find(r => r.setup.encoder === e).setup.model || e));
+  table.append(head);
+  for (const [task, metrics] of JUDGE_ROWS) {
+    const tr = el('tr', {class: 'tierrow'}); const td = el('td', {}, task[0].toUpperCase() + task.slice(1));
+    td.colSpan = encs.length + 1; tr.append(td); table.append(tr);
+    for (const [k, label] of metrics) {
+      const row = el('tr'); row.append(el('td', {}, label));
+      const vals = encs.map(e => { const r = rows.filter(x => x.setup.encoder === e && x.setup.task && x.setup.task.startsWith(task)).pop(); return r ? r.metrics[k] : null; });
+      const top = Math.max(...vals.map(v => v ?? -1));
+      const tied = vals.filter(v => v === top).length > 1;
+      vals.forEach(v => { const c = el('td', {class: 'num'}, pts(v)); if (v != null && v === top && !tied) c.style.fontWeight = '700'; row.append(c); });
+      table.append(row);
+    }
+  }
+  const notes = [...new Set(rows.map(r => r.note).filter(Boolean))];
+  $('#judge-note').textContent = notes.map(n => n.charAt(0).toUpperCase() + n.slice(1).replace(/\.?$/, '.')).join(' ');
+}
+
 function renderCompare() {
   EXP = DATA.experiments || [];
-  stands(); grid(); breakdown(); along(); expTable();
+  stands(); grid(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
 }
+$('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });
+segment($('#stem-metric'), v => { cmp.stemMetric = v; stemGrid(); });
 segment($('#grid-metric'), v => { cmp.metric = v; grid(); });
 segment($('#where-setup'), v => { cmp.setup = v; breakdown(); });
 segment($('#along-record'), v => { cmp.record = v; along(); });
