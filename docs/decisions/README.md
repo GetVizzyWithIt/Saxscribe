@@ -47,3 +47,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0038](0038-development-standards.md) | Adopt Austin's development standards: lockfile, CI on every PR, claude/<type>-<what> branches | 2026-11-06 | Accepted |
 | [0039](0039-flags-kept-across-runs.md) | Review flags are kept across re-runs and compared (Changed now / Still the same), never deleted or called fixed | 2026-11-09 | Accepted |
 | [0040](0040-adopt-bias-checks.md) | Adopt the bias checks standard; ADRs gain "Options considered" and "Case against" | 2026-11-10 | Accepted |
+| [0041](0041-band-records-default-to-our-sax-model.md) | Band records default to our sax model (Filosax separator + E77 finder) in the app; solo takes and CLI unchanged | 2026-11-10 | Accepted (PR #147) |

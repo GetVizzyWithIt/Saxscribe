@@ -95,7 +95,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 | P7 | Note-finder fine-tune | — | Done, see E77 (stopped early; best held-out note F1 78.5) |
-| P9 | Make setup D (Filosax separator + our finder) the default | — | E80 says it wins on all 9 songs; waits on Austin's go |
+| P9 | Make setup D (Filosax separator + our finder) the default | — | Austin agreed 2026-11-10 03:49Z; build PR #147 makes it the app default on band records ([ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)) |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
@@ -132,8 +132,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | austin-6 | 37.7 | **45.7** |
 | Parker test | 56.6 | **69.9** |
 
-- **Finding**: D beats A on all 9 songs. B and C rows are on the Mac with the rest of the scorecard. Nothing changed by default: switching the default note finder is a pipeline change and needs Austin's go in the build thread.
-- **Data**: rows on the Mac (`~/saxscribe-runs/experiments.jsonl`); the build thread is adding them to `experiments.jsonl` in a data PR.
+Per song, note F1 (six tunes):
+
+| Song | A | D |
+| --- | --- | --- |
+| PFH | 50 | 62 |
+| BFMJ | 55 | 57 |
+| Resolution | 41 | 50 |
+| Walker's Theme | 28 | 30 |
+| Isn't She Lovely | 26 | 37 |
+| Bloody Well Right | 11 | 23 |
+
+- **Finding**: D beats A on all 9 songs. B and C rows are on the Mac with the rest of the scorecard. D also wrote closer to the key's note count (notes found per key note 1.32 → 1.04). Austin agreed to make D the app default on band records (2026-11-10 03:49Z, build PR #147, [ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)).
+- **Data**: 44 rows in `experiments.jsonl` (build PR #146).
 
 ### E79 — 2026-11-09 — Sax judge: is a sax playing, and which one? (MuQ vs MERT probes; finding)
 - **Question**: can a large pretrained music model tell, window by window, whether a sax is playing and which sax it is? This would be a second opinion for the not-sax checks and for picking clean training tracks. Austin's go: 2026-11-09 11:06Z, after the advisor's check.
