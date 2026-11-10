@@ -27,6 +27,16 @@
       <div class="seg" id="mix"><button type="button" data-v="false">Just the sax</button><button type="button" data-v="true">Sax with a band</button></div>
       <span class="quiet small" id="mixHint">Pick one: a band recording needs the sax separated first.</span>
     </div>
+    <div class="field" id="secField">
+      <label>Sax plays (optional)</label>
+      <div class="secs">
+        <div id="sections"></div>
+        <button type="button" id="addSec">+ Add a section</button>
+      </div>
+      <span class="quiet small">Where in the recording the sax plays, e.g. 3:45 to 4:21. Add as many as you like. Only
+        these parts are written, a couple of seconds either side kept; the rest of the song shows as rests, and bar
+        numbers still count from the start of the song. Leave it empty to use the whole recording.</span>
+    </div>
     <div class="field">
       <label>Note finder</label>
       <div class="seg" id="engine"><button type="button" data-v="auto" class="on">Automatic</button><button type="button" data-v="standard">Old standard (test)</button></div>

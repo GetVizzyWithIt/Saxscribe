@@ -120,6 +120,13 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
         if extra["bleed"]["no_pitch_line"] or extra["bleed"]["off_line"]:
             frontend.log(f"  {extra['bleed']['no_pitch_line']} notes where the sax's pitch line is silent and "
                          f"{extra['bleed']['off_line']} off the line (other instruments): kept, left off the score")
+    chosen = take.read_manifest().get("sax_sections") or []
+    if chosen:
+        from .. import sections
+        hidden = sections.tag(notes, chosen, NOT_SAX)
+        extra["sax_sections"] = {"sections": chosen, "pad_s": sections.PAD, "hidden": hidden}
+        frontend.log(f"  Sax sections {sections.text(chosen)}: {hidden} notes outside them are kept in "
+                     f"notes.json, tagged {NOT_SAX!r} and {sections.OUTSIDE!r}, and left off the score")
     if take.read_manifest().get("mix") and take.source.exists():
         extra["maybe_not_sax"] = review_marks(take, notes)
     from . import ranges

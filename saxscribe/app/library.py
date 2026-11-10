@@ -133,7 +133,8 @@ class Library:
     # ---------------------------------------------------------------- adding
 
     def add(self, filename: str, data: bytes, *, horn: str = "alto", mix: bool = False,
-            title: str | None = None, artist: str | None = None, engine: str = "auto") -> str:
+            title: str | None = None, artist: str | None = None, engine: str = "auto",
+            sections: list[list[float]] | None = None) -> str:
         name = Path(filename).name
         if Path(name).suffix.lower() not in AUDIO:
             raise ValueError(f"{name} is not an audio file this tool reads "
@@ -154,7 +155,7 @@ class Library:
         found = tags(f / safe)
         (f / "job.json").write_text(json.dumps({
             "title": title or found.get("title") or stem, "artist": artist or found.get("artist", ""),
-            "filename": safe, "horn": horn, "mix": mix, "engine": engine,
+            "filename": safe, "horn": horn, "mix": mix, "engine": engine, "sections": sections or [],
             "state": "queued", "added": time.strftime("%Y-%m-%dT%H:%M:%S"),
         }, indent=1) + "\n")
         self._enqueue(take_id)
@@ -191,6 +192,9 @@ class Library:
         engine = job.get("engine", "standard")  # jobs from before "auto" ran the standard path
         if engine == "filosax" or (engine == "auto" and job["mix"]):
             cmd += ["--notes-tool", "filosax"] + (["--separator", "filosax"] if job["mix"] else [])
+        if job.get("sections"):
+            from .. import sections
+            cmd += ["--sections", sections.text(job["sections"])]
         return cmd
 
     def run(self, take_id: str) -> None:

@@ -497,3 +497,13 @@ def test_a_swung_pair_with_a_pickup_keeps_its_swing():
     assert not notation.sixteenth_run([0.0, 0.66, 0.9])
     assert not notation.sixteenth_run([0.0, 0.12, 0.66, 0.9])  # late off-beat: still swung
     assert notation.sixteenth_run([0.0, 0.26, 0.5, 0.76])
+
+
+def test_a_part_that_comes_in_late_starts_with_rests_from_bar_one():
+    # The sax comes in 10 s (20 beats, 5 bars) into the song: bar 1 is the song's first bar.
+    notes = at([(20, 1), (21, 1), (22, 2)])
+    first = notation.quantize(notes, GRID, GRID[::4], 120.0, "straight")
+    song = notation.quantize(notes, GRID, GRID[::4], 120.0, "straight", from_time=0.0)
+    assert placed(first)[0][0] == F(0)          # old behaviour: bar 1 = the first note's bar
+    assert placed(song)[0][0] == F(20)          # now: five bars of rests first
+    assert [length for _, length in placed(song)] == [length for _, length in placed(first)]
