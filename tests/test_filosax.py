@@ -153,10 +153,14 @@ def test_app_passes_the_filosax_choice_to_the_command(tmp_path, fixture_wav):
     lib._enqueue = lambda take_id: None  # don't run it
     band = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=True, engine="filosax")
     solo = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=False, engine="filosax")
-    plain = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=True)
+    plain = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=True, engine="standard")
+    auto_band = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=True)
+    auto_solo = lib.add("phrase.wav", fixture_wav.read_bytes(), mix=False)
     assert lib.command(band)[-5:] == ["--mix", "--notes-tool", "filosax", "--separator", "filosax"]
     assert lib.command(solo)[-2:] == ["--notes-tool", "filosax"]
     assert "filosax" not in lib.command(plain)
+    assert lib.command(auto_band)[-5:] == ["--mix", "--notes-tool", "filosax", "--separator", "filosax"]
+    assert "filosax" not in lib.command(auto_solo)
     with pytest.raises(ValueError):
         lib.add("phrase.wav", fixture_wav.read_bytes(), engine="nope")
 

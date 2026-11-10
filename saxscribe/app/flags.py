@@ -70,7 +70,7 @@ GROUPS = {
     "not_sax": {"label": "Not sax", "hint": "piano, voice, guitar…", "keys": ["not_sax"]},
     "other": {"label": "Other", "hint": "say it in words", "keys": ["other"]},
 }
-ENGINES = {"standard": "Standard", "filosax": "Filosax test"}
+ENGINES = {"auto": "Automatic", "standard": "Standard", "filosax": "Sax model"}
 NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
 
@@ -168,8 +168,9 @@ def run_info(take: Take, job: dict) -> dict:
     layers = made_by(take)
     made = (layers.get("notes") or {}).get("made") or job.get("finished") or ""
     engine = job.get("engine", "standard")
-    name = ENGINES.get(engine, engine.capitalize())
     tool = (layers.get("notes") or {}).get("tool")
+    # Name the path that actually ran ("auto" picks per recording).
+    name = ("Sax model" if tool == "filosax" else "Standard") if tool else ENGINES.get(engine, engine.capitalize())
     date = ""
     try:
         t = time.strptime(made[:19], "%Y-%m-%dT%H:%M:%S")

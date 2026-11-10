@@ -143,7 +143,7 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     @app.post("/api/takes")
     async def upload(file: UploadFile = File(...), horn: str = Form("alto"),
                      mix: bool = Form(False), title: str = Form(""), artist: str = Form(""),
-                     engine: str = Form("standard")):
+                     engine: str = Form("auto")):
         data = await file.read()
         if not data:
             raise HTTPException(400, "The file is empty")

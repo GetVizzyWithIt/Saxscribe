@@ -73,10 +73,12 @@ one question at a time. Prefer a working rough cut to a plan.
 ## Current state (2026-11-09; update when it changes)
 - Standard path on band records: Demucs (2 shifts) -> Basic Pitch + CREPE pitch
   line -> per-horn range rules -> bleed hide -> held notes follow the pitch
-  line -> sax-playing check -> bar lines -> swing. Riley & Dixon's Filosax
-  separator and transcriber are an opt-in (`--separator filosax`,
-  `--notes-tool filosax`; app "Note finder"). No model picker in the main UI:
-  model choices are for testing; the app should pick automatically.
+  line -> sax-playing check -> bar lines -> swing. That is still the CLI
+  default and the app's path for solo takes. In the app, band records default
+  to the Filosax separator plus our E77 fine-tuned note finder (E80 winner;
+  CLI: `--separator filosax --notes-tool filosax`). The old path stays as an
+  app test option. No model picker in the main UI: model choices are for
+  testing; the app should pick automatically.
 - Separators: MVSep Mega's sax stem on the full mix holds the most key notes
   (E71, E73); the remaining gap is the note finder. A Filosax transcriber
   fine-tuned on Mega stems (E77, checkpoint on the Mac) gains about 5 points
