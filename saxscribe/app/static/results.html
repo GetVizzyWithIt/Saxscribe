@@ -56,11 +56,36 @@
       errors below.</p>
     <div class="filters">
       <div class="seg" id="grid-metric" role="group" aria-label="Score shown">
-        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button><button type="button" data-v="short_found">Short notes found</button><button type="button" data-v="bars_right">Bars right</button><button type="button" data-v="notes_in_place">Notes in the right spot</button>
+        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="note_f1_no_offset">Note F1, ignoring note ends</button><button type="button" data-v="onset_f1">Onset F1</button><button type="button" data-v="low_found">Low notes found</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button><button type="button" data-v="short_found">Short notes found</button><button type="button" data-v="bars_right">Bars right</button><button type="button" data-v="notes_in_place">Notes in the right spot</button>
       </div>
+      <label class="small"><input type="checkbox" id="grid-tweaks"> Show settings tweaks and PR before/after runs</label>
     </div>
     <div class="scroll"><table class="grid compare" id="grid"></table></div>
     <p class="quiet small" id="grid-empty" hidden>No experiment rows yet.</p>
+  </section>
+
+  <section class="card" id="stems">
+    <h2>Separators on their own</h2>
+    <p class="quiet small">How many of the key&rsquo;s notes each separator&rsquo;s sax stem still holds, before any note
+      finder runs (E73). A note counts as held when it is within 20 dB of the full mix and at least 3 dB over the
+      stem&rsquo;s own floor at that pitch. Bold is the best real separator in each column; the two
+      &ldquo;best of&rdquo; rows are ceilings, not something we can run.</p>
+    <div class="filters">
+      <div class="seg" id="stem-metric" role="group" aria-label="Notes counted">
+        <button type="button" data-v="stem_recall" class="on">All key notes</button><button type="button" data-v="stem_recall_low">Low notes</button><button type="button" data-v="stem_recall_quiet">Quiet notes</button><button type="button" data-v="stem_recall_flagged_bars">Bars you flagged</button>
+      </div>
+    </div>
+    <div class="scroll"><table class="grid" id="stem-grid"></table></div>
+    <p class="quiet small" id="stem-empty" hidden>No stem checks yet.</p>
+  </section>
+
+  <section class="card" id="judge">
+    <h2>Sax judge</h2>
+    <p class="quiet small">Two music models listen to 2-second windows and answer &ldquo;is a sax playing?&rdquo; and
+      &ldquo;which sax?&rdquo; (E79). Not wired into the app yet. Bold is the better model on each line.</p>
+    <div class="scroll"><table class="grid" id="judge-grid"></table></div>
+    <p class="quiet small" id="judge-note"></p>
+    <p class="quiet small" id="judge-empty" hidden>No judge results yet.</p>
   </section>
 
   <section class="card" id="where">

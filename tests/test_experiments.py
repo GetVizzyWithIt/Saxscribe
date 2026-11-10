@@ -73,13 +73,25 @@ def test_rows_append_and_merge_with_the_repo_file(tmp_path, monkeypatch):
 def test_backfilled_experiments_are_well_formed_and_reach_the_dashboard():
     rows = experiments.read(experiments.REPO_EXPERIMENTS)
     assert len(rows) >= 20 and len({r["id"] for r in rows}) == len(rows)
+    separators = {"demucs", "mega", "hybrid", "mvsep-web", "rd-sax", "demucs-6s", "mega-local", "rd-filosax-demucs",
+                  # E71/E73: Mega's sax stem straight from the mix, layered chains, and the stem-only ceilings
+                  "mvsep-mega53-sax-on-mix", "demucs-lead->mega53-sax", "demucs-lead->mega53-wind->mega53-sax",
+                  "demucs-6s-lead", "filosax", "oracle a|b", "oracle all", "audio-only 2s chooser"}
     for r in rows:
-        assert r["setup"]["separator"] in {"demucs", "mega", "hybrid", "mvsep-web", "rd-sax", "demucs-6s", "mega-local", "rd-filosax-demucs"}
-        for v in r["metrics"].values():
-            assert 0 <= v <= 1
+        if r.get("scope") == "2s-windows":           # E79 sax judge: an encoder, not a separator
+            assert r["setup"]["encoder"]
+        else:
+            assert r["setup"]["separator"] in separators
+        for k, v in r["metrics"].items():
+            if k.endswith("_per_min") or k == "count_ratio":   # rates and ratios, not shares
+                assert v >= 0
+            else:
+                assert 0 <= v <= 1, (r["id"], k, v)
         if "key_notes" in r:
             assert set(r["key_notes"]) == set(experiments.KEY_KINDS)
             assert sum(r["key_notes"].values()) == r["n_key"]
             assert sum(r["our_notes"].values()) == r["n_est"]
     assert {r["set"] for r in rows if r["default"]} >= {"parker-band", "pfh", "bfmj", "new-tunes"}
     assert "experiments" in history.dashboard_data()
+    # E70-E79 rows from the Mac made it in
+    assert {"E70", "E71", "E72", "E73", "E74", "E77", "E79"} <= {r.get("entry") for r in rows}
