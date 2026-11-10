@@ -46,3 +46,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0037](0037-head-to-head-experiments-file.md) | Head-to-head tests kept in their own data file (`experiments.jsonl`) | 2026-11-05 | Accepted (PR #100) |
 | [0038](0038-development-standards.md) | Adopt Austin's development standards: lockfile, CI on every PR, claude/<type>-<what> branches | 2026-11-06 | Accepted |
 | [0039](0039-flags-kept-across-runs.md) | Review flags are kept across re-runs and compared (Changed now / Still the same), never deleted or called fixed | 2026-11-09 | Accepted |
+| [0040](0040-adopt-bias-checks.md) | Adopt the bias checks standard; ADRs gain "Options considered" and "Case against" | 2026-11-10 | Accepted |

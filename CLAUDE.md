@@ -33,6 +33,11 @@ it is not attached. Alto first; check transfer to tenor once alto works.
 - Record every take and every edit. Edited transcriptions are training data;
   store them with the original model output as a diff.
 
+- Bias checks: follow [docs/standards/bias-checks.md](docs/standards/bias-checks.md)
+  (adopted 2026-11-10, ADR-0040). Big choices get options, a case against and
+  outside review. After three experiments in a row that don't beat the current
+  best, pause and measure the ceiling.
+
 ## Conventions
 - Python 3.11, same venv layout as the game analyzer (own environment, see
   setup_mac.sh). Python version lives in .python-version. Add dependencies to
