@@ -481,7 +481,8 @@ function judgeGrid() {
 }
 
 function renderCompare() {
-  EXP = DATA.experiments || [];
+  // One row per song: "four tenor tunes / walkers-theme" and "pfh / pfh" are the same song as "walkers-theme" and "pfh".
+  EXP = (DATA.experiments || []).map(r => r.record && RECORDS[r.record] ? {...r, set: r.record, record: null} : r);
   stands(); grid(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
 }
 $('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });
