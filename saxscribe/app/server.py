@@ -11,6 +11,10 @@ Pages:
 API (JSON unless noted):
   GET  /api/info                  addresses to open the app from another device
   GET  /api/results               scorecard runs, change markers and targets (score/history.py)
+  GET  /api/review                the match check's chart/recording pairs and Austin's verdicts (score/review.py)
+  POST /api/review/<id>           Austin's verdict on one pair: {verdict: good|wrong|unsure|null, note}
+  GET  /api/review/<id>/audio     the pair's recording (only the file the report names)
+  GET  /api/review/<id>/key       the pair's answer key notes, to play along with the recording
   GET  /api/takes                 every take, newest first
   POST /api/takes                 upload (form: file, horn, mix, title, artist, engine, sections)
   GET  /api/takes/<id>            one take's status
@@ -105,6 +109,43 @@ def create_app(library: Library, port: int = 8765, runs: str | Path | None = Non
     def results():
         from ..score import history
         return history.dashboard_data(runs)
+
+    @app.get("/api/review")
+    def review_list():
+        from ..score import review
+        return review.load(runs)
+
+    @app.post("/api/review/{pair_id}")
+    def review_save(pair_id: str, body: dict = Body(...)):
+        from ..score import review
+        try:
+            review.save(runs, pair_id, body.get("verdict"), body.get("note") or "")
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        except KeyError:
+            raise HTTPException(404, "No such pair in the match report")
+        return review.load(runs)
+
+    @app.get("/api/review/{pair_id}/audio")
+    def review_audio(pair_id: str):
+        from ..score import review
+        try:
+            p = review.audio_path(runs, pair_id)
+        except KeyError:
+            raise HTTPException(404, "No such pair in the match report")
+        if p is None:
+            raise HTTPException(404, "The recording is not where the report says")
+        return FileResponse(p)
+
+    @app.get("/api/review/{pair_id}/key")
+    def review_key(pair_id: str):
+        from ..score import review
+        try:
+            return {"notes": review.key_notes(runs, pair_id)}
+        except KeyError:
+            raise HTTPException(404, "No such pair in the match report")
+        except (OSError, ValueError) as e:
+            raise HTTPException(422, f"Could not read the key: {e}")
 
     @app.get("/take/{take_id}", include_in_schema=False)
     def play(take_id: str):

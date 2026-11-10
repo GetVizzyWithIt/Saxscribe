@@ -42,6 +42,7 @@ const RECORDS = {
   'weimar-test': ['Weimar solos (test)', 'band'],
   'weimar-train': ['Weimar solos used for tuning', 'band'],
   'heldout-players': ['Coltrane, Getz, Potter (picked the E77 checkpoint)', 'band'],
+  'benchmark': ['Benchmark songs', 'band'],
 };
 // Answer keys partly built with a model under test: its scores there are not a clean win.
 // The Omnibook's alignment used a Riley & Dixon transcription model (their paper, section 3.1).
@@ -149,7 +150,9 @@ function stands() {
     if (d) items.push({tier: 'clean', name: setName(set), m: d.metrics, mix: isMix(set), src: d.entry || d.commit || ''});
   }
   const L = latest();
-  const defaults = [...L.values()].filter(r => r.default && r.metrics.note_f1 != null);
+  // newest first, so each record shows its latest default run
+  const defaults = [...L.values()].filter(r => r.default && r.metrics.note_f1 != null)
+    .sort((a, b) => (b.when || '').localeCompare(a.when || ''));
   for (const r of recordRows(defaults)) {
     const info = rowInfo(r);
     if (info.sub) continue;
@@ -203,7 +206,8 @@ function grid() {
   head.append(el('th', {}, 'Record'));
   for (const c of cols) {
     const th = el('th', {class: 'num'}, setupName(c.s));
-    if (EXP.some(r => r.default && setupKey(r.setup) === c.k)) th.append(el('div', {class: 'small quiet'}, 'today’s default'));
+    const isToday = cols.some(x => x.k === TODAY_BAND) ? c.k === TODAY_BAND : EXP.some(r => r.default && setupKey(r.setup) === c.k);
+    if (isToday) th.append(el('div', {class: 'small quiet'}, 'today’s default'));
     head.append(th);
   }
   table.append(head);
@@ -251,7 +255,11 @@ function grid() {
       if (x.key_notes) td.classList.add('has-bd');
       td.tabIndex = 0;
       td.title = `${info.name}, ${setupName(c.s)}${x.entry ? ' · ' + x.entry : ''}${x.commit ? ' · ' + x.commit : ''}${x.note ? '\n' + x.note : ''}`;
-      const pick = () => { cmp.setup = c.k; cmp.record = rowKey(r); breakdown(); along(); $('#where').scrollIntoView({behavior: 'smooth', block: 'start'}); };
+      const pick = () => {
+        cmp.setup = c.k; cmp.record = rowKey(r); breakdown(); along();
+        if (typeof showTab === 'function') showTab('songs', false);
+        $('#where').scrollIntoView({block: 'start'});
+      };
       td.addEventListener('click', pick);
       td.addEventListener('keydown', e => { if (e.key === 'Enter') pick(); });
       tr.append(td);
@@ -480,9 +488,22 @@ function judgeGrid() {
   $('#judge-note').textContent = notes.map(n => n.charAt(0).toUpperCase() + n.slice(1).replace(/\.?$/, '.')).join(' ');
 }
 
+// The default changes over time, and a row's own flag says what it was when it ran. Where a run also
+// scored today's band-record default (TODAY_BAND), that setup is shown as the default instead.
+const TODAY_BAND = 'rd-sax|same|rd-filosax-ft|';
+function markToday() {
+  const runs = new Set(EXP.filter(r => setupKey(r.setup) === TODAY_BAND).map(r => `${r.entry}|${rowKey(r)}`));
+  EXP = EXP.map(r => {
+    if (!runs.has(`${r.entry}|${rowKey(r)}`)) return r;
+    const today = setupKey(r.setup) === TODAY_BAND;
+    return today === !!r.default ? r : {...r, default: today, was_default: !!r.default};
+  });
+}
+
 function renderCompare() {
   // One row per song: "four tenor tunes / walkers-theme" and "pfh / pfh" are the same song as "walkers-theme" and "pfh".
-  EXP = (DATA.experiments || []).map(r => r.record && RECORDS[r.record] ? {...r, set: r.record, record: null} : r);
+  EXP = (DATA.experiments || []).map(r => r.record && RECORDS[r.record] ? {...r, set: r.record, record: null, _set: r.set, _record: r.record} : r);
+  markToday();
   stands(); grid(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
 }
 $('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });

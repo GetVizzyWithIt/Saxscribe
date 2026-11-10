@@ -88,3 +88,63 @@ table.compare tr > td:first-child { min-width: 170px; }
 table.compare td.sub { padding-left: 24px; color: var(--ink2); }
 table.compare tr.tierrow td { color: var(--quiet); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; padding-top: 16px; border-top: 0; }
 table.compare tr.foot td { color: var(--quiet); font-size: 0.85em; }
+
+/* Tabs (hash routed: #progress, #songs, #lab, #log, #review). */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 18px 0 4px; border-bottom: 1px solid var(--line); }
+.tabs a { color: var(--quiet); text-decoration: none; padding: 10px 14px; min-height: 44px; box-sizing: border-box;
+  display: inline-flex; align-items: center; gap: 6px; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+.tabs a:hover { color: var(--ink); }
+.tabs a[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs .count { background: var(--accent); color: var(--accent-ink); border-radius: 999px; font-size: 0.75rem;
+  padding: 1px 7px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lede { margin: 14px 4px 0; max-width: 760px; }
+.note-box { background: var(--track); color: var(--ink2); border-radius: 10px; padding: 10px 14px; margin: 14px 0 0; }
+.note-box:empty { display: none; }
+
+/* Progress page */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 16px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; min-width: 0; }
+.tile .lab { color: var(--quiet); font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.tile .big { font-size: 2.8rem; font-weight: 650; line-height: 1.1; margin-top: 6px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.tile .big small { font-size: 1rem; font-weight: 500; color: var(--quiet); margin-left: 6px; letter-spacing: 0; }
+.tile .delta { color: var(--good-ink); font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.tile .delta.down { color: var(--bad); }
+.tile .delta.flat { color: var(--quiet); font-weight: 500; }
+.tile .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; color: var(--ink2); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.tile .src { color: var(--muted); font-size: 0.8rem; margin-top: 10px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 0 20px; }
+.two > .card { min-width: 0; }
+#stairs svg, #dumbbells svg, #errors svg { display: block; width: 100%; height: auto; }
+#stairs svg { min-width: 620px; }
+#stairs text, #dumbbells text, #errors text { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--quiet); font-variant-numeric: tabular-nums; }
+#stairs text.ms, #dumbbells text.lbl { fill: var(--ink); font-size: 13px; }
+#stairs text.val, #dumbbells text.val { fill: var(--ink); font-weight: 600; font-size: 13px; }
+#stairs .gridline, #dumbbells .gridline { stroke: var(--grid); }
+#stairs .target, #dumbbells .target { stroke: var(--muted); stroke-dasharray: 4 4; }
+#dumbbells g.song { cursor: pointer; }
+#dumbbells g.song:hover text.lbl { fill: var(--accent); }
+#errors .lane { margin: 12px 0 4px; color: var(--ink2); font-size: 0.9rem; }
+
+/* Songs page */
+table.songs tr.pick { cursor: pointer; }
+table.songs tr.pick:hover td { background: var(--track); }
+table.songs tr.sel td { background: color-mix(in oklab, var(--accent) 12%, var(--card)); }
+
+/* Needs review */
+.pair { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-top: 12px; }
+.pair > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; }
+.pair > summary::-webkit-details-marker { display: none; }
+.pair .t { font-weight: 600; }
+.pair .why { color: var(--ink2); font-size: 0.9rem; flex-basis: 100%; }
+.pair .facts { color: var(--quiet); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.pair .body { padding: 0 16px 16px; }
+.pair audio { width: 100%; margin-top: 4px; }
+.pair .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.pair .acts button.on { background: var(--ink); color: var(--bg); }
+.pair textarea { width: 100%; box-sizing: border-box; margin-top: 10px; min-height: 60px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--ink); font: inherit; padding: 8px 10px; }
+.chip { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: 0.8rem; font-weight: 600; }
+.chip.pass { background: color-mix(in oklab, var(--good-ink) 16%, var(--card)); color: var(--good-ink); }
+.chip.check { background: color-mix(in oklab, var(--accent) 16%, var(--card)); color: var(--accent); }
+.chip.reject { background: color-mix(in oklab, var(--bad) 14%, var(--card)); color: var(--bad); }
+.chip.mine { background: var(--track); color: var(--ink2); }

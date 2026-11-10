@@ -309,6 +309,7 @@ function runTable() {
 
 function render() {
   if (typeof renderCompare === 'function') renderCompare();
+  if (typeof renderProgress === 'function') renderProgress();
   standings(); legend(); charts(); changeTable(); runTable();
 }
 

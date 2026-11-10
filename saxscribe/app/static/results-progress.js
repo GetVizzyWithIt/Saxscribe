@@ -1,0 +1,294 @@
+// Results page: the tabs, the Progress front page and the Songs list.
+// Progress reads experiment rows (DATA.experiments, flattened into EXP by results-compare.js):
+//   - set "benchmark": one row per song per milestone, written by the Mac's re-score (E81). A milestone's
+//     rows carry setup.variant = its commit, or (for the last two) the setup itself.
+//   - until those exist, an interim benchmark: E80's per-song rows (your six tunes, three Parker test records).
+
+// Changes that became the default, oldest first. `id` matches setup.variant on benchmark rows;
+// `setup` matches rows of that setup with no variant.
+const MILESTONES = [
+  {id: 'b3aa715', pr: 9, when: 'Nov 2', label: ['First version', 'Basic Pitch on Demucs']},
+  {id: 'e01aeef', pr: 35, when: 'Nov 3', label: ['Finds the sax stem,', 'writes only where it plays']},
+  {id: '50b729a', pr: 57, when: 'Nov 3', label: ['Short notes follow tempo,', 'repeats restored']},
+  {id: '80cba98', pr: 81, when: 'Nov 4', label: ['Two Demucs passes,', 'range rules per horn']},
+  {id: 'A', setup: 'demucs|same|ours|', when: 'Nov 5–9', label: ['Hides piano bleed,', 'held notes kept whole']},
+  {id: 'D', setup: 'rd-sax|same|rd-filosax-ft|', when: 'Nov 10', label: ['Filosax separator +', 'our fine-tuned finder']},
+];
+const INTERIM_SETS = ['pfh', 'bfmj', 'resolution', 'walkers-theme', 'isnt-she-lovely', 'bloody-well-right'];
+const BAND_TARGET = 0.6;
+
+const prog = {};
+
+// ---------- tabs ----------
+const TABS = ['progress', 'songs', 'lab', 'log', 'review'];
+function showTab(name, scroll = true) {
+  if (!TABS.includes(name)) name = 'progress';
+  for (const p of document.querySelectorAll('.tab')) p.hidden = p.dataset.tab !== name;
+  for (const a of document.querySelectorAll('.tabs a')) a.setAttribute('aria-selected', String(a.dataset.tab === name));
+  if (location.hash.slice(1) !== name) history.replaceState(null, '', `#${name}`);
+  // charts measure their box, so draw them once they can be seen
+  if (name === 'log' && typeof panels !== 'undefined') panels.forEach(p => p.draw());
+  if (scroll) scrollTo({top: 0});
+}
+addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1), false);
+
+// ---------- which rows are the benchmark ----------
+function origSet(r) { return r._set || r.set; }
+function matches(m, r) {
+  if (m.setup) return setupKey(r.setup) === m.setup && !r.setup.variant;
+  return !!r.setup.variant && (r.setup.variant === m.id || r.setup.variant.startsWith(m.id));
+}
+function songOf(r) {
+  if (origSet(r) === 'benchmark') return r._record || r.record;
+  if (r.entry !== 'E80') return null;
+  if (INTERIM_SETS.includes(origSet(r)) && !r._record && !r.record) return origSet(r);
+  if (origSet(r) === 'parker-test' && (r._record || r.record)) return `parker-test/${r._record || r.record}`;
+  return null;
+}
+function songName(id, r) {
+  if (r && r.title) return r.title;
+  if (RECORDS[id]) return RECORDS[id][0];
+  if (id.startsWith('parker-test/')) return `Parker ${id.split('/')[1]}`;
+  return id.replace(/_/g, ' ');
+}
+
+// {mode, songs: [id], steps: [{m, rows: Map id -> row, value, covered}], today, before}
+function benchmark() {
+  const bench = EXP.filter(r => origSet(r) === 'benchmark' && r.metrics.note_f1 != null);
+  const mode = bench.length ? 'benchmark' : 'interim';
+  const pool = (mode === 'benchmark' ? bench : EXP.filter(r => songOf(r) && r.metrics.note_f1 != null));
+  const steps = MILESTONES.map(m => {
+    const rows = new Map();
+    for (const r of pool) if (matches(m, r)) rows.set(songOf(r), r);  // latest wins (EXP is oldest first)
+    return {m, rows};
+  });
+  const todayIx = steps.map(s => s.rows.size > 0).lastIndexOf(true);
+  if (todayIx < 0) return {mode, songs: [], steps, today: null, before: null};
+  const songs = [...steps[todayIx].rows.keys()];
+  for (const s of steps) {
+    const have = songs.filter(id => s.rows.has(id));
+    s.covered = have.length;
+    s.value = have.length === songs.length ? mean(songs.map(id => s.rows.get(id).metrics.note_f1)) : null;
+  }
+  const today = steps[todayIx];
+  const before = steps.slice(0, todayIx).reverse().find(s => s.covered > 0) || null;
+  return {mode, songs, steps, today, before};
+}
+function mean(vs) { const v = vs.filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
+function signed(d, digits = 1) { return `${d >= 0 ? '▲ +' : '▼ −'}${Math.abs(d).toFixed(digits)}`; }
+
+// ---------- tiles ----------
+function tiles(B) {
+  const box = $('#tiles'); box.replaceChildren();
+  const tile = (lab, big, unit, delta, rows, src) => {
+    const t = el('div', {class: 'tile'});
+    t.append(el('div', {class: 'lab'}, lab));
+    const b = el('div', {class: 'big'}, big); if (unit) b.append(el('small', {}, unit)); t.append(b);
+    if (delta) t.append(el('div', {class: `delta ${delta.cls || ''}`}, delta.text));
+    if (rows && rows.length) { const r = el('div', {class: 'row'}); rows.forEach(x => r.append(el('span', {}, x))); t.append(r); }
+    if (src) t.append(el('div', {class: 'src'}, src));
+    box.append(t);
+  };
+  if (B.today) {
+    const ids = B.songs, T = B.today, P = B.before;
+    const now = mean(ids.map(id => T.rows.get(id).metrics.note_f1));
+    const prevIds = P ? ids.filter(id => P.rows.has(id)) : [];
+    const was = prevIds.length ? mean(prevIds.map(id => P.rows.get(id).metrics.note_f1)) : null;
+    const nowSame = prevIds.length ? mean(prevIds.map(id => T.rows.get(id).metrics.note_f1)) : null;
+    const d = was != null ? 100 * (nowSame - was) : null;
+    const ratio = mean(ids.map(id => T.rows.get(id).metrics.count_ratio));
+    const ratioWas = prevIds.length ? mean(prevIds.map(id => P.rows.get(id).metrics.count_ratio)) : null;
+    tile(B.mode === 'benchmark' ? 'Benchmark, band records' : 'Interim benchmark, band records', pts(now), 'note F1',
+      d == null ? null : {text: `${signed(d)} since the default before (${P.m.when})`, cls: d > 0.05 ? '' : d < -0.05 ? 'down' : 'flat'},
+      [`${ids.length} songs`, ratio != null ? `Notes written per key note ${ratio.toFixed(2)}${ratioWas != null ? ` (was ${ratioWas.toFixed(2)})` : ''}` : null].filter(Boolean),
+      `Average over the songs · today: ${T.m.label.join(' ').replace(/,? \+?$/, '')}`);
+    const hit = ids.filter(id => T.rows.get(id).metrics.note_f1 >= BAND_TARGET).length;
+    const hitWas = prevIds.filter(id => P.rows.get(id).metrics.note_f1 >= BAND_TARGET).length;
+    tile('Songs at the band target', `${hit}`, `of ${ids.length}`,
+      prevIds.length ? {text: `was ${hitWas} of ${prevIds.length} before`, cls: 'flat'} : null,
+      ['Target: note F1 60 on a band record'], null);
+  } else {
+    tile('Benchmark, band records', '–', '', null, ['No per-song scores yet'], null);
+  }
+  // Clean sax: solo takes still use the standard path, scored by the scorecard over time.
+  const solo = ['grfia-alto', 'grfia-tenor'].map(s => DATA.runs.filter(r => r.set === s && r.default && r.metrics.note_f1 != null).pop()).filter(Boolean);
+  if (solo.length) {
+    const a = solo[0], tgt = DATA.targets.note_f1 ? DATA.targets.note_f1.solo : 0.8;
+    const gap = 100 * (tgt - a.metrics.note_f1);
+    tile(`Clean sax, ${setName(a.set).replace(/^GRFIA RealSax, /, '')} recorded alone`, pts(a.metrics.note_f1), 'note F1',
+      {text: gap <= 0 ? `Target ${Math.round(100 * tgt)} met` : `Target ${Math.round(100 * tgt)}: ${gap.toFixed(1)} to go`, cls: gap <= 0 ? '' : 'flat'},
+      solo.slice(1).map(r => `${setName(r.set).replace(/^GRFIA RealSax, t/, 'T')} ${pts(r.metrics.note_f1)}`),
+      `GRFIA RealSax studies · solo takes use the standard path · ${a.entry || fmtWhen(Date.parse(a.when), false)}`);
+  }
+}
+
+function benchNote(B) {
+  const box = $('#bench-note');
+  const rev = prog.review;
+  let s = B.mode === 'benchmark'
+    ? `Benchmark: ${B.songs.length} songs whose answer key passed the match check (or that you marked good) and that no model trained on.`
+    : 'Interim benchmark: your six tunes and the three Parker test records (E80). It becomes every song whose key passes the match check and that no model trained on, once the Mac re-scores each version on them.';
+  if (rev && rev.exists) {
+    const n = rev.entries.filter(e => e.benchmark).length;
+    const todo = rev.entries.filter(needsLook).length;
+    s += ` Match check so far: ${n} ${n === 1 ? 'pair qualifies' : 'pairs qualify'}${todo ? `, ${todo} wait for your review` : ''}.`;
+  }
+  box.textContent = s;
+}
+
+// ---------- staircase ----------
+function stairs(B) {
+  const box = $('#stairs');
+  const steps = B.steps;
+  const vals = steps.map(s => s.value).filter(v => v != null);
+  if (!vals.length) { box.replaceChildren(el('p', {class: 'quiet'}, 'No benchmark scores yet.')); return; }
+  const W = 1000, H = 320, L = 44, R = 24, T = 26, Bm = 70, iw = W - L - R, ih = H - T - Bm;
+  const lo = Math.max(0, Math.floor(10 * Math.min(...vals, BAND_TARGET) - 1) / 10);
+  const hi = Math.min(1, Math.ceil(10 * Math.max(...vals, BAND_TARGET) + 0.5) / 10);
+  const x = i => L + iw * (i + 0.5) / steps.length, y = v => T + (1 - (v - lo) / (hi - lo)) * ih;
+  let s = '';
+  for (let v = lo; v <= hi + 1e-9; v += 0.1) {
+    s += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>`;
+    s += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v * 100)}</text>`;
+  }
+  s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(BAND_TARGET)}" y2="${y(BAND_TARGET)}"/>`;
+  s += `<text x="${W - R}" y="${y(BAND_TARGET) - 6}" text-anchor="end">band target 60</text>`;
+  steps.forEach((st, i) => {
+    s += `<text class="ms" x="${x(i)}" y="${H - Bm + 22}" text-anchor="middle">${esc(st.m.label[0])}</text>`;
+    s += `<text class="ms" x="${x(i)}" y="${H - Bm + 38}" text-anchor="middle">${esc(st.m.label[1])}</text>`;
+    s += `<text x="${x(i)}" y="${H - Bm + 56}" text-anchor="middle">${esc(st.m.when)}${st.m.pr ? ` · #${st.m.pr}` : ''}</text>`;
+    if (st.value == null) {
+      const msg = st.covered ? `${st.covered} of ${B.songs.length} songs re-scored` : 'Re-score waiting';
+      s += `<circle cx="${x(i)}" cy="${T + ih - 14}" r="5" fill="none" stroke="var(--muted)" stroke-dasharray="2 2" stroke-width="1.5"/>`;
+      s += `<text x="${x(i)}" y="${T + ih - 26}" text-anchor="middle">${esc(msg)}</text>`;
+    }
+  });
+  let d = '';
+  steps.forEach((st, i) => {
+    if (st.value == null) return;
+    d += d ? `H${x(i)}` : `M${x(i)},${y(st.value)}`;
+    const nx = steps[i + 1];
+    if (nx && nx.value != null) d += `H${(x(i) + x(i + 1)) / 2}V${y(nx.value)}`;
+    else if (d) d += `M${x(i)},${y(st.value)}`;
+  });
+  s += `<path d="${d}" fill="none" stroke="var(--s-note)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  steps.forEach((st, i) => {
+    if (st.value == null) return;
+    s += `<circle cx="${x(i)}" cy="${y(st.value)}" r="5" fill="var(--s-note)" stroke="var(--card)" stroke-width="2"><title>${esc(st.m.label.join(' '))}: ${pts(st.value)}</title></circle>`;
+    s += `<text class="val" x="${x(i)}" y="${y(st.value) - 12}" text-anchor="middle">${pts(st.value)}</text>`;
+  });
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Average note F1 on the benchmark at each milestone">${s}</svg>`;
+}
+
+// ---------- dumbbells ----------
+function dumbbells(B) {
+  const box = $('#dumbbells');
+  if (!B.today) { box.replaceChildren(el('p', {class: 'quiet'}, 'No per-song scores yet.')); return; }
+  const T = B.today, P = B.before;
+  const rows = B.songs.map(id => ({id, now: T.rows.get(id).metrics.note_f1, was: P && P.rows.has(id) ? P.rows.get(id).metrics.note_f1 : null, r: T.rows.get(id)}))
+    .sort((a, b) => a.now - b.now);
+  $('#dumb-note').textContent = `Grey dot: the default before${P ? ` (${P.m.when})` : ''}. Blue dot: today. ` +
+    'Sorted by how far each song still has to go; the dashed line is the band target. Tap a song to open it on the Songs page.';
+  const W = 560, rowH = 30, L = 170, R = 44, Tp = 6, H = Tp + rows.length * rowH + 26, iw = W - L - R;
+  const x = v => L + v * iw;
+  let s = '';
+  for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+    s += `<line class="gridline" x1="${x(v)}" x2="${x(v)}" y1="${Tp}" y2="${H - 22}"/>`;
+    s += `<text x="${x(v)}" y="${H - 6}" text-anchor="middle">${v * 100}</text>`;
+  }
+  s += `<line class="target" x1="${x(BAND_TARGET)}" x2="${x(BAND_TARGET)}" y1="${Tp}" y2="${H - 22}"/>`;
+  rows.forEach((it, i) => {
+    const cy = Tp + i * rowH + rowH / 2;
+    const name = songName(it.id, it.r);
+    s += `<g class="song" data-id="${esc(it.id)}" tabindex="0" role="link"><rect x="0" y="${cy - rowH / 2}" width="${W}" height="${rowH}" fill="transparent"/>`;
+    s += `<text class="lbl" x="0" y="${cy + 4}">${esc(name.length > 24 ? name.slice(0, 23) + '…' : name)}<title>${esc(name)}</title></text>`;
+    if (it.was != null) {
+      s += `<line x1="${x(Math.min(it.was, it.now))}" x2="${x(Math.max(it.was, it.now))}" y1="${cy}" y2="${cy}" stroke="var(--axis)" stroke-width="3" stroke-linecap="round"/>`;
+      s += `<circle cx="${x(it.was)}" cy="${cy}" r="5" fill="var(--muted)"><title>${esc(name)} before: ${pts(it.was)}</title></circle>`;
+    }
+    s += `<circle cx="${x(it.now)}" cy="${cy}" r="6" fill="var(--s-note)" stroke="var(--card)" stroke-width="1.5"><title>${esc(name)} today: ${pts(it.now)}</title></circle>`;
+    s += `<text class="val" x="${W - R + 8}" y="${cy + 4}">${pts(it.now)}</text></g>`;
+  });
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Note F1 per song, before and today">${s}</svg>`;
+  for (const g of box.querySelectorAll('g.song')) {
+    const go = () => openSong(g.dataset.id);
+    g.addEventListener('click', go);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  }
+}
+
+// ---------- remaining errors ----------
+function errors(B) {
+  const box = $('#errors'); box.replaceChildren();
+  const rows = B.today ? B.songs.map(id => B.today.rows.get(id)).filter(r => r.key_notes) : [];
+  if (!rows.length) {
+    box.append(el('p', {class: 'quiet'}, 'Shown once the Mac re-scores the benchmark with error counts (E81). ' +
+      'Then this sums the two bars from each song’s page: what happened to every key note, and where every note we wrote came from.'));
+    return;
+  }
+  const sum = side => { const o = {}; for (const r of rows) for (const [k, v] of Object.entries(r[side] || {})) o[k] = (o[k] || 0) + v; return o; };
+  const kn = sum('key_notes'), on = sum('our_notes');
+  const lanes = [['Key notes', kn, k => k.k, k => k.key], ['Our notes', on, k => k.ours_k || k.k, k => k.ours]];
+  for (const [title, counts, kof, lab] of lanes) {
+    const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+    box.append(el('div', {class: 'lane'}, `${title} (${total.toLocaleString()}${rows.length < B.songs.length ? `, ${rows.length} of ${B.songs.length} songs` : ''})`));
+    const W = 560, Hh = 26; let x0 = 0, s = '';
+    for (const k of KINDS) {
+      const n = counts[kof(k)] || 0; if (!n) continue;
+      const w = n / total * W;
+      s += `<rect x="${x0}" y="0" width="${Math.max(0, w - 1.5)}" height="${Hh}" rx="3" fill="${k.c}"><title>${esc(lab(k))}: ${n} (${(100 * n / total).toFixed(1)}%)</title></rect>`;
+      if (w > 44) s += `<text x="${x0 + 6}" y="${Hh / 2 + 4}" style="fill:#fff;font-weight:600">${Math.round(100 * n / total)}%</text>`;
+      x0 += w;
+    }
+    const svg = el('div'); svg.innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(title)} by what happened">${s}</svg>`;
+    box.append(svg);
+  }
+  const lg = el('div', {class: 'legend'});
+  for (const k of KINDS) { const it = el('span', {class: 'key'}); const sw = el('span', {class: 'sw'}); sw.style.background = k.c; it.append(sw, document.createTextNode(k.key === k.ours ? k.key : `${k.key} / ${k.ours}`)); lg.append(it); }
+  box.append(lg);
+}
+
+// ---------- songs list ----------
+function songsTable(B) {
+  const table = $('#songs'); table.replaceChildren();
+  $('#songs-empty').hidden = !!B.songs.length;
+  if (!B.today) return;
+  const T = B.today, P = B.before;
+  const head = el('tr');
+  for (const h of ['Song', 'Today', 'Before', 'Change', 'Onset F1', 'Notes per key note', 'Key heard', 'Source']) head.append(el('th', {}, h));
+  table.append(head);
+  const rows = B.songs.map(id => ({id, r: T.rows.get(id), p: P && P.rows.get(id)})).sort((a, b) => songName(a.id, a.r).localeCompare(songName(b.id, b.r)));
+  for (const it of rows) {
+    const m = it.r.metrics, tr = el('tr', {class: 'pick', 'data-id': it.id, tabindex: '0'});
+    tr.append(el('td', {}, songName(it.id, it.r)));
+    tr.append(el('td', {class: 'num'}, pts(m.note_f1)));
+    tr.append(el('td', {class: 'num'}, it.p ? pts(it.p.metrics.note_f1) : '–'));
+    const d = it.p ? 100 * (m.note_f1 - it.p.metrics.note_f1) : null;
+    tr.append(el('td', {class: `num ${d == null ? '' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : ''}`}, d == null ? '–' : signed(d)));
+    tr.append(el('td', {class: 'num'}, pts(m.onset_f1)));
+    tr.append(el('td', {class: 'num'}, m.count_ratio != null ? m.count_ratio.toFixed(2) : '–'));
+    tr.append(el('td', {class: 'num'}, it.r.key && it.r.key.heard_ok != null ? `${Math.round(100 * it.r.key.heard_ok)}%` : '–'));
+    tr.append(el('td', {}, [it.r.entry, it.r.commit].filter(Boolean).join(' · ')));
+    const go = () => openSong(it.id, false);
+    tr.addEventListener('click', go);
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    table.append(tr);
+  }
+}
+
+// Open a song on the Songs page: highlight its row and, where it has error counts, its two detail views.
+function openSong(id, jump = true) {
+  showTab('songs', false);
+  for (const tr of document.querySelectorAll('#songs tr.pick')) tr.classList.toggle('sel', tr.dataset.id === id);
+  const key = id.includes('/') ? id : id;  // rowKey of the flattened row
+  if (EXP.some(r => rowKey(r) === key && r.bars && r.bars.length)) { cmp.record = key; along(); }
+  const row = document.querySelector(`#songs tr.pick[data-id="${CSS.escape(id)}"]`);
+  if (row) row.scrollIntoView({behavior: jump ? 'auto' : 'smooth', block: 'center'});
+}
+
+function renderProgress() {
+  const B = benchmark();
+  prog.B = B;
+  tiles(B); benchNote(B); stairs(B); dumbbells(B); errors(B); songsTable(B);
+}
