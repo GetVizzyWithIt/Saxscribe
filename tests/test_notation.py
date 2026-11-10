@@ -507,3 +507,15 @@ def test_a_part_that_comes_in_late_starts_with_rests_from_bar_one():
     assert placed(first)[0][0] == F(0)          # old behaviour: bar 1 = the first note's bar
     assert placed(song)[0][0] == F(20)          # now: five bars of rests first
     assert [length for _, length in placed(song)] == [length for _, length in placed(first)]
+
+
+def test_opening_rests_keep_bar_one_plain_so_the_clef_is_not_drawn_over_them(tmp_path):
+    # A part that comes in late: bar 1 (clef, key, time, tempo) is a plain rest,
+    # and the empty bars after it are one multi-bar rest.
+    song = notation.quantize(at([(20, 1), (21, 1), (22, 2)]), GRID, GRID[::4], 120.0, "straight", from_time=0.0)
+    path = tmp_path / "late.musicxml"
+    notation.build_score(song, HORNS["tenor"], written=True).write("musicxml", fp=str(path))
+    xml = path.read_text()
+    bar1 = xml.split('number="1"', 1)[1].split("<measure ", 1)[0]
+    assert "multiple-rest" not in bar1
+    assert '<multiple-rest use-symbols="no">' in xml.split('number="2"', 1)[1].split("<measure ", 1)[0]

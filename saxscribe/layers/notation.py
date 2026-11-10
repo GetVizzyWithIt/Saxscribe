@@ -862,6 +862,12 @@ def build_score(result: dict, horn: Horn, written: bool):
             part.insert(s, el)
     part = part.makeNotation()
     for run in empty_bar_runs(part):
+        # Bar 1 carries the clef, key, time and tempo. A multi-bar rest that starts there makes Verovio
+        # draw a stray clef over the rest, so the opening bar keeps a plain whole-bar rest.
+        if run[0].number == 1:
+            run = run[1:]
+            if len(run) < 2:
+                continue
         rests = [m.notesAndRests.first() for m in run]
         part.insert(0, spanner.MultiMeasureRest(rests, useSymbols=False))
     from .ranges import mark_unplayable
