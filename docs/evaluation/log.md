@@ -95,6 +95,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P4 | Dataset checksums | `fetch --check` | Done 2026-11-02: every file on the Mac matches its manifest md5 |
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 | P7 | Note-finder fine-tune | — | Done, see E77 (stopped early; best held-out note F1 78.5) |
+| P9 | Make setup D (Filosax separator + our finder) the default | — | E80 says it wins on all 9 songs; waits on Austin's go |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
@@ -121,6 +122,18 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E80 — 2026-11-10 — Our fine-tuned note finder in the app path: four setups compared (finding)
+- **Question**: does the E77 fine-tuned note finder ("Our sax model (test)", PR #141) beat the standard path when run the way the app runs it?
+- **Setups**: A = standard path (Demucs + Basic Pitch); B = Demucs + our finder; C = Demucs + original Filosax finder; D = Filosax separator + our finder. Run on the six Austin tunes (`austin-6`) and the three Parker test records on the Mac, main after #141.
+
+| Set | A (standard) note F1 | D (Filosax separator + our finder) note F1 |
+| --- | --- | --- |
+| austin-6 | 37.7 | **45.7** |
+| Parker test | 56.6 | **69.9** |
+
+- **Finding**: D beats A on all 9 songs. B and C rows are on the Mac with the rest of the scorecard. Nothing changed by default: switching the default note finder is a pipeline change and needs Austin's go in the build thread.
+- **Data**: rows on the Mac (`~/saxscribe-runs/experiments.jsonl`); the build thread is adding them to `experiments.jsonl` in a data PR.
 
 ### E79 — 2026-11-09 — Sax judge: is a sax playing, and which one? (MuQ vs MERT probes; finding)
 - **Question**: can a large pretrained music model tell, window by window, whether a sax is playing and which sax it is? This would be a second opinion for the not-sax checks and for picking clean training tracks. Austin's go: 2026-11-09 11:06Z, after the advisor's check.

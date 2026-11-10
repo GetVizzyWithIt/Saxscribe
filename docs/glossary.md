@@ -76,3 +76,4 @@ Plain-language meanings of terms used in the code and these docs.
 | Quick flag | A flag made with the Flag button while the music plays, with no reason picked yet; shows as "to sort" (PR #138) |
 | Looks right | A bar Austin played through with no flag, stored per run in `flags.json` (PR #138) |
 | Changed now / Still the same | Status of a flag from an earlier run against the current run's notes in its bars. Deliberately not "fixed" ([ADR-0039](decisions/0039-flags-kept-across-runs.md), PR #138) |
+| Sax sections | Optional from–to times when the sax plays, given at upload or with `--sections`. Notes outside them (with a 2 s pad) are tagged `not_sax`, reason `outside_sections`, and never deleted (PR #144) |
