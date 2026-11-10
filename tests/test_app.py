@@ -366,7 +366,7 @@ def test_feedback_flags_ranges_merge_undo_and_runs(client):
         notes_before = take.notes.read_text()
         try:  # the new run places one of its notes 0.2 s later: "changed"
             nd = json.loads(notes_before)
-            idx = next(n["index"] for n in written if n["bar"] == 1)
+            idx = next(n["index"] for n in written if n["bar"] in (1, 2))  # the flag covers bars 1-2
             nd["notes"][idx]["onset"] = float(nd["notes"][idx]["onset"]) + 0.2
             take.notes.write_text(json.dumps(nd))
             assert client.get(f"{url}/flags").json()["past"][0]["status"] == "changed"

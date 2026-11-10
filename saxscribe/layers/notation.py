@@ -95,8 +95,9 @@ def run(take: Take, horn: Horn, swing: str = "auto") -> None:
     data = notes_layer.read(take)
     places, notes = notes_layer.played(data["notes"])
     write_midi(take.midi, notes)
+    # Bar 1 is the song's first bar: a part that comes in late starts with rests.
     result = quantize(notes, data.get("beats") or [], data.get("downbeats") or [],
-                      data.get("tempo_bpm"), swing)
+                      data.get("tempo_bpm"), swing, from_time=0.0)
     for p in result["notes"]:
         p["index"] = places[p["index"]]  # back to its place in notes.json
     concert = build_score(result, horn, written=False)
@@ -416,10 +417,13 @@ def choose_grids(options: dict[int, list], switch: float | dict[int, float]) -> 
 
 
 def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
-             tempo_bpm: float | None, swing: str = "auto") -> dict:
+             tempo_bpm: float | None, swing: str = "auto", from_time: float | None = None) -> dict:
     """Notes placed in bars: {key, swing, swing_source, pad, notes: [{index, start, length, pitch}]}.
 
     start and length are in beats (Fractions) from the start of the first bar.
+    from_time: bar 1 is the bar holding this moment of the recording (0.0 = the
+    song's start), so a part that comes in late starts with rests, and bar
+    numbers match the record. None: bar 1 is the bar of the first note.
     """
     beats, grid_note = repair_grid(beats, notes, tempo_bpm)
     beats, phase, bar_fixes = align_bars(beats, downbeats)
@@ -497,6 +501,9 @@ def quantize(notes: list[dict], beats: list[float], downbeats: list[float],
     # Line the bars up with the downbeats, and start at bar 1.
     pad = (-phase) % BEATS_PER_BAR
     earliest = min((p["start"] for p in placed), default=Fraction(0)) + pad
+    if from_time is not None and placed:
+        start_beat = Fraction(int(np.floor(float(to_beat([from_time])[0]))))
+        earliest = min(earliest, start_beat + pad)
     shift = pad - BEATS_PER_BAR * (int(np.floor(float(earliest))) // BEATS_PER_BAR)
     for p in placed:
         p["start"] += shift

@@ -3,6 +3,33 @@ const engine = segment($('#engine'));
 const mix = segment($('#mix'), () => { $('#mixHint').hidden = true; ready(); });
 let chosen = null;
 
+// Sax sections: rows of from-to times.
+const TIME = /^\s*\d+(:\d{1,2}){0,2}\s*$/;
+function addSection(a = '', b = '') {
+  const row = document.createElement('div'); row.className = 'sec';
+  row.innerHTML = `<input type="text" inputmode="decimal" class="t" aria-label="From" placeholder="3:45" value="${esc(a)}">
+    <span class="quiet">to</span>
+    <input type="text" inputmode="decimal" class="t" aria-label="To" placeholder="4:21" value="${esc(b)}">
+    <button type="button" class="x" aria-label="Remove this section">×</button>`;
+  $('#sections').append(row);
+  row.querySelector('input').focus();
+}
+$('#addSec').addEventListener('click', () => addSection());
+$('#sections').addEventListener('click', e => { const x = e.target.closest('.x'); if (x) x.parentElement.remove(); });
+function toSec(t) { return t.trim().split(':').reduce((acc, p) => acc * 60 + Number(p), 0); }
+// "3:45-4:21, 5:10-5:40", or throws with a message to show.
+function sectionsText() {
+  const out = [];
+  for (const row of $('#sections').querySelectorAll('.sec')) {
+    const [a, b] = [...row.querySelectorAll('input')].map(i => i.value.trim());
+    if (!a && !b) continue;
+    if (!TIME.test(a) || !TIME.test(b)) throw new Error('Write each sax section as two times, like 3:45 to 4:21.');
+    if (toSec(b) <= toSec(a)) throw new Error(`The section ${a} to ${b} ends before it starts.`);
+    out.push(`${a}-${b}`);
+  }
+  return out.join(', ');
+}
+
 function ready() { $('#go').disabled = !(chosen && mix() !== null); }
 function choose(f) {
   chosen = f || null;
@@ -18,7 +45,10 @@ drop.addEventListener('drop', e => choose(e.dataTransfer.files[0]));
 
 $('#go').addEventListener('click', () => {
   if (!chosen) return;
+  let secs = '';
+  try { secs = sectionsText(); } catch (err) { toast(err.message); return; }
   const form = new FormData();
+  form.append('sections', secs);
   form.append('file', chosen);
   form.append('horn', horn());
   form.append('mix', mix());
@@ -33,7 +63,7 @@ $('#go').addEventListener('click', () => {
     bar.hidden = true; bar.firstElementChild.style.width = '0';
     if (xhr.status === 200) {
       $('#upMsg').textContent = 'Uploaded. Transcribing below.';
-      $('#title').value = ''; $('#artist').value = ''; $('#file').value = '';
+      $('#title').value = ''; $('#artist').value = ''; $('#file').value = ''; $('#sections').replaceChildren();
       $('#mix').querySelectorAll('button').forEach(b => b.classList.remove('on')); $('#mixHint').hidden = false;
       choose(null);
       refresh();
@@ -46,6 +76,7 @@ $('#go').addEventListener('click', () => {
   xhr.open('POST', '/api/takes'); xhr.send(form);
 });
 
+function clockOf(s) { const m = Math.floor(s / 60), r = Math.round(s % 60); return `${m}:${String(r).padStart(2, '0')}`; }
 function since(stamp) {
   const t = Date.parse(stamp); if (!t) return '';
   const s = Math.max(0, Math.round((Date.now() - t) / 1000));
@@ -83,7 +114,7 @@ async function refresh() {
     <li>
       <div class="info">
         <div class="title">${esc(t.title)}${t.artist ? ` <span class="quiet">· ${esc(t.artist)}</span>` : ''}</div>
-        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'}${t.engine === 'filosax' ? ' · our sax model' : ''} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
+        <div class="small quiet">${HORN_NAMES[t.horn] || esc(t.horn)} · ${t.mix ? 'with a band' : 'solo'}${t.engine === 'filosax' ? ' · our sax model' : ''}${(t.sections || []).length ? ` · sax ${t.sections.map(([a, b]) => `${clockOf(a)}–${clockOf(b)}`).join(', ')}` : ''} · ${esc((t.added || '').replace('T', ' ').slice(0, 16))}</div>
         ${status(t)}
       </div>
       <div class="actions">${actions(t)}</div>
