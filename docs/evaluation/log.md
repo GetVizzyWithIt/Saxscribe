@@ -96,6 +96,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P5 | Omnibook re-run with chorus-limited grading | PR #16 branch | Done, see E6 |
 | P7 | Note-finder fine-tune | — | Done, see E77 (stopped early; best held-out note F1 78.5) |
 | P9 | Make setup D (Filosax separator + our finder) the default | — | Austin agreed 2026-11-10 03:49Z; build PR #147 makes it the app default on band records ([ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)) |
+| P10 | Three E81 keys an octave off (The Breakdown, Sandu, My Shining Hour) | Build | Done 2026-11-12: corrected and re-scored in place (E81) |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---
@@ -122,6 +123,38 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
+
+### E81 — 2026-11-12 — Benchmark re-score: six versions of the tool on 33 trusted songs (finding)
+- **Question**: how far has the tool come? This scores past milestone versions and today's two app paths on the same fixed benchmark ([ADR-0042](../decisions/0042-match-check-and-benchmark-rule.md)), for the Results page's Progress tab (PR #148).
+- **Set**: 33 songs, each scored on all 6 versions:
+  - 24 transcribed songs that passed the match check
+  - Austin's 6 tunes
+  - the Parker test records 2RfYc, 73bwc and 9RfYc
+
+  Blue Train and I Mean You (Brecker) are left out because they were in the E77 training set.
+- **Versions**: main at #9 (b3aa715), #35 (e01aeef), #57 (50b729a) and #81 (80cba98). Then A (standard path) and D (Filosax separator + our E77 finder, the app default on band records since ADR-0041), both at 8835ad0.
+- **Key fix during the run**: three keys were an octave off: Hank Mobley's The Breakdown, Harold Land's Sandu and Coltrane's My Shining Hour. They scored note F1 0 on every version, though onset F1 was 70–85. Build corrected them and re-scored in place. The numbers below use the corrected keys.
+
+Mean over the 33 songs:
+
+| Version | Note F1 | Onset F1 | Austin's 6 | 24 transcribed | Parker 3 |
+| --- | --- | --- | --- | --- | --- |
+| #9 (b3aa715) | 32.1 | 57.6 | 21.1 | 32.9 | 47.8 |
+| #35 (e01aeef) | 35.9 | 59.4 | 26.4 | 35.9 | 54.4 |
+| #57 (50b729a) | 37.5 | 61.5 | 28.2 | 37.7 | 55.4 |
+| #81 (80cba98) | 38.8 | 62.3 | 28.6 | 39.2 | 56.5 |
+| A, standard (8835ad0) | 39.7 | 63.7 | 34.2 | 38.8 | 57.3 |
+| **D, our sax model (8835ad0)** | **50.9** | **74.4** | **43.4** | **50.4** | **69.6** |
+
+The last three columns are note F1 for each group.
+
+- **A and D compared**:
+  - D beats A on 31 of 33 songs. It loses on St. Louis Blues (−4.1) and Soy Califa (−0.1).
+  - Songs at note F1 60 or above: D 12 of 33, A 2.
+  - Notes written per key note: D 1.00, A 1.18.
+- **Old-version zeros are real**: Walker's Theme scores 0 on #35, #57 and #81, and Cleanhead Vinson and Steve Norman's True score 0 on #35. The sax-rest cut wiped out quiet sax until #97 set its loudness bar per record (E54).
+- **Finding**: the step-by-step changes from #9 to A added about 8 points of note F1. Switching to D added about 11 in one step, and the gain holds in every group. The new default holds up on a benchmark more than three times the size of E80's 9 songs, which answers ADR-0041's worry that 9 songs was a small test.
+- **Data**: 198 rows (6 versions × 33 songs; Mac `~/saxscribe-runs/exp/benchmark/e81_rows.jsonl`). They are in `experiments.jsonl` as set `benchmark`, entry `E81`, record = song id (build PR #154).
 
 ### E80 — 2026-11-10 — Our fine-tuned note finder in the app path: four setups compared (finding)
 - **Question**: does the E77 fine-tuned note finder ("Our sax model (test)", PR #141) beat the standard path when run the way the app runs it?
