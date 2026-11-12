@@ -42,4 +42,4 @@ The pick follows the scorecard rather than habit: D is a new path and replaces t
 ## Look back
 To fill in after the next band-record scorecard (bias check 11): did vocals or horn sections leak into the sheet more than under A?
 
-- 2026-11-12, [E81](../evaluation/log.md): the "small test" worry is answered. On 30 trusted songs, D beat A on 28 (note F1 49.9 against 38.1) and lost only St. Louis Blues. The vocal-leak question is still open: E81 doesn't measure it, and "Just the Two of Us" still needed the sax-sections box.
+- 2026-11-12, [E81](../evaluation/log.md): the "small test" worry is answered. On 33 trusted songs, D beat A on 31 (note F1 50.9 against 39.7), losing only St. Louis Blues (−4.1) and Soy Califa (−0.1). The vocal-leak question is still open: E81 doesn't measure it, and "Just the Two of Us" still needed the sax-sections box.
