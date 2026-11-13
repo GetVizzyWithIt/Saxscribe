@@ -214,7 +214,7 @@ The last three columns are note F1 for each group.
   - Notes written per key note: D 1.00, A 1.18.
 - **Old-version zeros are real**: Walker's Theme scores 0 on #35, #57 and #81, and Cleanhead Vinson and Steve Norman's True score 0 on #35. The sax-rest cut wiped out quiet sax until #97 set its loudness bar per record (E54).
 - **Finding**: the step-by-step changes from #9 to A added about 8 points of note F1. Switching to D added about 11 in one step, and the gain holds in every group. The new default holds up on a benchmark more than three times the size of E80's 9 songs, which answers ADR-0041's worry that 9 songs was a small test.
-- **Data**: 198 rows (6 versions × 33 songs; Mac `~/saxscribe-runs/exp/benchmark/e81_rows.jsonl`). They are in `experiments.jsonl` as set `benchmark`, entry `E81`, record = song id (build PR #154).
+- **Data**: 198 rows (6 versions × 33 songs; Mac `~/saxscribe-runs/exp/benchmark/e81_rows.jsonl`). They are in `experiments.jsonl` as set `benchmark`, entry `E81`, record = song id (build PR #154). Bar counts added 2026-11-13 to the 66 rows of today's default (D) and the default before (A), for the song view's "Along the record": a scoring-only pass on the same outputs (5,086 bars; every other field unchanged). Bars come from the key json (28 songs), `pfh_key.json`, the Blues for Mary Jane MusicXML (bar 0 is the pickup), and the Omnibook syncpoints (Parker; a note a hair before a barline counts in the earlier bar). No sax-rest cuts, so `cut` is 0.
 
 ### E80 — 2026-11-10 — Our fine-tuned note finder in the app path: four setups compared (finding)
 - **Headline**: Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041).

@@ -439,7 +439,7 @@ function along() {
   const cols = columns([...L.values()]);
   const labelW = 200, cell = 6, gap = 1;
   const nb = Math.max(...[...L.values()].map(r => r.bars.length));
-  const W = labelW + nb * (cell + gap) + 8;
+  const W = Math.max(560, labelW + nb * (cell + gap) + 8);   // room for the setup name on short songs
   let y = 4, s = '';
   for (const c of cols) {
     const r = L.get(c.k);
