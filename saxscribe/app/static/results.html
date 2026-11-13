@@ -68,7 +68,8 @@
       note on our sheet, sorted by where it came from. The two bars share colours where it is the same error seen
       from each side: a merged repeat in the key is a split note on ours; a missed note in the key is an extra
       one on ours. Hidden notes are still in notes.json, only off the sheet.</p>
-    <div class="filters"><div class="seg wrapseg" id="where-setup" role="group" aria-label="Setup"></div></div>
+    <div class="filters"><div class="seg wrapseg" id="where-setup" role="group" aria-label="Setup"></div>
+      <select id="where-older" aria-label="Older setups, newest first"></select></div>
     <div class="legend" id="where-legend"></div>
     <div class="scroll" id="where-bars"></div>
     <details><summary class="quiet small">Counts as a table</summary>
@@ -97,8 +98,9 @@
   </div>
 
   <div class="tab" id="tab-lab" role="tabpanel" data-tab="lab" hidden>
-    <p class="quiet lede">For deciding the next change: every setup (separator, sax-rest cuts, note finder) on the
-      same answer keys, the separators on their own, and the sax judge.</p>
+    <p class="quiet lede">For deciding the next change: today&rsquo;s default, the default before it and the current
+      challenger on the same answer keys (older setups are in the dropdown, newest first), the separators on
+      their own, and the sax judge.</p>
   <section class="card">
     <h2>Setups compared</h2>
     <p class="quiet small">Each record on each setup, latest run. The shading is the difference from the
@@ -111,10 +113,25 @@
       <div class="seg" id="grid-metric" role="group" aria-label="Score shown">
         <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="note_f1_no_offset">Note F1, ignoring note ends</button><button type="button" data-v="onset_f1">Onset F1</button><button type="button" data-v="low_found">Low notes found</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button><button type="button" data-v="short_found">Short notes found</button><button type="button" data-v="bars_right">Bars right</button><button type="button" data-v="notes_in_place">Notes in the right spot</button>
       </div>
-      <label class="small"><input type="checkbox" id="grid-tweaks"> Show settings tweaks and PR before/after runs</label>
+      <select id="grid-older" aria-label="Add an older setup, newest first"></select>
+      <label class="small"><input type="checkbox" id="grid-tweaks"> Include settings tweaks and PR before/after runs</label>
     </div>
     <div class="scroll"><table class="grid compare" id="grid"></table></div>
     <p class="quiet small" id="grid-empty" hidden>No experiment rows yet.</p>
+    <p class="quiet small" id="grid-hidden"></p>
+  </section>
+
+  <section class="card" id="pair-card">
+    <h2>Compare two setups</h2>
+    <p class="quiet small">Pick any two setups. Each row is a record both have scored, with the score chosen above;
+      blue means B is better. Today&rsquo;s default, the default before and the challenger are listed first, then
+      every other setup, newest first.</p>
+    <div class="filters">
+      <label class="small">A <select id="pair-a" aria-label="Setup A"></select></label>
+      <label class="small">B <select id="pair-b" aria-label="Setup B"></select></label>
+    </div>
+    <p class="small" id="pair-sum"></p>
+    <div class="scroll"><table class="grid compare" id="pair"></table></div>
   </section>
 
   <section class="card" id="stems">

@@ -148,6 +148,9 @@ table.songs tr.sel td { background: color-mix(in oklab, var(--accent) 12%, var(-
 .chip.check { background: color-mix(in oklab, var(--accent) 16%, var(--card)); color: var(--accent); }
 .chip.reject { background: color-mix(in oklab, var(--bad) 14%, var(--card)); color: var(--bad); }
 .chip.mine { background: var(--track); color: var(--ink2); }
+.filters select { max-width: 100%; min-width: 0; }
+.filters label:has(select) { flex: 1 1 22rem; display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 100%; }
+.filters label select { flex: 1 1 auto; width: 0; min-width: 12rem; }
 .xcard { border-top: 1px solid var(--line); padding: 10px 0; }
 .xcard summary { cursor: pointer; list-style: none; }
 .xcard summary::-webkit-details-marker { display: none; }
