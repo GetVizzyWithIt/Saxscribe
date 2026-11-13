@@ -42,25 +42,38 @@
       </section>
     </div>
     <section class="card">
-      <h2>By horn, style and era</h2>
+      <h2>By player, horn, style, and era</h2>
       <p class="quiet small">Average note F1 on the benchmark songs in each group, today and with the default before.
         Where it is weakest shows which songs to add or work on next.</p>
-      <div class="scroll"><table class="grid" id="groups"></table></div>
+      <div class="filters"><div class="seg" id="tag-by" role="group" aria-label="Group by">
+        <button type="button" data-v="horn" class="on">Horn</button><button type="button" data-v="style">Style</button><button type="button" data-v="era">Era</button><button type="button" data-v="player">Player</button>
+      </div></div>
+      <div class="scroll"><table class="grid compare" id="tag-groups"></table></div>
       <p class="quiet small" id="groups-note"></p>
       <p class="quiet small" id="groups-empty" hidden>No song tags yet (docs/evaluation/benchmark_tags.json).</p>
     </section>
   </div>
 
   <div class="tab" id="tab-songs" role="tabpanel" data-tab="songs" hidden>
-    <p class="quiet lede">One row per song. Tap a song to see where its notes go and how it does bar by bar.</p>
+    <p class="quiet lede">One row per song. Tap a column heading to sort by it. Tap a song to see its history across
+      our models, where its notes go, and how it does bar by bar.</p>
     <section class="card">
       <h2>Every song</h2>
       <p class="quiet small">Note F1 with today&rsquo;s default and the one before, on the songs with both. Missed, timing
-        off, wrong pitch and merged: what happened to the share of the song&rsquo;s key notes that today&rsquo;s default
+        off, wrong pitch, and merged: what happened to the share of the song&rsquo;s key notes that today&rsquo;s default
         got wrong. Key heard: share of the answer key&rsquo;s notes whose pitch the recording confirms; low means the key
         itself is less sure. A ? after the horn means it is a guess.</p>
       <div class="scroll"><table class="grid songs" id="songs"></table></div>
       <p class="quiet small" id="songs-empty" hidden>No per-song scores yet.</p>
+    </section>
+    <section class="card" id="song-history" hidden>
+      <h2 id="hist-title">Song history</h2>
+      <p class="quiet small" id="hist-meta"></p>
+      <p class="quiet small">Every version of the transcriber that has scored this song, oldest first, on the same
+        answer key. The blue line is note F1; the dashed grey line ignores note ends. Below it is every setup ever run on
+        the song: the milestones first, then tests that never became the default.</p>
+      <div class="scroll" id="hist-chart"></div>
+      <div class="scroll"><table class="grid compare" id="hist-table"></table></div>
     </section>
   <section class="card" id="where">
     <h2>Where the notes go</h2>
@@ -98,33 +111,47 @@
   </div>
 
   <div class="tab" id="tab-lab" role="tabpanel" data-tab="lab" hidden>
-    <p class="quiet lede">For deciding the next change: today&rsquo;s default, the default before it and the current
-      challenger on the same answer keys (older setups are in the dropdown, newest first), the separators on
-      their own, and the sax judge.</p>
-  <section class="card">
-    <h2>Setups compared</h2>
+    <p class="quiet lede">For deciding the next change. Today&rsquo;s default for band records is the Filosax sax
+      separator (a sax-only separator from Riley and Dixon, built on the same network design as Demucs but trained only
+      on saxophone) followed by our own sax note model, the E77 fine-tune. The default before used plain Demucs and
+      Basic Pitch.</p>
+  <section class="card" id="compare-card">
+    <h2>Compare setups</h2>
+    <div class="filters">
+      <div class="seg" id="cmp-view" role="tablist" aria-label="What to compare">
+        <button type="button" data-v="grid" class="on">Every setup</button><button type="button" data-v="pair">Two setups head to head</button><button type="button" data-v="stems">Separators only</button>
+      </div>
+    </div>
+    <div class="filters" id="metric-row">
+      <label class="small">Score <select id="grid-metric" aria-label="Score shown">
+        <option value="note_f1" selected>Note F1</option><option value="note_f1_no_offset">Note F1, ignoring note ends</option><option value="onset_f1">Onset F1</option><option value="low_found">Low notes found</option><option value="sax_found">Sax found</option><option value="sax_purity">Sax purity</option><option value="onset_recall">Onset recall</option><option value="pitch_accuracy">Pitch</option><option value="sax_found_heard">Found, heard key notes</option><option value="short_found">Short notes found</option><option value="bars_right">Bars right</option><option value="notes_in_place">Notes in the right spot</option>
+      </select></label>
+    </div>
+
+    <div id="view-grid">
     <p class="quiet small">Each record on each setup, latest run. The shading is the difference from the
       default setup on that record: blue better, red worse, full colour at 10 points. <b>▼ loses sax</b> marks a
       setup that finds at least 3 points fewer of the key&rsquo;s notes than the default (or, where only that was
       measured, 3 points less onset recall), whatever its F1: those are real notes gone. <b>† key may favour
-      this model</b> marks a score on an answer key that was built partly with that model, so it is not a clean win. Tap a cell to see its
+      this model</b> marks a score on an answer key that was built partly with that model, so it is not a clean win.
+      Group the songs by player, horn, style, or era, and pick one group to see only its songs. Tap a cell to see its
       errors on the Songs page.</p>
     <div class="filters">
-      <div class="seg" id="grid-metric" role="group" aria-label="Score shown">
-        <button type="button" data-v="note_f1" class="on">Note F1</button><button type="button" data-v="note_f1_no_offset">Note F1, ignoring note ends</button><button type="button" data-v="onset_f1">Onset F1</button><button type="button" data-v="low_found">Low notes found</button><button type="button" data-v="sax_found">Sax found</button><button type="button" data-v="sax_purity">Sax purity</button><button type="button" data-v="onset_recall">Onset recall</button><button type="button" data-v="pitch_accuracy">Pitch</button><button type="button" data-v="sax_found_heard">Found, heard key notes</button><button type="button" data-v="short_found">Short notes found</button><button type="button" data-v="bars_right">Bars right</button><button type="button" data-v="notes_in_place">Notes in the right spot</button>
-      </div>
+      <label class="small">Group by <select id="grid-group" aria-label="Group records by">
+        <option value="collection" selected>Collection</option><option value="player">Player</option><option value="horn">Horn</option><option value="style">Style</option><option value="era">Era</option>
+      </select></label>
+      <label class="small">Show <select id="grid-only" aria-label="Show one group"></select></label>
       <select id="grid-older" aria-label="Add an older setup, newest first"></select>
       <label class="small"><input type="checkbox" id="grid-tweaks"> Include settings tweaks and PR before/after runs</label>
     </div>
     <div class="scroll"><table class="grid compare" id="grid"></table></div>
     <p class="quiet small" id="grid-empty" hidden>No experiment rows yet.</p>
     <p class="quiet small" id="grid-hidden"></p>
-  </section>
+    </div>
 
-  <section class="card" id="pair-card">
-    <h2>Compare two setups</h2>
+    <div id="view-pair" hidden>
     <p class="quiet small">Pick any two setups. Each row is a record both have scored, with the score chosen above;
-      blue means B is better. Today&rsquo;s default, the default before and the challenger are listed first, then
+      blue means B is better. Today&rsquo;s default, the default before, and the challenger are listed first, then
       every other setup, newest first.</p>
     <div class="filters">
       <label class="small">A <select id="pair-a" aria-label="Setup A"></select></label>
@@ -132,13 +159,13 @@
     </div>
     <p class="small" id="pair-sum"></p>
     <div class="scroll"><table class="grid compare" id="pair"></table></div>
-  </section>
+    </div>
 
-  <section class="card" id="stems">
-    <h2>Separators on their own</h2>
-    <p class="quiet small">How many of the key&rsquo;s notes each separator&rsquo;s sax stem still holds, before any note
-      finder runs (E73). A note counts as held when it is within 20 dB of the full mix and at least 3 dB over the
-      stem&rsquo;s own floor at that pitch. Bold is the best real separator in each column; the two
+    <div id="view-stems" hidden>
+    <p class="quiet small">The separator alone, before any note model runs: how many of the key&rsquo;s notes each
+      separator&rsquo;s sax stem still holds (E73). This is a different measure from the other two views, which score
+      the finished transcription. A note counts as held when it is within 20 dB of the full mix and at least 3 dB over
+      the stem&rsquo;s own floor at that pitch. Bold is the best real separator in each column; the two
       &ldquo;best of&rdquo; rows are ceilings, not something we can run.</p>
     <div class="filters">
       <div class="seg" id="stem-metric" role="group" aria-label="Notes counted">
@@ -147,6 +174,7 @@
     </div>
     <div class="scroll"><table class="grid" id="stem-grid"></table></div>
     <p class="quiet small" id="stem-empty" hidden>No stem checks yet.</p>
+    </div>
   </section>
 
   <section class="card" id="judge">
@@ -161,7 +189,7 @@
   <section class="card">
     <h2>What each score measures</h2>
     <p class="quiet small">A transcription can go wrong in several separate ways, so no single number says how good it is.
-      Each score below checks one of them against an answer key. Pick it with the buttons under <i>Setups compared</i>.</p>
+      Each score below checks one of them against an answer key. Pick it with the Score menu under <i>Compare setups</i>.</p>
     <div class="scroll"><table class="grid dims">
       <tr><th>Dimension</th><th>Score</th><th>What it counts</th><th>Known weak spots</th></tr>
       <tr><td>Hearing the notes</td><td>Sax found</td><td>Share of the key&rsquo;s notes we wrote, with the right start (50 ms) and pitch.</td>

@@ -113,7 +113,7 @@ sentence with the outcome. `scripts/handbook.py` shows it in HANDBOOK.md's
 Two more files feed the dashboard (2026-11-13):
 
 - `cards.json`: one card per experiment, in the shape the UAT review asked for: what changed, the problem, the hypothesis, the measure, the result, what we learned, the decision, and when to revisit. A new log entry adds its card in the same PR (test: `tests/test_cards_tags.py`).
-- `benchmark_tags.json`: horn, style, era and (later) tempo for every benchmark song, so scores can be shown per cell. Drafted from the players and dates; `checked` turns true once Austin confirms a row. A song added to the benchmark gets its tags in the same PR.
+- `benchmark_tags.json`: player (the sax soloist), title, year, album (only where sure), horn, style, era, and (later) tempo for every benchmark song, so scores can be shown per cell. Drafted from the players and dates; `checked` turns true once Austin confirms a row. A song added to the benchmark gets its tags in the same PR.
 
 The app's Results page (PR #38, `/results`) merges the repo's
 `results.jsonl` with the Mac's, showing each run once, and draws

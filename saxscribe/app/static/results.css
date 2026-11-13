@@ -161,3 +161,20 @@ table.songs tr.sel td { background: color-mix(in oklab, var(--accent) 12%, var(-
 .xcard dt { color: var(--muted); }
 .xcard dd { margin: 0; }
 @media (max-width: 560px) { .xcard dl { grid-template-columns: 1fr; } .xcard dd { margin-bottom: 6px; } }
+
+/* Sortable headings (Songs), group averages (Lab), song history (Songs) */
+table.grid th.sort { padding: 0; }
+table.grid th.sort button.th { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 8px 10px; cursor: pointer;
+  color: var(--quiet); font-weight: 500; white-space: nowrap; min-height: 36px; }
+table.grid th.sort button.th:hover, table.grid th[aria-sort="ascending"] button.th, table.grid th[aria-sort="descending"] button.th { color: var(--ink); }
+table.grid th.sort button.th:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+table.grid tr.avg td { font-weight: 600; background: var(--track); }
+table.compare tr.avg td.sub { color: var(--ink); }
+#hist-chart svg { display: block; width: 100%; min-width: 560px; height: auto; }
+#hist-chart text { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--quiet); font-variant-numeric: tabular-nums; }
+#hist-chart text.ms { fill: var(--ink); font-size: 12px; }
+#hist-chart text.val { fill: var(--ink); font-weight: 600; font-size: 13px; }
+#hist-chart .gridline { stroke: var(--grid); }
+#hist-chart .target { stroke: var(--muted); stroke-dasharray: 4 4; }
+#hist-table { margin-top: 12px; }
+#metric-row { margin-top: 12px; }

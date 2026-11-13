@@ -5,11 +5,11 @@
 const SEPARATORS = {
   'demucs': 'Demucs', 'demucs-6s': 'Demucs',
   'mega': 'MVSep Mega 53-stem', 'mega-local': 'MVSep Mega 53-stem',
-  'rd-filosax-demucs': 'Riley & Dixon sax Demucs',
+  'rd-filosax-demucs': 'Filosax sax separator',
   'hybrid': 'Mega + Demucs fallback',
   'mvsep-web': 'MVSep website sax',
-  'rd-sax': 'Riley & Dixon sax Demucs',
-  'filosax': 'Riley & Dixon sax Demucs',
+  'rd-sax': 'Filosax sax separator',
+  'filosax': 'Filosax sax separator',
   'mvsep-mega53-sax-on-mix': 'MVSep Mega 53-stem',
   'demucs-lead->mega53-sax': 'Demucs lead, then Mega sax',
   'demucs-lead->mega53-wind->mega53-sax': 'Demucs lead, then Mega wind, then Mega sax',
@@ -91,7 +91,8 @@ function setupName(s) {
   if (s.spans_from === 'none') n += ', no sax-rest cuts';
   else if (s.spans_from && !['same', 'own'].includes(s.spans_from)) n += `, rests from ${SEPARATORS[s.spans_from] || s.spans_from}`;
   const f = canon(s.note_finder, 'ours');
-  if (FINDERS[f]) n += `, ${FINDERS[f]}`;
+  if (f === 'ours') n += ', Basic Pitch';
+  else if (FINDERS[f]) n += `, ${FINDERS[f]}`;
   else if (f !== 'ours') n += `, ${s.note_finder}`;
   if (s.variant) n += ` (${VERSIONS[s.variant] || s.variant})`;  // e.g. an open PR's code on the same setup
   return n;
@@ -100,7 +101,14 @@ function setupName(s) {
 const VERSIONS = {b3aa715: 'version of PR #9', e01aeef: 'version of PR #35', '50b729a': 'version of PR #57',
                   '80cba98': 'version of PR #81'};
 function rowKey(r) { return r.record ? `${r.set}/${r.record}` : r.set; }
+// Song facts from docs/evaluation/benchmark_tags.json (player, title, year, album, horn, style, era).
+function songTag(r) {
+  const t = DATA.tags || {};
+  return t[r._record || r.record] || t[r.record] || (!r.record ? t[r.set] : null) || null;
+}
 function rowInfo(r) {
+  const tg = (r._set || r.set) === 'benchmark' ? songTag(r) : null;
+  if (tg) return {name: tg.title || r.record, tier: tg.style === 'funk, pop, smooth' ? 'pop' : 'band', sub: false};
   if (r.record && RECORDS[r.record]) return {name: RECORDS[r.record][0], tier: RECORDS[r.record][1], sub: false};
   const base = RECORDS[r.set] || [r.set, 'band'];
   if (r.record) return {name: `${base[0].replace(/ records$/, '')}: ${r.record}`, tier: base[1], sub: true};
@@ -207,13 +215,35 @@ function grid() {
   // Rows: the records today's default has scored, plus those of an older setup picked from the dropdown.
   // Records only older setups have scored stay out unless one of those setups is picked.
   const anchor = new Set([cols.some(c => c.k === TODAY_BAND) ? TODAY_BAND : (cols[0] || {}).k, cmp.gridOlder]);
-  const rows = recordRows(has.filter(r => anchor.has(setupKey(r.setup))));
+  let rows = recordRows(has.filter(r => anchor.has(setupKey(r.setup))));
   const hiddenRecs = recordRows(has).length - rows.length;
+  // The three Parker test records are also benchmark songs: show each song once, as the benchmark row.
+  const benchRecs = new Set(rows.filter(r => (r._set || r.set) === 'benchmark').map(r => r._record || r.record));
+  rows = rows.filter(r => !(r.set === 'parker-test' && r.record && benchRecs.has(r.record)));
+  // Group by collection (the tiers) or by a song tag; "Show" narrows to one group.
+  const by = cmp.gridGroup || 'collection';
+  const groupOf = r => {
+    if (by === 'collection') return (TIERS.find(t => t[0] === rowInfo(r).tier) || [, rowInfo(r).tier])[1];
+    const tg = songTag(r); const v = tg && tg[by];
+    return v == null || v === '' ? (tg && by === 'player' ? 'Player unknown' : 'Not tagged') : String(v);
+  };
+  const values = [...new Set(rows.map(groupOf))];
+  if (by !== 'collection') values.sort((a, b) => (a === 'Not tagged') - (b === 'Not tagged') || rows.filter(r => groupOf(r) === b).length - rows.filter(r => groupOf(r) === a).length || a.localeCompare(b));
+  const only = $('#grid-only');
+  if (!values.includes(cmp.gridOnly)) cmp.gridOnly = '';
+  only.replaceChildren(el('option', {value: ''}, `All (${values.length} groups)`));
+  for (const v of values) { const o = el('option', {value: v}, `${v} (${rows.filter(r => groupOf(r) === v).length})`); if (v === cmp.gridOnly) o.selected = true; only.append(o); }
+  if (cmp.gridOnly) rows = rows.filter(r => groupOf(r) === cmp.gridOnly);
+  if (by !== 'collection') rows = rows.filter(r => songTag(r) || r.record);   // set averages are not songs
+  rows = values.flatMap(v => rows.filter(r => groupOf(r) === v));
+  const tagged = rows.some(r => songTag(r));
   $('#grid-hidden').textContent = hiddenRecs > 0 ? `${hiddenRecs} records scored only with older setups are left out; pick one of those setups above to see them.` : '';
   $('#grid-empty').hidden = !!rows.length;
   if (!rows.length) return;
   const head = el('tr');
-  head.append(el('th', {}, 'Record'));
+  head.append(el('th', {}, 'Song or record'));
+  if (tagged) for (const h of ['Player', 'Year', 'Album']) head.append(el('th', {}, h));
+  const extra = tagged ? 3 : 0;
   for (const c of cols) {
     const th = el('th', {class: 'num'}, setupName(c.s));
     const isToday = cols.some(x => x.k === TODAY_BAND) ? c.k === TODAY_BAND : EXP.some(r => r.default && setupKey(r.setup) === c.k);
@@ -225,11 +255,12 @@ function grid() {
   let tier = null;
   for (const r of rows) {
     const info = rowInfo(r);
-    if (info.tier !== tier) {
-      tier = info.tier;
+    if (groupOf(r) !== tier) {
+      tier = groupOf(r);
       const tr = el('tr', {class: 'tierrow'});
-      const td = el('td', {}, (TIERS.find(t => t[0] === tier) || [, tier])[1]); td.colSpan = cols.length + 1;
+      const td = el('td', {}, tier); td.colSpan = cols.length + 1 + extra;
       tr.append(td); table.append(tr);
+      if (by !== 'collection') table.append(groupAverage(rows.filter(x => groupOf(x) === tier), cols, L, extra));
     }
     const all = cols.map(c => L.get(`${rowKey(r)}#${c.k}`)).map(x => x && x.metrics[cmp.metric] != null ? x : null);
     const dk = defaultCol(all.filter(Boolean));
@@ -240,9 +271,10 @@ function grid() {
     if (kr) {
       const draft = /draft|mix/.test(kr.key.version || '');
       name.append(el('div', {class: 'small quiet'},
-        `${kr.n_key ? kr.n_key + ' key notes · ' : ''}${kr.key.heard_ok != null ? `key ${Math.round(100 * kr.key.heard_ok)}% heard` : ''}${draft ? ' · draft timing' : ''}`));
+        [kr.n_key && `${kr.n_key} key notes`, kr.key.heard_ok != null && `key ${Math.round(100 * kr.key.heard_ok)}% heard`, draft && 'draft timing'].filter(Boolean).join(' · ')));
     }
     tr.append(name);
+    if (tagged) { const tg = songTag(r) || {}; for (const k of ['player', 'year', 'album']) tr.append(el('td', {class: k === 'year' ? 'num' : 'small'}, tg[k] == null ? '–' : String(tg[k]))); }
     cols.forEach((c, i) => {
       const x = all[i];
       const td = el('td', {class: 'num cell'});
@@ -280,6 +312,7 @@ function grid() {
   // weighted summary: wins and losses per setup against the default, record rows only
   const foot = el('tr', {class: 'foot'});
   foot.append(el('td', {}, 'Better / worse than the default (records)'));
+  for (let i = 0; i < extra; i++) foot.append(el('td'));
   for (const c of cols) {
     let up = 0, down = 0, lost = 0;
     for (const r of rows) {
@@ -294,6 +327,18 @@ function grid() {
     foot.append(el('td', {class: 'num'}, c.k === defaultCol(has) ? '' : `${up} ▲ · ${down} ▼${lost ? ` · ${lost} lose sax` : ''}`));
   }
   table.append(foot);
+}
+
+// One row with each setup's average over a group's songs (only songs it scored), and how many it scored.
+function groupAverage(rows, cols, L, extra) {
+  const tr = el('tr', {class: 'avg'});
+  tr.append(el('td', {class: 'sub'}, `Average of ${rows.length} song${rows.length > 1 ? 's' : ''}`));
+  for (let i = 0; i < extra; i++) tr.append(el('td'));
+  for (const c of cols) {
+    const vs = rows.map(r => L.get(`${rowKey(r)}#${c.k}`)).filter(x => x && x.metrics[cmp.metric] != null).map(x => x.metrics[cmp.metric]);
+    tr.append(el('td', {class: 'num'}, vs.length ? `${pts(vs.reduce((a, b) => a + b, 0) / vs.length)}${vs.length < rows.length ? ` (${vs.length})` : ''}` : '–'));
+  }
+  return tr;
 }
 
 // ---------- 2b. two setups head to head ----------
@@ -568,7 +613,7 @@ const FEATURED = [[TODAY_BAND, 'today’s default', 'Today'], [PREV_BAND, 'defau
 function roleOf(k) { const f = FEATURED.find(x => x[0] === k); return f ? f[1] : ''; }
 function buttonName(c) {
   const f = FEATURED.find(x => x[0] === c.k);
-  const n = setupName(c.s) + (canon(c.s.note_finder, 'ours') === 'ours' ? ', Basic Pitch' : '');
+  const n = setupName(c.s);
   return f ? `${f[2]}: ${n}` : n;
 }
 function featured(cols) {
@@ -612,7 +657,13 @@ function renderCompare() {
 }
 $('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });
 segment($('#stem-metric'), v => { cmp.stemMetric = v; stemGrid(); });
-segment($('#grid-metric'), v => { cmp.metric = v; grid(); pair(); });
+$('#grid-metric').addEventListener('change', e => { cmp.metric = e.target.value; grid(); pair(); });
+$('#grid-group').addEventListener('change', e => { cmp.gridGroup = e.target.value; cmp.gridOnly = ''; grid(); });
+$('#grid-only').addEventListener('change', e => { cmp.gridOnly = e.target.value; grid(); });
+segment($('#cmp-view'), v => {
+  for (const k of ['grid', 'pair', 'stems']) $(`#view-${k}`).hidden = k !== v;
+  $('#metric-row').hidden = v === 'stems';
+});
 $('#pair-a').addEventListener('change', e => { cmp.pairA = e.target.value; pair(); });
 $('#pair-b').addEventListener('change', e => { cmp.pairB = e.target.value; pair(); });
 segment($('#where-setup'), v => { cmp.setup = v; breakdown(); });
