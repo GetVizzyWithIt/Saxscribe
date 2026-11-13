@@ -46,7 +46,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 1 | **Diagnose**: per-song loss breakdown, a stem check on the missed notes of the 6 weakest songs, and the flagged takes (Najee, Burning Daylight, Just the Two of Us) | Done 2026-11-13: 87% of missed or wrong-pitch notes are still in the stem, so the note finder is the bottleneck; about half our notes in the flagged pop bars overlap vocals (log, 2026-11-13 diagnosis) |
 | 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Not started |
 | 3 | **New test set**: bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs | Not started |
-| 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | E82 round 3 works: Mega's vocal stem marks vocals with 0 bad marks on 11 songs (Demucs's carried the sax). Waiting on Austin: Mega everywhere, only where vocals are suspected, or more testing |
+| 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043). Build PR in progress |
 | 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Not started |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
@@ -54,7 +54,6 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 **Running on the Mac now:** the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.
 
 **Waiting on Austin:**
-- E82 round 3: adopt Mega vocals for the vocal mark on every band record, only where Demucs suspects vocals, or test more first (decision card in Build).
 - Step 2 ear check when it's ready.
 - Which note F1 the 60 target means: with note ends or without.
 - Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
@@ -189,7 +188,7 @@ Note F1 by group:
 
 | E | Date | What | Outcome |
 | --- | --- | --- | --- |
-| E82 | 2026-11-13 | Vocal review mark on setup D, rule V | With Mega's vocal stem as the rival: 112 good marks, 0 bad on 11 songs; adoption is Austin's call. |
+| E82 | 2026-11-13 | Vocal review mark on setup D, rule V | Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record. |
 | E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |
 | E80 | 2026-11-10 | Our fine-tuned note finder in the app path: four setups compared | Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041). |
 | E79 | 2026-11-09 | Sax judge: is a sax playing, and which one? | MERT judges sax best (AUC 0.93); not wired in yet. |

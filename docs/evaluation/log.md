@@ -124,8 +124,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
-### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (round 3 works; adoption pending)
-- **Headline**: With Mega's vocal stem as the rival: 112 good marks, 0 bad on 11 songs; adoption is Austin's call.
+### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (adopted, round 3)
+- **Headline**: Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record.
 - **Question**: step 4 of the plan. Can a review mark catch notes that are really vocals leaking into setup D's sax stem? Marks only: nothing is hidden. Austin's go: 2026-11-13 08:27Z.
 - **Rule V**: mark a note when the Demucs vocals stem is at least X dB louder than the Filosax sax stem at the note's pitch (±1 semitone) and holds that pitch at least 3 dB over its median. The pitch threshold made no difference. Scripts: `~/saxscribe-runs/exp/e82/e82.py` and `e82b.py`.
 - **Pick rule**: on 27 E81 songs that are not Austin's (no vocals), take the setting with the most "good" marks (extra notes or notes in a key rest) while "bad" marks (notes matching the key) stay at or under 1.5%.
@@ -155,7 +155,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - No marks on the jazz songs with singers (All of Me, Just a Dream).
   - Cost: Mega runs at about 3.5× real time on the M3 Pro CPU.
 - **Finding, round 3**: Mega's vocal stem doesn't swallow the sax the way Demucs's does, so the mark catches vocals without marking real sax on this test. It beats rounds 1 and 2.
-- **Decision**: with Austin (decision card in Build): Mega on every band record, Mega only where Demucs suspects vocals, or more testing first. Rows (`e82c_rows.jsonl`) come with the build PR. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
+- **Decision**: adopted. Austin chose "every band record, full Mega" on the Build decision card (2026-11-13 17:07Z): every band record runs Mega's vocal stem and rule V3 marks notes for review, never hiding them ([ADR-0043](../decisions/0043-vocal-review-mark-with-mega.md)). The build PR brings the code. Rows (`e82c_rows.jsonl`) come with the build PR. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
 - **Data**: E82 rows and reports on the Mac (`~/saxscribe-runs/exp/e82/`), not yet in `experiments.jsonl`.
 
 ### 2026-11-13 — Step 1 diagnosis: where setup D loses notes (finding, no E-number)
