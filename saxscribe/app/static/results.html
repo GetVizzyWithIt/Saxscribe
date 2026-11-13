@@ -41,14 +41,24 @@
         <div id="errors"></div>
       </section>
     </div>
+    <section class="card">
+      <h2>By horn, style and era</h2>
+      <p class="quiet small">Average note F1 on the benchmark songs in each group, today and with the default before.
+        Where it is weakest shows which songs to add or work on next.</p>
+      <div class="scroll"><table class="grid" id="groups"></table></div>
+      <p class="quiet small" id="groups-note"></p>
+      <p class="quiet small" id="groups-empty" hidden>No song tags yet (docs/evaluation/benchmark_tags.json).</p>
+    </section>
   </div>
 
   <div class="tab" id="tab-songs" role="tabpanel" data-tab="songs" hidden>
     <p class="quiet lede">One row per song. Tap a song to see where its notes go and how it does bar by bar.</p>
     <section class="card">
       <h2>Every song</h2>
-      <p class="quiet small">Note F1 with today&rsquo;s default and the one before, on the songs with both. Key heard: share of
-        the answer key&rsquo;s notes whose pitch the recording confirms; low means the key itself is less sure.</p>
+      <p class="quiet small">Note F1 with today&rsquo;s default and the one before, on the songs with both. Missed, timing
+        off, wrong pitch and merged: what happened to the share of the song&rsquo;s key notes that today&rsquo;s default
+        got wrong. Key heard: share of the answer key&rsquo;s notes whose pitch the recording confirms; low means the key
+        itself is less sure. A ? after the horn means it is a guess.</p>
       <div class="scroll"><table class="grid songs" id="songs"></table></div>
       <p class="quiet small" id="songs-empty" hidden>No per-song scores yet.</p>
     </section>
@@ -174,6 +184,14 @@
   </div>
 
   <div class="tab" id="tab-log" role="tabpanel" data-tab="log" hidden>
+  <section class="card">
+    <h2>Experiments</h2>
+    <p class="quiet small">One card per experiment, newest first: the problem, the hypothesis, what changed, the result
+      and the decision. Tap a card for the full story; the log entry has every number.</p>
+    <div id="cards"></div>
+    <p class="quiet small" id="cards-empty" hidden>No experiment cards yet (docs/evaluation/cards.json).</p>
+  </section>
+
   <h2 class="section">Default pipeline over time</h2>
   <p class="quiet">Each vertical line is a model or pipeline change, labelled with its pull request. Lines join
     runs with the default settings; open circles are runs that tried other settings.</p>

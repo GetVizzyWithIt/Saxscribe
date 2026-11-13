@@ -27,15 +27,16 @@
    "era": null,
    "tempo": null,
    "checked": false,
-   "horn_unsure": true
+   "horn_note": "Alto by ear (Austin, 2026-11-13). Player and recording still unknown; the chart is an 8notes alto arrangement (E78)."
   },
   "steve-norman_true_1983": {
-   "horn": "alto",
+   "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": "1980s",
    "tempo": null,
    "checked": false,
-   "horn_unsure": true
+   "horn_unsure": true,
+   "horn_note": "Likely: Steve Norman's main horn is tenor (Wikipedia; 1986 interview). No source names the horn on the True solo."
   },
   "dexter-gordon_soy-califa_1962": {
    "horn": "tenor",
@@ -206,20 +207,20 @@
    "checked": false
   },
   "walkers-theme": {
-   "horn": "alto",
+   "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": null,
    "tempo": null,
    "checked": false,
-   "horn_unsure": true
+   "horn_note": "Austin's key is a tenor part (E-log: four tenor parts from his PDFs); Gerald Albright, Kickin' It Up (2004). Track credits online don't split alto and tenor."
   },
   "isnt-she-lovely": {
-   "horn": "alto",
+   "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": "2010s",
    "tempo": null,
    "checked": false,
-   "horn_unsure": true
+   "horn_note": "Austin 2026-11-13; Kenni Holmen's tenor solo (hornheads.com transcription 'Isn't She Lovely - Tenor solo')."
   },
   "bloody-well-right": {
    "horn": "tenor",
@@ -227,7 +228,7 @@
    "era": "1970s",
    "tempo": null,
    "checked": false,
-   "horn_unsure": true
+   "horn_note": "Austin 2026-11-13; Wikipedia personnel: John Helliwell, tenor saxophone."
   },
   "2RfYc": {
    "horn": "alto",
