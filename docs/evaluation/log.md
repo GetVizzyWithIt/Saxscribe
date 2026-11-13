@@ -124,6 +124,30 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### 2026-11-13 — Step 1 diagnosis: where setup D loses notes (finding, no E-number)
+- **Headline**: 87% of the notes D gets wrong are still in its sax stem, so the note finder is to blame, not the separator.
+- **Question**: step 1 of the plan ([next steps](../product/next.json), Austin's go 2026-11-13 02:30Z). On today's default (setup D), are missed and wrong-pitch notes lost at separation or at note finding? How much of our output in Austin's flagged bars is leak from other instruments?
+- **Method**: `~/saxscribe-runs/exp/diagnose/diagnose.py` on setup D's E81 outputs. It reuses E73's *held* test: a key note counts as held when the stem is within 20 dB of the mix and at least 3 dB over its noise floor, at the note's pitch ±1 semitone or the octave above. Run on the 6 weakest benchmark songs and Austin's flagged takes.
+- **(a) Missed or wrong-pitch key notes, held in the D stem / not held**:
+
+| Song | Held | Not held |
+| --- | --- | --- |
+| Castle Rock | 210 | 27 |
+| Bloody Well Right | 61 | 22 (Mega stem would hold 64) |
+| St. Louis Blues | 118 | 1 |
+| True | 36 | 0 |
+| Just for the Love | 150 | 21 |
+| Walker's Theme | 248 | 49 (Mega 249) |
+| **Total** | **823 of 943 (87%)** | 120 |
+
+- **Extra notes of ours** where a vocal or other stem is louder than the sax: 378 of 1,204. Bloody Well Right has the most: 135 of 282.
+- **(b) Austin's flagged ranges**, our notes there with leak from another source: Najee (Is It The Way Back) 408 of 737, Burning Daylight 37 of 108, Just the Two of Us (21-note take) 7 of 21.
+- **(c)** 102 note-end clips cut from Walker's Theme, Soy Califa and Splanky for the step 2 ear check.
+- **From the E81 per-song breakdown** (`/mnt/project-files/diagnosis/e81_per_song.csv`): note ends cost 16 points of note F1 on average. Of the key notes, 66% are right, 13% missed, 8% start off, 8% wrong pitch and 5% merged.
+- **Finding**: separation is mostly not the bottleneck on these songs: the D stem holds 87% of the notes we miss or mis-pitch, so they are lost at note finding. Mega would only hold a handful more (Bloody Well Right +3, Walker's +1). Leak is the other problem: on pop records with vocals, about half our notes in Austin's flagged ranges overlap a louder vocal or other stem.
+- **Recommended next** (each needs Austin's go in Build): E82 = a vocals and bleed review mark (mark, never hide; no Mega); E83 = a second note-finder fine-tune.
+- **Data**: report and clips on the Mac under `~/saxscribe-runs/exp/diagnose/`. No experiment rows: this measures stems, not a setup.
+
 ### E81 — 2026-11-12 — Benchmark re-score: six versions of the tool on 33 trusted songs (finding)
 - **Headline**: Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7).
 - **Question**: how far has the tool come? This scores past milestone versions and today's two app paths on the same fixed benchmark ([ADR-0042](../decisions/0042-match-check-and-benchmark-rule.md)), for the Results page's Progress tab (PR #148).

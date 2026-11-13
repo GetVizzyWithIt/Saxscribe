@@ -43,17 +43,18 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 
 | Step | What | Status |
 | --- | --- | --- |
-| 1 | **Diagnose**: per-song loss breakdown, a stem check on the missed notes of the 6 weakest songs, and the flagged takes (Najee, Burning Daylight, Just the Two of Us) | In progress: per-song breakdown done; stem check next |
+| 1 | **Diagnose**: per-song loss breakdown, a stem check on the missed notes of the 6 weakest songs, and the flagged takes (Najee, Burning Daylight, Just the Two of Us) | Done 2026-11-13: 87% of missed or wrong-pitch notes are still in the stem, so the note finder is the bottleneck; about half our notes in the flagged pop bars overlap vocals (log, 2026-11-13 diagnosis) |
 | 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Not started |
 | 3 | **New test set**: bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs | Not started |
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Not started |
 | 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Not started |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
-| 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook and its update script done; static dashboard page in review |
+| 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
 **Running on the Mac now:** the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.
 
 **Waiting on Austin:**
+- Go in Build for E82 (vocals and bleed review mark) or E83 (second note-finder fine-tune).
 - Step 2 ear check when it's ready.
 - Which note F1 the 60 target means: with note ends or without.
 - Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
