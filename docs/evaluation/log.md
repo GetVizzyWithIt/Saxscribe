@@ -135,7 +135,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Adoption rule (fixed)**: against E77, mean note F1 at least +1.0 point, at least 18 of 33 song wins, and mean note F1 ignoring note ends not lower. If both arms qualify, the higher mean wins. Changing the default still needs Austin's go.
 - **Case against**: few new pop or R&B pairs so far (only Yakety Yak), so E83b may add mostly jazz. Transcribed keys are tier B, so score-reader slips could teach errors. The held-out pick is slightly optimistic; the benchmark is the honest test.
 - **Not in E83**: a note-end fix (step 2's listening is unfinished) and soprano.
-- **Result**: pending. It runs on the Mac after the downloads check.
+- **Implementation notes (23:13Z, adoption rule unchanged)**: all 12 Charlie Parker transcribed keys are kept out of training, because the Omnibook test IDs carry no tune names and overlap with the Parker test records can't be ruled out. Scoring runs with `SAXSCRIBE_VOCAL_CHECK=off`; that check only adds `maybe_*` tags, which classify ignores. The checkpoint is picked on the Filosax stems of the held-out spans, so the step-0 baseline is E77 on Filosax stems, not E77's 78.5 on Mega stems. Today's count: 62 usable new pairs, 21 kept after the exclusions, so E83b's 10-pair gate passes; it is counted again after the check. The E77 arm reproduces the E81 D row exactly on Bloody Well Right.
+- **Result**: pending. It runs on the Mac after the downloads check, about 12 hours.
 
 ### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (adopted, round 3)
 - **Headline**: Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record.
