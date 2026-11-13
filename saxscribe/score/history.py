@@ -34,6 +34,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 REPO_RESULTS = REPO / "docs" / "evaluation" / "results.jsonl"
 CHANGES = REPO / "docs" / "evaluation" / "changes.json"
+CARDS = REPO / "docs" / "evaluation" / "cards.json"            # one card per experiment (Log tab)
+TAGS = REPO / "docs" / "evaluation" / "benchmark_tags.json"    # horn, style, era per benchmark song
 FILE_NAME = "results.jsonl"
 
 
@@ -119,4 +121,11 @@ def dashboard_data(runs: str | Path | None = None) -> dict:
     from .card import MIX_SETS, TARGETS
     return {"runs": load(runs), "changes": changes(), "experiments": experiments.load(runs),
             "targets": {k: {"solo": v[0], "mix": v[1]} for k, v in TARGETS.items()},
-            "mix_sets": sorted(MIX_SETS)}
+            "mix_sets": sorted(MIX_SETS),
+            "cards": _json(CARDS).get("cards", []), "tags": _json(TAGS).get("songs", {})}
+
+
+def _json(path: Path) -> dict:
+    """A docs JSON file, or {} when it is missing (an older checkout)."""
+    import json
+    return json.loads(path.read_text()) if path.exists() else {}
