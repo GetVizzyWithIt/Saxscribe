@@ -157,7 +157,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - Cost: Mega runs at about 3.5× real time on the M3 Pro CPU.
 - **Finding, round 3**: Mega's vocal stem doesn't swallow the sax the way Demucs's does, so the mark catches vocals without marking real sax on this test. It beats rounds 1 and 2.
 - **Decision**: adopted. Austin chose "every band record, full Mega" on the Build decision card (2026-11-13 17:07Z): every band record runs Mega's vocal stem and rule V3 marks notes for review, never hiding them ([ADR-0043](../decisions/0043-vocal-review-mark-with-mega.md)). Code merged in PR #167 (2026-11-13 19:48Z). Check after merge: identical marks on 13 of 14 records vs the E82 run (Najee 240 vs 241); about 76 s per minute of audio on the M3 Pro GPU. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
-- **Data**: round 3 rows in `experiments.jsonl` (168 rows: 12 settings × 14 records, set `e82c-austin`; the pre-registered main setting is the rows whose note ends "PRE-REGISTERED MAIN"). Rounds 1–2 rows and reports stay on the Mac (`~/saxscribe-runs/exp/e82/`).
+- **Data**: round 3 rows in `experiments.jsonl` (168 rows: 12 settings × 14 records, set `e82c-austin`; the pre-registered main setting is the rows whose note ends "PRE-REGISTERED MAIN"; each row id has its review rule appended so the 12 settings stay unique). Rounds 1–2 rows and reports stay on the Mac (`~/saxscribe-runs/exp/e82/`).
 
 ### 2026-11-13 — Step 1 diagnosis: where setup D loses notes (finding, no E-number)
 - **Headline**: 87% of the notes D gets wrong are still in its sax stem, so the note finder is to blame, not the separator.
