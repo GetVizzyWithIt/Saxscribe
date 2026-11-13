@@ -24,7 +24,7 @@
       "step": 4,
       "title": "E82, vocals",
       "what": "check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide",
-      "status": "Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043). Build PR in progress"
+      "status": "Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043); code merged in PR #167"
     },
     {
       "step": 5,

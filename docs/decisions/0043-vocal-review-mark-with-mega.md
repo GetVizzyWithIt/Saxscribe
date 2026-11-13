@@ -3,7 +3,7 @@
 - **Date**: 2026-11-13
 - **Status**: Accepted
 - **Decided by**: Austin (Build decision card, 17:07Z: "every band record, full Mega")
-- **PR**: the build PR that adds rule V3 (code and `e82c_rows.jsonl`); this docs PR
+- **PR**: #167 (code, merged 2026-11-13); docs #166 (this ADR) and the follow-up docs PR with the rows
 - **Reviewed by**: three rounds of E82 with a pre-registered main setting in round 3; Austin's flagged takes as the outside test
 
 ## Context
@@ -27,7 +27,7 @@ Every band record runs Mega's vocal stem locally, and rule V3 (Mega vocals at le
 - Band-record runs take longer (Mega at about 3.5× real time).
 - The review marks appear in the app's listener like the other not-sax marks; Austin's flags remain the test.
 - A fast home-grown vocal detector distilled from Mega's decisions is on the roadmap (Later) to remove the speed cost.
-- `experiments.jsonl` gets the E82 round 3 rows with the build PR.
+- `experiments.jsonl` holds the E82 round 3 rows (168, set `e82c-austin`).
 
 ## Look back
 After the vocal test set (plan step 3) and the next pop records: did bad marks stay near zero, and did the marks cover Austin's vocal flags?

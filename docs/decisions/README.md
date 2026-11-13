@@ -49,4 +49,4 @@ only. When a decision changes, add a new ADR and mark the old one
 | [0040](0040-adopt-bias-checks.md) | Adopt the bias checks standard; ADRs gain "Options considered" and "Case against" | 2026-11-10 | Accepted |
 | [0041](0041-band-records-default-to-our-sax-model.md) | Band records default to our sax model (Filosax separator + E77 finder) in the app; solo takes and CLI unchanged | 2026-11-10 | Accepted (PR #147) |
 | [0042](0042-match-check-and-benchmark-rule.md) | Every chart/audio pair passes a match check before training or scoring; benchmark songs: key checked or marked good, not marked wrong, never trained on | 2026-11-10 | Accepted (PR #148) |
-| [0043](0043-vocal-review-mark-with-mega.md) | Band records get a vocal review mark from Mega's vocal stem (rule V3, marks only) | 2026-11-13 | Accepted (build PR pending) |
+| [0043](0043-vocal-review-mark-with-mega.md) | Band records get a vocal review mark from Mega's vocal stem (rule V3, marks only) | 2026-11-13 | Accepted (PR #167) |
