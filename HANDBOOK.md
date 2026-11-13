@@ -4,11 +4,13 @@ Where things stand, what happens next, and how to run the tool, all in one place
 Read sections 1 and 2 to catch up. Sections 3 to 9 are reference.
 
 Web page version (bookmark this, works on the iPad): <https://claude.ai/artifact/LHvpK1sBSP8ADqziMc2c8X>.
-After editing this file, rebuild it with `python3 scripts/handbook_page/build.py` and republish.
+After any change, run `python3 scripts/handbook.py` then `python3 scripts/handbook_page/build.py`, and republish the page.
 
-Blocks between `<!-- auto:... -->` markers are meant to be rebuilt from the
-repo's own records (a script is coming in the next PR). Until then the docs
-thread updates them by hand after every merge that changes results or plans.
+Sections 1, 2 and 5 are rebuilt from the repo's own records by
+`python3 scripts/handbook.py`: the benchmark rows in
+`docs/evaluation/experiments.jsonl`, the evaluation log, and the plan in
+`docs/product/next.json`. Don't edit them here; change the source and rerun
+the script. CI fails if they are out of date.
 
 Last updated: 2026-11-13
 
@@ -25,7 +27,6 @@ Last updated: 2026-11-13
 | How the 33 songs break down | 12 of 33 at note F1 60 or above. Our sax model beats the standard path on 31 of 33 |
 | Weakest songs (our sax model) | Castle Rock 22.6, Bloody Well Right 22.7, St. Louis Blues 28.0, True 28.2, Just for the Love 29.8, Walker's Theme 31.2 |
 | Where the notes go wrong (key notes, E81) | 66% right, 13% missed, 8% start off, 8% wrong pitch, 5% merged. Note ends cost about 16 points of note F1 on average |
-| Open pull requests | None |
 <!-- /auto:status -->
 
 **Biggest open weaknesses:** quiet low sax, other instruments (vocals
@@ -36,8 +37,7 @@ especially) leaking into the sax track, and where notes end.
 ## 2. What's next
 
 <!-- auto:next -->
-The plan Austin approved on 2026-11-13 (one step at a time; each needs his go
-in the build thread):
+The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in the build thread):
 
 | Step | What | Status |
 | --- | --- | --- |
@@ -47,16 +47,16 @@ in the build thread):
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Not started |
 | 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Not started |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
-| 7 | **Docs, dashboard, not-sax instrument choices** | Handbook in progress (this file) |
+| 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook done; script that keeps it current next |
 
-**Running on the Mac now:** the overnight search for better recordings of the
-charts that failed the match check (`find_better_recording.py`). A thread
-files the winners in the morning; nothing gets filed without a passing line-up.
+**Running on the Mac now:** the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.
 
 **Waiting on Austin:**
 - Step 2 ear check when it's ready.
 - Which note F1 the 60 target means: with note ends or without.
 - Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
+
+_Plan last changed 2026-11-13._
 <!-- /auto:next -->
 
 Ideas for later live in the "Later" section of the
@@ -153,7 +153,7 @@ ps -eo pid,lstart,command | grep -E "python|caffeinate" | grep -v grep
 ## 5. Results at a glance
 
 <!-- auto:results -->
-**How we got here** (E81, mean note F1 on the 33-song benchmark):
+**How we got here** (E81, mean on the 33-song benchmark):
 
 | Version | Note F1 | Onset F1 |
 | --- | --- | --- |
@@ -161,32 +161,33 @@ ps -eo pid,lstart,command | grep -E "python|caffeinate" | grep -v grep
 | #35 write only where the sax plays | 35.9 | 59.4 |
 | #57 restore re-tongued repeats | 37.5 | 61.5 |
 | #81 nothing below the low note | 38.8 | 62.3 |
-| Standard path (11-10) | 39.7 | 63.7 |
-| **Our sax model (11-10, default on band records)** | **50.9** | **74.4** |
+| Standard path (8835ad0) | 39.7 | 63.7 |
+| **Our sax model (8835ad0, default on band records)** | 50.9 | 74.4 |
+
+Note F1 by group:
 
 | Group | Standard path | Our sax model |
 | --- | --- | --- |
-| Austin's 6 tunes | 34.2 | 43.4 |
-| 24 transcribed songs | 38.8 | 50.4 |
+| Austin's 6 tunes (6) | 34.2 | 43.4 |
+| Transcribed songs (24) | 38.8 | 50.4 |
 | Parker test (3) | 57.3 | 69.6 |
 
 **Latest experiments:**
 
-| E | What | Verdict |
-| --- | --- | --- |
-| E81 | Six versions on the 33-song benchmark | Our sax model ahead on 31 of 33 |
-| E80 | Our note finder in the app, four setups | Filosax separator + our finder won all 9 songs, now the default |
-| E79 | Sax judge (MERT vs MuQ) | MERT better (0.93); not wired in yet |
-| E78 | Keys from Austin's 8 transcription PDFs | Baseline, mean note F1 21.5 |
-| E77 | Fine-tune the Filosax note finder on Mega stems | Gained on every set; used in E80 |
-| E75 | Alto etude keys (Ferling, Luft) | Baseline 57.5; slow studies lose on held notes |
-| E74 | Note-finder settings on Mega stems | No gain |
-| E73 | How many key notes each separator's stem keeps | Mega keeps the most (57 of 59) |
-| E72 | Start notes on slurred pitch changes | No gain |
-| E71 | Stacking separators | Rejected |
+| E | Date | What | Outcome |
+| --- | --- | --- | --- |
+| E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |
+| E80 | 2026-11-10 | Our fine-tuned note finder in the app path: four setups compared | Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041). |
+| E79 | 2026-11-09 | Sax judge: is a sax playing, and which one? | MERT judges sax best (AUC 0.93); not wired in yet. |
+| E78 | 2026-11-09 | Answer keys from Austin's 8 transcription PDFs | Baseline on Austin's printed transcriptions: mean note F1 21.5. |
+| E77 | 2026-11-09 | Fine-tuning the Filosax note finder on Mega sax stems | Gained on every test set; became the default's note finder after E80. |
+| E76 | 2026-11-09 | Training set for the note finder: Mega-separated Weimar and Parker solos | 134 solo spans ready for fine-tuning. |
+| E75 | 2026-11-08 | New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 | Baseline 57.5; slow studies lose on held notes split by vibrato. |
+| E74 | 2026-11-08 | Note-finder settings on Mega sax stems | No gain from note-finder settings. |
+| E73 | 2026-11-08 | How many key notes each separator's stem still holds | Mega's stem keeps the most key notes (57 of 59); the note finder is the gap. |
+| E72 | 2026-11-07 | Start a note on a pitch change without an attack, for slurs | No gain. |
 
-Full record: [evaluation log](docs/evaluation/log.md). Live charts: the app's
-Results page (`/results`).
+Full record: [evaluation log](docs/evaluation/log.md). Live charts: the app's Results page (`/results`).
 <!-- /auto:results -->
 
 ---

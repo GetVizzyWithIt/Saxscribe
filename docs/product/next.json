@@ -1,0 +1,19 @@
+{
+  "updated": "2026-11-13",
+  "intro": "The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in the build thread):",
+  "steps": [
+    {"step": 1, "title": "Diagnose", "what": "per-song loss breakdown, a stem check on the missed notes of the 6 weakest songs, and the flagged takes (Najee, Burning Daylight, Just the Two of Us)", "status": "In progress: per-song breakdown done; stem check next"},
+    {"step": 2, "title": "Note-end ear check", "what": "Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends", "status": "Not started"},
+    {"step": 3, "title": "New test set", "what": "bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs", "status": "Not started"},
+    {"step": 4, "title": "E82, vocals", "what": "check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide", "status": "Not started"},
+    {"step": 5, "title": "E83", "what": "whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)", "status": "Not started"},
+    {"step": 6, "title": "Rhythm", "what": "a simpler-grid rule", "status": "Not started"},
+    {"step": 7, "title": "Docs, dashboard, not-sax instrument choices", "what": "the handbook, a static dashboard page, and which other instruments the not-sax check names", "status": "In progress: handbook done; script that keeps it current next"}
+  ],
+  "running": "the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.",
+  "waiting": [
+    "Step 2 ear check when it's ready.",
+    "Which note F1 the 60 target means: with note ends or without.",
+    "Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email."
+  ]
+}

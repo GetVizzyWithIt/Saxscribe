@@ -125,6 +125,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - Not a model change; not in the change table.
 
 ### E81 — 2026-11-12 — Benchmark re-score: six versions of the tool on 33 trusted songs (finding)
+- **Headline**: Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7).
 - **Question**: how far has the tool come? This scores past milestone versions and today's two app paths on the same fixed benchmark ([ADR-0042](../decisions/0042-match-check-and-benchmark-rule.md)), for the Results page's Progress tab (PR #148).
 - **Set**: 33 songs, each scored on all 6 versions:
   - 24 transcribed songs that passed the match check
@@ -157,6 +158,7 @@ The last three columns are note F1 for each group.
 - **Data**: 198 rows (6 versions × 33 songs; Mac `~/saxscribe-runs/exp/benchmark/e81_rows.jsonl`). They are in `experiments.jsonl` as set `benchmark`, entry `E81`, record = song id (build PR #154).
 
 ### E80 — 2026-11-10 — Our fine-tuned note finder in the app path: four setups compared (finding)
+- **Headline**: Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041).
 - **Question**: does the E77 fine-tuned note finder ("Our sax model (test)", PR #141) beat the standard path when run the way the app runs it?
 - **Setups**: A = standard path (Demucs + Basic Pitch); B = Demucs + our finder; C = Demucs + original Filosax finder; D = Filosax separator + our finder. Run on the six Austin tunes (`austin-6`) and the three Parker test records on the Mac, main after #141.
 
@@ -180,6 +182,7 @@ Per song, note F1 (six tunes):
 - **Data**: 44 rows in `experiments.jsonl` (build PR #146).
 
 ### E79 — 2026-11-09 — Sax judge: is a sax playing, and which one? (MuQ vs MERT probes; finding)
+- **Headline**: MERT judges sax best (AUC 0.93); not wired in yet.
 - **Question**: can a large pretrained music model tell, window by window, whether a sax is playing and which sax it is? This would be a second opinion for the not-sax checks and for picking clean training tracks. Austin's go: 2026-11-09 11:06Z, after the advisor's check.
 - **Setup**: small probes trained on top of two frozen music models: MuQ (`OpenMuQ/MuQ-large-msd-iter`) and MERT (`MERT-v1-95M`). Both are under CC BY-NC 4.0, which is fine for Austin's non-commercial use. Trained on the keyed training records plus OrchideaSOL and GoodSounds single notes, then scored once on held-out data.
 
@@ -196,6 +199,7 @@ Per song, note F1 (six tunes):
 - **Data**: E79 row on the Mac (`~/saxscribe-runs/experiments.jsonl`), not yet in the repo copy.
 
 ### E77 — 2026-11-09 — Fine-tuning the Filosax note finder on Mega sax stems (not adopted yet)
+- **Headline**: Gained on every test set; became the default's note finder after E80.
 - **What**: the Filosax transcriber, starting from `filosax_25k`, fine-tuned on the E76 training set on the Mac (MPS/CPU). Stopped early at about step 3,300 of 16,800 after it levelled off. The kept checkpoint is `best.pt` from step 2,488 (99 MB): held-out note F1 78.5 against 70.5 at the start. Scored once against the original weights, same thresholds.
 
 | Test | Original | Fine-tuned |
@@ -214,11 +218,13 @@ Per song, note F1 (six tunes):
 - **Data**: E77 row on the Mac; checkpoint on the Mac only (weights never go in the repo).
 
 ### E76 — 2026-11-09 — Training set for the note finder: Mega-separated Weimar and Parker solos (data)
+- **Headline**: 134 solo spans ready for fine-tuning.
 - **What**: 134 solo spans from the keyed Weimar records and Parker records (about 300 minutes), separated with MVSep Mega's sax model. 110 spans for training; Coltrane, Potter and Getz held out as unseen players for checking.
 - **Checks**: every stem is present and not silent. Labels line up with the stems: the median key note sits 25 dB above its neighbours.
 - **Data**: stems and labels on the Mac only. Commercial records stay on the Mac.
 
 ### E78 — 2026-11-09 — Answer keys from Austin's 8 transcription PDFs (baseline)
+- **Headline**: Baseline on Austin's printed transcriptions: mean note F1 21.5.
 - **Keys**: Austin's 8 printed transcriptions, read with the homr score reader, the same method as the etude keys (E75). Hand fixes from the page: multi-bar rests, and Gossip's repeats written out in play order. Each key was lined up with the record and scored with compare.py. 8va passages were read at the printed octave and moved to the heard octave when scoring. Tenor written − 14 = concert; alto written − 9. For Hodges and St. Louis Blues, the transposition that best matches the playing was kept.
 - **Not proofread note by note**: expect score-reader slips such as missed ties and some wrong rhythms. Tier B.
 - **Run**: takes made with `make_takes.sh` on main after E77, standard path on the full records.
@@ -242,6 +248,7 @@ Per song, note F1 (six tunes):
 - **Data**: `/mnt/project-files/datasets/transcribed/` (README, keys, `links.csv` with IDs and SHA-256 of each PDF and recording); Mac master copy `~/saxscribe-runs/keys/transcribed/<ID>/`. Austin's keys stay test-only. Not yet in `experiments.jsonl`.
 
 ### E75 — 2026-11-08 — New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 (baseline)
+- **Headline**: Baseline 57.5; slow studies lose on held notes split by vibrato.
 - **Why**: Austin asked for alto etude answer keys. They give a written-music test on real alto takes, which the jazz records can't.
 - **Keys**: Ferling's 48 Studies Op. 31 (IMSLP #16933, Spehr 1837) and Luft Op. 1 No. 2 (IMSLP #94059, Bleuzet 1926), both public-domain scans. The homr score reader turned them into MusicXML. Each key was lined up with its recording (concert = written − 9 semitones) and onsets snapped to heard attacks. Where a player took a passage an octave away from the page, the key follows the ear.
 - **Takes**: 52 alto recordings, mostly Wonki Lee, plus Voxman, Nabb and UT studio takes; 14,443 key notes. On average 92% of key notes agree with the pitch heard. The rest are score-reader slips, ornaments and trills, or edition differences. The keys have not been checked by ear.
@@ -259,6 +266,7 @@ Per song, note F1 (six tunes):
 - **Data**: `/mnt/project-files/datasets/etude-keys/` (README, keys, aligned keys, `scorecard.csv` with one row per take); Mac copy `~/saxscribe-runs/keys/etudes/`. Not yet in `experiments.jsonl`. Audio stays off the repo.
 
 ### E74 — 2026-11-08 — Note-finder settings on Mega sax stems (not adopted)
+- **Headline**: No gain from note-finder settings.
 - **Question**: E73 showed MVSep Mega's sax stem holds almost every key note, yet the note finders write far fewer. Do the note finders just need different thresholds on Mega stems?
 - **Tuning**: thresholds picked on the Parker training records, with Mega sax on the mix as the separator.
   - Filosax transcriber: best is onset 0.3 / frame 0.05, note F1 65.8 against 65.6 for the shipped settings.
@@ -285,6 +293,7 @@ Per song, note F1 (six tunes):
 - **Data**: 48 E74 rows on the Mac, not yet in `experiments.jsonl`.
 
 ### E71 — 2026-11-08 — Layered separation: stacking separators to get a cleaner sax stem (not adopted yet)
+- **Headline**: Rejected: stacking separators doesn't beat Mega alone.
 - **Goal**: get back the quiet sax that the Filosax separator loses (E69, E70) by feeding the audio through more than one separator in turn. Austin's go: 2026-11-07 02:09Z.
 - **Variants**:
   - a: Filosax separator (today's opt-in).
@@ -318,6 +327,7 @@ Per song, note F1 (six tunes):
 - **Data**: report and 128 E71 rows on the Mac (`~/saxscribe-runs/exp/layers/report.md`), not yet in `experiments.jsonl`.
 
 ### E73 — 2026-11-08 — How many key notes each separator's stem still holds (finding)
+- **Headline**: Mega's stem keeps the most key notes (57 of 59); the note finder is the gap.
 - **Question**: is the missing quiet sax lost in separation, or in note finding? This check measures the stems alone, before any note finder runs. Austin's go: 2026-11-08 07:24Z.
 - **Measure**: a key note counts as *held* when the stem's energy at its pitch is within 20 dB of the mix and above the stem's noise floor. Tuned on the Parker training records.
 - **Recall**, share of key notes held:
@@ -339,6 +349,7 @@ Per song, note F1 (six tunes):
 - **Data**: 35 E73 rows on the Mac, not yet in `experiments.jsonl`.
 
 ### E72 — 2026-11-07 — Start a note on a pitch change without an attack, for slurs (not adopted)
+- **Headline**: No gain.
 - **Goal**: catch slurred notes that E70 suggested were being missed: the pitch changes, but there is no new attack to trigger a note.
 - **Rule tried**: start a new note wherever the Filosax transcriber's frame output switches pitch without an attack. Settings were chosen on the training records: frame threshold 0.7, at least 60 ms.
 - **Result**: on the test set, note F1 stayed at 65.1, with 43 notes added across 13 records. In Austin's flagged bars on Pennies, notes found stayed at 18 of 59.
@@ -348,6 +359,7 @@ Per song, note F1 (six tunes):
 - E71 (layered separator test) is logged above.
 
 ### E70 — 2026-11-06 — Recovering the quiet low notes on the Filosax path (not adopted)
+- **Headline**: No gain.
 - **Goal**: find the quiet low sax notes that Austin flagged as missing (E69). Austin said "go both" (20:47Z), so two fixes were tried.
 - **Setup**: Filosax path. Tuned on the Parker training records, Confirmation and Calypso takes 1–2; the test set was scored once. Full report on the Mac: `~/saxscribe-runs/exp/lownotes/report.md`.
 - **Fix B**: make the note finder more sensitive below written D5. The best setting that passed the guards (onset 0.2, frame 0.1) scored on the test set:
