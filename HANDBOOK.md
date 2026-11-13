@@ -135,6 +135,16 @@ python -m saxscribe transcribe ~/Music/record.mp3 --mix --separator filosax --no
 
 The third line is the app's band-record default (our sax model) on the CLI.
 
+**Dashboard with the very latest runs** (including runs not logged in the repo
+yet). It opens in your browser and stays on the Mac:
+
+```bash
+cd ~/Desktop/saxscribe && source .venv/bin/activate && python3 scripts/dashboard_page/build.py --runs ~/saxscribe-runs --open
+```
+
+The online dashboard linked at the top is rebuilt from the repo each time a
+result is logged. Its top line says which experiment its data runs to.
+
 **Check the tools are installed:** `python -m saxscribe check`
 
 **Long jobs on the Mac:** the Mac sleeps after a minute idle. Wrap the

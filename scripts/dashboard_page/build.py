@@ -1,11 +1,18 @@
 """Build the model dashboard as one static web page, for the handbook.
 
     python3 scripts/dashboard_page/build.py        # writes build/dashboard.html
+    python3 scripts/dashboard_page/build.py --runs ~/saxscribe-runs --open   # on the Mac
 
 It is the app's Results page (/results) with its CSS and scripts inlined and
-the data the app would serve from /api/results baked in, read from the repo's
-docs/evaluation files only. Nothing from the Mac's ~/saxscribe-runs goes in,
-so no run of the app or the Mac is needed to view it.
+the data the app would serve from /api/results baked in. By default only the
+repo's docs/evaluation files go in: that is the copy published next to the
+handbook, so no run of the app or the Mac is needed to view it. With --runs,
+the Mac's own results.jsonl and experiments.jsonl in that folder are merged in
+too (runs not logged yet), and --open shows the page in the browser. That copy
+stays on the Mac.
+
+A line at the top says which experiment the data runs to and when it was
+built, so a stale copy is easy to spot.
 
 Only the model-performance tabs come over (Progress, Songs, Lab, Log). The
 reviewer parts (Needs review, flags) play recordings from the Mac and stay in
@@ -43,13 +50,23 @@ window.__SAXSCRIBE_STATIC__ = true;
 
 HANDBOOK_URL = "https://claude.ai/artifact/LHvpK1sBSP8ADqziMc2c8X"
 
-NOTE = ('<p class="quiet small" style="margin:0;padding:8px 16px">Static copy built from the repo on {date}. '
-        'Reviewing keys (Needs review) and runs that only exist on the Mac stay in the app\'s Results page.</p>')
+NOTE = ('<p class="quiet small" style="margin:0;padding:8px 16px"><b>Data as of {latest}.</b> Built {date} from {source}. '
+        'Reviewing keys (Needs review) stays in the app\'s Results page.</p>')
 
 
-def data() -> dict:
+def data(runs: str | Path | None = None) -> dict:
     from saxscribe.score import history
-    return history.dashboard_data(tempfile.mkdtemp())  # empty runs folder: repo records only
+    # an empty runs folder means repo records only
+    return history.dashboard_data(Path(runs).expanduser() if runs else tempfile.mkdtemp())
+
+
+def freshness(d: dict) -> str:
+    """'E81, run 2026-11-12': the newest experiment entry in the data and the date of the newest row."""
+    rows = list(d.get("runs") or []) + list(d.get("experiments") or [])
+    nums = [int(m.group(1)) for r in rows if (m := re.fullmatch(r"E(\d+)", str(r.get("entry") or "")))]
+    when = max((str(r.get("when") or "")[:10] for r in rows), default="")
+    parts = [f"E{max(nums)}" if nums else "", f"last run {when}" if when else ""]
+    return ", ".join(p for p in parts if p) or "no runs yet"
 
 
 def inline(html: str) -> str:
@@ -71,13 +88,14 @@ def model_only(html: str) -> str:
     return html.replace('<a class="button" href="/">Library</a>', f'<a class="button" href="{HANDBOOK_URL}" target="_blank" rel="noopener">Handbook</a>')
 
 
-def build(out: Path | None = None) -> Path:
+def build(out: Path | None = None, runs: str | Path | None = None) -> Path:
     import datetime
-    d = data()
+    d = data(runs)
     html = inline(model_only((STATIC / "results.html").read_text()))
     shim = SHIM % json.dumps(d, separators=(",", ":")).replace("</", "<\\/")
     html = html.replace("<script>\n", shim + "\n<script>\n", 1)
-    html = re.sub(r"(<body[^>]*>)", r"\1" + NOTE.format(date=datetime.date.today().isoformat()), html, count=1)
+    html = re.sub(r"(<body[^>]*>)", r"\1" + NOTE.format(latest=freshness(d), date=datetime.date.today().isoformat(),
+                                                   source="the repo and this Mac's runs" if runs else "the repo"), html, count=1)
     out = out or ROOT / "build" / "dashboard.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)
@@ -85,4 +103,14 @@ def build(out: Path | None = None) -> Path:
 
 
 if __name__ == "__main__":
-    print(build())
+    import argparse
+    import webbrowser
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--runs", help="also merge this folder's results.jsonl and experiments.jsonl (the Mac's ~/saxscribe-runs)")
+    ap.add_argument("--out", type=Path, help="where to write the page (default build/dashboard.html)")
+    ap.add_argument("--open", action="store_true", help="open the page in the browser when done")
+    a = ap.parse_args()
+    path = build(a.out, a.runs)
+    print(path)
+    if a.open:
+        webbrowser.open(path.resolve().as_uri())
