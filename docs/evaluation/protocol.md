@@ -97,6 +97,10 @@ Each log entry records: date, commit, machine, set, split, settings
 note-count ratio when known, and what it shows in one or two sentences.
 Comparisons are on the same recordings with only one setting changed.
 
+From E70 on, every entry's first line is `- **Headline**: ...`, one short
+sentence with the outcome. `scripts/handbook.py` shows it in HANDBOOK.md's
+"Latest experiments" table (falling back to the heading's parenthetical).
+
 ### Four records of the same runs, kept in step
 
 | File | What it holds | Who writes it |
