@@ -482,7 +482,8 @@ function openSong(id) {
   prog.song = id;
   for (const tr of document.querySelectorAll('#songs tr.pick')) tr.classList.toggle('sel', tr.dataset.id === id);
   songHistory(id);
-  cmp.record = id;
+  const tr = prog.B && prog.B.today && prog.B.today.rows.get(id);
+  cmp.record = tr ? rowKey(tr) : id;   // benchmark rows are keyed "benchmark/<song>"
   const has = along();
   $('#hist-along').hidden = !has; $('#hist-noalong').hidden = has;
   $('#song-history').scrollIntoView({block: 'start'});
