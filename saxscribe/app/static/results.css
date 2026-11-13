@@ -178,3 +178,19 @@ table.compare tr.avg td.sub { color: var(--ink); }
 #hist-chart .target { stroke: var(--muted); stroke-dasharray: 4 4; }
 #hist-table { margin-top: 12px; }
 #metric-row { margin-top: 12px; }
+details.area { border-top: 1px solid var(--line); }
+details.area:first-child { border-top: 0; }
+details.area > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(10rem, 18rem) 1fr 3.5rem auto;
+  gap: 6px 16px; align-items: center; padding: 12px 4px; }
+details.area > summary::-webkit-details-marker { display: none; }
+details.area > summary .aname { font-weight: 600; }
+details.area > summary .aname::before { content: "▸ "; color: var(--muted); }
+details.area[open] > summary .aname::before { content: "▾ "; }
+details.area > summary .aval { font-weight: 650; font-variant-numeric: tabular-nums; }
+.abar { position: relative; height: 12px; border-radius: 4px; background: var(--track); min-width: 80px; }
+.abar > span { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--k-right); }
+.abar > i { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink2); }
+details.area tr.pick { cursor: pointer; }
+details.area tr.pick:hover td { background: var(--track); }
+@media (max-width: 560px) { details.area > summary { grid-template-columns: 1fr 3rem; } details.area > summary .abar { grid-column: 1 / -1; grid-row: 2; } }
+#judge h3, #song-history h3 { margin: 20px 0 4px; font-size: 1rem; }

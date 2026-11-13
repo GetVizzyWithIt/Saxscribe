@@ -378,6 +378,49 @@ function songHistory(id) {
   }
 }
 
+// ---------- by area (Songs tab, top) ----------
+// Three collapsed rows: clean sax (scorecard sets, standard path), jazz band records and pop records
+// (benchmark songs, today's default). Open one to see its songs, by title.
+function areas(B) {
+  const box = $('#areas'); box.replaceChildren();
+  const tgtOf = mix => DATA.targets.note_f1 ? DATA.targets.note_f1[mix ? 'mix' : 'solo'] : (mix ? 0.6 : 0.8);
+  const clean = CLEAN_SETS.map(set => DATA.runs.filter(r => r.set === set && r.default && r.metrics.note_f1 != null).pop()).filter(Boolean)
+    .map(r => ({name: setName(r.set), m: r.metrics, tgt: tgtOf(isMix(r.set)), src: r.entry || r.commit || ''}));
+  const songs = B.today ? B.songs.map(id => {
+    const r = B.today.rows.get(id), tg = tagOf(id) || {};
+    return {id, name: songName(id, r), player: tg.player, m: r.metrics, tgt: BAND_TARGET, pop: tg.style === 'funk, pop, smooth'};
+  }) : [];
+  const groups = [['Clean sax (recorded alone or pre-separated)', clean, 'test sets'],
+                  ['Jazz band records', songs.filter(x => !x.pop), 'songs'], ['Pop and fusion records', songs.filter(x => x.pop), 'songs']];
+  for (const [title, items, unit] of groups) {
+    if (!items.length) continue;
+    items.sort((a, b) => a.name.localeCompare(b.name));
+    const avg = mean(items.map(x => x.m.note_f1)), hit = items.filter(x => x.m.note_f1 >= x.tgt).length;
+    const d = el('details', {class: 'area'});
+    const sum = el('summary');
+    const bar = el('span', {class: 'abar'}); const fill = el('span'); fill.style.width = `${(100 * avg).toFixed(1)}%`; bar.append(fill);
+    const tick = el('i'); tick.style.left = `${100 * items[0].tgt}%`; bar.append(tick);
+    sum.append(el('span', {class: 'aname'}, title), bar, el('span', {class: 'aval'}, pts(avg)),
+      el('span', {class: 'quiet small'}, `${items.length} ${unit} · ${hit} at target ${Math.round(100 * items[0].tgt)}`));
+    d.append(sum);
+    const t = el('table', {class: 'grid'});
+    const head = el('tr');
+    for (const h of [unit === 'songs' ? 'Song' : 'Test set', unit === 'songs' ? 'Player' : 'Source', 'Note F1', 'Ignoring note ends', 'Onset F1', 'Pitch']) head.append(el('th', {class: /F1|ends|Pitch/.test(h) ? 'num' : ''}, h));
+    t.append(head);
+    for (const x of items) {
+      const tr = el('tr', {class: x.id ? 'pick' : ''});
+      tr.append(el('td', {}, x.name), el('td', {class: 'small'}, x.id ? (x.player || '–') : x.src));
+      const f = el('td', {class: `num${x.m.note_f1 >= x.tgt ? ' met' : ''}`}, pts(x.m.note_f1));
+      tr.append(f);
+      for (const k of ['note_f1_no_offset', 'onset_f1', 'pitch_accuracy']) tr.append(el('td', {class: 'num'}, pts(x.m[k])));
+      if (x.id) { tr.tabIndex = 0; const go = () => openSong(x.id); tr.addEventListener('click', go); tr.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }); }
+      t.append(tr);
+    }
+    const sc = el('div', {class: 'scroll'}); sc.append(t); d.append(sc);
+    box.append(d);
+  }
+}
+
 // ---------- scores by horn and by style ----------
 function tagOf(id) { const t = DATA.tags || {}; return t[id] || t[String(id).replace(/^parker-test\//, '')] || null; }
 function groups(B) {
@@ -438,13 +481,15 @@ function openSong(id) {
   showTab('songs', false);
   prog.song = id;
   for (const tr of document.querySelectorAll('#songs tr.pick')) tr.classList.toggle('sel', tr.dataset.id === id);
-  if (EXP.some(r => rowKey(r) === id && r.bars && r.bars.length)) { cmp.record = id; along(); }
   songHistory(id);
+  cmp.record = id;
+  const has = along();
+  $('#hist-along').hidden = !has; $('#hist-noalong').hidden = has;
   $('#song-history').scrollIntoView({block: 'start'});
 }
 
 function renderProgress() {
   const B = benchmark();
   prog.B = B;
-  tiles(B); benchNote(B); stairs(B); dumbbells(B); errors(B); groups(B); songsTable(B); cards();
+  tiles(B); benchNote(B); stairs(B); dumbbells(B); errors(B); groups(B); areas(B); songsTable(B); cards();
 }

@@ -1,4 +1,4 @@
-// Results page, comparison views: where each record stands, setups compared side by side,
+// Results page, comparison views: setups compared side by side, two setups head to head, separators alone,
 // where the notes go (error breakdown) and along the record (bar by bar).
 // Data: DATA.experiments (score/experiments.py), DATA.runs (score/history.py). Plain SVG and tables.
 
@@ -152,53 +152,6 @@ function lostSax(r, base) {
   return null;
 }
 
-// ---------- 1. where each record stands ----------
-function stands() {
-  const box = $('#stands'); box.replaceChildren();
-  const items = [];
-  for (const set of CLEAN_SETS) {
-    const d = DATA.runs.filter(r => r.set === set && r.default && r.metrics.note_f1 != null).pop();
-    if (d) items.push({tier: 'clean', name: setName(set), m: d.metrics, mix: isMix(set), src: d.entry || d.commit || ''});
-  }
-  const L = latest();
-  // newest first, so each record shows its latest default run
-  const defaults = [...L.values()].filter(r => r.default && r.metrics.note_f1 != null)
-    .sort((a, b) => (b.when || '').localeCompare(a.when || ''));
-  for (const r of recordRows(defaults)) {
-    const info = rowInfo(r);
-    if (info.sub) continue;
-    items.push({tier: info.tier, name: info.name, m: r.metrics, mix: true, key: r.key, src: r.entry || r.commit || ''});
-  }
-  if (!items.length) { box.append(el('p', {class: 'quiet'}, 'No scores yet.')); return; }
-  const W = 1000, rowH = 30, labelW = 220, numW = 300, iw = W - labelW - numW;
-  let y = 8, s = '';
-  const x = v => labelW + v * iw;
-  for (const [tier, title] of TIERS) {
-    const rows = items.filter(i => i.tier === tier);
-    if (!rows.length) continue;
-    s += `<text class="tier" x="0" y="${y + 14}">${esc(title)}</text>`;
-    y += 24;
-    for (const it of rows) {
-      const v = it.m.note_f1, tgt = DATA.targets.note_f1 ? DATA.targets.note_f1[it.mix ? 'mix' : 'solo'] : null;
-      s += `<text x="0" y="${y + 18}">${esc(it.name)}</text>`;
-      s += `<rect class="track" x="${x(0)}" y="${y + 7}" width="${iw}" height="14" rx="4"/>`;
-      s += `<rect x="${x(0)}" y="${y + 7}" width="${Math.max(2, v * iw)}" height="14" rx="4" fill="var(--k-right)"><title>${esc(it.name)}: note F1 ${pts(v)}</title></rect>`;
-      if (tgt != null) s += `<line class="target" x1="${x(tgt)}" x2="${x(tgt)}" y1="${y + 3}" y2="${y + 25}"/>`;
-      const extra = [];
-      if (it.m.sax_found != null) extra.push(`found ${pts(it.m.sax_found)}`);
-      if (it.m.sax_purity != null) extra.push(`purity ${pts(it.m.sax_purity)}`);
-      if (it.key && it.key.heard_ok != null) extra.push(`key ${Math.round(100 * it.key.heard_ok)}% heard`);
-      s += `<text class="val" x="${labelW + iw + 10}" y="${y + 18}">${pts(v)}</text>`;
-      s += `<text class="side" x="${labelW + iw + 52}" y="${y + 18}">${esc(extra.join(' · '))}</text>`;
-      y += rowH;
-    }
-    y += 8;
-  }
-  for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<text class="tick" x="${x(v)}" y="${y + 10}" text-anchor="middle">${v * 100}</text>`;
-  y += 16;
-  box.innerHTML = `<svg viewBox="0 0 ${W} ${y}" width="${W}" role="img" aria-label="Note F1 by record, current default setup">${s}</svg>`;
-}
-
 // ---------- 2. setups compared ----------
 function grid() {
   const table = $('#grid'); table.replaceChildren();
@@ -299,7 +252,7 @@ function grid() {
       td.tabIndex = 0;
       td.title = `${info.name}, ${setupName(c.s)}${x.entry ? ' · ' + x.entry : ''}${x.commit ? ' · ' + x.commit : ''}${x.note ? '\n' + x.note : ''}`;
       const pick = () => {
-        cmp.setup = c.k; cmp.record = rowKey(r); breakdown(); along();
+        cmp.setup = c.k; cmp.record = rowKey(r); breakdown();
         if (typeof showTab === 'function') showTab('songs', false);
         $('#where').scrollIntoView({block: 'start'});
       };
@@ -477,16 +430,12 @@ function segTips(svg) {
 }
 
 // ---------- 4. along the record ----------
+// Drawn inside a song's history (Songs tab) for the song in cmp.record; false when it has no bar counts.
 function along() {
   const box = $('#along'); box.replaceChildren();
-  const seg = $('#along-record'); seg.replaceChildren();
-  const withBars = EXP.filter(r => r.bars && r.bars.length);
-  if (!withBars.length) { box.append(el('p', {class: 'quiet'}, 'No bar-by-bar counts yet.')); return; }
-  const recs = recordRows(withBars);
-  if (!recs.some(r => rowKey(r) === cmp.record)) cmp.record = rowKey(recs[0]);
-  for (const r of recs) seg.append(el('button', {type: 'button', 'data-v': rowKey(r), class: rowKey(r) === cmp.record ? 'on' : ''}, rowInfo(r).name));
   const L = new Map();
-  for (const r of withBars) if (rowKey(r) === cmp.record) L.set(setupKey(r.setup), r);
+  for (const r of EXP) if (r.bars && r.bars.length && rowKey(r) === cmp.record) L.set(setupKey(r.setup), r);
+  if (!L.size) return false;
   const cols = columns([...L.values()]);
   const labelW = 200, cell = 6, gap = 1;
   const nb = Math.max(...[...L.values()].map(r => r.bars.length));
@@ -511,6 +460,7 @@ function along() {
   }
   box.innerHTML = `<svg viewBox="0 0 ${W} ${y}" width="${W}" role="img" aria-label="Notes found bar by bar">${s}</svg>`;
   segTips(box.querySelector('svg'));
+  return true;
 }
 function fmtSec(t) { const m = Math.floor(t / 60); return `${m}:${String(Math.floor(t % 60)).padStart(2, '0')}`; }
 const RAMP = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b'];
@@ -567,6 +517,36 @@ function stemGrid() {
       tr.append(td);
     }
     table.append(tr);
+  }
+}
+// E82 vocal review mark: the pre-registered setting's rows (marks only, no scores).
+function vocalGrid() {
+  const table = $('#vocal-grid'); table.replaceChildren();
+  const rows = EXP.filter(r => r.entry === 'E82' && r.marks && /PRE-REGISTERED MAIN/.test(r.note || ''));
+  $('#vocal-empty').hidden = !!rows.length;
+  if (!rows.length) return;
+  const keyed = rows.filter(r => r.marks.good != null), flagged = rows.filter(r => r.marks.flagged_notes != null);
+  const sum = (rs, k) => rs.reduce((a, r) => a + (r.marks[k] || 0), 0);
+  const head = el('tr');
+  for (const h of ['Test', 'Records', 'Good marks', 'Bad marks', 'Notes checked']) head.append(el('th', {class: h === 'Test' ? '' : 'num'}, h));
+  table.append(head);
+  const NAMES = {'e82c-austin': 'Your six tunes', 'e82c-pick': 'Five benchmark songs with the most vocals'};
+  for (const set of [...new Set(keyed.map(r => r._set || r.set))]) {
+    const rs = keyed.filter(r => (r._set || r.set) === set), tr = el('tr');
+    tr.append(el('td', {}, NAMES[set] || set), el('td', {class: 'num'}, String(rs.length)), el('td', {class: 'num'}, String(sum(rs, 'good'))),
+      el('td', {class: 'num'}, String(sum(rs, 'bad'))), el('td', {class: 'num'}, sum(rs, 'matched').toLocaleString()));
+    table.append(tr);
+  }
+  if (flagged.length) {
+    const tr = el('tr', {class: 'tierrow'}); const td = el('td', {}, 'Your flagged takes: marked inside / outside your not-sax flags'); td.colSpan = 5; tr.append(td); table.append(tr);
+    for (const r of flagged) {
+      const m = r.marks, name = String(r.record).replace(/^\d{8}-\d{6}-/, '').replace(/-/g, ' ').replace(/ feat .*/, '');
+      const f = m.flagged_notes ? `${m.flagged_marked} of ${m.flagged_notes} (${Math.round(100 * m.flagged_marked / m.flagged_notes)}%)` : '–';
+      const u = m.unflagged_notes ? `${m.unflagged_marked} of ${m.unflagged_notes} (${Math.round(100 * m.unflagged_marked / m.unflagged_notes)}%)` : '–';
+      const row = el('tr'); const c = el('td', {}, name.charAt(0).toUpperCase() + name.slice(1)); c.colSpan = 2;
+      const a = el('td', {class: 'num'}, f); a.colSpan = 2;
+      row.append(c, a, el('td', {class: 'num'}, u)); table.append(row);
+    }
   }
 }
 const JUDGE_ROWS = [
@@ -653,7 +633,7 @@ function renderCompare() {
   // One row per song: "four tenor tunes / walkers-theme" and "pfh / pfh" are the same song as "walkers-theme" and "pfh".
   EXP = (DATA.experiments || []).map(r => r.record && RECORDS[r.record] ? {...r, set: r.record, record: null, _set: r.set, _record: r.record} : r);
   markToday();
-  stands(); grid(); pair(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
+  grid(); pair(); breakdown(); stemGrid(); vocalGrid(); judgeGrid(); expTable();
 }
 $('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });
 segment($('#stem-metric'), v => { cmp.stemMetric = v; stemGrid(); });
@@ -669,4 +649,3 @@ $('#pair-b').addEventListener('change', e => { cmp.pairB = e.target.value; pair(
 segment($('#where-setup'), v => { cmp.setup = v; breakdown(); });
 $('#where-older').addEventListener('change', e => { if (e.target.value) { cmp.setup = e.target.value; breakdown(); } });
 $('#grid-older').addEventListener('change', e => { cmp.gridOlder = e.target.value || null; grid(); });
-segment($('#along-record'), v => { cmp.record = v; along(); });

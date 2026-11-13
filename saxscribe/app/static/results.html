@@ -57,6 +57,13 @@
   <div class="tab" id="tab-songs" role="tabpanel" data-tab="songs" hidden>
     <p class="quiet lede">One row per song. Tap a column heading to sort by it. Tap a song to see its history across
       our models, where its notes go, and how it does bar by bar.</p>
+    <section class="card" id="areas-card">
+      <h2>By area</h2>
+      <p class="quiet small">Average note F1 with today&rsquo;s default in each area, and how many songs or test sets
+        reach the target (80 for sax recorded alone, 60 in a band). Tap an area to see its songs, sorted by title.
+        Clean sax is measured on the scorecard test sets of the sax alone, which use the standard path.</p>
+      <div id="areas"></div>
+    </section>
     <section class="card">
       <h2>Every song</h2>
       <p class="quiet small">Note F1 with today&rsquo;s default and the one before, on the songs with both. Missed, timing
@@ -74,6 +81,16 @@
         the song: the milestones first, then tests that never became the default.</p>
       <div class="scroll" id="hist-chart"></div>
       <div class="scroll"><table class="grid compare" id="hist-table"></table></div>
+      <div id="hist-along" hidden>
+        <h3>Along the record</h3>
+        <p class="quiet small">One column per bar of the answer key, for each setup that saved bar counts. Found: share
+          of the bar&rsquo;s key notes we wrote (darker is more; grey is a rest in the key). Hidden: key notes tagged not
+          sax, or a bar mostly inside a sax-rest cut. Extra: notes of ours the key does not have. A run of light Found
+          cells shows a passage the setup loses, such as a quiet section.</p>
+        <div class="scroll" id="along"></div>
+      </div>
+      <p class="quiet small" id="hist-noalong" hidden>No bar-by-bar counts for this song yet: the benchmark re-score
+        did not save them. They come with the next scoring pass on the Mac.</p>
     </section>
   <section class="card" id="where">
     <h2>Where the notes go</h2>
@@ -88,25 +105,6 @@
     <details><summary class="quiet small">Counts as a table</summary>
       <div class="scroll"><table class="grid" id="where-table"></table></div></details>
     </section>
-
-    <section class="card">
-    <h2>Along the record</h2>
-    <p class="quiet small">One column per bar of the answer key. Found: share of the bar&rsquo;s key notes we wrote
-      (darker is more; grey is a rest in the key). Hidden: key notes tagged not sax, or a bar mostly inside a
-      sax-rest cut. Extra: notes of ours the key does not have. Quiet passages a setup throws away show as a run
-      of light Found cells with Hidden marks under them.</p>
-    <div class="filters"><div class="seg wrapseg" id="along-record" role="group" aria-label="Record"></div></div>
-    <div class="scroll" id="along"></div>
-    </section>
-
-  <section class="card">
-    <h2>Where each record stands</h2>
-    <p class="quiet small">Note F1 with today&rsquo;s default setup: a note counts when its start is within 50 ms, its
-      pitch within 50 cents and its end within 20% (mir_eval). The tick is the v1 target (80 alone, 60 in a band).
-      Sax found: share of the key&rsquo;s notes we wrote. Sax purity: share of our notes the key has. Key heard: share
-      of the answer key&rsquo;s notes whose pitch the recording confirms, so low means the key itself is less sure.</p>
-    <div class="scroll" id="stands"></div>
-  </section>
 
   </div>
 
@@ -178,7 +176,15 @@
   </section>
 
   <section class="card" id="judge">
-    <h2>Sax judge</h2>
+    <h2>Not-sax checks</h2>
+    <h3>Vocal review mark (E82, live on band records)</h3>
+    <p class="quiet small">Marks a note for review when MVSep Mega&rsquo;s vocal stem is louder than the sax stem at
+      that pitch. It never hides a note. Good: a marked note the answer key does not have. Bad: a marked note the key
+      has (real sax). Your flagged takes: share of notes marked inside the bars you flagged as not sax, and outside them.
+      The setting was fixed before the run.</p>
+    <div class="scroll"><table class="grid" id="vocal-grid"></table></div>
+    <p class="quiet small" id="vocal-empty" hidden>No vocal-mark rows yet.</p>
+    <h3>Sax judge (E79, not in the app yet)</h3>
     <p class="quiet small">Two music models listen to 2-second windows and answer &ldquo;is a sax playing?&rdquo; and
       &ldquo;which sax?&rdquo; (E79). Not wired into the app yet. Bold is the better model on each line.</p>
     <div class="scroll"><table class="grid" id="judge-grid"></table></div>
