@@ -14,6 +14,7 @@ onset and note F1 untouched, so they are measured on the written score.
 
 | Date | PR | Change | Layer | Set | Measure | Before | After | Kept | Entry |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 | #167 | Notes that may be vocals marked for review on band records (rule V3: Mega's vocal stem vs the Filosax sax stem, `maybe_vocals`), never hidden | notes | e82c-austin (Austin's 6 + 5 pick songs), Najee flagged take | Good / bad marks; Najee marks inside / outside not-sax flags | — | 112 / 0; 241 of 603 / 19 of 528 | yes | [E82](#e82--2026-11-13--vocal-review-mark-on-setup-d-rule-v-adopted-round-3) |
 | 2026-11-06 | #121 | Notes that may be another instrument marked for review (`maybe_not_sax`), never hidden | notes | pfh-austin (Filosax app take), 22 records | Piano-solo notes marked / real sax marked / notes hidden | — | 64 of 64 / about 1.6% / 0 | yes | [E68](#e68--2026-11-06--notes-that-may-be-another-instrument-marked-for-review-pr-121-merged) |
 | 2026-11-05 | #112 | Straight sixteenth runs kept straight in swung tunes | notation | weimar rhythm scorecard (444 solos), pfh-austin (Filosax take) | Position read / notes right | 67.26% / 578 of 734 | 67.85% / 589 of 734 | yes | [E66](#e66--2026-11-05--straight-sixteenth-runs-kept-straight-in-swung-tunes-pr-112-merged) |
 | 2026-11-05 | #109 | Bar lines follow the beat tracker's downbeats; beat grid mended where it slips | notation | tuning records, held-out records, pfh-austin | Bars in the right place | 44.2 / 34.1 / 0.6% | 75.1 / 58.0 / 87.5% | yes | [E64](#e64--2026-11-05--bar-lines-kept-on-the-right-beat-pr-109-merged) |
@@ -155,8 +156,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
   - No marks on the jazz songs with singers (All of Me, Just a Dream).
   - Cost: Mega runs at about 3.5× real time on the M3 Pro CPU.
 - **Finding, round 3**: Mega's vocal stem doesn't swallow the sax the way Demucs's does, so the mark catches vocals without marking real sax on this test. It beats rounds 1 and 2.
-- **Decision**: adopted. Austin chose "every band record, full Mega" on the Build decision card (2026-11-13 17:07Z): every band record runs Mega's vocal stem and rule V3 marks notes for review, never hiding them ([ADR-0043](../decisions/0043-vocal-review-mark-with-mega.md)). The build PR brings the code. Rows (`e82c_rows.jsonl`) come with the build PR. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
-- **Data**: E82 rows and reports on the Mac (`~/saxscribe-runs/exp/e82/`), not yet in `experiments.jsonl`.
+- **Decision**: adopted. Austin chose "every band record, full Mega" on the Build decision card (2026-11-13 17:07Z): every band record runs Mega's vocal stem and rule V3 marks notes for review, never hiding them ([ADR-0043](../decisions/0043-vocal-review-mark-with-mega.md)). Code merged in PR #167 (2026-11-13 19:48Z). Check after merge: identical marks on 13 of 14 records vs the E82 run (Najee 240 vs 241); about 76 s per minute of audio on the M3 Pro GPU. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
+- **Data**: round 3 rows in `experiments.jsonl` (168 rows: 12 settings × 14 records, set `e82c-austin`; the pre-registered main setting is the rows whose note ends "PRE-REGISTERED MAIN"; each row id has its review rule appended so the 12 settings stay unique). Rounds 1–2 rows and reports stay on the Mac (`~/saxscribe-runs/exp/e82/`).
 
 ### 2026-11-13 — Step 1 diagnosis: where setup D loses notes (finding, no E-number)
 - **Headline**: 87% of the notes D gets wrong are still in its sax stem, so the note finder is to blame, not the separator.

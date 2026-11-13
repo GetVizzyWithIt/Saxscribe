@@ -12,7 +12,7 @@
    "measure": "Good marks (extras, notes in key rests) against bad marks (notes matching the key); marks inside vs outside Austin's not-sax flags.",
    "result": "Rounds 1–2 (Demucs vocals): 218 bad marks on Austin's 6, mostly instrumentals. Round 3 (Mega vocals): 112 good, 0 bad on 11 songs; Najee 241/603 marked inside flags vs 19/528 outside.",
    "learned": "Demucs routes the sax into its vocals stem on instrumentals; Mega's vocal stem doesn't. A pick set with no vocals can't reward a vocal gate. Mega costs about 3.5× real time on the CPU.",
-   "decision": "Adopted (Austin, 17:07Z): every band record runs Mega's vocal stem and rule V3 marks, never hides (ADR-0043).",
+   "decision": "Adopted (Austin, 17:07Z): every band record runs Mega's vocal stem and rule V3 marks, never hides (ADR-0043, build PR #167).",
    "revisit": "If the marks hit real sax on new songs, or a fast home-grown vocal detector matches Mega (roadmap, Later)."
   },
   {
