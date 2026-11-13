@@ -24,7 +24,7 @@
       "step": 4,
       "title": "E82, vocals",
       "what": "check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide",
-      "status": "Not started"
+      "status": "E82 done 2026-11-13, not adopted: Demucs's vocal stem carries the sax on instrumentals. Next: round 3 with Mega vocals, or a vocal tuning set first (Austin's choice)"
     },
     {
       "step": 5,
@@ -47,7 +47,7 @@
   ],
   "running": "the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.",
   "waiting": [
-    "Go in Build for E82 (vocals and bleed review mark) or E83 (second note-finder fine-tune).",
+    "Choose the E82 follow-up: round 3 with Mega vocals, or a vocal tuning set first.",
     "Step 2 ear check when it's ready.",
     "Which note F1 the 60 target means: with note ends or without.",
     "Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email."
