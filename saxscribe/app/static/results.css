@@ -148,3 +148,13 @@ table.songs tr.sel td { background: color-mix(in oklab, var(--accent) 12%, var(-
 .chip.check { background: color-mix(in oklab, var(--accent) 16%, var(--card)); color: var(--accent); }
 .chip.reject { background: color-mix(in oklab, var(--bad) 14%, var(--card)); color: var(--bad); }
 .chip.mine { background: var(--track); color: var(--ink2); }
+.xcard { border-top: 1px solid var(--line); padding: 10px 0; }
+.xcard summary { cursor: pointer; list-style: none; }
+.xcard summary::-webkit-details-marker { display: none; }
+.xcard .xid { font-weight: 700; margin-right: 8px; }
+.xcard .xtitle { font-weight: 600; }
+.xcard .xres { margin-top: 2px; }
+.xcard dl { display: grid; grid-template-columns: 9rem 1fr; gap: 4px 12px; margin: 10px 0 0; }
+.xcard dt { color: var(--muted); }
+.xcard dd { margin: 0; }
+@media (max-width: 560px) { .xcard dl { grid-template-columns: 1fr; } .xcard dd { margin-bottom: 6px; } }
