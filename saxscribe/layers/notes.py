@@ -8,7 +8,10 @@ notes.json holds:
              found where the sax lays out (piano or bass solo, drum break; see
              isolate.sax_spans), or that the sax's pitch line does not back up
              (bleed.py: no_pitch_line, off_line), are tagged "not_sax": kept
-             here, left off the score and the scorecard.
+             here, left off the score and the scorecard. Notes that may be
+             another instrument or a singer are tagged "maybe_not_sax" (and
+             "maybe_vocals" for a singer; notsax.py, vocals.py): kept on the
+             score, shown for review.
   beats, downbeats, tempo_bpm   from the full source, so a band's groove counts
   key        not filled in yet (step 2)
 
@@ -44,6 +47,7 @@ Note tools (--notes-tool):
 from __future__ import annotations
 
 import json
+import os
 
 import numpy as np
 
@@ -129,6 +133,7 @@ def run(take: Take, horn: Horn, tool: str = "auto", range_rules: str = "out") ->
                      f"notes.json, tagged {NOT_SAX!r} and {sections.OUTSIDE!r}, and left off the score")
     if take.read_manifest().get("mix") and take.source.exists():
         extra["maybe_not_sax"] = review_marks(take, notes)
+        extra["maybe_vocals"] = vocal_marks(take, notes)
     from . import ranges
     stem = frontend.load_mono(take.stem, sr=ranges.RATE) if range_rules != "off" else None
     extra["range"] = ranges.apply(notes, horn, stem, ranges.RATE, range_rules)
@@ -183,6 +188,32 @@ def review_marks(take: Take, notes: list[dict]) -> dict:
     if out["marked"]:
         frontend.log(f"  {out['marked']} notes may be another instrument (the sax track is near-silent while "
                      f"{', '.join(rivals)} plays): kept on the score, marked for review in the play-along")
+    return out
+
+
+def vocal_marks(take: Take, notes: list[dict]) -> dict:
+    """Marks notes a singer may be making, for review (vocals.py, rule V); never hides them.
+    Band records on the Filosax separator only (the app's band path): the rule was tested
+    against the Filosax stem. Needs MVSep's Mega weights; without them it is skipped and says so.
+    SAXSCRIBE_VOCAL_CHECK=off skips it."""
+    from .. import mega
+    from . import vocals
+    isolated = take.read_manifest().get("layers", {}).get("isolate", {})
+    if isolated.get("separator") != "filosax":
+        return {"marked": 0, "why": "only on the Filosax separator's stem"}
+    if os.environ.get("SAXSCRIBE_VOCAL_CHECK", "on") == "off":
+        return {"marked": 0, "why": "turned off (SAXSCRIBE_VOCAL_CHECK=off)"}
+    vocal = take.stems / f"mega_{mega.VOCAL}.wav"
+    if not vocal.exists():
+        if not mega.installed():
+            frontend.log("  Vocal check skipped: MVSep's Mega model is not installed (see saxscribe/mega.py)")
+            return {"marked": 0, "why": "Mega not installed"}
+        mega.separate(take.source, take.stems, (mega.VOCAL,))
+    out = vocals.mark(notes, take.stem, vocal)
+    out["vocal_stem"] = vocal.name
+    if out["marked"]:
+        frontend.log(f"  {out['marked']} notes may be a singer (Mega's vocal track is as loud as the sax at "
+                     f"their pitch): kept on the score, marked for review in the play-along")
     return out
 
 

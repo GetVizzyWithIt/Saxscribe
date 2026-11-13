@@ -13,6 +13,9 @@ torchaudio>=2.2,<2.9
 torchcrepe>=0.0.22          # pitch contour (CREPE); pYIN is the fallback
 demucs>=4.0.1               # stems for full-band recordings (also runs the Filosax sax separator)
 torchlibrosa>=0.1           # spectrogram front end of the Filosax sax transcriber (saxscribe/vendor/kong.py)
+einops>=0.8                 # tensor reshapes in the vendored BS-RoFormer (Mega vocal check, saxscribe/vendor/bs_roformer.py)
+rotary-embedding-torch>=0.3.5  # the same model's position encoding
+pyyaml>=6                   # reads the Mega model's settings file
 beat_this @ git+https://github.com/CPJKU/beat_this.git   # beats and downbeats
 
 # Note events. On a Mac Basic Pitch runs through Core ML; elsewhere through ONNX.

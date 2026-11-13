@@ -63,6 +63,7 @@ demucs==4.1.0
     #   -r requirements.txt
 einops==0.8.2
     # via
+    #   -r requirements.txt
     #   beat-this
     #   demucs
     #   rotary-embedding-torch
@@ -234,6 +235,7 @@ python-multipart==0.0.33
     # via -r requirements.txt
 pyyaml==6.0.3
     # via
+    #   -r requirements.txt
     #   demucs
     #   huggingface-hub
     #   pyaml
@@ -246,7 +248,9 @@ resampy==0.4.2
     #   basic-pitch
     #   torchcrepe
 rotary-embedding-torch==0.9.1
-    # via beat-this
+    # via
+    #   -r requirements.txt
+    #   beat-this
 safetensors==0.8.0
     # via demucs
 scikit-learn==1.9.1
