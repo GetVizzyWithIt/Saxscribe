@@ -1,5 +1,5 @@
 {
- "about": "Tags for the benchmark songs (ADR-0042), so the dashboard can show scores by horn, style, era and tempo (UAT review 5.4). Drafted by the docs thread from the players and dates; nothing is checked by ear yet. horn_unsure marks a guess. tempo comes later from the answer keys' beats. Set checked to true once Austin confirms a row.",
+ "about": "Tags for the benchmark songs (ADR-0042), so the dashboard can show scores by horn, style, era and tempo (UAT review 5.4). Drafted by the docs thread from the players and dates; nothing is checked by ear yet. horn_unsure marks a guess. tempo comes later from the answer keys' beats. Set checked to true once Austin confirms a row. player (the sax soloist), title and year come from the song IDs and benchmark titles; album is filled only where the docs thread is sure (null otherwise) and, like the other tags, is unchecked.",
  "styles": [
   "early jazz",
   "swing",
@@ -15,6 +15,10 @@
  ],
  "songs": {
   "john-coltrane_acknowledgement_1964": {
+   "player": "John Coltrane",
+   "title": "Acknowledgement (A Love Supreme Pt. I)",
+   "year": 1964,
+   "album": "A Love Supreme",
    "horn": "tenor",
    "style": "modal",
    "era": "1960s",
@@ -22,6 +26,10 @@
    "checked": false
   },
   "unknown_st-louis-blues": {
+   "player": null,
+   "title": "St. Louis Blues (W.C. Handy)",
+   "year": null,
+   "album": null,
    "horn": "alto",
    "style": "early jazz",
    "era": null,
@@ -30,6 +38,10 @@
    "horn_note": "Alto by ear (Austin, 2026-11-13). Player and recording still unknown; the chart is an 8notes alto arrangement (E78)."
   },
   "steve-norman_true_1983": {
+   "player": "Steve Norman",
+   "title": "True",
+   "year": 1983,
+   "album": "True (Spandau Ballet)",
    "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": "1980s",
@@ -39,6 +51,10 @@
    "horn_note": "Likely: Steve Norman's main horn is tenor (Wikipedia; 1986 interview). No source names the horn on the True solo."
   },
   "dexter-gordon_soy-califa_1962": {
+   "player": "Dexter Gordon",
+   "title": "Soy Califa",
+   "year": 1962,
+   "album": "A Swingin' Affair",
    "horn": "tenor",
    "style": "latin",
    "era": "1960s",
@@ -46,6 +62,10 @@
    "checked": false
   },
   "john-coltrane_just-for-the-love_1956": {
+   "player": "John Coltrane",
+   "title": "Just for the Love",
+   "year": 1956,
+   "album": null,
    "horn": "tenor",
    "style": "hard bop",
    "era": "1950s",
@@ -53,6 +73,10 @@
    "checked": false
   },
   "john-coltrane_lazy-bird_1957": {
+   "player": "John Coltrane",
+   "title": "Lazy Bird",
+   "year": 1957,
+   "album": "Blue Train",
    "horn": "tenor",
    "style": "hard bop",
    "era": "1950s",
@@ -60,6 +84,10 @@
    "checked": false
   },
   "illinois-jacquet_flying-home_1942": {
+   "player": "Illinois Jacquet",
+   "title": "Flying Home",
+   "year": 1942,
+   "album": null,
    "horn": "tenor",
    "style": "swing",
    "era": "1940s",
@@ -67,6 +95,10 @@
    "checked": false
   },
   "al-sears_castle-rock_1951": {
+   "player": "Al Sears",
+   "title": "Castle Rock",
+   "year": 1951,
+   "album": null,
    "horn": "tenor",
    "style": "jump and R&B",
    "era": "1950s",
@@ -74,6 +106,10 @@
    "checked": false
   },
   "benny-carter_jive-at-six_1953": {
+   "player": "Benny Carter",
+   "title": "Jive at Six",
+   "year": 1953,
+   "album": null,
    "horn": "alto",
    "style": "swing",
    "era": "1950s",
@@ -81,6 +117,10 @@
    "checked": false
   },
   "sonny-rollins_newks-fadeaway_1951": {
+   "player": "Sonny Rollins",
+   "title": "Newk's Fadeaway",
+   "year": 1951,
+   "album": null,
    "horn": "tenor",
    "style": "bebop",
    "era": "1950s",
@@ -88,6 +128,10 @@
    "checked": false
   },
   "frank-foster_splanky_1957": {
+   "player": "Frank Foster",
+   "title": "Splanky",
+   "year": 1957,
+   "album": null,
    "horn": "tenor",
    "style": "swing",
    "era": "1950s",
@@ -95,6 +139,10 @@
    "checked": false
   },
   "sahib-shihab_straight-no-chaser_1951": {
+   "player": "Sahib Shihab",
+   "title": "Straight No Chaser",
+   "year": 1951,
+   "album": "Genius of Modern Music, Vol. 2 (Thelonious Monk)",
    "horn": "alto",
    "style": "bebop",
    "era": "1950s",
@@ -102,6 +150,10 @@
    "checked": false
   },
   "eddie-cleanhead-vinson_just-a-dream_1945": {
+   "player": "Eddie Cleanhead Vinson",
+   "title": "Just a Dream",
+   "year": 1945,
+   "album": null,
    "horn": "alto",
    "style": "jump and R&B",
    "era": "1940s",
@@ -109,6 +161,10 @@
    "checked": false
   },
   "earl-bostic_thats-the-groovy-thing_1947": {
+   "player": "Earl Bostic",
+   "title": "That's the Groovy Thing Pt. 1",
+   "year": 1947,
+   "album": null,
    "horn": "alto",
    "style": "jump and R&B",
    "era": "1940s",
@@ -116,6 +172,10 @@
    "checked": false
   },
   "ben-webster_the-touch-of-your-lips_1959": {
+   "player": "Ben Webster",
+   "title": "The Touch of Your Lips",
+   "year": 1959,
+   "album": "Ben Webster Meets Oscar Peterson",
    "horn": "tenor",
    "style": "ballad",
    "era": "1950s",
@@ -123,6 +183,10 @@
    "checked": false
   },
   "lester-young_shoeshine-boy_1936": {
+   "player": "Lester Young",
+   "title": "Shoe Shine Boy",
+   "year": 1936,
+   "album": null,
    "horn": "tenor",
    "style": "swing",
    "era": "1930s",
@@ -130,6 +194,10 @@
    "checked": false
   },
   "lester-young_oh-lady-be-good_1936": {
+   "player": "Lester Young",
+   "title": "Oh, Lady Be Good!",
+   "year": 1936,
+   "album": null,
    "horn": "tenor",
    "style": "swing",
    "era": "1930s",
@@ -137,6 +205,10 @@
    "checked": false
   },
   "lester-young_all-of-me_1941": {
+   "player": "Lester Young",
+   "title": "All of Me",
+   "year": 1941,
+   "album": "Billie Holiday single",
    "horn": "tenor",
    "style": "swing",
    "era": "1940s",
@@ -144,6 +216,10 @@
    "checked": false
   },
   "stan-getz_pennies-from-heaven-roost_1951": {
+   "player": "Stan Getz",
+   "title": "Pennies From Heaven (Roost)",
+   "year": 1951,
+   "album": null,
    "horn": "tenor",
    "style": "cool",
    "era": "1950s",
@@ -151,6 +227,10 @@
    "checked": false
   },
   "hank-mobley_the-breakdown_1961": {
+   "player": "Hank Mobley",
+   "title": "The Breakdown",
+   "year": 1961,
+   "album": null,
    "horn": "tenor",
    "style": "hard bop",
    "era": "1960s",
@@ -158,6 +238,10 @@
    "checked": false
   },
   "harold-land_sandu_1955": {
+   "player": "Harold Land",
+   "title": "Sandu",
+   "year": 1955,
+   "album": "Study in Brown (Clifford Brown and Max Roach)",
    "horn": "tenor",
    "style": "hard bop",
    "era": "1950s",
@@ -165,6 +249,10 @@
    "checked": false
   },
   "michael-brecker_chime-this_1990": {
+   "player": "Michael Brecker",
+   "title": "Chime This",
+   "year": 1990,
+   "album": "Now You See It... (Now You Don't)",
    "horn": "tenor",
    "style": "modern",
    "era": "1990s",
@@ -172,6 +260,10 @@
    "checked": false
   },
   "john-coltrane_my-shining-hour_1960": {
+   "player": "John Coltrane",
+   "title": "My Shining Hour",
+   "year": 1960,
+   "album": "Coltrane Jazz",
    "horn": "tenor",
    "style": "hard bop",
    "era": "1960s",
@@ -179,6 +271,10 @@
    "checked": false
   },
   "michael-brecker_suspone_1988": {
+   "player": "Michael Brecker",
+   "title": "Suspone",
+   "year": 1988,
+   "album": "Don't Try This at Home",
    "horn": "tenor",
    "style": "modern",
    "era": "1980s",
@@ -186,6 +282,10 @@
    "checked": false
   },
   "pfh": {
+   "player": "Stan Getz",
+   "title": "Pennies From Heaven",
+   "year": null,
+   "album": null,
    "horn": "tenor",
    "style": "cool",
    "era": null,
@@ -193,6 +293,10 @@
    "checked": false
   },
   "bfmj": {
+   "player": "Stan Getz",
+   "title": "Blues for Mary Jane",
+   "year": null,
+   "album": null,
    "horn": "tenor",
    "style": "cool",
    "era": null,
@@ -200,6 +304,10 @@
    "checked": false
   },
   "resolution": {
+   "player": "John Coltrane",
+   "title": "Resolution",
+   "year": 1964,
+   "album": "A Love Supreme",
    "horn": "tenor",
    "style": "modal",
    "era": "1960s",
@@ -207,6 +315,10 @@
    "checked": false
   },
   "walkers-theme": {
+   "player": "Gerald Albright",
+   "title": "Walker's Theme",
+   "year": 2004,
+   "album": "Kickin' It Up",
    "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": null,
@@ -215,6 +327,10 @@
    "horn_note": "Austin's key is a tenor part (E-log: four tenor parts from his PDFs); Gerald Albright, Kickin' It Up (2004). Track credits online don't split alto and tenor."
   },
   "isnt-she-lovely": {
+   "player": "Kenni Holmen",
+   "title": "Isn't She Lovely (The Hornheads)",
+   "year": 2011,
+   "album": null,
    "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": "2010s",
@@ -223,6 +339,10 @@
    "horn_note": "Austin 2026-11-13; Kenni Holmen's tenor solo (hornheads.com transcription 'Isn't She Lovely - Tenor solo')."
   },
   "bloody-well-right": {
+   "player": "John Helliwell",
+   "title": "Bloody Well Right",
+   "year": 1974,
+   "album": "Crime of the Century (Supertramp)",
    "horn": "tenor",
    "style": "funk, pop, smooth",
    "era": "1970s",
@@ -231,6 +351,10 @@
    "horn_note": "Austin 2026-11-13; Wikipedia personnel: John Helliwell, tenor saxophone."
   },
   "2RfYc": {
+   "player": "Charlie Parker",
+   "title": "Omnibook 2RfYc",
+   "year": null,
+   "album": null,
    "horn": "alto",
    "style": "bebop",
    "era": null,
@@ -238,6 +362,10 @@
    "checked": false
   },
   "73bwc": {
+   "player": "Charlie Parker",
+   "title": "Omnibook 73bwc",
+   "year": null,
+   "album": null,
    "horn": "alto",
    "style": "bebop",
    "era": null,
@@ -245,6 +373,10 @@
    "checked": false
   },
   "9RfYc": {
+   "player": "Charlie Parker",
+   "title": "Omnibook 9RfYc",
+   "year": null,
+   "album": null,
    "horn": "alto",
    "style": "bebop",
    "era": null,

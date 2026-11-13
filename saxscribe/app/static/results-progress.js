@@ -47,6 +47,8 @@ function songOf(r) {
   return null;
 }
 function songName(id, r) {
+  const tg = tagOf(id);
+  if (tg && tg.title) return tg.title;
   if (r && r.title) return r.title;
   if (RECORDS[id]) return RECORDS[id][0];
   if (id.startsWith('parker-test/')) return `Parker ${id.split('/')[1]}`;
@@ -251,74 +253,207 @@ function errors(B) {
 }
 
 // ---------- songs list ----------
+// Each column: heading, value used for sorting, cell text, cell class. Tap a heading to sort; tap again to flip.
+function songCols(T, P) {
+  const kn = r => { const k = r.key_notes, t = k ? Object.values(k).reduce((a, b) => a + b, 0) : 0; return x => t ? (k[x] || 0) / t : null; };
+  const pct = v => v == null ? '–' : `${Math.round(100 * v)}%`;
+  const delta = it => it.p ? 100 * (it.r.metrics.note_f1 - it.p.metrics.note_f1) : null;
+  return [
+    {h: 'Song', v: it => songName(it.id, it.r), t: it => songName(it.id, it.r)},
+    {h: 'Player', v: it => (tagOf(it.id) || {}).player || '', t: it => (tagOf(it.id) || {}).player || '–'},
+    {h: 'Year', num: true, v: it => (tagOf(it.id) || {}).year ?? null, t: it => String((tagOf(it.id) || {}).year ?? '–')},
+    {h: 'Horn', v: it => (tagOf(it.id) || {}).horn || '', t: it => { const g = tagOf(it.id); return g ? g.horn + (g.horn_unsure ? '?' : '') : '–'; }},
+    {h: 'Style', v: it => (tagOf(it.id) || {}).style || '', t: it => (tagOf(it.id) || {}).style || '–'},
+    {h: 'Today', num: true, v: it => it.r.metrics.note_f1, t: it => pts(it.r.metrics.note_f1)},
+    {h: 'Before', num: true, v: it => it.p ? it.p.metrics.note_f1 : null, t: it => it.p ? pts(it.p.metrics.note_f1) : '–'},
+    {h: 'Change', num: true, v: delta, t: it => { const d = delta(it); return d == null ? '–' : signed(d); },
+     c: it => { const d = delta(it); return d == null ? '' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : ''; }},
+    {h: 'Ignoring note ends', num: true, v: it => it.r.metrics.note_f1_no_offset, t: it => pts(it.r.metrics.note_f1_no_offset)},
+    {h: 'Onset F1', num: true, v: it => it.r.metrics.onset_f1, t: it => pts(it.r.metrics.onset_f1)},
+    ...[['missed', 'Missed'], ['timing', 'Timing off'], ['wrong_pitch', 'Wrong pitch'], ['merged', 'Merged']].map(([k, h]) =>
+      ({h, num: true, v: it => kn(it.r)(k), t: it => pct(kn(it.r)(k))})),
+    {h: 'Notes per key note', num: true, v: it => it.r.metrics.count_ratio, t: it => it.r.metrics.count_ratio != null ? it.r.metrics.count_ratio.toFixed(2) : '–'},
+    {h: 'Key heard', num: true, v: it => it.r.key ? it.r.key.heard_ok : null, t: it => pct(it.r.key ? it.r.key.heard_ok : null)},
+    {h: 'Source', v: it => it.r.entry || '', t: it => [it.r.entry, it.r.commit].filter(Boolean).join(' · ')},
+  ];
+}
 function songsTable(B) {
   const table = $('#songs'); table.replaceChildren();
   $('#songs-empty').hidden = !!B.songs.length;
   if (!B.today) return;
-  const T = B.today, P = B.before;
+  const T = B.today, P = B.before, cols = songCols(T, P);
+  const sort = prog.sort || {h: 'Song', dir: 1};
   const head = el('tr');
-  for (const h of ['Song', 'Horn', 'Style', 'Today', 'Before', 'Change', 'Ignoring note ends', 'Onset F1', 'Missed', 'Timing off', 'Wrong pitch', 'Merged', 'Notes per key note', 'Key heard', 'Source']) head.append(el('th', {}, h));
+  for (const c of cols) {
+    const on = c.h === sort.h;
+    const th = el('th', {class: `sort${c.num ? ' num' : ''}`, 'aria-sort': on ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'});
+    const b = el('button', {type: 'button', class: 'th'}, c.h + (on ? (sort.dir > 0 ? ' ▲' : ' ▼') : ''));
+    b.addEventListener('click', () => {
+      // numbers start high-to-low, words A to Z
+      prog.sort = on ? {h: c.h, dir: -sort.dir} : {h: c.h, dir: c.num ? -1 : 1};
+      songsTable(B);
+    });
+    th.append(b); head.append(th);
+  }
   table.append(head);
-  const rows = B.songs.map(id => ({id, r: T.rows.get(id), p: P && P.rows.get(id)})).sort((a, b) => songName(a.id, a.r).localeCompare(songName(b.id, b.r)));
-  for (const it of rows) {
-    const m = it.r.metrics, tr = el('tr', {class: 'pick', 'data-id': it.id, tabindex: '0'});
-    tr.append(el('td', {}, songName(it.id, it.r)));
-    const tag = tagOf(it.id);
-    tr.append(el('td', {}, tag ? tag.horn + (tag.horn_unsure ? '?' : '') : '–'), el('td', {}, tag ? tag.style : '–'));
-    tr.append(el('td', {class: 'num'}, pts(m.note_f1)));
-    tr.append(el('td', {class: 'num'}, it.p ? pts(it.p.metrics.note_f1) : '–'));
-    const d = it.p ? 100 * (m.note_f1 - it.p.metrics.note_f1) : null;
-    tr.append(el('td', {class: `num ${d == null ? '' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : ''}`}, d == null ? '–' : signed(d)));
-    tr.append(el('td', {class: 'num'}, pts(m.note_f1_no_offset)));
-    tr.append(el('td', {class: 'num'}, pts(m.onset_f1)));
-    // what happened to this song's key notes: the per-song diagnosis
-    const kn = it.r.key_notes, tot = kn ? Object.values(kn).reduce((a, b) => a + b, 0) : 0;
-    for (const k of ['missed', 'timing', 'wrong_pitch', 'merged'])
-      tr.append(el('td', {class: 'num'}, tot ? `${Math.round(100 * (kn[k] || 0) / tot)}%` : '–'));
-    tr.append(el('td', {class: 'num'}, m.count_ratio != null ? m.count_ratio.toFixed(2) : '–'));
-    tr.append(el('td', {class: 'num'}, it.r.key && it.r.key.heard_ok != null ? `${Math.round(100 * it.r.key.heard_ok)}%` : '–'));
-    tr.append(el('td', {}, [it.r.entry, it.r.commit].filter(Boolean).join(' · ')));
-    const go = () => openSong(it.id, false);
+  const col = cols.find(c => c.h === sort.h) || cols[0];
+  const items = B.songs.map(id => ({id, r: T.rows.get(id), p: P && P.rows.get(id)}));
+  items.sort((a, b) => {
+    const x = col.v(a), y = col.v(b);
+    if (x == null || x === '') return (y == null || y === '') ? 0 : 1;   // blanks last either way
+    if (y == null || y === '') return -1;
+    return sort.dir * (typeof x === 'number' ? x - y : String(x).localeCompare(String(y)));
+  });
+  for (const it of items) {
+    const tr = el('tr', {class: `pick${it.id === prog.song ? ' sel' : ''}`, 'data-id': it.id, tabindex: '0'});
+    for (const c of cols) tr.append(el('td', {class: `${c.num ? 'num ' : ''}${c.c ? c.c(it) : ''}`.trim()}, c.t(it)));
+    const go = () => openSong(it.id);
     tr.addEventListener('click', go);
     tr.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
     table.append(tr);
   }
 }
 
+// ---------- one song across our models ----------
+function songRows(id) {
+  const rec = r => r._record || r.record;
+  return EXP.filter(r => r.metrics.note_f1 != null &&
+    (songOf(r) === id || rec(r) === id || (!r.record && r.set === id)));
+}
+function songHistory(id) {
+  const card = $('#song-history');
+  const B = prog.B; if (!B) return;
+  const tg = tagOf(id) || {};
+  const rows = songRows(id);
+  card.hidden = false;
+  $('#hist-title').textContent = `${songName(id, B.today && B.today.rows.get(id))}: history`;
+  $('#hist-meta').textContent = [tg.player, tg.year, tg.album, tg.horn && `${tg.horn}${tg.horn_unsure ? ' (guess)' : ''}`, tg.style].filter(Boolean).join(' · ');
+  // the chart: one point per milestone that scored this song on the benchmark
+  const pts_ = B.steps.map(st => ({st, r: st.rows.get(id)})).filter(x => x.r);
+  const box = $('#hist-chart');
+  if (pts_.length) {
+    const W = 1000, H = 280, L = 40, R = 20, T = 22, Bm = 62, iw = W - L - R, ih = H - T - Bm;
+    const n = B.steps.length;
+    const x = i => L + iw * (i + 0.5) / n, y = v => T + (1 - v) * ih;
+    let s = '';
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v * 100}</text>`;
+    s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(BAND_TARGET)}" y2="${y(BAND_TARGET)}"/>`;
+    B.steps.forEach((st, i) => {
+      s += `<text class="ms" x="${x(i)}" y="${H - Bm + 20}" text-anchor="middle">${esc(st.m.label[0])}</text>`;
+      s += `<text class="ms" x="${x(i)}" y="${H - Bm + 35}" text-anchor="middle">${esc(st.m.label[1])}</text>`;
+      s += `<text x="${x(i)}" y="${H - Bm + 51}" text-anchor="middle">${esc(st.m.when)}</text>`;
+    });
+    const ix = p => B.steps.indexOf(p.st);
+    for (const [k, cls, w] of [['note_f1_no_offset', 'var(--muted)', 1.5], ['note_f1', 'var(--s-note)', 2.5]]) {
+      const ps = pts_.filter(p => p.r.metrics[k] != null);
+      if (!ps.length) continue;
+      s += `<path d="${ps.map((p, j) => `${j ? 'L' : 'M'}${x(ix(p))},${y(p.r.metrics[k])}`).join('')}" fill="none" stroke="${cls}" stroke-width="${w}"${k === 'note_f1' ? '' : ' stroke-dasharray="4 3"'}/>`;
+      for (const p of ps) {
+        s += `<circle cx="${x(ix(p))}" cy="${y(p.r.metrics[k])}" r="${k === 'note_f1' ? 5 : 3.5}" fill="${cls}" stroke="var(--card)" stroke-width="1.5"><title>${esc(p.st.m.label.join(' '))}: ${k === 'note_f1' ? 'note F1' : 'ignoring note ends'} ${pts(p.r.metrics[k])}</title></circle>`;
+        if (k === 'note_f1') s += `<text class="val" x="${x(ix(p))}" y="${y(p.r.metrics[k]) - 10}" text-anchor="middle">${pts(p.r.metrics[k])}</text>`;
+      }
+    }
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Note F1 for this song at each version">${s}</svg>`;
+  } else box.replaceChildren(el('p', {class: 'quiet small'}, 'No benchmark versions scored this song yet; the table below has every run.'));
+  // the table: every setup ever run on this song
+  const t = $('#hist-table'); t.replaceChildren();
+  const head = el('tr');
+  for (const h of ['Scored on', 'Setup', 'Answer key from', 'Note F1', 'Ignoring note ends', 'Onset F1', 'Pitch', 'Source']) head.append(el('th', {class: ['Note F1', 'Ignoring note ends', 'Onset F1', 'Pitch'].includes(h) ? 'num' : ''}, h));
+  t.append(head);
+  const ms = r => MILESTONES.find(m => matches(m, r));
+  const today = B.today && B.today.rows.get(id);
+  // milestones in the order they became the default, then every other run by date
+  const order = r => { const i = MILESTONES.findIndex(m => matches(m, r)); return i < 0 ? `9${r.when || ''}` : `${i}`; };
+  for (const r of rows.slice().sort((a, b) => order(a).localeCompare(order(b)))) {
+    const tr = el('tr', {class: r === today ? 'avg' : ''});
+    const m = ms(r);
+    const setup = el('td', {}, setupName(r.setup));
+    const role = r === today ? 'today’s default' : m ? `milestone: ${m.label.join(' ').replace(/,? \+?$/, '')}` : roleOf(setupKey(r.setup));
+    if (role) setup.append(el('div', {class: 'small quiet'}, role));
+    tr.append(el('td', {class: 'num'}, r.when ? r.when.slice(0, 10) : '–'), setup,
+      el('td', {class: 'small'}, (RECORDS[r._set || r.set] || [r._set || r.set])[0]));
+    for (const k of ['note_f1', 'note_f1_no_offset', 'onset_f1', 'pitch_accuracy']) tr.append(el('td', {class: 'num'}, pts(r.metrics[k])));
+    tr.append(el('td', {class: 'small'}, [r.entry, r.commit].filter(Boolean).join(' · ')));
+    t.append(tr);
+  }
+}
+
+// ---------- by area (Songs tab, top) ----------
+// Three collapsed rows: clean sax (scorecard sets, standard path), jazz band records and pop records
+// (benchmark songs, today's default). Open one to see its songs, by title.
+function areas(B) {
+  const box = $('#areas'); box.replaceChildren();
+  const tgtOf = mix => DATA.targets.note_f1 ? DATA.targets.note_f1[mix ? 'mix' : 'solo'] : (mix ? 0.6 : 0.8);
+  const clean = CLEAN_SETS.map(set => DATA.runs.filter(r => r.set === set && r.default && r.metrics.note_f1 != null).pop()).filter(Boolean)
+    .map(r => ({name: setName(r.set), m: r.metrics, tgt: tgtOf(isMix(r.set)), src: r.entry || r.commit || ''}));
+  const songs = B.today ? B.songs.map(id => {
+    const r = B.today.rows.get(id), tg = tagOf(id) || {};
+    return {id, name: songName(id, r), player: tg.player, m: r.metrics, tgt: BAND_TARGET, pop: tg.style === 'funk, pop, smooth'};
+  }) : [];
+  const groups = [['Clean sax (recorded alone or pre-separated)', clean, 'test sets'],
+                  ['Jazz band records', songs.filter(x => !x.pop), 'songs'], ['Pop and fusion records', songs.filter(x => x.pop), 'songs']];
+  for (const [title, items, unit] of groups) {
+    if (!items.length) continue;
+    items.sort((a, b) => a.name.localeCompare(b.name));
+    const avg = mean(items.map(x => x.m.note_f1)), hit = items.filter(x => x.m.note_f1 >= x.tgt).length;
+    const d = el('details', {class: 'area'});
+    const sum = el('summary');
+    const bar = el('span', {class: 'abar'}); const fill = el('span'); fill.style.width = `${(100 * avg).toFixed(1)}%`; bar.append(fill);
+    const tick = el('i'); tick.style.left = `${100 * items[0].tgt}%`; bar.append(tick);
+    sum.append(el('span', {class: 'aname'}, title), bar, el('span', {class: 'aval'}, pts(avg)),
+      el('span', {class: 'quiet small'}, `${items.length} ${unit} · ${hit} at target ${Math.round(100 * items[0].tgt)}`));
+    d.append(sum);
+    const t = el('table', {class: 'grid'});
+    const head = el('tr');
+    for (const h of [unit === 'songs' ? 'Song' : 'Test set', unit === 'songs' ? 'Player' : 'Source', 'Note F1', 'Ignoring note ends', 'Onset F1', 'Pitch']) head.append(el('th', {class: /F1|ends|Pitch/.test(h) ? 'num' : ''}, h));
+    t.append(head);
+    for (const x of items) {
+      const tr = el('tr', {class: x.id ? 'pick' : ''});
+      tr.append(el('td', {}, x.name), el('td', {class: 'small'}, x.id ? (x.player || '–') : x.src));
+      const f = el('td', {class: `num${x.m.note_f1 >= x.tgt ? ' met' : ''}`}, pts(x.m.note_f1));
+      tr.append(f);
+      for (const k of ['note_f1_no_offset', 'onset_f1', 'pitch_accuracy']) tr.append(el('td', {class: 'num'}, pts(x.m[k])));
+      if (x.id) { tr.tabIndex = 0; const go = () => openSong(x.id); tr.addEventListener('click', go); tr.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }); }
+      t.append(tr);
+    }
+    const sc = el('div', {class: 'scroll'}); sc.append(t); d.append(sc);
+    box.append(d);
+  }
+}
+
 // ---------- scores by horn and by style ----------
 function tagOf(id) { const t = DATA.tags || {}; return t[id] || t[String(id).replace(/^parker-test\//, '')] || null; }
 function groups(B) {
-  const table = $('#groups'); table.replaceChildren();
+  const table = $('#tag-groups'); table.replaceChildren();
   const T = B.today, P = B.before;
   const tagged = T ? B.songs.filter(id => tagOf(id)) : [];
   $('#groups-empty').hidden = !!tagged.length;
   if (!tagged.length) return;
+  const field = prog.groupBy || 'horn';
   const head = el('tr');
-  for (const h of ['Group', 'Songs', 'Today', 'Before', 'Change', 'Ignoring note ends', 'At target 60']) head.append(el('th', {class: h === 'Group' ? '' : 'num'}, h));
+  const label = {horn: 'Horn', style: 'Style', era: 'Era', player: 'Player'}[field];
+  for (const h of [label, 'Songs', 'Today', 'Before', 'Change', 'Ignoring note ends', 'At target 60']) head.append(el('th', {class: h === label ? '' : 'num'}, h));
   table.append(head);
-  for (const [field, title] of [['horn', 'By horn'], ['style', 'By style'], ['era', 'By era']]) {
-    const by = new Map();
-    for (const id of tagged) { const v = tagOf(id)[field]; if (v) by.set(v, (by.get(v) || []).concat([id])); }
-    if (!by.size) continue;
-    const tr = el('tr', {class: 'tierrow'}); const td = el('td', {}, title); td.colSpan = 7; tr.append(td); table.append(tr);
-    for (const [v, ids] of [...by.entries()].sort((a, b) => b[1].length - a[1].length || String(a[0]).localeCompare(String(b[0])))) {
-      const now = mean(ids.map(id => T.rows.get(id).metrics.note_f1));
-      const pids = P ? ids.filter(id => P.rows.has(id)) : [];
-      const was = pids.length ? mean(pids.map(id => P.rows.get(id).metrics.note_f1)) : null;
-      const d = was != null ? 100 * (mean(pids.map(id => T.rows.get(id).metrics.note_f1)) - was) : null;
-      const row = el('tr');
-      row.append(el('td', {class: 'sub'}, v), el('td', {class: 'num'}, String(ids.length)), el('td', {class: 'num'}, pts(now)),
-        el('td', {class: 'num'}, was == null ? '–' : pts(was)),
-        el('td', {class: `num ${d == null ? '' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : ''}`}, d == null ? '–' : signed(d)),
-        el('td', {class: 'num'}, pts(mean(ids.map(id => T.rows.get(id).metrics.note_f1_no_offset)))),
-        el('td', {class: 'num'}, `${ids.filter(id => T.rows.get(id).metrics.note_f1 >= BAND_TARGET).length} of ${ids.length}`));
-      table.append(row);
-    }
+  const by = new Map();
+  for (const id of tagged) { const v = tagOf(id)[field] || (field === 'player' ? 'Player unknown' : 'Not tagged'); by.set(v, (by.get(v) || []).concat([id])); }
+  for (const [v, ids] of [...by.entries()].sort((a, b) => (a[0] === 'Not tagged') - (b[0] === 'Not tagged') || b[1].length - a[1].length || String(a[0]).localeCompare(String(b[0])))) {
+    const now = mean(ids.map(id => T.rows.get(id).metrics.note_f1));
+    const pids = P ? ids.filter(id => P.rows.has(id)) : [];
+    const was = pids.length ? mean(pids.map(id => P.rows.get(id).metrics.note_f1)) : null;
+    const d = was != null ? 100 * (mean(pids.map(id => T.rows.get(id).metrics.note_f1)) - was) : null;
+    const row = el('tr');
+    row.append(el('td', {}, String(v)), el('td', {class: 'num'}, String(ids.length)), el('td', {class: 'num'}, pts(now)),
+      el('td', {class: 'num'}, was == null ? '–' : pts(was)),
+      el('td', {class: `num ${d == null ? '' : d > 0.05 ? 'up' : d < -0.05 ? 'down' : ''}`}, d == null ? '–' : signed(d)),
+      el('td', {class: 'num'}, pts(mean(ids.map(id => T.rows.get(id).metrics.note_f1_no_offset)))),
+      el('td', {class: 'num'}, `${ids.filter(id => T.rows.get(id).metrics.note_f1 >= BAND_TARGET).length} of ${ids.length}`));
+    table.append(row);
   }
   const unsure = tagged.filter(id => tagOf(id).horn_unsure).length, unchecked = tagged.filter(id => !tagOf(id).checked).length;
   $('#groups-note').textContent = unchecked ? `Tags are a draft until checked by ear (${unchecked} of ${tagged.length} not checked yet` +
-    `${unsure ? `; ${unsure} horns are guesses, marked ? on the Songs tab` : ''}). Groups with one or two songs move a lot from song to song.` : '';
+    `${unsure ? `; ${unsure} ${unsure === 1 ? 'horn is a guess' : 'horns are guesses'}, marked ? on the Songs tab` : ''}). Groups with one or two songs move a lot from song to song.` : '';
 }
+segment($('#tag-by'), v => { prog.groupBy = v; if (prog.B) groups(prog.B); });
 
 // ---------- experiment cards (Log tab) ----------
 const CARD_FIELDS = [['problem', 'Problem'], ['hypothesis', 'Hypothesis'], ['changed', 'What changed'], ['measure', 'Measured with'],
@@ -341,18 +476,20 @@ function cards() {
   }
 }
 
-// Open a song on the Songs page: highlight its row and, where it has error counts, its two detail views.
-function openSong(id, jump = true) {
+// Open a song on the Songs page: highlight its row, show its history and, where it has bar counts, its bar view.
+function openSong(id) {
   showTab('songs', false);
+  prog.song = id;
   for (const tr of document.querySelectorAll('#songs tr.pick')) tr.classList.toggle('sel', tr.dataset.id === id);
-  const key = id.includes('/') ? id : id;  // rowKey of the flattened row
-  if (EXP.some(r => rowKey(r) === key && r.bars && r.bars.length)) { cmp.record = key; along(); }
-  const row = document.querySelector(`#songs tr.pick[data-id="${CSS.escape(id)}"]`);
-  if (row) row.scrollIntoView({behavior: jump ? 'auto' : 'smooth', block: 'center'});
+  songHistory(id);
+  cmp.record = id;
+  const has = along();
+  $('#hist-along').hidden = !has; $('#hist-noalong').hidden = has;
+  $('#song-history').scrollIntoView({block: 'start'});
 }
 
 function renderProgress() {
   const B = benchmark();
   prog.B = B;
-  tiles(B); benchNote(B); stairs(B); dumbbells(B); errors(B); groups(B); songsTable(B); cards();
+  tiles(B); benchNote(B); stairs(B); dumbbells(B); errors(B); groups(B); areas(B); songsTable(B); cards();
 }
