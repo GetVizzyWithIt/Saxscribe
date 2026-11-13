@@ -14,9 +14,10 @@ folder (~/.cache/saxscribe/models, or SAXSCRIBE_MODELS). Each file is checked
 against a fixed sha256, the checkpoint loads with torch's safe loader, and the
 yaml with a safe loader that also allows tuples.
 
-Speed on the M3 Pro: about 3.5 times the length of the audio on the CPU (all
-53 stems), about 1.6 times faster on its GPU. Only the stems asked for are
-computed here (one mask head instead of 53), which saves more.
+Speed on the M3 Pro's GPU, vocal stem only: about 1.3 times the length of the
+audio (76 s per minute over 41 minutes, model load included). Only the stems
+asked for are computed (one mask head instead of 53); the GPU is about 1.6
+times faster than the CPU, with the same output.
 """
 from __future__ import annotations
 
