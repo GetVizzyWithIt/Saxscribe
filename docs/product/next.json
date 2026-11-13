@@ -24,7 +24,7 @@
       "step": 4,
       "title": "E82, vocals",
       "what": "check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide",
-      "status": "E82 round 3 works: Mega's vocal stem marks vocals with 0 bad marks on 11 songs (Demucs's carried the sax). Waiting on Austin: Mega everywhere, only where vocals are suspected, or more testing"
+      "status": "Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043). Build PR in progress"
     },
     {
       "step": 5,
@@ -47,7 +47,6 @@
   ],
   "running": "the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.",
   "waiting": [
-    "E82 round 3: adopt Mega vocals for the vocal mark on every band record, only where Demucs suspects vocals, or test more first (decision card in Build).",
     "Step 2 ear check when it's ready.",
     "Which note F1 the 60 target means: with note ends or without.",
     "Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email."
