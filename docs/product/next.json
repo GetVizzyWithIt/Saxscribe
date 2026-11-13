@@ -8,7 +8,7 @@
     {"step": 4, "title": "E82, vocals", "what": "check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide", "status": "Not started"},
     {"step": 5, "title": "E83", "what": "whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)", "status": "Not started"},
     {"step": 6, "title": "Rhythm", "what": "a simpler-grid rule", "status": "Not started"},
-    {"step": 7, "title": "Docs, dashboard, not-sax instrument choices", "what": "the handbook, a static dashboard page, and which other instruments the not-sax check names", "status": "In progress: handbook done; script that keeps it current next"}
+    {"step": 7, "title": "Docs, dashboard, not-sax instrument choices", "what": "the handbook, a static dashboard page, and which other instruments the not-sax check names", "status": "In progress: handbook and its update script done; static dashboard page in review"}
   ],
   "running": "the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.",
   "waiting": [
