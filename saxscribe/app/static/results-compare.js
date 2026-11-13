@@ -93,9 +93,12 @@ function setupName(s) {
   const f = canon(s.note_finder, 'ours');
   if (FINDERS[f]) n += `, ${FINDERS[f]}`;
   else if (f !== 'ours') n += `, ${s.note_finder}`;
-  if (s.variant) n += ` (${s.variant})`;  // e.g. an open PR's code on the same setup
+  if (s.variant) n += ` (${VERSIONS[s.variant] || s.variant})`;  // e.g. an open PR's code on the same setup
   return n;
 }
+// E81 re-scored the benchmark at the commits where the default changed; name those by their pull request.
+const VERSIONS = {b3aa715: 'version of PR #9', e01aeef: 'version of PR #35', '50b729a': 'version of PR #57',
+                  '80cba98': 'version of PR #81'};
 function rowKey(r) { return r.record ? `${r.set}/${r.record}` : r.set; }
 function rowInfo(r) {
   if (r.record && RECORDS[r.record]) return {name: RECORDS[r.record][0], tier: RECORDS[r.record][1], sub: false};
@@ -198,8 +201,15 @@ function grid() {
   const measured = [...L.values()].filter(r => r.metrics[cmp.metric] != null);
   const plain = measured.filter(r => !r.setup.variant || r.default);
   const has = cmp.tweaks || !plain.length ? measured : plain;
-  const rows = recordRows(has);
-  const cols = columns(has);
+  const allCols = columns(has);
+  fillOlder($('#grid-older'), allCols, has, cmp.gridOlder, 'Add an older setup…');
+  const cols = shown(allCols, cmp.gridOlder);
+  // Rows: the records today's default has scored, plus those of an older setup picked from the dropdown.
+  // Records only older setups have scored stay out unless one of those setups is picked.
+  const anchor = new Set([cols.some(c => c.k === TODAY_BAND) ? TODAY_BAND : (cols[0] || {}).k, cmp.gridOlder]);
+  const rows = recordRows(has.filter(r => anchor.has(setupKey(r.setup))));
+  const hiddenRecs = recordRows(has).length - rows.length;
+  $('#grid-hidden').textContent = hiddenRecs > 0 ? `${hiddenRecs} records scored only with older setups are left out; pick one of those setups above to see them.` : '';
   $('#grid-empty').hidden = !!rows.length;
   if (!rows.length) return;
   const head = el('tr');
@@ -207,7 +217,8 @@ function grid() {
   for (const c of cols) {
     const th = el('th', {class: 'num'}, setupName(c.s));
     const isToday = cols.some(x => x.k === TODAY_BAND) ? c.k === TODAY_BAND : EXP.some(r => r.default && setupKey(r.setup) === c.k);
-    if (isToday) th.append(el('div', {class: 'small quiet'}, 'today’s default'));
+    const role = isToday ? 'today’s default' : roleOf(c.k);
+    if (role) th.append(el('div', {class: 'small quiet'}, role));
     head.append(th);
   }
   table.append(head);
@@ -285,18 +296,75 @@ function grid() {
   table.append(foot);
 }
 
+// ---------- 2b. two setups head to head ----------
+// Any two setups, on the records both have scored: one row per record, the difference, and the totals.
+function pair() {
+  const L = latest();
+  const measured = [...L.values()].filter(r => r.metrics[cmp.metric] != null);
+  const cols = columns(measured);
+  const byNew = orderedSetups(cols, measured);
+  if (!cols.some(c => c.k === cmp.pairA)) cmp.pairA = (cols.find(c => c.k === TODAY_BAND) || byNew[0] || {}).k;
+  if (!cols.some(c => c.k === cmp.pairB) || cmp.pairB === cmp.pairA)
+    cmp.pairB = (cols.find(c => c.k === PREV_BAND && c.k !== cmp.pairA) || byNew.find(c => c.k !== cmp.pairA) || {}).k;
+  for (const [id, cur] of [['#pair-a', cmp.pairA], ['#pair-b', cmp.pairB]]) {
+    const sel = $(id); sel.replaceChildren();
+    for (const c of byNew) {
+      const role = roleOf(c.k);
+      const o = el('option', {value: c.k}, `${setupName(c.s)}${role ? ' (' + role + ')' : ''}`);
+      if (c.k === cur) o.selected = true;
+      sel.append(o);
+    }
+  }
+  const table = $('#pair'); table.replaceChildren();
+  const sum = $('#pair-sum');
+  const name = k => { const c = cols.find(x => x.k === k); return c ? setupName(c.s) : '–'; };
+  const both = recordRows(measured.filter(r => setupKey(r.setup) === cmp.pairA))
+    .map(r => [r, L.get(`${rowKey(r)}#${cmp.pairA}`), L.get(`${rowKey(r)}#${cmp.pairB}`)])
+    .filter(([, a, b]) => a && b && b.metrics[cmp.metric] != null);
+  if (!both.length) { sum.textContent = 'These two setups have no record in common for this score. Pick another pair or score.'; return; }
+  const head = el('tr');
+  for (const h of ['Record', 'A', 'B', 'B − A']) head.append(el('th', {class: h === 'Record' ? '' : 'num'}, h));
+  table.append(head);
+  let up = 0, down = 0, sa = 0, sb = 0;
+  for (const [r, a, b] of both) {
+    const va = a.metrics[cmp.metric], vb = b.metrics[cmp.metric], d = 100 * (vb - va);
+    sa += va; sb += vb; if (d > 0.5) up++; else if (d < -0.5) down++;
+    const tr = el('tr');
+    tr.append(el('td', {class: rowInfo(r).sub ? 'sub' : ''}, rowInfo(r).name), el('td', {class: 'num'}, pts(va)), el('td', {class: 'num'}, pts(vb)));
+    const td = el('td', {class: 'num'}, `${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}`);
+    td.style.background = `color-mix(in oklab, var(${d >= 0 ? '--div-pos' : '--div-neg'}) ${(Math.min(1, Math.abs(d) / 10) * 46).toFixed(0)}%, var(--card))`;
+    tr.append(td); table.append(tr);
+  }
+  const n = both.length;
+  sum.textContent = `On the ${n} record${n > 1 ? 's' : ''} both have scored: A averages ${pts(sa / n)}, B ${pts(sb / n)} ` +
+    `(${sb >= sa ? '+' : '−'}${Math.abs(100 * (sb - sa) / n).toFixed(1)}). B is better on ${up}, worse on ${down}, ` +
+    `within half a point on ${n - up - down}. A: ${name(cmp.pairA)}. B: ${name(cmp.pairB)}.`;
+}
+// Featured setups first, then the rest newest run first.
+function orderedSetups(cols, rows) {
+  const last = new Map();
+  for (const r of rows) { const k = setupKey(r.setup); if ((r.when || '') > (last.get(k) || '')) last.set(k, r.when || ''); }
+  const f = featured(cols), fk = new Set(f.map(c => c.k));
+  return f.concat(cols.filter(c => !fk.has(c.k)).sort((a, b) => (last.get(b.k) || '').localeCompare(last.get(a.k) || '')));
+}
+
 // ---------- 3. where the notes go ----------
 function breakdown() {
   const box = $('#where-bars'); box.replaceChildren();
   const withBd = EXP.filter(r => r.key_notes);
-  const setups = columns(withBd);
+  const all = columns(withBd);
   const seg = $('#where-setup'); seg.replaceChildren();
   if (!withBd.length) { box.append(el('p', {class: 'quiet'}, 'No error counts yet. Experiment rows written with experiments.classify() show here.')); return; }
-  if (!setups.some(c => c.k === cmp.setup)) cmp.setup = (setups.find(c => c.s.separator === 'demucs') || setups[0]).k;
-  for (const c of setups) {
-    const b = el('button', {type: 'button', 'data-v': c.k, class: c.k === cmp.setup ? 'on' : ''}, setupName(c.s));
+  // Opens on today's default; the default before and the challenger are one tap away, every other setup
+  // ever tried sits in the dropdown, newest first.
+  if (!all.some(c => c.k === cmp.setup)) cmp.setup = (all.find(c => c.k === TODAY_BAND) || all[0]).k;
+  const main = featured(all);
+  const older = main.some(c => c.k === cmp.setup) ? null : cmp.setup;
+  for (const c of main) {
+    const b = el('button', {type: 'button', 'data-v': c.k, class: c.k === cmp.setup ? 'on' : ''}, buttonName(c));
     seg.append(b);
   }
+  fillOlder($('#where-older'), all, withBd, older, 'Older setups…');
   const lg = $('#where-legend'); lg.replaceChildren();
   for (const k of KINDS) {
     const item = el('span', {class: 'key'});
@@ -491,6 +559,42 @@ function judgeGrid() {
 // The default changes over time, and a row's own flag says what it was when it ran. Where a run also
 // scored today's band-record default (TODAY_BAND), that setup is shown as the default instead.
 const TODAY_BAND = 'rd-sax|same|rd-filosax-ft|';
+// The setups shown by default in "Where the notes go" and the Lab grid; everything else is in a dropdown.
+// Update when the default changes (ADR-0041) or a new challenger is being tested.
+const PREV_BAND = 'demucs|same|ours|';
+const CHALLENGER = 'mega|none|rd-filosax-ft|';
+const FEATURED = [[TODAY_BAND, 'today’s default', 'Today'], [PREV_BAND, 'default before (Nov 5–9)', 'Before'],
+                  [CHALLENGER, 'challenger', 'Challenger']];
+function roleOf(k) { const f = FEATURED.find(x => x[0] === k); return f ? f[1] : ''; }
+function buttonName(c) {
+  const f = FEATURED.find(x => x[0] === c.k);
+  const n = setupName(c.s) + (canon(c.s.note_finder, 'ours') === 'ours' ? ', Basic Pitch' : '');
+  return f ? `${f[2]}: ${n}` : n;
+}
+function featured(cols) {
+  const f = FEATURED.map(x => cols.find(c => c.k === x[0])).filter(Boolean);
+  return f.length ? f : cols.slice(0, 3);
+}
+function shown(cols, extra) {
+  const f = featured(cols);
+  const x = extra && !f.some(c => c.k === extra) && cols.find(c => c.k === extra);
+  return x ? f.concat([x]) : f;
+}
+// Every setup not featured, newest run first.
+function fillOlder(sel, cols, rows, current, prompt) {
+  const main = new Set(featured(cols).map(c => c.k));
+  const last = new Map();
+  for (const r of rows) { const k = setupKey(r.setup); if ((r.when || '') > (last.get(k) || '')) last.set(k, r.when || ''); }
+  const rest = cols.filter(c => !main.has(c.k)).sort((a, b) => (last.get(b.k) || '').localeCompare(last.get(a.k) || ''));
+  sel.replaceChildren(el('option', {value: ''}, rest.length ? `${prompt} (${rest.length})` : 'No older setups'));
+  for (const c of rest) {
+    const w = last.get(c.k);
+    const o = el('option', {value: c.k}, `${setupName(c.s)}${w ? ' · ' + w.slice(0, 10) : ''}`);
+    if (c.k === current) o.selected = true;
+    sel.append(o);
+  }
+  sel.disabled = !rest.length;
+}
 function markToday() {
   const runs = new Set(EXP.filter(r => setupKey(r.setup) === TODAY_BAND).map(r => `${r.entry}|${rowKey(r)}`));
   EXP = EXP.map(r => {
@@ -504,10 +608,14 @@ function renderCompare() {
   // One row per song: "four tenor tunes / walkers-theme" and "pfh / pfh" are the same song as "walkers-theme" and "pfh".
   EXP = (DATA.experiments || []).map(r => r.record && RECORDS[r.record] ? {...r, set: r.record, record: null, _set: r.set, _record: r.record} : r);
   markToday();
-  stands(); grid(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
+  stands(); grid(); pair(); breakdown(); along(); stemGrid(); judgeGrid(); expTable();
 }
 $('#grid-tweaks').addEventListener('change', e => { cmp.tweaks = e.target.checked; grid(); });
 segment($('#stem-metric'), v => { cmp.stemMetric = v; stemGrid(); });
-segment($('#grid-metric'), v => { cmp.metric = v; grid(); });
+segment($('#grid-metric'), v => { cmp.metric = v; grid(); pair(); });
+$('#pair-a').addEventListener('change', e => { cmp.pairA = e.target.value; pair(); });
+$('#pair-b').addEventListener('change', e => { cmp.pairB = e.target.value; pair(); });
 segment($('#where-setup'), v => { cmp.setup = v; breakdown(); });
+$('#where-older').addEventListener('change', e => { if (e.target.value) { cmp.setup = e.target.value; breakdown(); } });
+$('#grid-older').addEventListener('change', e => { cmp.gridOlder = e.target.value || null; grid(); });
 segment($('#along-record'), v => { cmp.record = v; along(); });
