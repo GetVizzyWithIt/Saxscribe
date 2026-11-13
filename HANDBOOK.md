@@ -4,7 +4,9 @@ Where things stand, what happens next, and how to run the tool, all in one place
 Read sections 1 and 2 to catch up. Sections 3 to 9 are reference.
 
 Web page version (bookmark this, works on the iPad): <https://claude.ai/artifact/LHvpK1sBSP8ADqziMc2c8X>.
+Model dashboard (scores and charts, no app needed): <https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr>.
 After any change, run `python3 scripts/handbook.py` then `python3 scripts/handbook_page/build.py`, and republish the page.
+After new results, also run `python3 scripts/dashboard_page/build.py` and republish the dashboard.
 
 Sections 1, 2 and 5 are rebuilt from the repo's own records by
 `python3 scripts/handbook.py`: the benchmark rows in
@@ -47,7 +49,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Not started |
 | 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Not started |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
-| 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook done; script that keeps it current next |
+| 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook and its update script done; static dashboard page in review |
 
 **Running on the Mac now:** the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.
 
@@ -119,7 +121,7 @@ cd ~/Desktop/saxscribe && git checkout main && git pull && source .venv/bin/acti
 cd ~/Desktop/saxscribe && source .venv/bin/activate && python -m saxscribe app
 ```
 
-The app is at http://localhost:8765 (Results: `/results`). On the iPad on the
+The app is at http://localhost:8765 (key review: `/results`, Needs review; scores and charts are on the model dashboard linked at the top). On the iPad on the
 same Wi-Fi, open the address it prints. Sheet music is also copied to
 `~/Desktop/Saxscribe`.
 
@@ -187,7 +189,7 @@ Note F1 by group:
 | E73 | 2026-11-08 | How many key notes each separator's stem still holds | Mega's stem keeps the most key notes (57 of 59); the note finder is the gap. |
 | E72 | 2026-11-07 | Start a note on a pitch change without an attack, for slurs | No gain. |
 
-Full record: [evaluation log](docs/evaluation/log.md). Live charts: the app's Results page (`/results`).
+Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) (Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). Reviewing keys and flags stays in the app (`/results`, Needs review).
 <!-- /auto:results -->
 
 ---

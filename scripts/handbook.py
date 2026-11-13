@@ -155,7 +155,9 @@ def block_results(bench: dict[str, list[dict]]) -> str:
             "| E | Date | What | Outcome |", "| --- | --- | --- | --- |"]
     for num, date, title, verdict in log_entries()[:LATEST_EXPERIMENTS]:
         out.append(f"| E{num} | {date} | {title} | {verdict} |")
-    out += ["", "Full record: [evaluation log](docs/evaluation/log.md). Live charts: the app's Results page (`/results`)."]
+    out += ["", "Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) "
+            "(Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). "
+            "Reviewing keys and flags stays in the app (`/results`, Needs review)."]
     return "\n".join(out)
 
 
