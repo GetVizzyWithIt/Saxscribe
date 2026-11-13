@@ -1,7 +1,16 @@
 # System architecture
 
 How audio becomes notation, what each stage writes to disk, and which model
-or rule does the work. Current as of commit `955b1da` (2026-11-02).
+or rule does the work. Written at commit `955b1da` (2026-11-02); layer details below still describe the standard path.
+
+> **Update 2026-11-13: two paths now.** In the app, band records default to
+> our sax model: the Filosax sax separator plus our fine-tuned Filosax note
+> finder (E77, chosen in E80, [ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)).
+> That path skips the sax-rest cut and the bleed hide; sax sections (PR #144)
+> and maybe-not-sax marks are its guards. Solo takes and the CLI keep the
+> standard path drawn below (`--separator filosax --notes-tool filosax` runs
+> the band-record path from the CLI). The current diagram of both paths is in
+> [HANDBOOK.md section 3](../../HANDBOOK.md#3-how-the-tool-works).
 
 ## 1. Shape of the system
 

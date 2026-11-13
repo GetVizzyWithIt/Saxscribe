@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saxscribe Handbook</title>
+<style>
+:root {
+  --bg: #fbfaf7; --fg: #1f2328; --muted: #5d6470; --line: #dedad2;
+  --card: #ffffff; --accent: #8a5a00; --code: #f3f0e9; --link: #0b5cad;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181c; --fg: #e6e6e3; --muted: #a0a6ae; --line: #33373e;
+    --card: #1d2025; --accent: #e0b25c; --code: #24272d; --link: #8cbcf0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16181c; --fg: #e6e6e3; --muted: #a0a6ae; --line: #33373e;
+  --card: #1d2025; --accent: #e0b25c; --code: #24272d; --link: #8cbcf0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 64px; }
+nav { position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--line);
+  padding: 8px 16px; display: flex; gap: 14px; overflow-x: auto; white-space: nowrap; font-size: 14px; z-index: 2; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--fg); }
+h1 { font-size: 28px; margin: 8px 0 4px; }
+h2 { font-size: 21px; margin: 36px 0 10px; padding-top: 8px; color: var(--accent); scroll-margin-top: 48px; }
+h3 { font-size: 17px; margin: 24px 0 8px; }
+a { color: var(--link); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0 16px; font-size: 14.5px; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; vertical-align: top; }
+th { background: var(--code); }
+td { background: var(--card); }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+pre { position: relative; background: var(--code); padding: 12px 14px; border-radius: 8px; overflow-x: auto; }
+pre code { padding: 0; background: none; }
+pre button { position: absolute; top: 6px; right: 6px; font-size: 12px; padding: 3px 8px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+.mermaid { background: #fff; border-radius: 8px; padding: 10px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<nav id="toc"></nav>
+<div class="wrap" id="doc"></div>
+<script id="md" type="application/json">__HANDBOOK_JSON__</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+(function () {
+  const md = JSON.parse(document.getElementById('md').textContent);
+  const doc = document.getElementById('doc');
+  doc.innerHTML = marked.parse(md);
+  // headings get ids that match GitHub's anchors, and a nav entry for each section
+  const toc = document.getElementById('toc');
+  doc.querySelectorAll('h2').forEach(h => {
+    const id = h.textContent.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+    h.id = id;
+    const a = document.createElement('a');
+    a.href = '#' + id; a.textContent = h.textContent.replace(/^\d+\.\s*/, '');
+    toc.appendChild(a);
+  });
+  doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  // mermaid blocks become diagrams; shell blocks get a Copy button
+  doc.querySelectorAll('pre code.language-mermaid').forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'mermaid'; div.textContent = c.textContent;
+    c.parentElement.replaceWith(div);
+  });
+  doc.querySelectorAll('pre').forEach(pre => {
+    const b = document.createElement('button');
+    b.textContent = 'Copy';
+    b.addEventListener('click', () => {
+      navigator.clipboard.writeText(pre.querySelector('code').textContent.trim())
+        .then(() => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1500); })
+        .catch(() => { b.textContent = 'Select and copy'; });
+    });
+    pre.appendChild(b);
+  });
+  try { mermaid.initialize({ startOnLoad: false, theme: 'neutral' }); mermaid.run(); } catch (e) {}
+  if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+})();
+</script>
+</body>
+</html>
