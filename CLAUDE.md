@@ -84,7 +84,9 @@ one question at a time. Prefer a working rough cut to a plan.
   fine-tuned on Mega stems (E77, checkpoint on the Mac) gains about 5 points
   of note F1 but is not the default yet. MERT probes judge sax presence and
   type best (E79); not wired in.
-- Latest features: `maybe_not_sax` review marks (PR #121, never hidden);
+- Latest features: vocal review marks on band records (E82, rule V: MVSep Mega's vocal
+  stem vs the Filosax stem, `maybe_vocals` + `maybe_not_sax`, never hidden; needs the Mega
+  weights in ~/.cache/saxscribe/models); `maybe_not_sax` review marks (PR #121, never hidden);
   play-along review flags (flags.json, PR #116) and the feedback reviewer
   (PR #138; flags kept across runs, ADR-0039).
 - Pipeline development is step by step: no change to the transcription
