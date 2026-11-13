@@ -124,8 +124,8 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
-### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (not adopted)
-- **Headline**: Not adopted: Demucs's vocal stem carries the sax on instrumentals, so a vocal mark also hits real sax.
+### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (round 3 works; adoption pending)
+- **Headline**: With Mega's vocal stem as the rival: 112 good marks, 0 bad on 11 songs; adoption is Austin's call.
 - **Question**: step 4 of the plan. Can a review mark catch notes that are really vocals leaking into setup D's sax stem? Marks only: nothing is hidden. Austin's go: 2026-11-13 08:27Z.
 - **Rule V**: mark a note when the Demucs vocals stem is at least X dB louder than the Filosax sax stem at the note's pitch (±1 semitone) and holds that pitch at least 3 dB over its median. The pitch threshold made no difference. Scripts: `~/saxscribe-runs/exp/e82/e82.py` and `e82b.py`.
 - **Pick rule**: on 27 E81 songs that are not Austin's (no vocals), take the setting with the most "good" marks (extra notes or notes in a key rest) while "bad" marks (notes matching the key) stay at or under 1.5%.
@@ -142,8 +142,20 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Round 2** added a same-line gate: no mark when the vocals and sax spectra (CQT) move together (correlation ≥ G over the note ±1 s). The pick again chose no gate, because a pick set without vocals can't reward a vocal gate. For information only, at G 0.7: Austin's 6 had 106 good and 28 bad (1.1%); Najee 77 of 603 inside vs 27 of 528 outside; Just the Two of Us 3 of 4 vs 3 of 201.
 - **Finding**: on instrumentals, Demucs routes the sax into its vocals stem (most bad marks are on Pennies From Heaven and Blues for Mary Jane), so a vocals-louder rule marks real sax. Two lessons: the pick set needs songs with vocals, and a better vocal stem is the real fix. Not adopted; nothing changes in the pipeline.
 - **Vocal model survey**: `/mnt/project-files/research/vocal-models-2026-11-13.md`. No source tests sax leaking into vocals. The leading candidates are MVSep Mega vocals, becruily deux and MVSep BS Roformer 124.
-- **Next** (Austin's choice): round 3 with Mega vocals, or build a vocal tuning set first.
-- **Bias check** ([standard](../standards/bias-checks.md)): this is the first experiment since E81 that doesn't beat the current best.
+- **Round 3, rule V3** (11:28Z): the same rule with MVSep Mega 53-stem's *vocal* stem as the rival (run locally with MSST, nothing sent to the cloud). The main setting was fixed before the run: X = 0 dB, no gate; the grid is reported, not picked from. Set: Austin's 6 plus the 5 pick songs with the most Demucs vocals.
+
+| Test | Rule V3 (Mega vocals) | Round 1 (Demucs vocals), same songs |
+| --- | --- | --- |
+| 11 songs, good / bad marks | **112 / 0** (3,206 matched notes) | 268 bad (Pennies 128, Blues for Mary Jane 62, All of Me 1941 45) |
+| Bloody Well Right | 112 / 0 | 116 / 6 |
+| Najee, marked inside / outside not-sax flags | **241 of 603 / 19 of 528** | 228 / 31 |
+| Burning Daylight | 3 of 17 inside flags | |
+| Just the Two of Us | 4 of 4 / 2 of 201 | 4 of 4 / 3 of 201 |
+
+  - No marks on the jazz songs with singers (All of Me, Just a Dream).
+  - Cost: Mega runs at about 3.5× real time on the M3 Pro CPU.
+- **Finding, round 3**: Mega's vocal stem doesn't swallow the sax the way Demucs's does, so the mark catches vocals without marking real sax on this test. It beats rounds 1 and 2.
+- **Decision**: with Austin (decision card in Build): Mega on every band record, Mega only where Demucs suspects vocals, or more testing first. Rows (`e82c_rows.jsonl`) come with the build PR. Full tables: `~/saxscribe-runs/exp/e82/summary_c.md`.
 - **Data**: E82 rows and reports on the Mac (`~/saxscribe-runs/exp/e82/`), not yet in `experiments.jsonl`.
 
 ### 2026-11-13 — Step 1 diagnosis: where setup D loses notes (finding, no E-number)
