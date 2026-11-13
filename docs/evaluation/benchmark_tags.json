@@ -1,0 +1,254 @@
+{
+ "about": "Tags for the benchmark songs (ADR-0042), so the dashboard can show scores by horn, style, era and tempo (UAT review 5.4). Drafted by the docs thread from the players and dates; nothing is checked by ear yet. horn_unsure marks a guess. tempo comes later from the answer keys' beats. Set checked to true once Austin confirms a row.",
+ "styles": [
+  "early jazz",
+  "swing",
+  "jump and R&B",
+  "bebop",
+  "cool",
+  "hard bop",
+  "modal",
+  "ballad",
+  "latin",
+  "modern",
+  "funk, pop, smooth"
+ ],
+ "songs": {
+  "john-coltrane_acknowledgement_1964": {
+   "horn": "tenor",
+   "style": "modal",
+   "era": "1960s",
+   "tempo": null,
+   "checked": false
+  },
+  "unknown_st-louis-blues": {
+   "horn": "alto",
+   "style": "early jazz",
+   "era": null,
+   "tempo": null,
+   "checked": false,
+   "horn_unsure": true
+  },
+  "steve-norman_true_1983": {
+   "horn": "alto",
+   "style": "funk, pop, smooth",
+   "era": "1980s",
+   "tempo": null,
+   "checked": false,
+   "horn_unsure": true
+  },
+  "dexter-gordon_soy-califa_1962": {
+   "horn": "tenor",
+   "style": "latin",
+   "era": "1960s",
+   "tempo": null,
+   "checked": false
+  },
+  "john-coltrane_just-for-the-love_1956": {
+   "horn": "tenor",
+   "style": "hard bop",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "john-coltrane_lazy-bird_1957": {
+   "horn": "tenor",
+   "style": "hard bop",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "illinois-jacquet_flying-home_1942": {
+   "horn": "tenor",
+   "style": "swing",
+   "era": "1940s",
+   "tempo": null,
+   "checked": false
+  },
+  "al-sears_castle-rock_1951": {
+   "horn": "tenor",
+   "style": "jump and R&B",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "benny-carter_jive-at-six_1953": {
+   "horn": "alto",
+   "style": "swing",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "sonny-rollins_newks-fadeaway_1951": {
+   "horn": "tenor",
+   "style": "bebop",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "frank-foster_splanky_1957": {
+   "horn": "tenor",
+   "style": "swing",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "sahib-shihab_straight-no-chaser_1951": {
+   "horn": "alto",
+   "style": "bebop",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "eddie-cleanhead-vinson_just-a-dream_1945": {
+   "horn": "alto",
+   "style": "jump and R&B",
+   "era": "1940s",
+   "tempo": null,
+   "checked": false
+  },
+  "earl-bostic_thats-the-groovy-thing_1947": {
+   "horn": "alto",
+   "style": "jump and R&B",
+   "era": "1940s",
+   "tempo": null,
+   "checked": false
+  },
+  "ben-webster_the-touch-of-your-lips_1959": {
+   "horn": "tenor",
+   "style": "ballad",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "lester-young_shoeshine-boy_1936": {
+   "horn": "tenor",
+   "style": "swing",
+   "era": "1930s",
+   "tempo": null,
+   "checked": false
+  },
+  "lester-young_oh-lady-be-good_1936": {
+   "horn": "tenor",
+   "style": "swing",
+   "era": "1930s",
+   "tempo": null,
+   "checked": false
+  },
+  "lester-young_all-of-me_1941": {
+   "horn": "tenor",
+   "style": "swing",
+   "era": "1940s",
+   "tempo": null,
+   "checked": false
+  },
+  "stan-getz_pennies-from-heaven-roost_1951": {
+   "horn": "tenor",
+   "style": "cool",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "hank-mobley_the-breakdown_1961": {
+   "horn": "tenor",
+   "style": "hard bop",
+   "era": "1960s",
+   "tempo": null,
+   "checked": false
+  },
+  "harold-land_sandu_1955": {
+   "horn": "tenor",
+   "style": "hard bop",
+   "era": "1950s",
+   "tempo": null,
+   "checked": false
+  },
+  "michael-brecker_chime-this_1990": {
+   "horn": "tenor",
+   "style": "modern",
+   "era": "1990s",
+   "tempo": null,
+   "checked": false
+  },
+  "john-coltrane_my-shining-hour_1960": {
+   "horn": "tenor",
+   "style": "hard bop",
+   "era": "1960s",
+   "tempo": null,
+   "checked": false
+  },
+  "michael-brecker_suspone_1988": {
+   "horn": "tenor",
+   "style": "modern",
+   "era": "1980s",
+   "tempo": null,
+   "checked": false
+  },
+  "pfh": {
+   "horn": "tenor",
+   "style": "cool",
+   "era": null,
+   "tempo": null,
+   "checked": false
+  },
+  "bfmj": {
+   "horn": "tenor",
+   "style": "cool",
+   "era": null,
+   "tempo": null,
+   "checked": false
+  },
+  "resolution": {
+   "horn": "tenor",
+   "style": "modal",
+   "era": "1960s",
+   "tempo": null,
+   "checked": false
+  },
+  "walkers-theme": {
+   "horn": "alto",
+   "style": "funk, pop, smooth",
+   "era": null,
+   "tempo": null,
+   "checked": false,
+   "horn_unsure": true
+  },
+  "isnt-she-lovely": {
+   "horn": "alto",
+   "style": "funk, pop, smooth",
+   "era": "2010s",
+   "tempo": null,
+   "checked": false,
+   "horn_unsure": true
+  },
+  "bloody-well-right": {
+   "horn": "tenor",
+   "style": "funk, pop, smooth",
+   "era": "1970s",
+   "tempo": null,
+   "checked": false,
+   "horn_unsure": true
+  },
+  "2RfYc": {
+   "horn": "alto",
+   "style": "bebop",
+   "era": null,
+   "tempo": null,
+   "checked": false
+  },
+  "73bwc": {
+   "horn": "alto",
+   "style": "bebop",
+   "era": null,
+   "tempo": null,
+   "checked": false
+  },
+  "9RfYc": {
+   "horn": "alto",
+   "style": "bebop",
+   "era": null,
+   "tempo": null,
+   "checked": false
+  }
+ }
+}
