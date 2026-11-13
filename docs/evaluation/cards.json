@@ -8,12 +8,12 @@
    "stage": "review marks",
    "problem": "Vocals leak into setup D's sax stem on pop records and get written as sax (Austin's Najee and Burning Daylight flags; step 1 diagnosis).",
    "hypothesis": "Marking notes where the Demucs vocal stem is louder than the sax stem at the note's pitch catches leaked vocals without marking real sax.",
-   "changed": "A review mark only (rule V), nothing hidden; round 2 added a same-line gate on the vocal and sax spectra.",
+   "changed": "A review mark only (rule V), nothing hidden. Round 2 added a same-line gate; round 3 (V3) used Mega 53-stem's vocal stem as the rival, with the setting fixed before the run.",
    "measure": "Good marks (extras, notes in key rests) against bad marks (notes matching the key); marks inside vs outside Austin's not-sax flags.",
-   "result": "Picked vocals ≥ 0 dB: Austin's 6 tunes 139 good, 218 bad (8.3%), mostly on Pennies and Blues for Mary Jane; Najee 228/603 marked inside flags vs 31/528 outside.",
-   "learned": "Demucs routes the sax into its vocals stem on instrumentals. A pick set with no vocals can't reward a vocal gate.",
-   "decision": "Not adopted. Next is Austin's choice: Mega vocals (round 3) or a vocal tuning set first.",
-   "revisit": "With a cleaner vocal stem (Mega vocals, becruily deux, BS Roformer 124) and a pick set that has vocals."
+   "result": "Rounds 1–2 (Demucs vocals): 218 bad marks on Austin's 6, mostly instrumentals. Round 3 (Mega vocals): 112 good, 0 bad on 11 songs; Najee 241/603 marked inside flags vs 19/528 outside.",
+   "learned": "Demucs routes the sax into its vocals stem on instrumentals; Mega's vocal stem doesn't. A pick set with no vocals can't reward a vocal gate. Mega costs about 3.5× real time on the CPU.",
+   "decision": "Round 3 works; adoption is Austin's call: Mega on every band record, only where Demucs suspects vocals, or more testing first.",
+   "revisit": "After Austin's decision, on a vocal test set (plan step 3)."
   },
   {
    "entry": "E81",
