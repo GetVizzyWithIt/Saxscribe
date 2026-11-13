@@ -8,6 +8,8 @@ can be checked against the code and the scorecards.
 
 Last full review: 2026-11-03. PR state 2026-11-09: everything through #134 merged; #135 (E78 and this catch-up) open. `main` is protected since 2026-11-08: changes need a pull request and a green `pytest` check. #124–#127 are tooling, not model changes: numpy 2 safe-loader test fix, pinned Python and `requirements.lock`, CI running pytest on every PR, and development standards ([development-standards.md](development-standards.md), ADR-0038). Bias checks standard adopted 2026-11-10 ([standards/bias-checks.md](standards/bias-checks.md), ADR-0040). #84 stays closed; its change merged as #93.
 
+**Start here:** [HANDBOOK.md](../HANDBOOK.md) has where things stand, what's next, how the tool works and the commands to run it.
+
 **To run the tool**, see [Quick start](../README.md#quick-start-copy-and-paste) in the repo README.
 
 ## Map

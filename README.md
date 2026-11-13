@@ -3,6 +3,8 @@
 Turns a saxophone performance into notes you can read and fix. Commands
 first; what it is and how it works are [further down](#what-it-is).
 
+**Where things stand and what's next:** [HANDBOOK.md](HANDBOOK.md).
+
 ## Quick start (copy and paste)
 
 **After merging PRs: update and start the app.** In the Terminal window where
