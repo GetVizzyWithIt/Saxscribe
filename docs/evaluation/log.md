@@ -126,6 +126,21 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E84 — 2026-11-14 — Held-out swap retrain, then an all-in note finder (pre-registered, running)
+- **Go**: Austin, "go held-out swap" (Build, 17:14Z); two-stage plan agreed in Build at 17:16Z. Pre-registered at 17:30Z, before any training or scoring: [e84-preregistration.md](e84-preregistration.md).
+- **Question**: does a note finder with Coltrane, Getz and Potter in training (and a new held-out set for picking the checkpoint) beat E77 on the 33-song benchmark? And does a final model trained on every player beat it?
+- **Arms**: both start from the original Filosax note model (`filosax_25k.pth`), not from E77, because E77 trained on the new held-out players. Same recipe as E77, on Filosax-separated stems.
+  - **E84a**: 110 spans, about 263 min; checkpoint picked on the new held-out set.
+  - **E84b**: E84a's data plus the 24 held-out spans (about 134 spans, 305 min), trained for E84a's best number of steps; held-out score for information only.
+- **New held-out set (a clean break)**: Bob Berg, Don Byas, Hank Mobley, Sonny Stitt, Warne Marsh, Zoot Sims, plus two alto players (Gary Bartz, Charles Davis): 24 spans, 42.3 min, 9,235 notes. Held-out scores from E84 on can't be compared with E77's or E83's.
+- **Session rule (new)**: no training span may come from the same recording session or album sessions as a benchmark song or one of Austin's six tunes. Dropped: Coltrane Blue Train, Brecker Never Alone and Peep, Webster Bye Bye Blackbird, Getz I'm Glad There Is You, Coltrane Impressions 1961 and 1963, and Dexter Gordon Cheese Cake (to be safe). All E83 exclusions still hold.
+- **Past leak found**: Blue Train, Never Alone, Peep, and Bye Bye Blackbird were in the E76 train set, so E77, E83a, and E83b trained on recordings from the same sessions as 3 benchmark songs (Lazy Bird, Chime This, and The Touch of Your Lips). E77's scores on those 3 may flatter it, so the comparison leans toward E77. A secondary report covers the 30 songs without them.
+- **Scoring, once at the end**: setup D on all 33 songs with the E77, E84a, and E84b finders. Same thresholds and classify, bars on.
+- **Adoption rule (same as E83)**: against E77, mean note F1 at least +1.0, at least 18 of 33 song wins, and note F1 ignoring note ends not lower. If both arms qualify, the higher mean wins; a tie within 0.3 goes to E84b. Changing the default still needs Austin's go.
+- **Case against**: two changes at once (start point and data); a small held-out set (bootstrap range logged); mixed grace-note conventions in the held-out set; E83 found more of the same jazz didn't help. Bias-check count: one non-beat so far (E83).
+- **Not in E84**: a note-end fix, pop and R&B data, and soprano.
+- **Result**: pending.
+
 ### E83 — 2026-11-13 — Second note-finder fine-tune (pre-registered; not adopted)
 - **Go**: Austin, "go e83" (Build, 22:52Z). Pre-registered at 23:00Z, before any training or scoring: [e83-preregistration.md](e83-preregistration.md).
 - **Question**: does more training beat the E77 note finder on the 33-song benchmark? Two arms, both from E77 `best.pt` (step 2488), same train.py. Early stop with patience 1500, validation every 500, a cap of 6000 steps, and the checkpoint picked on the same 24 held-out spans (Coltrane, Potter, Getz).
@@ -150,6 +165,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Kept out**: 16 Parker pairs (possible test overlap), 24 benchmark songs, 2 held-out players, 3 already in E76.
 - **Data**: 99 rows in experiments.jsonl (33 songs × 3 arms; ids end ` e77`, ` e83a`, ` e83b`; each row carries `arm` and `weights_sha256`). The E77 arm reuses the E81 D separation and pitch line and re-runs only the notes layer.
 - **Decision**: not adopted (pre-registered rule). No ADR.
+- **Leak found later (E84)**: E77 and both E83 arms trained on recordings from the same sessions as Lazy Bird, Chime This, and The Touch of Your Lips (via the E76 train set), so all three may be flattered on those 3 songs. It doesn't change this result.
 - **Bias check**: the first experiment in a row that doesn't beat the current best. After three, pause and measure the ceiling.
 - **Learned / revisit**: new training data has to be different, not more: pop and R&B with vocals, soprano, and note-end fixes (step 2), rather than more older jazz.
 
@@ -303,6 +319,7 @@ Per song, note F1 (six tunes):
 - **Per tune** (Mega stems): BFMJ +8.5, Resolution +9.7, Bloody Well Right +10.4, Walker's Theme flat at about 30.
 - **Finding**: a clear gain everywhere except Walker's Theme, and the tool now writes slightly fewer notes than the key rather than more. Not switched on: making it the default is a pipeline change and needs Austin's go. A second fine-tune on cleaner sax tracks is planned once the sax judge (E79) and a better separator are ready (roadmap).
 - **Data**: E77 row on the Mac; checkpoint on the Mac only (weights never go in the repo).
+- **Leak found later (2026-11-14, E84)**: the E76 train set held Blue Train, Never Alone, Peep, and Bye Bye Blackbird, from the same sessions as benchmark songs Lazy Bird, Chime This, and The Touch of Your Lips, so this model's scores on those 3 may flatter it. See E84.
 
 ### E76 — 2026-11-09 — Training set for the note finder: Mega-separated Weimar and Parker solos (data)
 - **Headline**: 134 solo spans ready for fine-tuning.

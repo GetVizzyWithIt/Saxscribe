@@ -51,7 +51,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
-**Running on the Mac now:** the overnight search for better recordings of the charts that failed the match check (`find_better_recording.py`). A thread files the winners in the morning; nothing gets filed without a passing line-up.
+**Running on the Mac now:** E84 (pre-registered 2026-11-14, Austin's go 17:14Z): the held-out swap retrain (E84a) and an all-in note finder (E84b), scored once on the 33 songs against E77 under the E83 rule.
 
 **Waiting on Austin:**
 - Step 2 ear check when it's ready.
@@ -188,6 +188,7 @@ Note F1 by group:
 
 | E | Date | What | Outcome |
 | --- | --- | --- | --- |
+| E84 | 2026-11-14 | Held-out swap retrain, then an all-in note finder | pre-registered, running |
 | E83 | 2026-11-13 | Second note-finder fine-tune | pre-registered; not adopted |
 | E82 | 2026-11-13 | Vocal review mark on setup D, rule V | Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record. |
 | E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |
@@ -197,7 +198,6 @@ Note F1 by group:
 | E77 | 2026-11-09 | Fine-tuning the Filosax note finder on Mega sax stems | Gained on every test set; became the default's note finder after E80. |
 | E76 | 2026-11-09 | Training set for the note finder: Mega-separated Weimar and Parker solos | 134 solo spans ready for fine-tuning. |
 | E75 | 2026-11-08 | New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 | Baseline 57.5; slow studies lose on held notes split by vibrato. |
-| E74 | 2026-11-08 | Note-finder settings on Mega sax stems | No gain from note-finder settings. |
 
 Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) (Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). Reviewing keys and flags stays in the app (`/results`, Needs review).
 <!-- /auto:results -->
