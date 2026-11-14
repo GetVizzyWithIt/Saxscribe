@@ -2,6 +2,20 @@
  "about": "One card per experiment, in the shape the UAT review asked for (section 5.1): what changed, the problem, the hypothesis, the measure, the result, what we learned, the decision and when to revisit. The Log tab reads it. New log entries add a card here.",
  "cards": [
   {
+   "entry": "E83",
+   "date": "2026-11-13",
+   "title": "Second note-finder fine-tune (two arms)",
+   "stage": "note finder",
+   "problem": "The note finder is the bottleneck: 87% of missed or wrong-pitch notes are still in the stem (step 1 diagnosis).",
+   "hypothesis": "More fine-tuning on the app's own Filosax stems (E83a), plus the new transcribed keys (E83b), beats E77.",
+   "changed": "Two fine-tunes from E77: Filosax stems on the E76 set (E83a); the same plus 23 new transcribed pairs (E83b).",
+   "measure": "Pre-registered: mean note F1 +1.0 over E77 on 33 songs, 18 of 33 wins, note F1 ignoring note ends not lower.",
+   "result": "No gain: note F1 50.9 for all three. E83a won 18 of 33 but lost 0.5 ignoring note ends; E83b never beat its starting point, so it kept E77's weights.",
+   "learned": "More of the same, mostly older jazz, doesn't move the finder. New data has to be different: pop and R&B with vocals, soprano, and note ends.",
+   "decision": "Not adopted. E77 stays.",
+   "revisit": "With pop, R&B, and soprano pairs, or after the note-end check."
+  },
+  {
    "entry": "E82",
    "date": "2026-11-13",
    "title": "Vocal review mark on setup D (rule V)",
