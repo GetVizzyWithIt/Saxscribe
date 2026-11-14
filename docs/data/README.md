@@ -74,11 +74,13 @@ melody-extraction evaluation, jazz bass transcription, swing and expressive
 sax) went to the reading list (`research/reading-list/jazz-transcription-academia.md`
 in the project files), not here.
 
-**Known issue (open):** many charts score exactly 0% on the line-up check
-even with the official recording and a printed start time (8 of the 11
-rejected pop solos, and most of the Anderson charts). This points to the chart
-reading or the horn and octave setting rather than the audio. Book matching is
-investigating it; see P11 in the [evaluation log](../evaluation/log.md).
+**Known issue (cause found):** many charts scored exactly 0% on the line-up check
+(8 of the 11 rejected pop solos, and most of the Anderson charts). The 0% is a
+display artifact (every section under the agreement bar; real agreement 19 to
+51%). The cause was the pitch line being read from the full mix, so the
+line-up landed in the wrong place. The key tools now also read the Filosax sax
+stem and search near the book's printed start time; the 11 songs are being
+re-checked. See P11 in the [evaluation log](../evaluation/log.md).
 
 ## Splits and leakage
 
