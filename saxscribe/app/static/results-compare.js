@@ -23,7 +23,8 @@ const SEP_ORDER = ['demucs', 'demucs-6s', 'mega', 'mega-local', 'hybrid', 'mvsep
 // 'ours' = the standard path (Basic Pitch + CREPE). 'rd-filosax-ft' = our fine-tune of R&D's model (E77),
 // shown in the app as "Our sax model".
 const FINDERS = {'ours': '', 'rd-filosax': 'R&D note model', 'rd-filosax_25k': 'R&D note model',
-                 'rd-filosax-ft': 'our sax model (E77 fine-tune)', 'basic_pitch-plain': 'plain Basic Pitch'};
+                 'rd-filosax-ft': 'our sax model (E77 fine-tune)', 'basic_pitch-plain': 'plain Basic Pitch',
+                 'e83a-ft1500': 'E83a fine-tune (not adopted)', 'e83b-ft0': 'E83b fine-tune (kept E77 weights)'};
 const RECORDS = {
   'parker-band': ['Parker band records', 'band'],
   'pfh': ['Pennies From Heaven', 'band'],

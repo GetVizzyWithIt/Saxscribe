@@ -25,10 +25,10 @@ Last updated: 2026-11-13
 | --- | --- |
 | Default on band records (app) | **Our sax model**: the Filosax sax separator plus our fine-tuned note finder (E77), "D" in the scorecards ([ADR-0041](docs/decisions/0041-band-records-default-to-our-sax-model.md)) |
 | Default on solo takes and the CLI | **Standard path**: Basic Pitch notes, CREPE pitch line; Demucs first when `--mix` |
-| Benchmark score (E81, 33 trusted songs) | Note F1 **50.9** with our sax model, against 39.7 for the standard path. Onset F1 74.4 against 63.7. Note F1 without note ends: 66.9 |
-| How the 33 songs break down | 12 of 33 at note F1 60 or above. Our sax model beats the standard path on 31 of 33 |
-| Weakest songs (our sax model) | Castle Rock 22.6, Bloody Well Right 22.7, St. Louis Blues 28.0, True 28.2, Just for the Love 29.8, Walker's Theme 31.2 |
-| Where the notes go wrong (key notes, E81) | 66% right, 13% missed, 8% start off, 8% wrong pitch, 5% merged. Note ends cost about 16 points of note F1 on average |
+| Benchmark score (E83, 132 trusted songs) | Note F1 **50.9** with our sax model, against 39.7 for the standard path. Onset F1 74.3 against 63.7. Note F1 without note ends: 66.8 |
+| How the 132 songs break down | 48 of 132 at note F1 60 or above. Our sax model beats the standard path on 125 of 132 |
+| Weakest songs (our sax model) | St. Louis Blues 17.4, Castle Rock 22.6, Castle Rock 22.6, Castle Rock 22.6, Bloody Well Right 22.7, Bloody Well Right 22.7 |
+| Where the notes go wrong (key notes, E83) | 66% right, 13% missed, 8% start off, 8% wrong pitch, 5% merged. Note ends cost about 16 points of note F1 on average |
 <!-- /auto:status -->
 
 **Biggest open weaknesses:** quiet low sax, other instruments (vocals
@@ -47,7 +47,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Not started |
 | 3 | **New test set**: bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs | Not started |
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043); code merged in PR #167 |
-| 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Running: E83 pre-registered 2026-11-13 (Austin's go 22:52Z): a second fine-tune in two arms, on Filosax stems, with and without the new transcribed keys; adopt only at +1.0 mean note F1, 18 of 33 wins, and no loss ignoring note ends |
+| 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Done 2026-11-14: E83 not adopted. Neither arm beat E77 (note F1 50.9 for all three); more mostly-older jazz doesn't move the finder, so new data must be pop, R&B, and soprano |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
@@ -58,7 +58,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 - Which note F1 the 60 target means: with note ends or without.
 - Filosax dataset access: if Zenodo hasn't answered by about 11-14, send the drafted email.
 
-_Plan last changed 2026-11-13._
+_Plan last changed 2026-11-14._
 <!-- /auto:next -->
 
 Ideas for later live in the "Later" section of the
@@ -165,7 +165,7 @@ ps -eo pid,lstart,command | grep -E "python|caffeinate" | grep -v grep
 ## 5. Results at a glance
 
 <!-- auto:results -->
-**How we got here** (E81, mean on the 33-song benchmark):
+**How we got here** (E83, mean on the 132-song benchmark):
 
 | Version | Note F1 | Onset F1 |
 | --- | --- | --- |
@@ -174,21 +174,21 @@ ps -eo pid,lstart,command | grep -E "python|caffeinate" | grep -v grep
 | #57 restore re-tongued repeats | 37.5 | 61.5 |
 | #81 nothing below the low note | 38.8 | 62.3 |
 | Standard path (8835ad0) | 39.7 | 63.7 |
-| **Our sax model (8835ad0, default on band records)** | 50.9 | 74.4 |
+| **Our sax model (8835ad0, default on band records)** | 50.9 | 74.3 |
 
 Note F1 by group:
 
 | Group | Standard path | Our sax model |
 | --- | --- | --- |
-| Austin's 6 tunes (6) | 34.2 | 43.4 |
-| Transcribed songs (24) | 38.8 | 50.4 |
-| Parker test (3) | 57.3 | 69.6 |
+| Austin's 6 tunes (24) | 34.2 | 44.0 |
+| Transcribed songs (96) | 38.8 | 50.3 |
+| Parker test (12) | 57.3 | 69.7 |
 
 **Latest experiments:**
 
 | E | Date | What | Outcome |
 | --- | --- | --- | --- |
-| E83 | 2026-11-13 | Second note-finder fine-tune | pre-registered, running |
+| E83 | 2026-11-13 | Second note-finder fine-tune | pre-registered; not adopted |
 | E82 | 2026-11-13 | Vocal review mark on setup D, rule V | Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record. |
 | E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |
 | E80 | 2026-11-10 | Our fine-tuned note finder in the app path: four setups compared | Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041). |
