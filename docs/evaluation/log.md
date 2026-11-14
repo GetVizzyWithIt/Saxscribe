@@ -98,6 +98,7 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 | P7 | Note-finder fine-tune | — | Done, see E77 (stopped early; best held-out note F1 78.5) |
 | P9 | Make setup D (Filosax separator + our finder) the default | — | Austin agreed 2026-11-10 03:49Z; build PR #147 makes it the app default on band records ([ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)) |
 | P10 | Three E81 keys an octave off (The Breakdown, Sandu, My Shining Hour) | Build | Done 2026-11-12: corrected and re-scored in place (E81) |
+| P11 | 0% line-up bug: many charts score exactly 0% on the line-up check even with the official recording and a printed start time (8 of the 11 rejected *25 Great Sax Solos* charts, most Anderson charts) | Book matching | Investigating (2026-11-14). The likely cause is the chart reading or the horn and octave setting, not the audio. The cause, the fix and the re-check counts get logged here when found |
 | P8 | New answer-key sources: the *25 Great Sax Solos* book; Dexter Gordon, Coltrane and Phil Woods transcription books; Sax Teacher UK; 7 more charts (SNL, Getz Roost, Orgone, Maceo, Dap-Kings) | Same method as E75 and E78 | Audio matched and filed on the Mac under `keys/transcribed/` with `links.csv`; keys not made yet. PDFs without a recording moved to `sheet-music/no-recording/` |
 
 ---

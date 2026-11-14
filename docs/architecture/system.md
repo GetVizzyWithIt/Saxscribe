@@ -1,16 +1,18 @@
 # System architecture
 
 How audio becomes notation, what each stage writes to disk, and which model
-or rule does the work. Written at commit `955b1da` (2026-11-02); layer details below still describe the standard path.
+or rule does the work. Written at commit `955b1da` (2026-11-02), with the band-record path added on 2026-11-14 (section 1b); the layer details in section 2 describe the standard path.
 
-> **Update 2026-11-13: two paths now.** In the app, band records default to
-> our sax model: the Filosax sax separator plus our fine-tuned Filosax note
-> finder (E77, chosen in E80, [ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)).
-> That path skips the sax-rest cut and the bleed hide; sax sections (PR #144)
-> and maybe-not-sax marks are its guards. Solo takes and the CLI keep the
-> standard path drawn below (`--separator filosax --notes-tool filosax` runs
-> the band-record path from the CLI). The current diagram of both paths is in
-> [HANDBOOK.md section 3](../../HANDBOOK.md#3-how-the-tool-works).
+> **Two paths (updated 2026-11-14).** In the app, band records run the
+> band-record path in [section 1b](#1b-band-record-path-app-default): the
+> Filosax sax separator, our fine-tuned note finder (E77, chosen in E80,
+> [ADR-0041](../decisions/0041-band-records-default-to-our-sax-model.md)), and
+> the vocal review mark from MVSep Mega's vocal stem (E82,
+> [ADR-0043](../decisions/0043-vocal-review-mark-with-mega.md)). Solo takes and
+> the CLI keep the standard path drawn in section 1 and described layer by
+> layer below (`--separator filosax --notes-tool filosax` runs the band-record
+> path from the CLI). [HANDBOOK.md section 3](../../HANDBOOK.md#3-how-the-tool-works)
+> has a diagram of both.
 
 ## 1. Shape of the system
 
@@ -35,6 +37,30 @@ Four layers, each saved to its own files. A layer runs only when its files are
 missing, when `--redo` names it or a layer below it, or when a layer below it
 just ran. **No layer ever deletes a lower one**, so a hand-fixed `notes.json`
 survives `--redo notation` ([ADR-0002](../decisions/0002-four-layers-on-disk.md)).
+
+## 1b. Band-record path (app default)
+
+```mermaid
+flowchart LR
+    A[band record] --> D[decode<br/>ffmpeg 44.1 kHz]
+    D --> F[Filosax sax separator<br/>Riley and Dixon, sax-only Demucs-style model] --> S[stem.wav]
+    S --> C[contour<br/>torchcrepe]
+    S --> N[notes<br/>our E77 fine-tune of the Filosax note finder]
+    D --> B[Beat This!<br/>beats, downbeats]
+    D --> MV[MVSep Mega 53-stem<br/>vocal stem only] --> V[vocal mark<br/>rule V: maybe_vocals]
+    N --> R[range rules, sax sections,<br/>maybe-not-sax marks]
+    V --> R
+    B --> Q[notation]
+    R --> Q
+```
+
+| Step | What happens |
+| --- | --- |
+| Separator | The Filosax sax separator (Riley and Dixon): a Demucs-style network trained only on saxophone, so it has a real sax stem. `saxscribe/filosax.py`; E59, E80 |
+| Note finder | Our fine-tune of Riley and Dixon's Filosax note model on MVSep Mega sax stems (E77, `best.pt` step 2488, `~/.cache/saxscribe/models/saxscribe_finder_e77.pt`). It beat the standard path on 31 of 33 benchmark songs (E81) |
+| Guards | No sax-rest cut and no bleed hide on this path. Sax sections (PR #144) and `maybe_not_sax` review marks (PR #121) keep other instruments in view without deleting notes |
+| Vocal mark | MVSep Mega 53-stem, run locally for its vocal stem only (`saxscribe/mega.py`, about 1.3 times the audio's length on the M3 Pro GPU). Rule V (`saxscribe/layers/vocals.py`) tags a note `maybe_vocals` and `maybe_not_sax` when Mega's vocal stem is at least as loud as the sax stem at the note's pitch and holds that pitch. Notes are never hidden. It needs the Mega weights in `~/.cache/saxscribe/models` and is skipped, with a log line, without them. `SAXSCRIBE_VOCAL_CHECK=off` turns it off. PR #167; E82 round 3: 0 real sax notes marked out of 3,206 |
+| Notation | Same as the standard path (section 2, layer 4) |
 
 ## 2. Layers
 
