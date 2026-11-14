@@ -79,8 +79,8 @@ in the project files), not here.
 display artifact (every section under the agreement bar; real agreement 19 to
 51%). The cause was the pitch line being read from the full mix, so the
 line-up landed in the wrong place. The key tools now also read the Filosax sax
-stem and search near the book's printed start time; the 11 songs are being
-re-checked. See P11 in the [evaluation log](../evaluation/log.md).
+stem and search near the book's printed start time; on the re-run 7 of the
+11 line up (4 pass, 3 usable with a check), pending final match_check verdicts. See P11 in the [evaluation log](../evaluation/log.md).
 
 ## Splits and leakage
 
