@@ -2,7 +2,7 @@
 
 Every dataset Saxscribe uses or plans to use, what its labels are worth, and
 the rules for using it. Detail per dataset is in [datasheets/](datasheets/).
-Last updated 2026-11-03.
+Last updated 2026-11-14.
 
 ## Where data lives
 
@@ -45,6 +45,42 @@ Last updated 2026-11-03.
 | Austin's recordings and answer keys | Etude takes; records paired with his paper transcriptions | A (once aligned and checked) | `pairs` | Frozen 20-take test set; fine-tuning; personal answer keys | Private | [austin-recordings](datasheets/austin-recordings.md) |
 | Freesound sax instrument samples | 495 single-note and phrase clips by sax type (originals, all downloaded 2026-11-09) | C | none | Range and technique checks, not-sax negatives later | CC0 and CC-BY (9 CC-BY-NC alto-with-band clips kept apart) | Mac `~/saxscribe-runs/sample-clips/`; manifest and credits in the project files (`datasets/freesound/`) |
 | FiloBass | Jazz bass, no sax | — | none | Future bass instrument | CC BY 4.0 | listed in manifest only |
+
+## Chart sources for answer keys
+
+Printed or engraved transcriptions are tier E (labels without audio) until a
+recording passes the line-up check (`keys/match_report.jsonl`,
+`usable=true`). After that they are tier B, because they are read by a
+score reader and aligned by machine. Nothing is filed under `keys/` without a
+passing line-up. Paths are on Austin's Mac.
+
+| Source (added) | What | Horn | Where | Status |
+| --- | --- | --- | --- | --- |
+| *25 Great Sax Solos* (Hal Leonard), Dexter Gordon, Coltrane and Phil Woods books, Sax Teacher UK, 7 more charts (earlier, log P8) | Split into one PDF per solo | alto, tenor | `keys/transcribed/`, `links.csv` | 8 of the 25 pop solos match so far (4 pass, 4 usable with a check); the rest wait on the 0% line-up check below |
+| Academia.edu (2026-11-13) | 9 theses and papers with transcriptions: the Warne Marsh Copenhagen 1975 thesis (Petrucelli; 8 full solos plus All the Things You Are), the Joe Henderson thesis (Lopes; about 4 new solos), Dexter Gordon Lady Bird 1964 (all 9 choruses), Getz It Might As Well Be Spring, 5 Lee Konitz solos, Zé Bodega Catita, Paulo Moura Bicho Papão, and two excerpt-only papers (Coltrane One Down, One Up; Linda Érika) | tenor, alto | `sheet-music/academia/` | Downloaded; the excerpt-only ones can't be keys |
+| Hal Leonard *John Coltrane Solos* (Artist Transcriptions) (2026-11-13) | 27 solos, split one per file | tenor | `sheet-music/` (catalog thread) | Split; not lined up yet |
+| Michael Brecker book (2026-11-13) | 12 solos, split one per file | tenor | `sheet-music/` (catalog thread) | Split; not lined up yet |
+| Free transcription sites (2026-11-13) | 109 PDFs: Andrew Frankhouse (70, including Coltrane Prestige, Rollins, and 9 Warne Marsh solos), Dave Doescher (14), Brandon Moore (17), jazzsaxophonelessons (4) | alto, tenor | `sheet-music/sites/<site>/` | Download script written (`catalog/_tools/download_site_pdfs.py`), Austin runs it; checked and catalogued after |
+| jazzbarisax.com (2026-11-13) | About 105 baritone solos (Pepper Adams, Ronnie Cuber, Gerry Mulligan) | **baritone (new horn)** | to come, as a bari group per the naming standard | Listed, not downloaded |
+| Falkowski excerpts (2026-11-13) | 88 one-page solo excerpts with the solo's start time printed | various | Mac, clip script written | Start times make the line-up easier; Austin runs the clip script |
+| MuseScore, free (2026-11-13) | 5 MusicXML files: Getz Desafinado, Kamuf Alone Together, Coltrane Mr. P.C. (part 4), The Chicken, Bartley After You've Gone | tenor, alto | project files `datasets/musescore/` | Downloaded; MusicXML needs no score reader |
+| MuseScore, paid (2026-11-13) | 23 community scores at $2.99 each (Pro includes them) | various | list in `datasets/musescore/musescore_status.md` | Back burner |
+
+Wesley Chin's free store items (29) need a checkout with an email, so they are
+skipped unless Austin gets them by hand. Saxopedia and the "best sax website"
+guide are link directories that need their own pass. The 9 research papers
+found on Academia (Abeßer, Frieler and others on score-informed analysis,
+melody-extraction evaluation, jazz bass transcription, swing and expressive
+sax) went to the reading list (`research/reading-list/jazz-transcription-academia.md`
+in the project files), not here.
+
+**Known issue (cause found):** many charts scored exactly 0% on the line-up check
+(8 of the 11 rejected pop solos, and most of the Anderson charts). The 0% is a
+display artifact (every section under the agreement bar; real agreement 19 to
+51%). The cause was the pitch line being read from the full mix, so the
+line-up landed in the wrong place. The key tools now also read the Filosax sax
+stem and search near the book's printed start time; the 11 songs are being
+re-checked. See P11 in the [evaluation log](../evaluation/log.md).
 
 ## Splits and leakage
 
