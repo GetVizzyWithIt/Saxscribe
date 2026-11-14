@@ -47,7 +47,7 @@ The plan Austin approved on 2026-11-13 (one step at a time; each needs his go in
 | 2 | **Note-end ear check**: Austin listens to about 100 note ends on 3 songs, to decide whether the 60 target counts note ends | Not started |
 | 3 | **New test set**: bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs | Not started |
 | 4 | **E82, vocals**: check the Demucs vocal stem, MVSep Mega and the MERT judge against vocals leaking in. Mark, never hide | Done: E82 round 3 adopted 2026-11-13 (Mega's vocal stem on every band record, marks only; ADR-0043); code merged in PR #167 |
-| 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Not started |
+| 5 | **E83**: whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano) | Running: E83 pre-registered 2026-11-13 (Austin's go 22:52Z): a second fine-tune in two arms, on Filosax stems, with and without the new transcribed keys; adopt only at +1.0 mean note F1, 18 of 33 wins, and no loss ignoring note ends |
 | 6 | **Rhythm**: a simpler-grid rule | Not started |
 | 7 | **Docs, dashboard, not-sax instrument choices**: the handbook, a static dashboard page, and which other instruments the not-sax check names | In progress: handbook, its update script and the static dashboard done; not-sax instrument choices next |
 
@@ -188,6 +188,7 @@ Note F1 by group:
 
 | E | Date | What | Outcome |
 | --- | --- | --- | --- |
+| E83 | 2026-11-13 | Second note-finder fine-tune | pre-registered, running |
 | E82 | 2026-11-13 | Vocal review mark on setup D, rule V | Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record. |
 | E81 | 2026-11-12 | Benchmark re-score: six versions of the tool on 33 trusted songs | Our sax model ahead on 31 of 33 songs (note F1 50.9 vs 39.7). |
 | E80 | 2026-11-10 | Our fine-tuned note finder in the app path: four setups compared | Filosax separator + our finder won all 9 songs; now the band-record default (ADR-0041). |
@@ -197,7 +198,6 @@ Note F1 by group:
 | E76 | 2026-11-09 | Training set for the note finder: Mega-separated Weimar and Parker solos | 134 solo spans ready for fine-tuning. |
 | E75 | 2026-11-08 | New alto etude answer keys: Ferling Op. 31 and Luft Op. 1 No. 2 | Baseline 57.5; slow studies lose on held notes split by vibrato. |
 | E74 | 2026-11-08 | Note-finder settings on Mega sax stems | No gain from note-finder settings. |
-| E73 | 2026-11-08 | How many key notes each separator's stem still holds | Mega's stem keeps the most key notes (57 of 59); the note finder is the gap. |
 
 Full record: [evaluation log](docs/evaluation/log.md). Charts: the [model dashboard](https://claude.ai/artifact/TRLsrbmKzM2UVwaaW8atZr) (Progress, Songs, Lab, Log; rebuilt with `python3 scripts/dashboard_page/build.py`). Reviewing keys and flags stays in the app (`/results`, Needs review).
 <!-- /auto:results -->

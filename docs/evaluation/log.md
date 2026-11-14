@@ -125,6 +125,19 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Reading**: the swing fix moves the headline by about 4 points and leaves the shape alone. Accuracy falls steadily with tempo, and slow tunes and ballads (17–20%) stay the clear gap (E24 finding 2). They are the next rhythm target.
 - Not a model change; not in the change table.
 
+### E83 — 2026-11-13 — Second note-finder fine-tune (pre-registered, running)
+- **Go**: Austin, "go e83" (Build, 22:52Z). Pre-registered at 23:00Z, before any training or scoring: [e83-preregistration.md](e83-preregistration.md).
+- **Question**: does more training beat the E77 note finder on the 33-song benchmark? Two arms, both from E77 `best.pt` (step 2488), same train.py. Early stop with patience 1500, validation every 500, a cap of 6000 steps, and the checkpoint picked on the same 24 held-out spans (Coltrane, Potter, Getz).
+  - **E83a**: Filosax-separated stems (the stems the app uses; E77 trained on Mega stems), E76 train set (110 spans).
+  - **E83b**: E83a plus the transcribed keys that pass the downloads check. Runs only if at least 10 new usable pairs pass.
+- **Kept out of training**: the 33 benchmark songs, Austin's six tunes, his flagged takes and his own playing, the 3 Parker test records, and every record by Coltrane, Potter or Getz.
+- **Scoring, once at the end**: setup D on all 33 songs with the E77, E83a and E83b finders. Same thresholds and classify, bars on.
+- **Adoption rule (fixed)**: against E77, mean note F1 at least +1.0 point, at least 18 of 33 song wins, and mean note F1 ignoring note ends not lower. If both arms qualify, the higher mean wins. Changing the default still needs Austin's go.
+- **Case against**: few new pop or R&B pairs so far (only Yakety Yak), so E83b may add mostly jazz. Transcribed keys are tier B, so score-reader slips could teach errors. The held-out pick is slightly optimistic; the benchmark is the honest test.
+- **Not in E83**: a note-end fix (step 2's listening is unfinished) and soprano.
+- **Implementation notes (23:13Z, adoption rule unchanged)**: all 12 Charlie Parker transcribed keys are kept out of training, because the Omnibook test IDs carry no tune names and overlap with the Parker test records can't be ruled out. Scoring runs with `SAXSCRIBE_VOCAL_CHECK=off`; that check only adds `maybe_*` tags, which classify ignores. The checkpoint is picked on the Filosax stems of the held-out spans, so the step-0 baseline is E77 on Filosax stems, not E77's 78.5 on Mega stems. Today's count: 62 usable new pairs, 21 kept after the exclusions, so E83b's 10-pair gate passes; it is counted again after the check. The E77 arm reproduces the E81 D row exactly on Bloody Well Right.
+- **Result**: pending. It runs on the Mac after the downloads check, about 12 hours.
+
 ### E82 — 2026-11-13 — Vocal review mark on setup D, rule V (adopted, round 3)
 - **Headline**: Mega's vocal stem marks vocals with 112 good marks, 0 bad on 11 songs; adopted on every band record.
 - **Question**: step 4 of the plan. Can a review mark catch notes that are really vocals leaking into setup D's sax stem? Marks only: nothing is hidden. Austin's go: 2026-11-13 08:27Z.

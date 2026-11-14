@@ -17,7 +17,7 @@
     {
       "step": 3,
       "title": "New test set",
-      "what": "bars from Austin's flags, 3–5 pop songs with vocals, 3 soprano songs",
+      "what": "bars from Austin's flags, 3\u20135 pop songs with vocals, 3 soprano songs",
       "status": "Not started"
     },
     {
@@ -29,8 +29,8 @@
     {
       "step": 5,
       "title": "E83",
-      "what": "whatever steps 1–2 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)",
-      "status": "Not started"
+      "what": "whatever steps 1\u20132 point to (a note-end fix, or a second fine-tune that adds R&B, pop and soprano)",
+      "status": "Running: E83 pre-registered 2026-11-13 (Austin's go 22:52Z): a second fine-tune in two arms, on Filosax stems, with and without the new transcribed keys; adopt only at +1.0 mean note F1, 18 of 33 wins, and no loss ignoring note ends"
     },
     {
       "step": 6,
