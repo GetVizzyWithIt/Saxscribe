@@ -94,6 +94,11 @@ stem and search near the book's printed start time; on the re-run 7 of the
 - **Same solo, two datasets**: 12 Weimar Parker solos (melids 52, 53, 55, 58–61, 63, 64, 66–68) are also Omnibook solos; the rhythm scorecard leaves them out.
 - **Same solo, two versions**: `omnibook` and `omnibook-mix` are the same
   performances; both go on the same side of any split.
+- **Session rule (E84)**: nothing from the same recording session or album
+  sessions as a benchmark song or one of Austin's six tunes goes into training,
+  even a different tune. E76 broke it (Blue Train, Never Alone, Peep, Bye Bye
+  Blackbird), so E77 and E83 saw the sessions of Lazy Bird, Chime This, and The
+  Touch of Your Lips.
 - **Thresholds are tuned on train splits only.**
 - **Answer keys can be wrong too.** Some Omnibook keys are an octave off in long passages; the scorecard flags octave disagreements (PR #23) so they aren't counted as model errors without a check.
 - **Pretrained models have seen some of our test sets.** CREPE trained on Bach10 and MedleyDB; Basic Pitch on MedleyDB-Pitch; Beat This! `final0` on Filosax and JAAH ([upstream review](../models/upstream-review.md)). Scores on those sets flatter the model; say so when reporting them, and use a held-out checkpoint where one exists.

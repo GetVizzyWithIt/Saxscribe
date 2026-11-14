@@ -52,6 +52,8 @@ Plain-language meanings of terms used in the code and these docs.
 | Scorecard | A run of the tool over an answer-key set, with the metrics |
 | Train / test split | Data used to tune or train vs. data kept back to measure; split by tune |
 | Leakage | When test material (or the same performance) also influences training, inflating scores |
+| Session rule | No training span may come from the same recording session (or album sessions) as a benchmark song or one of Austin's six tunes, even if it's a different tune (E84) |
+| Held-out set | The players kept out of training and used only to pick the checkpoint; changed in E84 (Berg, Byas, Mobley, Stitt, Marsh, Sims, plus two alto players), so held-out scores before and after E84 don't compare |
 | Fine-tune | Further training of a pretrained model on our data |
 | Augmentation | Altering training audio (pitch shift, stretch, reverb, noise) to make more examples |
 | MPS / Core ML | Apple's GPU backend for PyTorch / Apple's model runtime |
