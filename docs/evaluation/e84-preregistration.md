@@ -10,8 +10,8 @@ Both arms start from filosax_25k.pth (Riley & Dixon, sha256 448cf2c8ea6d4b77f743
 
 | Arm | Training data | Checkpoint |
 |---|---|---|
-| E84a | 110 spans, about 263 min (see Split) | Best per-solo mean note F1 on the new held-out set (24 solos); note-weighted value and 1,000-resample bootstrap range logged |
-| E84b | E84a's train set plus the 24 held-out spans (about 134 spans, 305 min) | Fixed number of steps = E84a's best step; final step kept; held-out F1 logged for information only |
+| E84a | 108 spans, 260.5 min, 59,258 notes (see Split) | Best per-solo mean note F1 on the new held-out set (24 solos); note-weighted value and 1,000-resample bootstrap range logged |
+| E84b | E84a's train set plus the 24 held-out spans (132 spans, 302.8 min, 68,493 notes) | Fixed number of steps = E84a's best step; final step kept; held-out F1 logged for information only |
 
 ## Split (built 2026-11-14 on the Mac, ~/saxscribe-runs/exp/e84/manifest.csv)
 - Train (E84a): E76 train set, minus the 22 new held-out spans, minus session drops; plus the 22 former held-out spans (Coltrane, Getz and Potter) that pass the session rule; plus 4 Weimar solos not in E76 (Brecker Confirmation, Rollins Everywhere Calypso 1 and 2, Potter Item 1). E83b's new pairs are not used, apart from the 2 held-out altos.
@@ -23,12 +23,15 @@ Both arms start from filosax_25k.pth (Riley & Dixon, sha256 448cf2c8ea6d4b77f743
   - Getz I'm Glad There Is You (1957-10-10 with Oscar Peterson, same as Austin's Pennies From Heaven)
   - Coltrane Impressions 1961 and 1963
   - Dexter Gordon Cheese Cake (Go!, same band two days before Soy Califa; dropped to be safe)
+- Answer-key audit drops (2026-11-14, added 20:45Z before any training): Maiden Voyage m171 (14% of key notes agree with the pitch line) and I'll Remember April m382 (47%), likely wrong take or line-up. Both were in E76 train.
+- Held-out alto masks (audit misreads): Charles Davis bars 51, 75, 86, 87, 92, 99, 104 and 116 (half step off; 57 of 742 notes); Gary Bartz bars 14, 93, 94 and 175 (octave or fifth off; 18 of 1,006 notes). These bars are left out of held-out scoring in both arms. "Pitches differ" bars are kept.
 - All E83 leakage rules still hold: the 33 benchmark songs; Austin's six tunes, his flags and his own playing; the 3 Parker test records.
 
 ## Known past leak
 Blue Train, Never Alone, Peep and Bye Bye Blackbird were in the E76 train set, so E77, E83a and E83b trained on recordings from the same sessions as 3 benchmark songs: Lazy Bird, Chime This and The Touch of Your Lips. E77's score on those 3 may be slightly flattering. The comparison therefore leans toward E77.
 
 ## Scoring (once, at the end)
+Benchmark keys are proofread first (audit thread), then frozen: freeze_keys.sh writes the sha256 of all 38 files the scorer reads to e84/KEYS_FROZEN. score84.py checks every hash and stops if any key changed. E77, E84a and E84b are all scored on the same frozen keys, so E77's numbers may differ from E81 and E83. Training starts before the freeze, since training never reads benchmark keys.
 E81 setup D (Filosax separator) on all 33 songs, run with E77, E84a and E84b finders. Same thresholds, same classify, bars on. Secondary report: the same comparison on the 30 songs without the 3 leaked sessions.
 
 ## Adoption rule (same as E83)

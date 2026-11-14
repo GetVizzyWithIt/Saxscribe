@@ -130,12 +130,16 @@ on every mix set and misses the solo target (15 s/min) on every solo set (21–2
 - **Go**: Austin, "go held-out swap" (Build, 17:14Z); two-stage plan agreed in Build at 17:16Z. Pre-registered at 17:30Z, before any training or scoring: [e84-preregistration.md](e84-preregistration.md).
 - **Question**: does a note finder with Coltrane, Getz and Potter in training (and a new held-out set for picking the checkpoint) beat E77 on the 33-song benchmark? And does a final model trained on every player beat it?
 - **Arms**: both start from the original Filosax note model (`filosax_25k.pth`), not from E77, because E77 trained on the new held-out players. Same recipe as E77, on Filosax-separated stems.
-  - **E84a**: 110 spans, about 263 min; checkpoint picked on the new held-out set.
-  - **E84b**: E84a's data plus the 24 held-out spans (about 134 spans, 305 min), trained for E84a's best number of steps; held-out score for information only.
+  - **E84a**: 108 spans, 260.5 min, 59,258 notes; checkpoint picked on the new held-out set.
+  - **E84b**: E84a's data plus the 24 held-out spans (132 spans, 302.8 min, 68,493 notes), trained for E84a's best number of steps; held-out score for information only.
 - **New held-out set (a clean break)**: Bob Berg, Don Byas, Hank Mobley, Sonny Stitt, Warne Marsh, Zoot Sims, plus two alto players (Gary Bartz, Charles Davis): 24 spans, 42.3 min, 9,235 notes. Held-out scores from E84 on can't be compared with E77's or E83's.
 - **Session rule (new)**: no training span may come from the same recording session or album sessions as a benchmark song or one of Austin's six tunes. Dropped: Coltrane Blue Train, Brecker Never Alone and Peep, Webster Bye Bye Blackbird, Getz I'm Glad There Is You, Coltrane Impressions 1961 and 1963, and Dexter Gordon Cheese Cake (to be safe). All E83 exclusions still hold.
 - **Past leak found**: Blue Train, Never Alone, Peep, and Bye Bye Blackbird were in the E76 train set, so E77, E83a, and E83b trained on recordings from the same sessions as 3 benchmark songs (Lazy Bird, Chime This, and The Touch of Your Lips). E77's scores on those 3 may flatter it, so the comparison leans toward E77. A secondary report covers the 30 songs without them.
-- **Scoring, once at the end**: setup D on all 33 songs with the E77, E84a, and E84b finders. Same thresholds and classify, bars on.
+- **Update to the pre-registration (20:45Z, still before any training)**:
+  - The answer-key audit dropped two Weimar spans that were in the E76 train set: Maiden Voyage m171 (14% of key notes agree with the pitch line) and I'll Remember April m382 (47%), likely the wrong take or line-up.
+  - Misread bars in the two held-out alto keys are masked from held-out scoring in both arms: Charles Davis, 8 bars (half step off; 57 of 742 notes), and Gary Bartz, 4 bars (octave or fifth off; 18 of 1,006 notes).
+  - The benchmark keys are proofread, then frozen by hash (sha256 of all 38 files the scorer reads); scoring stops if any key changed. E77 is re-scored on the frozen keys too, so its numbers may move from E81 and E83.
+- **Scoring, once at the end**: setup D on all 33 songs with the E77, E84a, and E84b finders. On the frozen keys; same thresholds and classify, bars on.
 - **Adoption rule (same as E83)**: against E77, mean note F1 at least +1.0, at least 18 of 33 song wins, and note F1 ignoring note ends not lower. If both arms qualify, the higher mean wins; a tie within 0.3 goes to E84b. Changing the default still needs Austin's go.
 - **Case against**: two changes at once (start point and data); a small held-out set (bootstrap range logged); mixed grace-note conventions in the held-out set; E83 found more of the same jazz didn't help. Bias-check count: one non-beat so far (E83).
 - **Not in E84**: a note-end fix, pop and R&B data, and soprano.
